@@ -1,0 +1,18 @@
+{
+    "name": "Microsoft.MixedReality.GraphicsTools.Editor",
+    "rootNamespace": "Microsoft.MixedReality.GraphicsTools.Editor",
+    "references": [
+        "GUID:22213891bfe50254781c448a2277a9a5"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

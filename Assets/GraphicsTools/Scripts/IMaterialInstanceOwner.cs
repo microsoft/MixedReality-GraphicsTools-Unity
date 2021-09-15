@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.MixedReality.GraphicsTools.Rendering
+namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
     /// Optional interface to use with objects which need to take ownership of <see cref="MaterialInstance"/>(s).

@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 using UnityEditor;
 #endif
 
-namespace Microsoft.MixedReality.GraphicsTools.Rendering
+namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
     /// The MaterialInstance behavior aides in tracking instance material lifetime and automatically destroys instanced materials for the user. 

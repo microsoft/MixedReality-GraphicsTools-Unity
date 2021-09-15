@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/GraphicsToolsExamples/MaterialGallery/MaterialGallery.unity
     guid: c43f091dc6235794790a7e6af4b6c85d
+  - enabled: 1
+    path: Assets/GraphicsToolsExamples/UnityUI/UnityUI.unity
+    guid: 874fcef2d94fdf442af155dad6cd7efb
   m_configObjects: {}

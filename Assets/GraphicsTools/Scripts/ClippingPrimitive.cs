@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.MixedReality.GraphicsTools.Rendering;
 using System;
 using System.Collections.Generic;
 using UnityEngine;

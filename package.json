@@ -1,0 +1,28 @@
+{
+  "name": "com.microsoft.mixedreality.graphicstools.unity",
+  "displayName": "Mixed Reality Graphics Tools for Unity",
+  "version": "0.1.0",
+  "unity": "2020.3",
+  "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
+  "keywords": [
+    "microsoft",
+    "mixed",
+    "reality",
+    "hololens",
+    "graphics"
+  ],
+  "author": "Microsoft",
+  "dependencies": {
+  },
+  "license": "MIT",
+  "files": [
+    "/Assets*",
+    "/Documentation~*",
+    "LICENSE*",
+    "README.md*",
+    "CODE_OF_CONDUCT.md*",
+    "SECURITY.md*",
+    "SUPPORT.md*",
+    "package.json*"
+  ]
+}
