@@ -10,11 +10,11 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// <summary>
     /// Component which can be used to render an outline around a mesh renderer. Enabling this component introduces an additional render pass 
     /// of the object being outlined, but is designed to run performantly on mobile Mixed Reality devices and does not utilize any post processes.
-    /// This behavior is designed to be used in conjunction with the MRTK/Standard shader. Limitations of this effect include it not working well 
+    /// This behavior is designed to be used in conjunction with the Graphics Tools/Standard shader. Limitations of this effect include it not working well 
     /// on objects which are not watertight (or required to be two sided) and depth sorting issues can occur on overlapping objects.
     /// </summary>
     [RequireComponent(typeof(MeshRenderer))]
-    [AddComponentMenu("Scripts/MRTK/Core/MeshOutline")]
+    [AddComponentMenu("Scripts/GraphicsTools/MeshOutline")]
     public class MeshOutline : BaseMeshOutline
     {
         private const string vertexExtrusionKeyword = "_VERTEX_EXTRUSION";

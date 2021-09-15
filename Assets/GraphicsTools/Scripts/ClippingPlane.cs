@@ -10,7 +10,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// per pixel based clipping.
     /// </summary>
     [ExecuteInEditMode]
-    [AddComponentMenu("Scripts/MRTK/Core/ClippingPlane")]
+    [AddComponentMenu("Scripts/GraphicsTools/ClippingPlane")]
     public class ClippingPlane : ClippingPrimitive
     {
         /// <summary>

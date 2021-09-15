@@ -43,9 +43,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         /// <param name="material">The material to check.</param>
         /// <returns>True if the material is using the Graphics Tools/Standard shader</returns>
-        public static bool IsUsingMrtkStandardShader(Material material)
+        public static bool IsUsingGraphicsToolsStandardShader(Material material)
         {
-            return IsMrtkStandardShader((material != null) ? material.shader : null);
+            return IsGraphicsToolsStandardShader((material != null) ? material.shader : null);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         /// <param name="shader">The shader to check.</param>
         /// <returns>True if the shader is the Graphics Tools/Standard shader.</returns>
-        public static bool IsMrtkStandardShader(Shader shader)
+        public static bool IsGraphicsToolsStandardShader(Shader shader)
         {
             return shader == GraphicsToolsStandardShader;
         }

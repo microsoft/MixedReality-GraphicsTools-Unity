@@ -10,11 +10,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
     /// Utility component to animate and visualize a light that can be used with 
-    /// the "MixedRealityToolkit/Standard" shader "_ProximityLight" feature.
+    /// the "GraphicsTools/Standard" shader "_ProximityLight" feature.
     /// </summary>
     [ExecuteInEditMode]
     [HelpURL("https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/features/rendering/proximity-light")]
-    [AddComponentMenu("Scripts/MRTK/Core/ProximityLight")]
+    [AddComponentMenu("Scripts/GraphicsTools/ProximityLight")]
     public class ProximityLight : MonoBehaviour
     {
         // Two proximity lights are supported at this time.

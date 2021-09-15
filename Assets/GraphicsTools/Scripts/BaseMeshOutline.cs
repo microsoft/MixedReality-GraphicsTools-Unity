@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     {
         /// <summary>
         /// The material used to render the outline. Outline materials should normal have "Depth Write" set to Off and "Vertex Extrusion" enabled.
-        /// Most MRTK/Standard features should work as an outline material, but it is recommended to keep the outline material as simple as possible.
+        /// Most Graphics Tools/Standard features should work as an outline material, but it is recommended to keep the outline material as simple as possible.
         /// </summary>
         public Material OutlineMaterial
         {
@@ -33,7 +33,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         protected Material outlineMaterial = null;
 
         /// <summary>
-        /// How thick (in meters) should the outline be. Overrides the "Extrusion Value" in the MRTK/Standard material.
+        /// How thick (in meters) should the outline be. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
         /// </summary>
         public float OutlineWidth
         {
@@ -48,7 +48,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        [Tooltip("How thick (in meters) should the outline be. Overrides the \"Extrusion Value\" in the MRTK/Standard material.")]
+        [Tooltip("How thick (in meters) should the outline be. Overrides the \"Extrusion Value\" in the Graphics Tools/Standard material.")]
         [SerializeField]
         [Range(0.001f, 1.0f)]
         protected float outlineWidth = 0.01f;

@@ -15,7 +15,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     [RequireComponent(typeof(RectTransform), typeof(Graphic))]
     [HelpURL("https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader#ugui-support")]
-    [AddComponentMenu("Scripts/MRTK/Services/ScaleMeshEffect")]
+    [AddComponentMenu("Scripts/GraphicsTools/ScaleMeshEffect")]
     public class ScaleMeshEffect : BaseMeshEffect
     {
         /// <summary>

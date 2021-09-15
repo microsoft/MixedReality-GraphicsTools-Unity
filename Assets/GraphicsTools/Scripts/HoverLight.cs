@@ -8,14 +8,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
     /// Utility component to animate and visualize a light that can be used with 
-    /// the "MixedRealityToolkit/Standard" shader "_HoverLight" feature.
+    /// the "GraphicsTools/Standard" shader "_HoverLight" feature.
     /// </summary>
     [ExecuteInEditMode]
     [HelpURL("https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/features/rendering/hover-light")]
-    [AddComponentMenu("Scripts/MRTK/Core/HoverLight")]
+    [AddComponentMenu("Scripts/GraphicsTools/HoverLight")]
     public class HoverLight : MonoBehaviour
     {
-        // The MRTK Standard shader supports two (2) hover lights by default, but will scale to support four (4) then ten (10) as 
+        // The Graphics Tools/Standard shader supports two (2) hover lights by default, but will scale to support four (4) then ten (10) as 
         // more lights are added to the scene. Having many HoverLights illuminate a material will increase pixel shader instructions 
         // and will impact performance. Please profile light changes within your project.
         private const int hoverLightCountLow = 2;
@@ -116,7 +116,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             else if (activeHoverLights.Count >= hoverLightCountHigh)
             {
-                Debug.LogWarningFormat("Max hover light count {0} exceeded. {1} will not be considered by the MRTK Standard shader.", hoverLightCountHigh, light.gameObject.name);
+                Debug.LogWarningFormat("Max hover light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader.", hoverLightCountHigh, light.gameObject.name);
             }
 
             activeHoverLights.Add(light);

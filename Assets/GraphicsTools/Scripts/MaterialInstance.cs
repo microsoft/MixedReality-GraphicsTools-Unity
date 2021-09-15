@@ -20,7 +20,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Rendering
     /// </summary>
     [HelpURL("https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/features/rendering/material-instance")]
     [ExecuteAlways, RequireComponent(typeof(Renderer))]
-    [AddComponentMenu("Scripts/MRTK/Core/MaterialInstance")]
+    [AddComponentMenu("Scripts/GraphicsTools/MaterialInstance")]
     public class MaterialInstance : MonoBehaviour
     {
         /// <summary>

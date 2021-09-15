@@ -11,11 +11,11 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Component which can be used to automatically generate smoothed normals on a mesh and pack 
     /// those normals into a UV set. Smoothed normals can be used for a variety of effects including 
     /// extruding disjoint meshes along a vertex normal. This behavior is designed to be used in conjunction 
-    /// with the MRTK/Standard shader which assumes smoothed normals are packed into the 3rd UV set.
+    /// with the Graphics Tools/Standard shader which assumes smoothed normals are packed into the 3rd UV set.
     /// </summary>
     [RequireComponent(typeof(MeshFilter))]
     [HelpURL("https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader#mesh-outlines")]
-    [AddComponentMenu("Scripts/MRTK/Core/MeshSmoother")]
+    [AddComponentMenu("Scripts/GraphicsTools/MeshSmoother")]
     public class MeshSmoother : MonoBehaviour
     {
         private const int smoothNormalUVChannel = 2;
