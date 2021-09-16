@@ -36,14 +36,14 @@
   ],
   "samples": [
     {
-      "displayName": "Unity UI",
-      "description": "Unity UI samples.",
-      "path": "GraphicsToolsSamples/UnityUI"
+      "displayName": "Material Gallery",
+      "description": "Material samples.",
+      "path": "Assets/GraphicsToolsSamples/MaterialGallery"
     },
     {
-      "displayName": "Material Gallery",
-      "description": "Materials samples.",
-      "path": "GraphicsToolsSamples/MaterialGallery"
+      "displayName": "Unity UI",
+      "description": "Unity UI samples.",
+      "path": "Assets/GraphicsToolsSamples/UnityUI"
     }
   ]
 }
