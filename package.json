@@ -1,6 +1,6 @@
 {
   "name": "com.microsoft.mixedreality.graphicstools.unity",
-  "displayName": "Graphics Tools",
+  "displayName": "Mixed Reality Graphics Tools",
   "version": "0.1.0",
   "unity": "2020.3",
   "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
