@@ -23,8 +23,7 @@
   },
   "license": "MIT",
   "files": [
-    "/Assets/GraphicsTools*",
-    "/Assets/GraphicsToolsExamples*",
+    "/Assets*",
     "/Documentation~*",
     "LICENSE*",
     "README.md*",
