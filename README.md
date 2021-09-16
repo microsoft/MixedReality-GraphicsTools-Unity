@@ -6,7 +6,22 @@ Graphics tools and components for developing Mixed Reality applications in Unity
 
 # Getting started with Graphics Tools
 
-TODO
+Graphics Tools is desiged to be imported as a [Unity package](https://docs.unity3d.com/Manual/Packages.html). To import Graphics Tools into your Unity project follow the below steps:
+
+1. Open your Unity project and select `Window > Package Manager` from the file menu bar
+2. Click the '+' icon within the Package Manager and select "Add package from git URL..."
+![Package Manager Add](Documentation~/Images/ReadMe/PackageManagerAdd.png)
+3. Paste `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git` into text field and click "Add"
+![Package Manager Paste](Documentation~/Images/ReadMe/PackageManagerPaste.png)
+4. Graphics Tools will now be installed within your Unity project as an immutable package.
+![Package Manager Installed](Documentation~/Images/ReadMe/PackageManagerInstalled.png)
+
+## Importing samples
+
+To open the samples contained within Graphics Tools expand the "Samples" list and click the "Import" button for any samples you would like to try:
+![Package Manager Samples](Documentation~/Images/ReadMe/PackageManagerSamples.png)
+
+Samples will import into your project's `Assets` folder so they can be opened and modified.
 
 ## Contributing
 
