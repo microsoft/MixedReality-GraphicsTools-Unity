@@ -2,7 +2,16 @@
 
 # What is Graphics Tools
 
-Graphics tools and components for developing Mixed Reality applications in Unity. This repo is a work in progress fork of the [MRTK/Standard shader system](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader?view=mrtkunity-2021-05) and other components.
+Graphics tools and components for developing Mixed Reality applications in Unity. 
+
+---
+**NOTE**
+
+This repo is a work in progress fork of the [MRTK/Standard shader system](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader?view=mrtkunity-2021-05) and other components.
+
+The equivalent of the `MRTK/Standard` shader within Graphics Tools is the `Graphics Tools/Standard` shader.
+
+---
 
 # Getting started with Graphics Tools
 
@@ -11,7 +20,7 @@ Graphics Tools is desiged to be imported as a [Unity package](https://docs.unity
 1. Open your Unity project and select `Window > Package Manager` from the file menu bar
 2. Click the `'+'` icon within the Package Manager and select `"Add package from git URL..."`
 ![Package Manager Add](Documentation~/Images/ReadMe/PackageManagerAdd.png)
-3. Paste `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git` into text field and click `"Add"`
+3. Paste `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git` into the text field and click `"Add"`
 ![Package Manager Paste](Documentation~/Images/ReadMe/PackageManagerPaste.png)
 4. Graphics Tools will now be installed within your Unity project as an immutable package.
 ![Package Manager Installed](Documentation~/Images/ReadMe/PackageManagerInstalled.png)
