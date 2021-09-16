@@ -38,12 +38,12 @@
     {
       "displayName": "Material Gallery",
       "description": "Material samples.",
-      "path": "Assets/GraphicsToolsSamples/MaterialGallery"
+      "path": "Assets/Samples~/MaterialGallery"
     },
     {
       "displayName": "Unity UI",
       "description": "Unity UI samples.",
-      "path": "Assets/GraphicsToolsSamples/UnityUI"
+      "path": "Assets/Samples~/UnityUI"
     }
   ]
 }
