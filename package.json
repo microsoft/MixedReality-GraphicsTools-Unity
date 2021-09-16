@@ -1,9 +1,11 @@
 {
   "name": "com.microsoft.mixedreality.graphicstools.unity",
-  "displayName": "Mixed Reality Graphics Tools",
   "version": "0.1.0",
-  "unity": "2020.3",
+  "displayName": "Mixed Reality Graphics Tools",
   "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
+  "unity": "2020.3",
+  "documentationUrl": "https://github.com/microsoft/MixedReality-GraphicsTools-Unity/blob/main/README.md",
+  "licensesUrl": "https://github.com/microsoft/MixedReality-GraphicsTools-Unity/blob/main/LICENSE",
   "keywords": [
     "microsoft",
     "mixed",
@@ -31,5 +33,17 @@
     "SECURITY.md*",
     "SUPPORT.md*",
     "package.json*"
+  ],
+  "samples": [
+    {
+      "displayName": "Unity UI",
+      "description": "Unity UI samples.",
+      "path": "GraphicsToolsSamples/UnityUI"
+    },
+    {
+      "displayName": "Material Gallery",
+      "description": "Materials samples.",
+      "path": "GraphicsToolsSamples/MaterialGallery"
+    }
   ]
 }
