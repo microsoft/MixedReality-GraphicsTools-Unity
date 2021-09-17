@@ -73,7 +73,7 @@ Shader "Graphics Tools/Standard"
         [Toggle(_BORDER_LIGHT_OPAQUE)] _BorderLightOpaque("Border Light Opaque", Float) = 0.0
         _BorderWidth("Border Width", Range(0.0, 1.0)) = 0.1
         _BorderMinValue("Border Min Value", Range(0.0, 1.0)) = 0.1
-        _EdgeSmoothingValue("Edge Smoothing Value", Range(0.0, 0.2)) = 0.002
+        _EdgeSmoothingValue("Edge Smoothing Value", Range(0.0, 1.0)) = 0.002
         _BorderLightOpaqueAlpha("Border Light Opaque Alpha", Range(0.0, 1.0)) = 1.0
         [Toggle(_INNER_GLOW)] _InnerGlow("Inner Glow", Float) = 0.0
         _InnerGlowColor("Inner Glow Color (RGB) and Intensity (A)", Color) = (1.0, 1.0, 1.0, 0.75)
@@ -551,15 +551,15 @@ Shader "Graphics Tools/Standard"
                 return length(max(abs(position) - cornerCircleDistance, 0.0)) - cornerCircleRadius;
             }
 
-            inline float RoundCornersSmooth(float2 position, float2 cornerCircleDistance, float cornerCircleRadius)
+            inline float RoundCornersSmooth(float2 position, float2 cornerCircleDistance, float cornerCircleRadius, float scale)
             {
-                return smoothstep(1.0, 0.0, PointVsRoundedBox(position, cornerCircleDistance, cornerCircleRadius) / _EdgeSmoothingValue);
+                return smoothstep(1.0, 0.0, PointVsRoundedBox(position, cornerCircleDistance, cornerCircleRadius) / (_EdgeSmoothingValue * scale));
             }
 
-            inline float RoundCorners(float2 position, float2 cornerCircleDistance, float cornerCircleRadius)
+            inline float RoundCorners(float2 position, float2 cornerCircleDistance, float cornerCircleRadius, float scale)
             {
 #if defined(_TRANSPARENT)
-                return RoundCornersSmooth(position, cornerCircleDistance, cornerCircleRadius);
+                return RoundCornersSmooth(position, cornerCircleDistance, cornerCircleRadius, scale);
 #else
                 return (PointVsRoundedBox(position, cornerCircleDistance, cornerCircleRadius) < 0.0);
 #endif
@@ -906,7 +906,7 @@ Shader "Graphics Tools/Standard"
 
                 float2 cornerCircleDistance = halfScale - (_RoundCornerMargin * i.scale.z) - cornerCircleRadius;
 
-                float roundCornerClip = RoundCorners(roundCornerPosition, cornerCircleDistance, cornerCircleRadius);
+                float roundCornerClip = RoundCorners(roundCornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
 #endif
 
                 albedo *= UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
@@ -1014,7 +1014,7 @@ Shader "Graphics Tools/Standard"
 
                 cornerCircleDistance = halfScale - (borderMargin * i.scale.z) - cornerCircleRadius;
 
-                borderValue =  1.0 - RoundCornersSmooth(roundCornerPosition, cornerCircleDistance, cornerCircleRadius);
+                borderValue =  1.0 - RoundCornersSmooth(roundCornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
 #else
                 borderValue = max(smoothstep(i.uv.z - _EdgeSmoothingValue, i.uv.z + _EdgeSmoothingValue, distanceToEdge.x),
                                   smoothstep(i.uv.w - _EdgeSmoothingValue, i.uv.w + _EdgeSmoothingValue, distanceToEdge.y));
