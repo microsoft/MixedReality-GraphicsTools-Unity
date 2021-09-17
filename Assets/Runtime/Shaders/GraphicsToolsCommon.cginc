@@ -4,6 +4,10 @@
 #ifndef GRAPHICS_TOOLS_COMMON
 #define GRAPHICS_TOOLS_COMMON
 
+/// <summary>
+/// Point in primitive tests.
+/// </summary>
+
 #if defined(_CLIPPING_PLANE)
 inline float PointVsPlane(float3 worldPosition, float4 plane)
 {
