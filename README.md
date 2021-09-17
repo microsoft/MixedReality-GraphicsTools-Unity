@@ -7,7 +7,7 @@ Graphics tools and components for developing Mixed Reality applications in Unity
 ---
 **NOTE**
 
-This repo is a work in progress fork of the [MRTK/Standard shader system](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader?view=mrtkunity-2021-05) and other components.
+This repo is a **work in progress** fork of the [MRTK/Standard shader system](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader?view=mrtkunity-2021-05) and other components.
 
 The equivalent of the `MRTK/Standard` shader within Graphics Tools is the `Graphics Tools/Standard` shader.
 
@@ -31,13 +31,6 @@ To open the samples contained within Graphics Tools expand the `"Samples"` list 
 ![Package Manager Samples](Documentation~/Images/ReadMe/PackageManagerSamples.png)
 
 Samples will import into your project's Assets folder so they may be opened and modified.
-
----
-**NOTE**
-
-This project is currently configured to work with the [Universal Render Pipeline](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@11.0/manual/index.html).
-
----
 
 ## Contributing
 
