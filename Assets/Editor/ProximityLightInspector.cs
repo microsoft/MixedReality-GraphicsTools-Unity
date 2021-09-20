@@ -21,15 +21,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/Light/Proximity Light")]
         private static void CreateProximityLight(MenuCommand menuCommand)
         {
-            GameObject proximityLight = new GameObject("Proximity Light", typeof(ProximityLight));
-
-            // Ensure the light gets re-parented to the active context.
-            GameObjectUtility.SetParentAndAlign(proximityLight, menuCommand.context as GameObject);
-
-            // Register the creation in the undo system.
-            Undo.RegisterCreatedObjectUndo(proximityLight, "Create " + proximityLight.name);
-
-            Selection.activeObject = proximityLight;
+            InspectorUtilities.CreateGameObjectFromMenu<ProximityLight>(menuCommand);
         }
     }
 }

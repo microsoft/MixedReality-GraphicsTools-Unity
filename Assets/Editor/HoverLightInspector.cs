@@ -21,15 +21,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/Light/Hover Light")]
         private static void CreateHoverLight(MenuCommand menuCommand)
         {
-            GameObject hoverLight = new GameObject("Hover Light", typeof(HoverLight));
-
-            // Ensure the light gets re-parented to the active context.
-            GameObjectUtility.SetParentAndAlign(hoverLight, menuCommand.context as GameObject);
-
-            // Register the creation in the undo system.
-            Undo.RegisterCreatedObjectUndo(hoverLight, "Create " + hoverLight.name);
-
-            Selection.activeObject = hoverLight;
+            InspectorUtilities.CreateGameObjectFromMenu<HoverLight>(menuCommand);
         }
     }
 }
