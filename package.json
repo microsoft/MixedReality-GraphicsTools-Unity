@@ -30,6 +30,7 @@
     "LICENSE*",
     "README.md*",
     "CODE_OF_CONDUCT.md*",
+    "NOTICE.md*",
     "SECURITY.md*",
     "SUPPORT.md*",
     "package.json*"
