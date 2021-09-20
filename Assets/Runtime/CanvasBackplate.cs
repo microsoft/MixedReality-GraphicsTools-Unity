@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private float radius = 10f;
 
         [SerializeField]
-        private float thickness = 10f;
+        private float thickness = 4f;
 
         [SerializeField]
         private int wedges = 8;

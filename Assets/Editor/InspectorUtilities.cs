@@ -8,9 +8,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     public static class InspectorUtilities
     {
-        public static void CreateGameObjectFromMenu<T>(MenuCommand menuCommand) where T : MonoBehaviour
+        public static GameObject CreateGameObjectFromMenu<T>(MenuCommand menuCommand) where T : MonoBehaviour
         {
-            GameObject gameObject = new GameObject(nameof(T), typeof(T));
+            GameObject gameObject = new GameObject(typeof(T).Name, typeof(T));
 
             // Ensure the game object gets re-parented to the active context.
             GameObjectUtility.SetParentAndAlign(gameObject, menuCommand.context as GameObject);
@@ -19,6 +19,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Undo.RegisterCreatedObjectUndo(gameObject, "Create " + gameObject.name);
 
             Selection.activeObject = gameObject;
+
+            return gameObject;
         }
     }
 }

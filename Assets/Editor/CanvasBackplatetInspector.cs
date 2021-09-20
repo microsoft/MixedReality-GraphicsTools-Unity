@@ -12,7 +12,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/UI/Canvas Backplate - Graphics Tools")]
         private static void CreateCanvasBackplate(MenuCommand menuCommand)
         {
-            InspectorUtilities.CreateGameObjectFromMenu<CanvasBackplate>(menuCommand);
+            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasBackplate>(menuCommand);
+
+            if (gameObject != null)
+            {
+                RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+
+                if (rectTransform != null)
+                {
+                    rectTransform.sizeDelta = new Vector2(32, 32);
+                }
+            }
         }
     }
 }
