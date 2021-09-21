@@ -34,6 +34,22 @@ Samples will import into your project's Assets folder so they may be opened and 
 
 ## Contributing
 
+### Updating samples
+
+By default assets exist under the `Samples~` subfolder as outlined by Unity's [sample recommendations](https://docs.unity3d.com/Manual/cus-samples.html). The '~' character prevents the `Samples~` folder for being imported by Unity. This is ideal when including the package via the package manager. But, not when you want to update the samples *within* the package. 
+
+If you wish to contribute changes to the samples you must make a temporary local change to the Unity project's directory structure.
+
+1. [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) and [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) this [repository](https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git).
+2. Navigate to the `/Assets/Samples~` folder in your file explorer.
+3. Change the folder name from `Samples~` to `Samples`.
+4. Open the Graphics Tools project in Unity. The `Samples` folder will now be visible in the Unity "Project" window.
+5. Make any changes to the samples.
+6. **Important:** When finished, change the folder name back from `Samples` to `Samples~`.
+7. [Commit and push](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository) your changes to your fork and open a [pull request](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/pulls).
+
+### License agreement 
+
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
