@@ -474,6 +474,7 @@ GameObject:
   - component: {fileID: 325265914}
   - component: {fileID: 325265916}
   - component: {fileID: 325265915}
+  - component: {fileID: 325265917}
   m_Layer: 5
   m_Name: CanvasMeshCube
   m_TagString: Untagged
@@ -516,7 +517,7 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   preserveAspect: 0
 --- !u!222 &325265916
 CanvasRenderer:
@@ -526,6 +527,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 325265913}
   m_CullTransparentMesh: 1
+--- !u!114 &325265917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 325265913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fda4953718e0264291c42cb2a637fb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &385852026
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,7 +719,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_SizeDelta: {x: 600, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &834779668
 GameObject:
@@ -1318,6 +1331,7 @@ GameObject:
   - component: {fileID: 1180836336}
   - component: {fileID: 1180836338}
   - component: {fileID: 1180836337}
+  - component: {fileID: 1180836339}
   m_Layer: 5
   m_Name: CanvasMeshDog
   m_TagString: Untagged
@@ -1360,7 +1374,7 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  Mesh: {fileID: -6053382344825935911, guid: 22bc3004ec53154409697455b1e70356, type: 3}
+  mesh: {fileID: -6053382344825935911, guid: 22bc3004ec53154409697455b1e70356, type: 3}
   preserveAspect: 1
 --- !u!222 &1180836338
 CanvasRenderer:
@@ -1370,6 +1384,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1180836335}
   m_CullTransparentMesh: 1
+--- !u!114 &1180836339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1180836335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fda4953718e0264291c42cb2a637fb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1248032068
 GameObject:
   m_ObjectHideFlags: 0
@@ -1739,6 +1765,7 @@ GameObject:
   - component: {fileID: 1991095138}
   - component: {fileID: 1991095140}
   - component: {fileID: 1991095139}
+  - component: {fileID: 1991095141}
   m_Layer: 5
   m_Name: CanvasMeshHuman
   m_TagString: Untagged
@@ -1781,7 +1808,7 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  Mesh: {fileID: -6053382344825935911, guid: 9eab18b133304e44f84d1c49f0cb25ff, type: 3}
+  mesh: {fileID: -6053382344825935911, guid: 9eab18b133304e44f84d1c49f0cb25ff, type: 3}
   preserveAspect: 1
 --- !u!222 &1991095140
 CanvasRenderer:
@@ -1791,3 +1818,15 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1991095137}
   m_CullTransparentMesh: 1
+--- !u!114 &1991095141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991095137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fda4953718e0264291c42cb2a637fb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

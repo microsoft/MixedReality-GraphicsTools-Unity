@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Microsoft.MixedReality.GraphicsTools
@@ -14,13 +15,42 @@ namespace Microsoft.MixedReality.GraphicsTools
     [RequireComponent(typeof(CanvasRenderer))]
     public class CanvasMesh : Graphic
     {
+        [Tooltip("The source mesh to use for populating the Graphic with vertex information.")]
         [SerializeField]
-        private Mesh Mesh = null;
-        private Mesh PreviousMesh = null;
+        [FormerlySerializedAs("Mesh")]
+        private Mesh mesh = null;
 
+        /// <summary>
+        /// The source mesh to use for populating the Graphic with vertex information.
+        /// </summary>
+        public Mesh Mesh
+        {
+            get => mesh;
+            set
+            {
+                mesh = value;
+                UpdateGeometry();
+            }
+        }
+
+        [Tooltip("Whether this CanvasMesh should preserve its source mesh aspect ratio (scale).")]
         [SerializeField]
         private bool preserveAspect = true;
 
+        /// <summary>
+        /// Whether this CanvasMesh should preserve its source mesh aspect ratio (scale).
+        /// </summary>
+        public bool PreserveAspect
+        {
+            get => preserveAspect;
+            set
+            {
+                preserveAspect = value;
+                UpdateGeometry();
+            }
+        }
+
+        private Mesh PreviousMesh = null;
         private List<UIVertex> uiVerticies = new List<UIVertex>();
         private List<int> uiIndices = new List<int>();
 
@@ -80,6 +110,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
         }
 
+        /// <summary>
+        /// Called to update the Material of the graphic onto the CanvasRenderer.
+        /// </summary>
         protected override void UpdateMaterial()
         {
             if (!IsActive())
@@ -93,6 +126,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #endregion Graphic Implementation
 
+        /// <summary>
+        /// Determines if vertex attributes within the Mesh need to be re-cached.
+        /// </summary>
         [ContextMenu("Refresh Mesh")]
         private void RefresheMesh()
         {
@@ -139,6 +175,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Center the mesh at the pivot.
                         vertex.position += rectPivot;
 
+                        // Set the other attributes.
                         vertex.normal = normals[i];
                         vertex.tangent = tangents[i];
                         vertex.color = color;
