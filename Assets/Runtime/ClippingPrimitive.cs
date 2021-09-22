@@ -80,7 +80,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 if (cameraMethods == null)
                 {
-                    cameraMethods = CameraCache.Main.gameObject.EnsureComponent<CameraEventRouter>();
+                    cameraMethods = Camera.main.gameObject.EnsureComponent<CameraEventRouter>();
                 }
 
                 if (useOnPreRender != value)
@@ -226,7 +226,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (useOnPreRender)
             {
-                cameraMethods = CameraCache.Main.gameObject.EnsureComponent<CameraEventRouter>();
+                cameraMethods = Camera.main.gameObject.EnsureComponent<CameraEventRouter>();
                 cameraMethods.OnCameraPreRender += OnCameraPreRender;
             }
         }
