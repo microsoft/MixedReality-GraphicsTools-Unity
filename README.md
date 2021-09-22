@@ -4,14 +4,7 @@
 
 Graphics tools and components for developing Mixed Reality applications in Unity. 
 
----
-**NOTE**
-
-This repo is a **work in progress** fork of the [MRTK/Standard shader system](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader?view=mrtkunity-2021-05) and other components.
-
-The equivalent of the `MRTK/Standard` shader within Graphics Tools is the `Graphics Tools/Standard` shader.
-
----
+> **_NOTE:_** This repo is a **work in progress** fork of the [MRTK/Standard shader system](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader?view=mrtkunity-2021-05) and other components. The equivalent of the `MRTK/Standard` shader within Graphics Tools is the `Graphics Tools/Standard` shader.
 
 # Getting started with Graphics Tools
 
@@ -24,6 +17,8 @@ Graphics Tools is desiged to be imported as a [Unity package](https://docs.unity
 ![Package Manager Paste](Documentation~/Images/ReadMe/PackageManagerPaste.png)
 4. Graphics Tools will now be installed within your Unity project as an immutable package.
 ![Package Manager Installed](Documentation~/Images/ReadMe/PackageManagerInstalled.png)
+
+> **_NOTE:_** If you would like a specific release of the Graphics Tools package please navigate to the [releases page](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/releases) and append the desired release tag onto the URL in step 3. For example, to download the [v0.1.0](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/releases/tag/v0.1.0) release you would specify: `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git#v0.1.0`
 
 ## Importing samples
 

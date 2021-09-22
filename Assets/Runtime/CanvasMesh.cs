@@ -7,146 +7,170 @@ using UnityEngine.UI;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
-    public enum ZScaleMode
-    {
-        Width,
-        Height,
-        Area,
-        Manual,
-        Flatten
-    }
-
+    /// <summary>
+    /// Allows a 3D mesh to be rendered within UnityUI canvas. 
+    /// </summary>
     [ExecuteInEditMode]
     [RequireComponent(typeof(CanvasRenderer))]
     public class CanvasMesh : Graphic
     {
-        // Inspector properties
-        public Mesh Mesh = null;
+        [SerializeField]
+        private Mesh Mesh = null;
+        private Mesh PreviousMesh = null;
 
-        public ZScaleMode ZScaleMode = ZScaleMode.Area;
+        [SerializeField]
+        private bool preserveAspect = true;
 
-        public float ManualZScale = 1.0f;
+        private List<UIVertex> uiVerticies = new List<UIVertex>();
+        private List<int> uiIndices = new List<int>();
 
-        public Vector3 OffsetPosition;
-        public Vector3 OffsetRotation;
-
-        List<Vector3> verts = new List<Vector3>();
-        List<int> tris = new List<int>();
-        List<Vector2> uvs = new List<Vector2>();
-        List<Vector3> normals = new List<Vector3>();
-        List<Vector4> tangents = new List<Vector4>();
+        #region Graphic Implementation
 
         /// <summary>
         /// Callback function when a UI element needs to generate vertices.
         /// </summary>
-        /// <param name="vh">VertexHelper utility.</param>
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();
-            verts.Clear();
-            uvs.Clear();
-            tris.Clear();
-            normals.Clear();
-            tangents.Clear();
 
-            if (Mesh == null) return;
+            RefresheMesh();
 
-            // Get data from mesh
-            Mesh.GetVertices(verts);
-            Mesh.GetUVs(0, uvs);
-            Mesh.GetTriangles(tris, 0);
-            Mesh.GetNormals(normals);
-            Mesh.GetTangents(tangents);
+            if (Mesh == null || uiVerticies.Count == 0)
+            {
+                return;
+            }
 
-            // Get mesh bounds parameters
-            Vector3 meshMin = Mesh.bounds.min;
             Vector3 meshSize = Mesh.bounds.size;
+            Vector3 rectSize = rectTransform.rect.size;
+            rectSize.z = Mathf.Min(rectSize.x, rectSize.y);
+
+            if (preserveAspect)
+            {
+                float meshRatio = meshSize.x / meshSize.y;
+                float rectRatio = rectSize.x / rectSize.y;
+                float scaler;
+
+                // Wide
+                if (meshSize.x > meshSize.y)
+                {
+                    scaler = rectRatio > meshRatio ? rectSize.y * meshRatio : rectSize.x;
+                }
+                else // Tall
+                {
+                    scaler = rectRatio > meshRatio ? rectSize.y : rectSize.x * (1.0f / meshRatio);
+                }
+
+                rectSize = new Vector3(scaler, scaler, scaler);
+            }
 
             Vector3 rectPivot = rectTransform.pivot;
-            Vector3 rectSize = rectTransform.rect.size;
+            List<UIVertex> uiVerticiesTRS = new List<UIVertex>(uiVerticies);
 
-            switch (ZScaleMode)
+            // Scale, translate and rotate vertices.
+            for (int i = 0; i < uiVerticiesTRS.Count; i++)
             {
-                case ZScaleMode.Width:
-                    rectSize.z = rectSize.x;
-                    break;
-                case ZScaleMode.Height:
-                    rectSize.z = rectSize.y;
-                    break;
-                case ZScaleMode.Area:
-                    rectSize.z = Mathf.Sqrt(rectSize.x * rectSize.y);
-                    break;
-                case ZScaleMode.Manual:
-                    rectSize.z = ManualZScale;
-                    break;
-                case ZScaleMode.Flatten:
-                    rectSize.z = 0.0f;
-                    break;
+                UIVertex vertex = uiVerticiesTRS[i];
+
+                // Scale the vector from the normalized position to the pivot by the rect size.
+                vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
+
+                uiVerticiesTRS[i] = vertex;
             }
 
-            Quaternion offsetRotation = Quaternion.Euler(OffsetRotation);
-
-            // Add scaled vertices
-            for (int ii = 0; ii < verts.Count; ii++)
-            {
-                Vector3 v = verts[ii];
-                v.x = (v.x - meshMin.x) / meshSize.x;
-                v.y = (v.y - meshMin.y) / meshSize.y;
-                v = Vector3.Scale(v - rectPivot, rectSize);
-
-                v += OffsetPosition;
-
-                v = offsetRotation * v;
-
-                vh.AddVert(v, color, uvs[ii], uvs[ii], normals[ii], tangents[ii]);
-            }
-            // Add triangles
-            for (int ii = 0; ii < tris.Count; ii += 3)
-                vh.AddTriangle(tris[ii], tris[ii + 1], tris[ii + 2]);
+            vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
         }
 
         protected override void UpdateMaterial()
         {
             if (!IsActive())
+            {
                 return;
+            }
 
             canvasRenderer.materialCount = 1;
             canvasRenderer.SetMaterial(materialForRendering, 0);
         }
 
-        /// <summary>
-        /// Converts a vertex in mesh coordinates to a point in world coordinates.
-        /// </summary>
-        /// <param name="vertex">The input vertex.</param>
-        /// <returns>A point in world coordinates.</returns>
-        public Vector3 TransformVertex(Vector3 vertex)
-        {
-            // Convert vertex into local coordinates
-            Vector2 v;
-            v.x = (vertex.x - Mesh.bounds.min.x) / Mesh.bounds.size.x;
-            v.y = (vertex.y - Mesh.bounds.min.y) / Mesh.bounds.size.y;
-            v = Vector2.Scale(v - rectTransform.pivot, rectTransform.rect.size);
-            // Convert from local into world
-            return transform.TransformPoint(v);
-        }
+        #endregion Graphic Implementation
 
-        /// <summary>
-        /// Converts a vertex in world coordinates into a vertex in mesh coordinates.
-        /// </summary>
-        /// <param name="vertex">The input vertex.</param>
-        /// <returns>A point in mesh coordinates.</returns>
-        public Vector3 InverseTransformVertex(Vector3 vertex)
+        [ContextMenu("Refresh Mesh")]
+        private void RefresheMesh()
         {
-            // Convert from world into local coordinates
-            Vector2 v = transform.InverseTransformPoint(vertex);
-            // Convert into mesh coordinates
-            v.x /= rectTransform.rect.size.x;
-            v.y /= rectTransform.rect.size.y;
-            v += rectTransform.pivot;
-            v = Vector2.Scale(v, Mesh.bounds.size);
-            v.x += Mesh.bounds.min.x;
-            v.y += Mesh.bounds.min.y;
-            return v;
+            if (PreviousMesh != Mesh || uiVerticies.Count == 0)
+            {
+                uiVerticies.Clear();
+                uiIndices.Clear();
+
+                if (Mesh != null)
+                {
+                    List<Vector3> vertices = new List<Vector3>();
+                    Mesh.GetVertices(vertices);
+                    List<Vector2> uv0s = new List<Vector2>();
+                    Mesh.GetUVs(0, uv0s);
+                    List<Vector2> uv1s = new List<Vector2>();
+                    Mesh.GetUVs(1, uv1s);
+                    List<Vector2> uv2s = new List<Vector2>();
+                    Mesh.GetUVs(2, uv2s);
+                    List<Vector2> uv3s = new List<Vector2>();
+                    Mesh.GetUVs(3, uv3s);
+                    List<Vector3> normals = new List<Vector3>();
+                    Mesh.GetNormals(normals);
+                    List<Vector4> tangents = new List<Vector4>();
+                    Mesh.GetTangents(tangents);
+
+                    Vector3 rectPivot = new Vector3(0.5f, 0.5f, 0);
+
+                    Vector3 meshCenter = Mesh.bounds.center;
+                    Vector3 meshSize = Mesh.bounds.extents;
+
+                    float scaler = 0.5f / Mathf.Max(meshSize.x, meshSize.y);
+
+                    for (int i = 0; i < vertices.Count; ++i)
+                    {
+                        UIVertex vertex = new UIVertex();
+                        vertex.position = vertices[i];
+
+                        // Center the mesh at the origin.
+                        vertex.position -= meshCenter;
+
+                        // Normalize the mesh in a 1x1x1 cube.
+                        vertex.position *= scaler;
+
+                        // Center the mesh at the pivot.
+                        vertex.position += rectPivot;
+
+                        vertex.normal = normals[i];
+                        vertex.tangent = tangents[i];
+                        vertex.color = color;
+
+                        if (i < uv0s.Count)
+                        {
+                            vertex.uv0 = uv0s[i];
+                        }
+
+                        if (i < uv1s.Count)
+                        {
+                            vertex.uv1 = uv1s[i];
+                        }
+
+                        if (i < uv2s.Count)
+                        {
+                            vertex.uv2 = uv2s[i];
+                        }
+
+                        if (i < uv3s.Count)
+                        {
+                            vertex.uv3 = uv3s[i];
+                        }
+
+                        uiVerticies.Add(vertex);
+                    }
+
+                    Mesh.GetTriangles(uiIndices, 0);
+                }
+
+                PreviousMesh = Mesh;
+            }
         }
     }
 }
