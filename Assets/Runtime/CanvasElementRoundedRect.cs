@@ -6,17 +6,62 @@ using UnityEngine.UI;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
+    /// <summary>
+    /// Procedurally generates a 3D rounded rect mesh to be rendered within a UnityUI canvas.
+    /// </summary>
     [RequireComponent(typeof(CanvasRenderer))]
-    public class CanvasBackplate : Graphic
+    public class CanvasElementRoundedRect : Graphic
     {
+        [Tooltip("Specifies the corner radius of the rounded rect in world units. Should be less than half the width or height.")]
         [SerializeField]
         private float radius = 10f;
 
+        /// <summary>
+        /// Specifies the corner radius in world units. Should be less than half the width or height.
+        /// </summary>
+        public float Radius
+        {
+            get => radius;
+            set
+            {
+                radius = value;
+                SetVerticesDirty();
+            }
+        }
+
+        [Tooltip("Controls the depth of the rounded rect along the local z axis.")]
         [SerializeField]
         private float thickness = 4f;
 
+        /// <summary>
+        /// Controls the depth of the rounded rect along the local z axis.
+        /// </summary>
+        public float Thickness
+        {
+            get => thickness;
+            set
+            {
+                thickness = value;
+                SetVerticesDirty();
+            }
+        }
+
+        [Tooltip("Controls how many subdivisions at the corners of the rounded rect. More wedges produces smoother corners at the expense of more triangles.")]
         [SerializeField]
         private int wedges = 8;
+
+        /// <summary>
+        /// Controls how many subdivisions at the corners of the rounded rect. More wedges produces smoother corners at the expense of more triangles.
+        /// </summary>
+        public int Wedges
+        {
+            get => wedges;
+            set
+            {
+                wedges = value;
+                SetVerticesDirty();
+            }
+        }
 
         #region override methods
         protected override void Awake()

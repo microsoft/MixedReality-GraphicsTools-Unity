@@ -9,11 +9,10 @@ using UnityEngine.UI;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Allows a 3D mesh to be rendered within UnityUI canvas. 
+    /// Allows a 3D mesh to be rendered within a UnityUI canvas. 
     /// </summary>
-    [ExecuteInEditMode]
     [RequireComponent(typeof(CanvasRenderer))]
-    public class CanvasMesh : Graphic
+    public class CanvasElementMesh : Graphic
     {
         [Tooltip("The source mesh to use for populating the Graphic with vertex information.")]
         [SerializeField]
@@ -29,16 +28,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             set
             {
                 mesh = value;
-                UpdateGeometry();
+                SetVerticesDirty();
             }
         }
 
-        [Tooltip("Whether this CanvasMesh should preserve its source mesh aspect ratio (scale).")]
+        [Tooltip("Whether this element should preserve its source mesh aspect ratio (scale).")]
         [SerializeField]
         private bool preserveAspect = true;
 
         /// <summary>
-        /// Whether this CanvasMesh should preserve its source mesh aspect ratio (scale).
+        /// Whether this element should preserve its source mesh aspect ratio (scale).
         /// </summary>
         public bool PreserveAspect
         {
@@ -46,7 +45,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             set
             {
                 preserveAspect = value;
-                UpdateGeometry();
+                SetVerticesDirty();
             }
         }
 

@@ -6,13 +6,13 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
-    [CustomEditor(typeof(CanvasBackplate))]
-    public class CanvasBackplateInspector : UnityEditor.Editor
+    [CustomEditor(typeof(CanvasElementRoundedRect))]
+    public class CanvasElementRoundedRectInspector : UnityEditor.Editor
     {
-        [MenuItem("GameObject/UI/Canvas Backplate - Graphics Tools")]
-        private static void CreateCanvasBackplate(MenuCommand menuCommand)
+        [MenuItem("GameObject/UI/Rounded Rect - Graphics Tools")]
+        private static void CreateCanvasElementRoundedRect(MenuCommand menuCommand)
         {
-            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasBackplate>(menuCommand);
+            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementRoundedRect>(menuCommand);
 
             if (gameObject != null)
             {
