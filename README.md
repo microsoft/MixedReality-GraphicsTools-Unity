@@ -8,7 +8,11 @@ Graphics tools and components for developing Mixed Reality applications in Unity
 
 # Getting started with Graphics Tools
 
-Graphics Tools is desiged to be imported as a [Unity package](https://docs.unity3d.com/Manual/Packages.html). To import Graphics Tools into your Unity project follow the below steps:
+Graphics Tools is designed to be imported as a [Unity package](https://docs.unity3d.com/Manual/Packages.html). 
+
+> **_NOTE:_** Graphics Tools requires Unity 2020.x and above.
+
+To import Graphics Tools into your Unity project follow the below steps:
 
 1. Open your Unity project and select `Window > Package Manager` from the file menu bar
 2. Click the `'+'` icon within the Package Manager and select `"Add package from git URL..."`
