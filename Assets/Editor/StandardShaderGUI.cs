@@ -115,7 +115,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static GUIContent stencilReference = new GUIContent("Stencil Reference", "Value to Compared Against (if Comparison is Anything but Always) and/or the Value to be Written to the Buffer (if Either Pass, Fail or ZFail is Set to Replace)");
             public static GUIContent stencilComparison = new GUIContent("Stencil Comparison", "Function to Compare the Reference Value to");
             public static GUIContent stencilOperation = new GUIContent("Stencil Operation", "What to do When the Stencil Test Passes");
-            public static GUIContent ignoreZScale = new GUIContent("Ignore Z Scale", "For Features That Use Object Scale (Round Corners, Border Light, etc.), Ignore the Z Scale of the Object");
+            public static GUIContent useWorldScale = new GUIContent("Use World Scale", "Features That Require Object Scale (Round Corners, Border Light, etc.), Default to Using Absolute (World) Scale when Enabled");
         }
 
         protected MaterialProperty albedoMap;
@@ -201,7 +201,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty stencilReference;
         protected MaterialProperty stencilComparison;
         protected MaterialProperty stencilOperation;
-        protected MaterialProperty ignoreZScale;
+        protected MaterialProperty useWorldScale;
 
         protected override void FindProperties(MaterialProperty[] props)
         {
@@ -290,7 +290,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             stencilReference = FindProperty("_StencilReference", props);
             stencilComparison = FindProperty(Styles.stencilComparisonName, props);
             stencilOperation = FindProperty(Styles.stencilOperationName, props);
-            ignoreZScale = FindProperty("_IgnoreZScale", props);
+            useWorldScale = FindProperty("_UseWorldScale", props);
         }
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
@@ -731,7 +731,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (ScaleRequired())
             {
-                materialEditor.ShaderProperty(ignoreZScale, Styles.ignoreZScale);
+                materialEditor.ShaderProperty(useWorldScale, Styles.useWorldScale);
             }
         }
 

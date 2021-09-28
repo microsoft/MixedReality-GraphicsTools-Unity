@@ -53,7 +53,7 @@
 #pragma shader_feature _INNER_GLOW
 #pragma shader_feature _IRIDESCENCE
 #pragma shader_feature _ENVIRONMENT_COLORING
-#pragma shader_feature _IGNORE_Z_SCALE
+#pragma shader_feature _USE_WORLD_SCALE
 
 /// <summary>
 /// Inludes and defines.
@@ -158,9 +158,7 @@ struct appdata_t
 struct v2f
 {
     float4 position : SV_POSITION;
-#if defined(_BORDER_LIGHT)
-    float4 uv : TEXCOORD0;
-#elif defined(_UV)
+#if defined(_UV)
     float2 uv : TEXCOORD0;
 #endif
 #if defined(LIGHTMAP_ON)
@@ -334,7 +332,7 @@ float4 _ProximityLightOuterColorOverride;
 fixed _FluentLightIntensity;
 #endif
 
-#if defined(_ROUND_CORNERS)
+#if defined(_ROUND_CORNERS) || defined(_BORDER_LIGHT)
 #if defined(_INDEPENDENT_CORNERS)
 float4 _RoundCornersRadius;
 #else
@@ -389,6 +387,10 @@ static const float _Shininess = 800.0;
 static const float _FresnelPower = 8.0;
 #endif
 
+#if defined(_ROUND_CORNERS) || defined(_BORDER_LIGHT)
+static const float _MinCorverValue = 0.00001;
+#endif
+
 /// <summary>
 /// Methods.
 /// </summary>
@@ -434,7 +436,7 @@ inline fixed3 MixProximityLightColor(fixed4 centerColor, fixed4 middleColor, fix
 }
 #endif
 
-#if defined(_ROUND_CORNERS)
+#if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
 inline float PointVsRoundedBox(float2 position, float2 cornerCircleDistance, float cornerCircleRadius)
 {
     return length(max(abs(position) - cornerCircleDistance, 0.0)) - cornerCircleRadius;
@@ -488,11 +490,7 @@ v2f vert(appdata_t v)
 #if defined(_SCALE)
     o.scale.x = length(mul(unity_ObjectToWorld, float4(1.0, 0.0, 0.0, 0.0)));
     o.scale.y = length(mul(unity_ObjectToWorld, float4(0.0, 1.0, 0.0, 0.0)));
-#if defined(_IGNORE_Z_SCALE)
-    o.scale.z = o.scale.x;
-#else
     o.scale.z = length(mul(unity_ObjectToWorld, float4(0.0, 0.0, 1.0, 0.0)));
-#endif
 #if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
     // uv3.y will contain a negative value when rendered by a UGUI and ScaleMeshEffect.
     if (v.uv3.y < 0.0)
@@ -556,63 +554,32 @@ v2f vert(appdata_t v)
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
     o.uv.xy = TRANSFORM_TEX(v.uv, _MainTex);
 
-    float minScale = min(min(o.scale.x, o.scale.y), o.scale.z);
-
-#if defined(_BORDER_LIGHT) 
-    float maxScale = max(max(o.scale.x, o.scale.y), o.scale.z);
-    float minOverMiddleScale = minScale / (o.scale.x + o.scale.y + o.scale.z - minScale - maxScale);
-
-    float areaYZ = o.scale.y * o.scale.z;
-    float areaXZ = o.scale.z * o.scale.x;
-    float areaXY = o.scale.x * o.scale.y;
-
-    float borderWidth = _BorderWidth;
+#if defined(_USE_WORLD_SCALE)
+    o.scale.z = 1;
 #endif
+
+    float minScale = min(min(o.scale.x, o.scale.y), o.scale.z);
 
     if (abs(localNormal.x) == 1.0) // Y,Z plane.
     {
         o.scale.x = o.scale.z;
         o.scale.y = o.scale.y;
-
-#if defined(_BORDER_LIGHT) 
-        if (areaYZ > areaXZ && areaYZ > areaXY)
-        {
-            borderWidth *= minOverMiddleScale;
-        }
-#endif
     }
     else if (abs(localNormal.y) == 1.0) // X,Z plane.
     {
         o.scale.x = o.scale.x;
         o.scale.y = o.scale.z;
-
-#if defined(_BORDER_LIGHT) 
-        if (areaXZ > areaXY && areaXZ > areaYZ)
-        {
-            borderWidth *= minOverMiddleScale;
-        }
-#endif
     }
     else  // X,Y plane.
     {
         o.scale.x = o.scale.x;
         o.scale.y = o.scale.y;
-
-#if defined(_BORDER_LIGHT) 
-        if (areaXY > areaYZ && areaXY > areaXZ)
-        {
-            borderWidth *= minOverMiddleScale;
-        }
-#endif
     }
 
+#if !defined(_USE_WORLD_SCALE)
     o.scale.z = minScale;
-
-#if defined(_BORDER_LIGHT) 
-    float scaleRatio = min(o.scale.x, o.scale.y) / max(o.scale.x, o.scale.y);
-    o.uv.z = o.scale.x > o.scale.y ? 1.0 - (borderWidth * scaleRatio) : 1.0 - borderWidth;
-    o.uv.w = o.scale.x > o.scale.y ? 1.0 - borderWidth : 1.0 - (borderWidth * scaleRatio);
 #endif
+
 #elif defined(_UV)
     o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 #endif
@@ -668,7 +635,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(i);
 
-    #if defined(_TRIPLANAR_MAPPING)
+#if defined(_TRIPLANAR_MAPPING)
     // Calculate triplanar uvs and apply texture scale and offset values like TRANSFORM_TEX.
     fixed3 triplanarBlend = pow(abs(i.triplanarNormal), _TriplanarMappingBlendSharpness);
     triplanarBlend /= dot(triplanarBlend, fixed3(1.0, 1.0, 1.0));
@@ -681,9 +648,9 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     uvX.x *= axisSign.x;
     uvY.x *= axisSign.y;
     uvZ.x *= -axisSign.z;
-    #endif
-    
-    // Texturing.
+#endif
+
+// Texturing.
 #if defined(_DISABLE_ALBEDO_MAP)
     fixed4 albedo = fixed4(1.0, 1.0, 1.0, 1.0);
 #else
@@ -709,7 +676,6 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 #endif
 #endif
 #endif
-
 
 #ifdef LIGHTMAP_ON
     albedo.rgb *= DecodeLightmap(UNITY_SAMPLE_TEX2D(unity_Lightmap, i.lightMapUV));
@@ -760,17 +726,18 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     distanceToEdge.y = abs(i.uv.y - 0.5) * 2.0;
 #endif
 
-    // Rounded corner clipping.
-#if defined(_ROUND_CORNERS)
+#if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
     float2 halfScale = i.scale.xy * 0.5;
-    float2 roundCornerPosition = distanceToEdge * halfScale;
-    
+    float2 cornerPosition = distanceToEdge * halfScale;
+
     fixed currentCornerRadius;
 
+    // Rounded corner clipping.
+#if defined(_ROUND_CORNERS)
 #if defined(_INDEPENDENT_CORNERS)
 
     _RoundCornersRadius = clamp(_RoundCornersRadius, 0, 0.5);
-    
+
     if (i.uv.x < 0.5)
     {
         if (i.uv.y > 0.5)
@@ -796,12 +763,15 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 #else 
     currentCornerRadius = _RoundCornerRadius;
 #endif
-
-    float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, 0.01)) * i.scale.z;
-    
+#else
+    currentCornerRadius = 0;
+    _RoundCornerMargin = 0.0;
+#endif
+    float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, _MinCorverValue)) * i.scale.z;
     float2 cornerCircleDistance = halfScale - (_RoundCornerMargin * i.scale.z) - cornerCircleRadius;
-    
-    float roundCornerClip = RoundCorners(roundCornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
+#if defined(_ROUND_CORNERS)
+    float roundCornerClip = RoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
+#endif
 #endif
 
     albedo *= UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
@@ -830,12 +800,12 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     tangentNormalX.x *= axisSign.x;
     tangentNormalY.x *= axisSign.y;
     tangentNormalZ.x *= -axisSign.z;
-    
+
     // Swizzle world normals to match tangent space and apply Whiteout normal blend.
     tangentNormalX = fixed3(tangentNormalX.xy + i.worldNormal.zy, tangentNormalX.z * i.worldNormal.x);
     tangentNormalY = fixed3(tangentNormalY.xy + i.worldNormal.xz, tangentNormalY.z * i.worldNormal.y);
     tangentNormalZ = fixed3(tangentNormalZ.xy + i.worldNormal.xy, tangentNormalZ.z * i.worldNormal.z);
-    
+
     // Swizzle tangent normals to match world normal and blend together.
     worldNormal = normalize(tangentNormalX.zyx * triplanarBlend.x +
                             tangentNormalY.xzy * triplanarBlend.y +
@@ -851,14 +821,14 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     worldNormal = normalize(i.worldNormal) * facing;
 #endif
 #endif
-    
+
     fixed pointToLight = 1.0;
     fixed3 fluentLightColor = fixed3(0.0, 0.0, 0.0);
-    
+
     // Hover light.
 #if defined(_HOVER_LIGHT)
     pointToLight = 0.0;
-    
+
     [unroll]
     for (int hoverLightIndex = 0; hoverLightIndex < HOVER_LIGHT_COUNT; ++hoverLightIndex)
     {
@@ -901,19 +871,12 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 
     // Border light.
 #if defined(_BORDER_LIGHT)
-                fixed borderValue;
-#if defined(_ROUND_CORNERS)
     fixed borderMargin = _RoundCornerMargin + _BorderWidth * 0.5;
-    
-    cornerCircleRadius = saturate(max(currentCornerRadius - borderMargin, 0.01)) * i.scale.z;
-    
+    cornerCircleRadius = saturate(max(currentCornerRadius - borderMargin, _MinCorverValue)) * i.scale.z;
     cornerCircleDistance = halfScale - (borderMargin * i.scale.z) - cornerCircleRadius;
-    
-    borderValue = 1.0 - RoundCornersSmooth(roundCornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
-#else
-    borderValue = max(smoothstep(i.uv.z - _EdgeSmoothingValue, i.uv.z + _EdgeSmoothingValue, distanceToEdge.x),
-                  smoothstep(i.uv.w - _EdgeSmoothingValue, i.uv.w + _EdgeSmoothingValue, distanceToEdge.y));
-#endif
+
+    fixed borderValue = 1.0 - RoundCornersSmooth(cornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
+
 #if defined(_HOVER_LIGHT) && defined(_BORDER_LIGHT_USES_HOVER_COLOR) && defined(_HOVER_COLOR_OVERRIDE)
     fixed3 borderColor = _HoverColorOverride.rgb;
 #else
