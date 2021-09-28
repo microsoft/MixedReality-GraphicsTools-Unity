@@ -10,7 +10,7 @@ Material:
   m_Name: HolographicBackPlate
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ShaderKeywords: _BORDER_LIGHT _BORDER_LIGHT_REPLACES_ALBEDO _DISABLE_ALBEDO_MAP
-    _IRIDESCENCE _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _ROUND_CORNERS
+    _IRIDESCENCE _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _ROUND_CORNERS _USE_WORLD_SCALE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -85,7 +85,7 @@ Material:
     - _BorderLightReplacesAlbedo: 1
     - _BorderLightUsesHoverColor: 0
     - _BorderMinValue: 0.6
-    - _BorderWidth: 0.1
+    - _BorderWidth: 0.003
     - _BorderWidthHorizontal: 0.1
     - _BorderWidthVertical: 0.1
     - _BumpScale: 1
@@ -153,7 +153,7 @@ Material:
     - _RimLight: 0
     - _RimPower: 5.83
     - _RoundCornerMargin: 0
-    - _RoundCornerRadius: 0.1
+    - _RoundCornerRadius: 0.003
     - _RoundCorners: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
@@ -166,6 +166,7 @@ Material:
     - _StencilReference: 0
     - _TriplanarMappingBlendSharpness: 4
     - _UVSec: 0
+    - _UseWorldScale: 1
     - _VertexColors: 0
     - _VertexExtrusion: 0
     - _VertexExtrusionSmoothNormals: 0
