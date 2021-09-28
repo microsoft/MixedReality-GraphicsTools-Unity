@@ -10,7 +10,7 @@ Material:
   m_Name: HolographicBackPlateDropShadow
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ShaderKeywords: _ALPHABLEND_ON _BORDER_LIGHT_REPLACES_ALBEDO _DISABLE_ALBEDO_MAP
-    _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _ROUND_CORNERS
+    _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _ROUND_CORNERS _USE_WORLD_SCALE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -79,6 +79,7 @@ Material:
     - _AlbedoAssignedAtRuntime: 0
     - _BlendOp: 0
     - _BlendedClippingWidth: 1
+    - _BorderColorMode: 0
     - _BorderLight: 0
     - _BorderLightOpaque: 0
     - _BorderLightOpaqueAlpha: 1
@@ -103,7 +104,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DirectionalLight: 0
     - _DstBlend: 10
-    - _EdgeSmoothingValue: 0.25
+    - _EdgeSmoothingValue: 0.01
     - _EnableChannelMap: 0
     - _EnableEmission: 0
     - _EnableHoverColorOpaqueOverride: 0
@@ -152,8 +153,8 @@ Material:
     - _RenderQueueOverride: 3001
     - _RimLight: 0
     - _RimPower: 5.83
-    - _RoundCornerMargin: 0.25
-    - _RoundCornerRadius: 0.1
+    - _RoundCornerMargin: 0.01
+    - _RoundCornerRadius: 0.01
     - _RoundCorners: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
@@ -166,6 +167,7 @@ Material:
     - _StencilReference: 0
     - _TriplanarMappingBlendSharpness: 4
     - _UVSec: 0
+    - _UseWorldScale: 1
     - _VertexColors: 0
     - _VertexExtrusion: 0
     - _VertexExtrusionSmoothNormals: 0
@@ -175,6 +177,7 @@ Material:
     - _ZTest: 4
     - _ZWrite: 0
     m_Colors:
+    - _BorderColor: {r: 1, g: 1, b: 1, a: 0}
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}

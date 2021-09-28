@@ -9,8 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: PanelBorderRoundedBlue
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ShaderKeywords: _ALPHATEST_ON _BORDER_LIGHT _BORDER_LIGHT_USES_HOVER_COLOR _HOVER_COLOR_OVERRIDE
-    _HOVER_LIGHT _INNER_GLOW _ROUND_CORNERS
+  m_ShaderKeywords: _ALPHATEST_ON _BORDER_LIGHT _HOVER_COLOR_OVERRIDE _HOVER_LIGHT
+    _INNER_GLOW _ROUND_CORNERS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -79,6 +79,7 @@ Material:
     - _AlbedoAssignedAtRuntime: 0
     - _BlendOp: 0
     - _BlendedClippingWidth: 1
+    - _BorderColorMode: 0
     - _BorderLight: 1
     - _BorderLightOpaque: 0
     - _BorderLightOpaqueAlpha: 1
@@ -175,6 +176,7 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
+    - _BorderColor: {r: 1, g: 1, b: 1, a: 0}
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}

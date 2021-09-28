@@ -68,11 +68,12 @@ Shader "Graphics Tools/Standard"
         [Toggle(_INDEPENDENT_CORNERS)] _IndependentCorners("Independent Corners", Float) = 0.0
         _RoundCornersRadius("Round Corners Radius", Vector) = (0.5 ,0.5, 0.5, 0.5)
         [Toggle(_BORDER_LIGHT)] _BorderLight("Border Light", Float) = 0.0
-        [Toggle(_BORDER_LIGHT_USES_HOVER_COLOR)] _BorderLightUsesHoverColor("Border Light Uses Hover Color", Float) = 0.0
         [Toggle(_BORDER_LIGHT_REPLACES_ALBEDO)] _BorderLightReplacesAlbedo("Border Light Replaces Albedo", Float) = 0.0
         [Toggle(_BORDER_LIGHT_OPAQUE)] _BorderLightOpaque("Border Light Opaque", Float) = 0.0
         _BorderWidth("Border Width", Range(0.0, 1.0)) = 0.1
+        [Enum(BorderColorMode)] _BorderColorMode("_BorderColor Mode", Float) = 0 // "Brightness"
         _BorderMinValue("Border Min Value", Range(0.0, 1.0)) = 0.1
+        _BorderColor("Border Color", Color) = (1.0, 1.0, 1.0, 0.0)
         _EdgeSmoothingValue("Edge Smoothing Value", Range(0.0, 1.0)) = 0.002
         _BorderLightOpaqueAlpha("Border Light Opaque Alpha", Range(0.0, 1.0)) = 1.0
         [Toggle(_INNER_GLOW)] _InnerGlow("Inner Glow", Float) = 0.0

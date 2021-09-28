@@ -79,6 +79,7 @@ Material:
     - _AlbedoAssignedAtRuntime: 0
     - _BlendOp: 0
     - _BlendedClippingWidth: 1
+    - _BorderColorMode: 0
     - _BorderLight: 0
     - _BorderLightOpaque: 0
     - _BorderLightOpaqueAlpha: 1
@@ -116,8 +117,8 @@ Material:
     - _EnvironmentColorIntensity: 1
     - _EnvironmentColorThreshold: 1.5
     - _EnvironmentColoring: 1
-    - _FadeBeginDistance: 3
-    - _FadeCompleteDistance: 1
+    - _FadeBeginDistance: 1
+    - _FadeCompleteDistance: 0.25
     - _FadeMinValue: 0
     - _FluentLightIntensity: 1
     - _GlossMapScale: 1
@@ -166,6 +167,7 @@ Material:
     - _StencilReference: 0
     - _TriplanarMappingBlendSharpness: 4
     - _UVSec: 0
+    - _UseWorldScale: 0
     - _VertexColors: 0
     - _VertexExtrusion: 0
     - _VertexExtrusionSmoothNormals: 0
@@ -175,6 +177,7 @@ Material:
     - _ZTest: 4
     - _ZWrite: 0
     m_Colors:
+    - _BorderColor: {r: 1, g: 1, b: 1, a: 0}
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}

@@ -79,6 +79,7 @@ Material:
     - _AlbedoAssignedAtRuntime: 0
     - _BlendOp: 0
     - _BlendedClippingWidth: 1
+    - _BorderColorMode: 0
     - _BorderLight: 1
     - _BorderLightOpaque: 0
     - _BorderLightOpaqueAlpha: 1
@@ -153,7 +154,7 @@ Material:
     - _RimLight: 0
     - _RimPower: 5.83
     - _RoundCornerMargin: 0
-    - _RoundCornerRadius: 0.003
+    - _RoundCornerRadius: 0.01
     - _RoundCorners: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
@@ -176,6 +177,7 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
+    - _BorderColor: {r: 1, g: 1, b: 1, a: 0}
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}

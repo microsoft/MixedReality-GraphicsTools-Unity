@@ -16,9 +16,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     {
         protected enum AlbedoAlphaMode
         {
-            Transparency,
-            Metallic,
-            Smoothness
+            Transparency = 0,
+            Metallic = 1,
+            Smoothness = 2
+        }
+
+        protected enum BorderColorMode
+        {
+            Brightness = 0,
+            HoverColor = 1,
+            Color = 2,
+            Iridescence = 3
         }
 
         protected static class Styles
@@ -34,6 +42,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static string albedoMapAlphaSmoothnessName = "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A";
             public static string propertiesComponentHelp = "Use the {0} component(s) to control {1} properties.";
             public static readonly string[] albedoAlphaModeNames = Enum.GetNames(typeof(AlbedoAlphaMode));
+            public static readonly string[] borderColorModeNames = Enum.GetNames(typeof(BorderColorMode));
             public static GUIContent albedo = new GUIContent("Albedo", "Albedo (RGB) and Transparency (Alpha)");
             public static GUIContent albedoAssignedAtRuntime = new GUIContent("Assigned at Runtime", "As an optimization albedo operations are disabled when no albedo texture is specified. If a albedo texture will be specified at runtime enable this option.");
             public static GUIContent alphaCutoff = new GUIContent("Alpha Cutoff", "Threshold for Alpha Cutoff");
@@ -90,11 +99,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static GUIContent roundCornerMargin = new GUIContent("Margin %", "Distance From Geometry Edge");
             public static GUIContent independentCorners = new GUIContent("Independent Corners", "Manage each corner separately");
             public static GUIContent borderLight = new GUIContent("Border Light", "Enable Border Lighting (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
-            public static GUIContent borderLightUsesHoverColor = new GUIContent("Use Hover Color", "Border Color Comes From Hover Light Color Override");
             public static GUIContent borderLightReplacesAlbedo = new GUIContent("Replace Albedo", "Border Light Replaces Albedo (Replacement Rather Than Additive)");
             public static GUIContent borderLightOpaque = new GUIContent("Opaque Borders", "Borders Override Alpha Value to Appear Opaque");
             public static GUIContent borderWidth = new GUIContent("Width %", "Uniform Width Along Border as a % of the Smallest XYZ Dimension");
+            public static GUIContent borderColorMode = new GUIContent("Color Mode", "How the Border is Colored");
+            public static string borderColorModeHoverColorName = "_BORDER_LIGHT_USES_HOVER_COLOR";
+            public static string borderColorModeColorName = "_BORDER_LIGHT_USES_COLOR";
+            public static string borderColorModeIridescenceName = "_BORDER_LIGHT_USES_IRIDESCENCE";
             public static GUIContent borderMinValue = new GUIContent("Brightness", "Brightness Scaler");
+            public static GUIContent borderColor = new GUIContent("Border Color", "Border Color");
             public static GUIContent edgeSmoothingValue = new GUIContent("Edge Smoothing Value", "Smooths Edges When Round Corners and Transparency Is Enabled");
             public static GUIContent borderLightOpaqueAlpha = new GUIContent("Alpha", "Alpha value of \"opaque\" borders.");
             public static GUIContent innerGlow = new GUIContent("Inner Glow", "Enable Inner Glow (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
@@ -176,11 +189,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty independentCorners;
         protected MaterialProperty roundCornersRadius;
         protected MaterialProperty borderLight;
-        protected MaterialProperty borderLightUsesHoverColor;
         protected MaterialProperty borderLightReplacesAlbedo;
         protected MaterialProperty borderLightOpaque;
         protected MaterialProperty borderWidth;
+        protected MaterialProperty borderColorMode;
         protected MaterialProperty borderMinValue;
+        protected MaterialProperty borderColor;
         protected MaterialProperty edgeSmoothingValue;
         protected MaterialProperty borderLightOpaqueAlpha;
         protected MaterialProperty innerGlow;
@@ -265,11 +279,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             roundCornerMargin = FindProperty("_RoundCornerMargin", props);
             independentCorners = FindProperty("_IndependentCorners", props);
             borderLight = FindProperty("_BorderLight", props);
-            borderLightUsesHoverColor = FindProperty("_BorderLightUsesHoverColor", props);
             borderLightReplacesAlbedo = FindProperty("_BorderLightReplacesAlbedo", props);
             borderLightOpaque = FindProperty("_BorderLightOpaque", props);
             borderWidth = FindProperty("_BorderWidth", props);
+            borderColorMode = FindProperty("_BorderColorMode", props);
             borderMinValue = FindProperty("_BorderMinValue", props);
+            borderColor = FindProperty("_BorderColor", props);
             edgeSmoothingValue = FindProperty("_EdgeSmoothingValue", props);
             borderLightOpaqueAlpha = FindProperty("_BorderLightOpaqueAlpha", props);
             innerGlow = FindProperty("_InnerGlow", props);
@@ -601,14 +616,50 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 materialEditor.ShaderProperty(borderWidth, Styles.borderWidth, 2);
 
-                materialEditor.ShaderProperty(borderMinValue, Styles.borderMinValue, 2);
+                materialEditor.ShaderProperty(borderColorMode, Styles.borderColorMode, 2);
+
+                switch((BorderColorMode)borderColorMode.floatValue)
+                {
+                    case BorderColorMode.Brightness:
+                        {
+                            materialEditor.ShaderProperty(borderMinValue, Styles.borderMinValue, 2);
+
+                            material.DisableKeyword(Styles.borderColorModeHoverColorName);
+                            material.DisableKeyword(Styles.borderColorModeColorName);
+                            material.DisableKeyword(Styles.borderColorModeIridescenceName);
+                        }
+                        break;
+                    case BorderColorMode.HoverColor:
+                        {
+                            materialEditor.ShaderProperty(borderMinValue, Styles.borderMinValue, 2);
+                            GUILayout.Box(string.Format("Enable the {0} property and {1} property to adjust the color.", Styles.hoverLight.text, Styles.enableHoverColorOverride.text), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
+
+                            material.EnableKeyword(Styles.borderColorModeHoverColorName);
+                            material.DisableKeyword(Styles.borderColorModeColorName);
+                            material.DisableKeyword(Styles.borderColorModeIridescenceName);
+                        }
+                        break;
+                    case BorderColorMode.Color:
+                        {
+                            materialEditor.ShaderProperty(borderColor, Styles.borderColor, 2);
+
+                            material.DisableKeyword(Styles.borderColorModeHoverColorName);
+                            material.EnableKeyword(Styles.borderColorModeColorName);
+                            material.DisableKeyword(Styles.borderColorModeIridescenceName);
+                        }
+                        break;
+                    case BorderColorMode.Iridescence:
+                        {
+                            GUILayout.Box(string.Format("Enable the {0} property to adjust the color.", Styles.iridescence.text), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
+
+                            material.DisableKeyword(Styles.borderColorModeHoverColorName);
+                            material.DisableKeyword(Styles.borderColorModeColorName);
+                            material.EnableKeyword(Styles.borderColorModeIridescenceName);
+                        }
+                        break;
+                }
 
                 materialEditor.ShaderProperty(borderLightReplacesAlbedo, Styles.borderLightReplacesAlbedo, 2);
-
-                if (PropertyEnabled(hoverLight) && PropertyEnabled(enableHoverColorOverride))
-                {
-                    materialEditor.ShaderProperty(borderLightUsesHoverColor, Styles.borderLightUsesHoverColor, 2);
-                }
 
                 if (mode == RenderingMode.Cutout || mode == RenderingMode.Fade || mode == RenderingMode.Transparent ||
                     (mode == RenderingMode.Custom && customMode == CustomRenderingMode.Cutout) ||

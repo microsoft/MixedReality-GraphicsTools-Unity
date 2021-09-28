@@ -47,7 +47,7 @@
 #pragma shader_feature _ROUND_CORNERS
 #pragma shader_feature _INDEPENDENT_CORNERS
 #pragma shader_feature _BORDER_LIGHT
-#pragma shader_feature _BORDER_LIGHT_USES_HOVER_COLOR
+#pragma shader_feature _ _BORDER_LIGHT_USES_HOVER_COLOR _BORDER_LIGHT_USES_COLOR _BORDER_LIGHT_USES_IRIDESCENCE
 #pragma shader_feature _BORDER_LIGHT_REPLACES_ALBEDO
 #pragma shader_feature _BORDER_LIGHT_OPAQUE
 #pragma shader_feature _INNER_GLOW
@@ -344,6 +344,9 @@ fixed _RoundCornerMargin;
 #if defined(_BORDER_LIGHT)
 fixed _BorderWidth;
 fixed _BorderMinValue;
+#if defined(_BORDER_LIGHT_USES_COLOR)
+fixed3 _BorderColor;
+#endif
 #endif
 
 #if defined(_BORDER_LIGHT_OPAQUE)
@@ -552,7 +555,7 @@ v2f vert(appdata_t v)
 #endif
 
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
-    o.uv.xy = TRANSFORM_TEX(v.uv, _MainTex);
+    o.uv.xy = v.uv;
 
 #if defined(_USE_WORLD_SCALE)
     o.scale.z = 1;
@@ -780,7 +783,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     albedo *= i.color;
 #endif
 
-#if defined(_IRIDESCENCE)
+#if defined(_IRIDESCENCE) && !defined(_BORDER_LIGHT_USES_IRIDESCENCE)
     albedo.rgb += i.iridescentColor;
 #endif
 
@@ -877,12 +880,18 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 
     fixed borderValue = 1.0 - RoundCornersSmooth(cornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
 
-#if defined(_HOVER_LIGHT) && defined(_BORDER_LIGHT_USES_HOVER_COLOR) && defined(_HOVER_COLOR_OVERRIDE)
-    fixed3 borderColor = _HoverColorOverride.rgb;
+#if defined(_BORDER_LIGHT_USES_HOVER_COLOR) && defined(_HOVER_LIGHT) && defined(_HOVER_COLOR_OVERRIDE)
+    fixed3 borderColor = _HoverColorOverride.rgb * _BorderMinValue;
+#elif defined(_BORDER_LIGHT_USES_COLOR)
+    fixed3 borderColor = _BorderColor;
+#elif defined(_BORDER_LIGHT_USES_IRIDESCENCE) && defined(_IRIDESCENCE)
+    fixed3 borderColor = i.iridescentColor;
 #else
-    fixed3 borderColor = fixed3(1.0, 1.0, 1.0);
+    fixed3 borderColor = fixed3(_BorderMinValue, _BorderMinValue, _BorderMinValue);
 #endif
-    fixed3 borderContribution = borderColor * borderValue * _BorderMinValue * _FluentLightIntensity;
+
+    fixed3 borderContribution = borderColor * borderValue * _FluentLightIntensity;
+
 #if defined(_BORDER_LIGHT_REPLACES_ALBEDO)
     albedo.rgb = lerp(albedo.rgb, borderContribution, borderValue);
 #else
