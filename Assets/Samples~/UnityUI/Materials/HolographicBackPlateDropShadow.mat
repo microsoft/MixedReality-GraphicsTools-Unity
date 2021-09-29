@@ -125,6 +125,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _GradientMode: 0
     - _HoverLight: 0
     - _HoverLightOpaque: 0
     - _IgnoreZScale: 0
@@ -187,6 +188,11 @@ Material:
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
     - _EnvironmentColorY: {r: 0, g: 1, b: 0, a: 1}
     - _EnvironmentColorZ: {r: 0, g: 0, b: 1, a: 1}
+    - _GradientColor0: {r: 0.631373, g: 0.631373, b: 0.631373, a: 1}
+    - _GradientColor1: {r: 1, g: 0.690196, b: 0.976471, a: 1}
+    - _GradientColor2: {r: 0, g: 0.33, b: 0.88, a: 1}
+    - _GradientColor3: {r: 0, g: 0.33, b: 0.88, a: 1}
+    - _GradientColor4: {r: 1, g: 1, b: 1, a: 1}
     - _HoverColor: {r: 1, g: 0, b: 0, a: 1}
     - _HoverColorOpaqueOverride: {r: 1, g: 1, b: 1, a: 1}
     - _HoverColorOverride: {r: 1, g: 1, b: 1, a: 0.566}

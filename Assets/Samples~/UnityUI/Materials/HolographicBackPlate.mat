@@ -9,14 +9,14 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: HolographicBackPlate
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ShaderKeywords: _BORDER_LIGHT _BORDER_LIGHT_REPLACES_ALBEDO _DISABLE_ALBEDO_MAP
-    _IRIDESCENCE _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _ROUND_CORNERS _USE_WORLD_SCALE
+  m_ShaderKeywords: _ALPHATEST_ON _BORDER_LIGHT _BORDER_LIGHT_REPLACES_ALBEDO _DISABLE_ALBEDO_MAP
+    _GRADIENT_FOUR_POINT _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _ROUND_CORNERS _USE_WORLD_SCALE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: 2450
   stringTagMap:
-    RenderType: Opaque
+    RenderType: Cutout
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -99,7 +99,7 @@ Material:
     - _ClippingSphere: 0
     - _ColorWriteMask: 15
     - _CullMode: 0
-    - _CustomMode: 0
+    - _CustomMode: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DirectionalLight: 0
@@ -125,6 +125,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _GradientMode: 2
     - _HoverLight: 0
     - _HoverLightOpaque: 0
     - _IgnoreZScale: 0
@@ -138,7 +139,7 @@ Material:
     - _IridescenceThreshold: 0.05
     - _Metallic: 0
     - _MipmapBias: -2
-    - _Mode: 0
+    - _Mode: 1
     - _NearLightFade: 0
     - _NearPlaneFade: 0
     - _NormalMapScale: 1
@@ -187,6 +188,11 @@ Material:
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
     - _EnvironmentColorY: {r: 0, g: 1, b: 0, a: 1}
     - _EnvironmentColorZ: {r: 0, g: 0, b: 1, a: 1}
+    - _GradientColor0: {r: 0.631373, g: 0.631373, b: 0.631373, a: 1}
+    - _GradientColor1: {r: 1, g: 0.690196, b: 0.976471, a: 1}
+    - _GradientColor2: {r: 0, g: 0.33, b: 0.88, a: 1}
+    - _GradientColor3: {r: 0, g: 0.33, b: 0.88, a: 1}
+    - _GradientColor4: {r: 1, g: 1, b: 1, a: 1}
     - _HoverColor: {r: 1, g: 0, b: 0, a: 1}
     - _HoverColorOpaqueOverride: {r: 1, g: 1, b: 1, a: 1}
     - _HoverColorOverride: {r: 1, g: 1, b: 1, a: 0.566}
