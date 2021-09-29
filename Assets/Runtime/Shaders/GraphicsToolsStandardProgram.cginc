@@ -47,23 +47,17 @@
 #pragma shader_feature _ROUND_CORNERS
 #pragma shader_feature _INDEPENDENT_CORNERS
 #pragma shader_feature _BORDER_LIGHT
-#pragma shader_feature _ _BORDER_LIGHT_USES_HOVER_COLOR _BORDER_LIGHT_USES_COLOR _BORDER_LIGHT_USES_IRIDESCENCE
+#pragma shader_feature _ _BORDER_LIGHT_USES_HOVER_COLOR _BORDER_LIGHT_USES_COLOR _BORDER_LIGHT_USES_GRADIENT
 #pragma shader_feature _BORDER_LIGHT_REPLACES_ALBEDO
 #pragma shader_feature _BORDER_LIGHT_OPAQUE
 #pragma shader_feature _INNER_GLOW
-#pragma shader_feature _IRIDESCENCE
+#pragma shader_feature _ _IRIDESCENCE _GRADIENT_FOUR_POINT _GRADIENT_LINEAR
 #pragma shader_feature _ENVIRONMENT_COLORING
 #pragma shader_feature _USE_WORLD_SCALE
 
 /// <summary>
-/// Inludes and defines.
+///  Defines and includes.
 /// </summary>
-
-#include "UnityCG.cginc"
-#include "UnityUI.cginc"
-#include "UnityStandardConfig.cginc"
-#include "UnityStandardUtils.cginc"
-#include "GraphicsToolsCommon.cginc"
 
 #if defined(_TRIPLANAR_MAPPING) || defined(_DIRECTIONAL_LIGHT) || defined(_SPHERICAL_HARMONICS) || defined(_REFLECTIONS) || defined(_RIM_LIGHT) || defined(_PROXIMITY_LIGHT) || defined(_ENVIRONMENT_COLORING)
 #define _NORMAL
@@ -120,11 +114,17 @@
 #undef _DISTANCE_TO_EDGE
 #endif
 
-#if !defined(_DISABLE_ALBEDO_MAP) || defined(_TRIPLANAR_MAPPING) || defined(_CHANNEL_MAP) || defined(_NORMAL_MAP) || defined(_DISTANCE_TO_EDGE) || defined(_IRIDESCENCE)
+#if !defined(_DISABLE_ALBEDO_MAP) || defined(_TRIPLANAR_MAPPING) || defined(_CHANNEL_MAP) || defined(_NORMAL_MAP) || defined(_DISTANCE_TO_EDGE) || defined(_IRIDESCENCE) || defined(_GRADIENT_FOUR_POINT)
 #define _UV
 #else
 #undef _UV
 #endif
+
+#include "UnityCG.cginc"
+#include "UnityUI.cginc"
+#include "UnityStandardConfig.cginc"
+#include "UnityStandardUtils.cginc"
+#include "GraphicsToolsCommon.cginc"
 
 /// <summary>
 /// Vertex attributes passed into the vertex shader from the app.
@@ -369,6 +369,14 @@ fixed _IridescenceThreshold;
 fixed _IridescenceAngle;
 #endif
 
+#if defined(_GRADIENT_FOUR_POINT)
+fixed4 _GradientColor0;
+fixed4 _GradientColor1;
+fixed4 _GradientColor2;
+fixed4 _GradientColor3;
+fixed4 _GradientColor4;
+#endif
+
 #if defined(_ENVIRONMENT_COLORING)
 fixed _EnvironmentColorThreshold;
 fixed _EnvironmentColorIntensity;
@@ -392,85 +400,6 @@ static const float _FresnelPower = 8.0;
 
 #if defined(_ROUND_CORNERS) || defined(_BORDER_LIGHT)
 static const float _MinCorverValue = 0.00001;
-#endif
-
-/// <summary>
-/// Methods.
-/// </summary>
-
-#if defined(_NEAR_LIGHT_FADE)
-static const float _MaxNearLightDistance = 10.0;
-
-inline float NearLightDistance(float4 light, float3 worldPosition)
-{
-    return distance(worldPosition, light.xyz) + ((1.0 - light.w) * _MaxNearLightDistance);
-}
-#endif
-
-#if defined(_HOVER_LIGHT)
-inline float HoverLight(float4 hoverLight, float inverseRadius, float3 worldPosition)
-{
-    return (1.0 - saturate(length(hoverLight.xyz - worldPosition) * inverseRadius)) * hoverLight.w;
-}
-#endif
-
-#if defined(_PROXIMITY_LIGHT)
-inline float ProximityLight(float4 proximityLight, float4 proximityLightParams, float4 proximityLightPulseParams, float3 worldPosition, float3 worldNormal, out fixed colorValue)
-{
-    float proximityLightDistance = dot(proximityLight.xyz - worldPosition, worldNormal);
-#if defined(_PROXIMITY_LIGHT_TWO_SIDED)
-    worldNormal = proximityLightDistance < 0.0 ? -worldNormal : worldNormal;
-    proximityLightDistance = abs(proximityLightDistance);
-#endif
-    float normalizedProximityLightDistance = saturate(proximityLightDistance * proximityLightParams.y);
-    float3 projectedProximityLight = proximityLight.xyz - (worldNormal * abs(proximityLightDistance));
-    float projectedProximityLightDistance = length(projectedProximityLight - worldPosition);
-    float attenuation = (1.0 - normalizedProximityLightDistance) * proximityLight.w;
-    colorValue = saturate(projectedProximityLightDistance * proximityLightParams.z);
-    float pulse = step(proximityLightPulseParams.x, projectedProximityLightDistance) * proximityLightPulseParams.y;
-
-    return smoothstep(1.0, 0.0, projectedProximityLightDistance / (proximityLightParams.x * max(pow(normalizedProximityLightDistance, 0.25), proximityLightParams.w))) * pulse * attenuation;
-}
-
-inline fixed3 MixProximityLightColor(fixed4 centerColor, fixed4 middleColor, fixed4 outerColor, fixed t)
-{
-    fixed3 color = lerp(centerColor.rgb, middleColor.rgb, smoothstep(centerColor.a, middleColor.a, t));
-    return lerp(color, outerColor, smoothstep(middleColor.a, outerColor.a, t));
-}
-#endif
-
-#if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
-inline float PointVsRoundedBox(float2 position, float2 cornerCircleDistance, float cornerCircleRadius)
-{
-    return length(max(abs(position) - cornerCircleDistance, 0.0)) - cornerCircleRadius;
-}
-
-inline float RoundCornersSmooth(float2 position, float2 cornerCircleDistance, float cornerCircleRadius, float scale)
-{
-    return smoothstep(1.0, 0.0, PointVsRoundedBox(position, cornerCircleDistance, cornerCircleRadius) / (_EdgeSmoothingValue * scale));
-}
-
-inline float RoundCorners(float2 position, float2 cornerCircleDistance, float cornerCircleRadius, float scale)
-{
-#if defined(_TRANSPARENT)
-    return RoundCornersSmooth(position, cornerCircleDistance, cornerCircleRadius, scale);
-#else
-    return (PointVsRoundedBox(position, cornerCircleDistance, cornerCircleRadius) < 0.0);
-#endif
-}
-#endif
-
-#if defined(_IRIDESCENCE)
-fixed3 Iridescence(float tangentDotIncident, sampler2D spectrumMap, float threshold, float2 uv, float angle, float intensity)
-{
-    float k = tangentDotIncident * 0.5 + 0.5;
-    float4 left = tex2D(spectrumMap, float2(lerp(0.0, 1.0 - threshold, k), 0.5), float2(0.0, 0.0), float2(0.0, 0.0));
-    float4 right = tex2D(spectrumMap, float2(lerp(threshold, 1.0, k), 0.5), float2(0.0, 0.0), float2(0.0, 0.0));
-
-    float2 XY = uv - float2(0.5, 0.5);
-    float s = (cos(angle) * XY.x - sin(angle) * XY.y) / cos(angle);
-    return (left.rgb + s * (right.rgb - left.rgb)) * intensity;
-}
 #endif
 
 /// <summary>
@@ -773,7 +702,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, _MinCorverValue)) * i.scale.z;
     float2 cornerCircleDistance = halfScale - (_RoundCornerMargin * i.scale.z) - cornerCircleRadius;
 #if defined(_ROUND_CORNERS)
-    float roundCornerClip = RoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
+    float roundCornerClip = RoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * i.scale.z);
 #endif
 #endif
 
@@ -783,8 +712,19 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     albedo *= i.color;
 #endif
 
-#if defined(_IRIDESCENCE) && !defined(_BORDER_LIGHT_USES_IRIDESCENCE)
+#if defined(_GRADIENT_FOUR_POINT)
+    fixed3 fourPointGradientColor = FourPointGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, i.uv);
+#endif
+
+#if !defined(_BORDER_LIGHT_USES_GRADIENT)
+#if defined(_IRIDESCENCE)
     albedo.rgb += i.iridescentColor;
+#elif defined(_GRADIENT_FOUR_POINT)
+    albedo.rgb += fourPointGradientColor;
+#elif defined(_GRADIENT_LINEAR)
+    // TODO
+    //albedo.rgb += fourPointGradientColor;
+#endif
 #endif
 
     // Normal calculation.
@@ -878,14 +818,21 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     cornerCircleRadius = saturate(max(currentCornerRadius - borderMargin, _MinCorverValue)) * i.scale.z;
     cornerCircleDistance = halfScale - (borderMargin * i.scale.z) - cornerCircleRadius;
 
-    fixed borderValue = 1.0 - RoundCornersSmooth(cornerPosition, cornerCircleDistance, cornerCircleRadius, i.scale.z);
+    fixed borderValue = 1.0 - RoundCornersSmooth(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * i.scale.z);
 
 #if defined(_BORDER_LIGHT_USES_HOVER_COLOR) && defined(_HOVER_LIGHT) && defined(_HOVER_COLOR_OVERRIDE)
     fixed3 borderColor = _HoverColorOverride.rgb * _BorderMinValue;
 #elif defined(_BORDER_LIGHT_USES_COLOR)
     fixed3 borderColor = _BorderColor;
-#elif defined(_BORDER_LIGHT_USES_IRIDESCENCE) && defined(_IRIDESCENCE)
+#elif defined(_BORDER_LIGHT_USES_GRADIENT)
+#if defined(_IRIDESCENCE) 
     fixed3 borderColor = i.iridescentColor;
+#elif defined(_GRADIENT_FOUR_POINT)
+    fixed3 borderColor = fourPointGradientColor;
+#elif defined(_GRADIENT_LINEAR)
+    // TODO
+    //fixed3 borderColor = fourPointGradientColor;
+#endif
 #else
     fixed3 borderColor = fixed3(_BorderMinValue, _BorderMinValue, _BorderMinValue);
 #endif

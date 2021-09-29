@@ -71,7 +71,7 @@ Shader "Graphics Tools/Standard"
         [Toggle(_BORDER_LIGHT_REPLACES_ALBEDO)] _BorderLightReplacesAlbedo("Border Light Replaces Albedo", Float) = 0.0
         [Toggle(_BORDER_LIGHT_OPAQUE)] _BorderLightOpaque("Border Light Opaque", Float) = 0.0
         _BorderWidth("Border Width", Range(0.0, 1.0)) = 0.1
-        [Enum(BorderColorMode)] _BorderColorMode("_BorderColor Mode", Float) = 0 // "Brightness"
+        [Enum(BorderColorMode)] _BorderColorMode("Border Color Mode", Float) = 0 // "Brightness"
         _BorderMinValue("Border Min Value", Range(0.0, 1.0)) = 0.1
         _BorderColor("Border Color", Color) = (1.0, 1.0, 1.0, 0.0)
         _EdgeSmoothingValue("Edge Smoothing Value", Range(0.0, 1.0)) = 0.002
@@ -79,11 +79,16 @@ Shader "Graphics Tools/Standard"
         [Toggle(_INNER_GLOW)] _InnerGlow("Inner Glow", Float) = 0.0
         _InnerGlowColor("Inner Glow Color (RGB) and Intensity (A)", Color) = (1.0, 1.0, 1.0, 0.75)
         _InnerGlowPower("Inner Glow Power", Range(2.0, 32.0)) = 4.0
-        [Toggle(_IRIDESCENCE)] _Iridescence("Iridescence", Float) = 0.0
+        [Enum(GradientMode)] _GradientMode("Gradient Mode", Float) = 0 // "None"
         [NoScaleOffset] _IridescentSpectrumMap("Iridescent Spectrum Map", 2D) = "white" {}
         _IridescenceIntensity("Iridescence Intensity", Range(0.0, 1.0)) = 0.5
         _IridescenceThreshold("Iridescence Threshold", Range(0.0, 1.0)) = 0.05
         _IridescenceAngle("Iridescence Angle", Range(-0.78, 0.78)) = -0.78
+        _GradientColor0("Gradient Color 0", Color) = (0.631373, 0.631373, 0.631373, 1.0)
+        _GradientColor1("Gradient Color 1", Color) = (1.0, 0.690196, 0.976471, 1.0)
+        _GradientColor2("Gradient Color 2", Color) = (0.0, 0.33, 0.88, 1.0)
+        _GradientColor3("Gradient Color 3", Color) = (0.0, 0.33, 0.88, 1.0)
+        _GradientColor4("Gradient Color 4", Color) = (1.0, 1.0, 1.0, 1.0)
         [Toggle(_ENVIRONMENT_COLORING)] _EnvironmentColoring("Environment Coloring", Float) = 0.0
         _EnvironmentColorThreshold("Environment Color Threshold", Range(0.0, 3.0)) = 1.5
         _EnvironmentColorIntensity("Environment Color Intensity", Range(0.0, 1.0)) = 0.5
@@ -141,7 +146,7 @@ Shader "Graphics Tools/Standard"
 
             #define _RENDER_PIPELINE
 
-            #include "GraphicsToolsStandardCommon.cginc"
+            #include "GraphicsToolsStandardProgram.cginc"
 
             ENDCG
         }
@@ -193,7 +198,7 @@ Shader "Graphics Tools/Standard"
 
             #define _RENDER_PIPELINE
 
-            #include "GraphicsToolsStandardCommon.cginc"
+            #include "GraphicsToolsStandardProgram.cginc"
 
             ENDCG
         }
@@ -243,7 +248,7 @@ Shader "Graphics Tools/Standard"
 
             CGPROGRAM
 
-            #include "GraphicsToolsStandardCommon.cginc"
+            #include "GraphicsToolsStandardProgram.cginc"
 
             ENDCG
         }

@@ -21,12 +21,20 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Smoothness = 2
         }
 
+        protected enum GradientMode
+        {
+            None = 0,
+            Iridescence = 1,
+            FourPoint = 2,
+            Linear = 3
+        }
+
         protected enum BorderColorMode
         {
             Brightness = 0,
             HoverColor = 1,
             Color = 2,
-            Iridescence = 3
+            Gradient = 3
         }
 
         protected static class Styles
@@ -42,6 +50,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static string albedoMapAlphaSmoothnessName = "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A";
             public static string propertiesComponentHelp = "Use the {0} component(s) to control {1} properties.";
             public static readonly string[] albedoAlphaModeNames = Enum.GetNames(typeof(AlbedoAlphaMode));
+            public static readonly string[] gradientModeNames = Enum.GetNames(typeof(GradientMode));
             public static readonly string[] borderColorModeNames = Enum.GetNames(typeof(BorderColorMode));
             public static GUIContent albedo = new GUIContent("Albedo", "Albedo (RGB) and Transparency (Alpha)");
             public static GUIContent albedoAssignedAtRuntime = new GUIContent("Assigned at Runtime", "As an optimization albedo operations are disabled when no albedo texture is specified. If a albedo texture will be specified at runtime enable this option.");
@@ -105,7 +114,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static GUIContent borderColorMode = new GUIContent("Color Mode", "How the Border is Colored");
             public static string borderColorModeHoverColorName = "_BORDER_LIGHT_USES_HOVER_COLOR";
             public static string borderColorModeColorName = "_BORDER_LIGHT_USES_COLOR";
-            public static string borderColorModeIridescenceName = "_BORDER_LIGHT_USES_IRIDESCENCE";
+            public static string borderColorModeGradientName = "_BORDER_LIGHT_USES_GRADIENT";
             public static GUIContent borderMinValue = new GUIContent("Brightness", "Brightness Scaler");
             public static GUIContent borderColor = new GUIContent("Border Color", "Border Color");
             public static GUIContent edgeSmoothingValue = new GUIContent("Edge Smoothing Value", "Smooths Edges When Round Corners and Transparency Is Enabled");
@@ -113,11 +122,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static GUIContent innerGlow = new GUIContent("Inner Glow", "Enable Inner Glow (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
             public static GUIContent innerGlowColor = new GUIContent("Color", "Inner Glow Color (RGB) and Intensity (A)");
             public static GUIContent innerGlowPower = new GUIContent("Power", "Power Exponent to Control Glow");
-            public static GUIContent iridescence = new GUIContent("Iridescence", "Simulated Iridescence via Albedo Changes with the Angle of Observation)");
+            public static GUIContent gradientMode = new GUIContent("Gradient Mode", "Specifies the Type of Color Gradient to Apply in UV Space");
+            public static string gradientModeIridescence = "_IRIDESCENCE";
+            public static string gradientModeFourPoint = "_GRADIENT_FOUR_POINT";
+            public static string gradientModeLinear = "_GRADIENT_LINEAR";
             public static GUIContent iridescentSpectrumMap = new GUIContent("Spectrum Map", "Spectrum of Colors to Apply (Usually a Texture with ROYGBIV from Left to Right)");
             public static GUIContent iridescenceIntensity = new GUIContent("Intensity", "Intensity of Iridescence");
             public static GUIContent iridescenceThreshold = new GUIContent("Threshold", "Threshold Window to Sample From the Spectrum Map");
             public static GUIContent iridescenceAngle = new GUIContent("Angle", "Surface Angle");
+            public static GUIContent fourPointGradientMainColor = new GUIContent("Main", "Primary Tint Color of the Gradient");
+            public static GUIContent fourPointGradientTopLeftColor = new GUIContent("Top Left", "Top Left Color at UV (0, 0)");
+            public static GUIContent fourPointGradientTopRightColor = new GUIContent("Top Right", "Top Right Color at UV (1, 0)");
+            public static GUIContent fourPointGradientBottomLeftColor = new GUIContent("Bottom Left", "Bottom Left Color at UV (0, 1)");
+            public static GUIContent fourPointGradientBottomRightColor = new GUIContent("Bottom Right", "Bottom Right Color at UV (1, 1)");
             public static GUIContent environmentColoring = new GUIContent("Environment Coloring", "Change Color Based on View");
             public static GUIContent environmentColorThreshold = new GUIContent("Threshold", "Threshold When Environment Coloring Should Appear Based on Surface Normal");
             public static GUIContent environmentColorIntensity = new GUIContent("Intensity", "Intensity (or Brightness) of the Environment Coloring");
@@ -200,11 +217,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty innerGlow;
         protected MaterialProperty innerGlowColor;
         protected MaterialProperty innerGlowPower;
-        protected MaterialProperty iridescence;
+        protected MaterialProperty gradientMode;
         protected MaterialProperty iridescentSpectrumMap;
         protected MaterialProperty iridescenceIntensity;
         protected MaterialProperty iridescenceThreshold;
         protected MaterialProperty iridescenceAngle;
+        protected MaterialProperty gradientColor0;
+        protected MaterialProperty gradientColor1;
+        protected MaterialProperty gradientColor2;
+        protected MaterialProperty gradientColor3;
+        protected MaterialProperty gradientColor4;
         protected MaterialProperty environmentColoring;
         protected MaterialProperty environmentColorThreshold;
         protected MaterialProperty environmentColorIntensity;
@@ -290,11 +312,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             innerGlow = FindProperty("_InnerGlow", props);
             innerGlowColor = FindProperty("_InnerGlowColor", props);
             innerGlowPower = FindProperty("_InnerGlowPower", props);
-            iridescence = FindProperty("_Iridescence", props);
+            gradientMode = FindProperty("_GradientMode", props);
             iridescentSpectrumMap = FindProperty("_IridescentSpectrumMap", props);
             iridescenceIntensity = FindProperty("_IridescenceIntensity", props);
             iridescenceThreshold = FindProperty("_IridescenceThreshold", props);
             iridescenceAngle = FindProperty("_IridescenceAngle", props);
+            gradientColor0 = FindProperty("_GradientColor0", props);
+            gradientColor1 = FindProperty("_GradientColor1", props);
+            gradientColor2 = FindProperty("_GradientColor2", props);
+            gradientColor3 = FindProperty("_GradientColor3", props);
+            gradientColor4 = FindProperty("_GradientColor4", props);
             environmentColoring = FindProperty("_EnvironmentColoring", props);
             environmentColorThreshold = FindProperty("_EnvironmentColorThreshold", props);
             environmentColorIntensity = FindProperty("_EnvironmentColorIntensity", props);
@@ -402,6 +429,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected override void MaterialChanged(Material material)
         {
             SetupMaterialWithAlbedo(material, albedoMap, albedoAlphaMode, albedoAssignedAtRuntime);
+
+            // Ensure old materials with "_IRIDESCENCE" enabled also turn on the Iridescence gradient mode.
+            if (material.IsKeywordEnabled("_IRIDESCENCE"))
+            {
+                SetShaderFeatureActive(material, Styles.gradientModeIridescence, "_GradientMode", (float)GradientMode.Iridescence);
+            }
 
             base.MaterialChanged(material);
         }
@@ -626,17 +659,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                             material.DisableKeyword(Styles.borderColorModeHoverColorName);
                             material.DisableKeyword(Styles.borderColorModeColorName);
-                            material.DisableKeyword(Styles.borderColorModeIridescenceName);
+                            material.DisableKeyword(Styles.borderColorModeGradientName);
                         }
                         break;
                     case BorderColorMode.HoverColor:
                         {
                             materialEditor.ShaderProperty(borderMinValue, Styles.borderMinValue, 2);
-                            GUILayout.Box(string.Format("Enable the {0} property and {1} property to adjust the color.", Styles.hoverLight.text, Styles.enableHoverColorOverride.text), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
+                            GUILayout.Box(string.Format("Enable the {0} property and {1} property to alter the color.", Styles.hoverLight.text, Styles.enableHoverColorOverride.text), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
 
                             material.EnableKeyword(Styles.borderColorModeHoverColorName);
                             material.DisableKeyword(Styles.borderColorModeColorName);
-                            material.DisableKeyword(Styles.borderColorModeIridescenceName);
+                            material.DisableKeyword(Styles.borderColorModeGradientName);
                         }
                         break;
                     case BorderColorMode.Color:
@@ -645,16 +678,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                             material.DisableKeyword(Styles.borderColorModeHoverColorName);
                             material.EnableKeyword(Styles.borderColorModeColorName);
-                            material.DisableKeyword(Styles.borderColorModeIridescenceName);
+                            material.DisableKeyword(Styles.borderColorModeGradientName);
                         }
                         break;
-                    case BorderColorMode.Iridescence:
+                    case BorderColorMode.Gradient:
                         {
-                            GUILayout.Box(string.Format("Enable the {0} property to adjust the color.", Styles.iridescence.text), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
+                            GUILayout.Box(string.Format("Adjust the {0} property to alter the color.", Styles.gradientMode.text), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
 
                             material.DisableKeyword(Styles.borderColorModeHoverColorName);
                             material.DisableKeyword(Styles.borderColorModeColorName);
-                            material.EnableKeyword(Styles.borderColorModeIridescenceName);
+                            material.EnableKeyword(Styles.borderColorModeGradientName);
                         }
                         break;
                 }
@@ -709,16 +742,54 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 materialEditor.ShaderProperty(innerGlowPower, Styles.innerGlowPower, 2);
             }
 
-            materialEditor.ShaderProperty(iridescence, Styles.iridescence);
+            materialEditor.ShaderProperty(gradientMode, Styles.gradientMode);
 
-            if (PropertyEnabled(iridescence))
+            switch ((GradientMode)gradientMode.floatValue)
             {
-                EditorGUI.indentLevel += 2;
-                materialEditor.TexturePropertySingleLine(Styles.iridescentSpectrumMap, iridescentSpectrumMap);
-                EditorGUI.indentLevel -= 2;
-                materialEditor.ShaderProperty(iridescenceIntensity, Styles.iridescenceIntensity, 2);
-                materialEditor.ShaderProperty(iridescenceThreshold, Styles.iridescenceThreshold, 2);
-                materialEditor.ShaderProperty(iridescenceAngle, Styles.iridescenceAngle, 2);
+                case GradientMode.None:
+                    {
+                        material.DisableKeyword(Styles.gradientModeIridescence);
+                        material.DisableKeyword(Styles.gradientModeFourPoint);
+                        material.DisableKeyword(Styles.gradientModeLinear);
+                    }
+                    break;
+                case GradientMode.Iridescence:
+                    {
+                        EditorGUI.indentLevel += 2;
+                        materialEditor.TexturePropertySingleLine(Styles.iridescentSpectrumMap, iridescentSpectrumMap);
+                        EditorGUI.indentLevel -= 2;
+                        materialEditor.ShaderProperty(iridescenceIntensity, Styles.iridescenceIntensity, 2);
+                        materialEditor.ShaderProperty(iridescenceThreshold, Styles.iridescenceThreshold, 2);
+                        materialEditor.ShaderProperty(iridescenceAngle, Styles.iridescenceAngle, 2);
+
+                        material.EnableKeyword(Styles.gradientModeIridescence);
+                        material.DisableKeyword(Styles.gradientModeFourPoint);
+                        material.DisableKeyword(Styles.gradientModeLinear);
+                    }
+                    break;
+                case GradientMode.FourPoint:
+                    {
+                        materialEditor.ShaderProperty(gradientColor0, Styles.fourPointGradientMainColor, 2);
+                        materialEditor.ShaderProperty(gradientColor1, Styles.fourPointGradientTopLeftColor, 2);
+                        materialEditor.ShaderProperty(gradientColor2, Styles.fourPointGradientTopRightColor, 2);
+                        materialEditor.ShaderProperty(gradientColor3, Styles.fourPointGradientBottomLeftColor, 2);
+                        materialEditor.ShaderProperty(gradientColor4, Styles.fourPointGradientBottomRightColor, 2);
+
+                        material.DisableKeyword(Styles.gradientModeIridescence);
+                        material.EnableKeyword(Styles.gradientModeFourPoint);
+                        material.DisableKeyword(Styles.gradientModeLinear);
+                    }
+                    break;
+
+                case GradientMode.Linear:
+                    {
+                        // TODO
+
+                        material.DisableKeyword(Styles.gradientModeIridescence);
+                        material.DisableKeyword(Styles.gradientModeFourPoint);
+                        material.EnableKeyword(Styles.gradientModeLinear);
+                    }
+                    break;
             }
 
             materialEditor.ShaderProperty(environmentColoring, Styles.environmentColoring);
