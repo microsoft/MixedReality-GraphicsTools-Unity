@@ -84,9 +84,9 @@ Shader "Graphics Tools/Standard"
         _IridescenceIntensity("Iridescence Intensity", Range(0.0, 1.0)) = 0.5
         _IridescenceThreshold("Iridescence Threshold", Range(0.0, 1.0)) = 0.05
         _IridescenceAngle("Iridescence Angle", Range(-0.78, 0.78)) = -0.78
-        _GradientColor0("Gradient Color 0", Color) = (0.631373, 0.631373, 0.631373, 1.0)
-        _GradientColor1("Gradient Color 1", Color) = (1.0, 0.690196, 0.976471, 1.0)
-        _GradientColor2("Gradient Color 2", Color) = (0.0, 0.33, 0.88, 1.0)
+        _GradientColor0("Gradient Color 0", Color) = (0.631373, 0.631373, 0.631373, 0.0)
+        _GradientColor1("Gradient Color 1", Color) = (1.0, 0.690196, 0.976471, 0.25)
+        _GradientColor2("Gradient Color 2", Color) = (0.0, 0.33, 0.88, 0.5)
         _GradientColor3("Gradient Color 3", Color) = (0.0, 0.33, 0.88, 1.0)
         _GradientColor4("Gradient Color 4", Color) = (1.0, 1.0, 1.0, 1.0)
         [Toggle(_ENVIRONMENT_COLORING)] _EnvironmentColoring("Environment Coloring", Float) = 0.0

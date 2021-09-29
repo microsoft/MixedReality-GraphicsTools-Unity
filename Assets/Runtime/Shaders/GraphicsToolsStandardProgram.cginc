@@ -114,7 +114,13 @@
 #undef _DISTANCE_TO_EDGE
 #endif
 
-#if !defined(_DISABLE_ALBEDO_MAP) || defined(_TRIPLANAR_MAPPING) || defined(_CHANNEL_MAP) || defined(_NORMAL_MAP) || defined(_DISTANCE_TO_EDGE) || defined(_IRIDESCENCE) || defined(_GRADIENT_FOUR_POINT)
+#if defined(_IRIDESCENCE) || defined(_GRADIENT_FOUR_POINT) || defined(_GRADIENT_LINEAR)
+#define _GRADIENT
+#else
+#undef _GRADIENT
+#endif
+
+#if !defined(_DISABLE_ALBEDO_MAP) || defined(_TRIPLANAR_MAPPING) || defined(_CHANNEL_MAP) || defined(_NORMAL_MAP) || defined(_DISTANCE_TO_EDGE) || defined(_GRADIENT)
 #define _UV
 #else
 #undef _UV
@@ -369,7 +375,7 @@ fixed _IridescenceThreshold;
 fixed _IridescenceAngle;
 #endif
 
-#if defined(_GRADIENT_FOUR_POINT)
+#if defined(_GRADIENT_FOUR_POINT) || defined(_GRADIENT_LINEAR)
 fixed4 _GradientColor0;
 fixed4 _GradientColor1;
 fixed4 _GradientColor2;
@@ -712,18 +718,17 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     albedo *= i.color;
 #endif
 
-#if defined(_GRADIENT_FOUR_POINT)
-    fixed3 fourPointGradientColor = FourPointGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, i.uv);
+#if defined(_GRADIENT)
+#if defined(_IRIDESCENCE)
+    fixed3 gradientColor = i.iridescentColor;
+#elif defined(_GRADIENT_FOUR_POINT)
+    fixed3 gradientColor = FourPointGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, i.uv);
+#elif defined(_GRADIENT_LINEAR)
+    fixed3 gradientColor = LinearGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, i.uv);
 #endif
 
 #if !defined(_BORDER_LIGHT_USES_GRADIENT)
-#if defined(_IRIDESCENCE)
-    albedo.rgb += i.iridescentColor;
-#elif defined(_GRADIENT_FOUR_POINT)
-    albedo.rgb += fourPointGradientColor;
-#elif defined(_GRADIENT_LINEAR)
-    // TODO
-    //albedo.rgb += fourPointGradientColor;
+    albedo.rgb += gradientColor;
 #endif
 #endif
 
@@ -825,14 +830,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 #elif defined(_BORDER_LIGHT_USES_COLOR)
     fixed3 borderColor = _BorderColor;
 #elif defined(_BORDER_LIGHT_USES_GRADIENT)
-#if defined(_IRIDESCENCE) 
-    fixed3 borderColor = i.iridescentColor;
-#elif defined(_GRADIENT_FOUR_POINT)
-    fixed3 borderColor = fourPointGradientColor;
-#elif defined(_GRADIENT_LINEAR)
-    // TODO
-    //fixed3 borderColor = fourPointGradientColor;
-#endif
+    fixed3 borderColor = gradientColor;
 #else
     fixed3 borderColor = fixed3(_BorderMinValue, _BorderMinValue, _BorderMinValue);
 #endif

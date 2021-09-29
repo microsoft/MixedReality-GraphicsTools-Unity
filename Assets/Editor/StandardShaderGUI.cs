@@ -135,6 +135,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static GUIContent fourPointGradientTopRightColor = new GUIContent("Top Right", "Top Right Color at UV (1, 0)");
             public static GUIContent fourPointGradientBottomLeftColor = new GUIContent("Bottom Left", "Bottom Left Color at UV (0, 1)");
             public static GUIContent fourPointGradientBottomRightColor = new GUIContent("Bottom Right", "Bottom Right Color at UV (1, 1)");
+            public static GUIContent linearGradientStop0Color = new GUIContent("Stop 0", "TODO");
+            public static GUIContent linearGradientStop1Color = new GUIContent("Stop 1", "TODO");
+            public static GUIContent linearGradientStop2Color = new GUIContent("Stop 2", "TODO");
+            public static GUIContent linearGradientStop3Color = new GUIContent("Stop 3", "TODO");
             public static GUIContent environmentColoring = new GUIContent("Environment Coloring", "Change Color Based on View");
             public static GUIContent environmentColorThreshold = new GUIContent("Threshold", "Threshold When Environment Coloring Should Appear Based on Surface Normal");
             public static GUIContent environmentColorIntensity = new GUIContent("Intensity", "Intensity (or Brightness) of the Environment Coloring");
@@ -783,7 +787,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 case GradientMode.Linear:
                     {
-                        // TODO
+                        materialEditor.ShaderProperty(gradientColor0, Styles.linearGradientStop0Color, 2);
+                        materialEditor.ShaderProperty(gradientColor1, Styles.linearGradientStop1Color, 2);
+                        materialEditor.ShaderProperty(gradientColor2, Styles.linearGradientStop2Color, 2);
+                        materialEditor.ShaderProperty(gradientColor3, Styles.linearGradientStop3Color, 2);
 
                         material.DisableKeyword(Styles.gradientModeIridescence);
                         material.DisableKeyword(Styles.gradientModeFourPoint);
