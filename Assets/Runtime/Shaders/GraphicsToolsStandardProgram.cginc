@@ -177,7 +177,9 @@ struct v2f
     fixed3 ambient : COLOR1;
 #endif
 #if defined(_IRIDESCENCE)
-    fixed3 iridescentColor : COLOR2;
+    fixed3 gradient : COLOR2;
+#elif defined(_GRADIENT_LINEAR)
+    float2 gradient : COLOR2;
 #endif
 #if defined(_WORLD_POSITION)
 #if defined(_NEAR_PLANE_FADE)
@@ -376,6 +378,7 @@ fixed _IridescenceAngle;
 #endif
 
 #if defined(_GRADIENT_FOUR_POINT) || defined(_GRADIENT_LINEAR)
+float _GradientAngle;
 fixed4 _GradientColor0;
 fixed4 _GradientColor1;
 fixed4 _GradientColor2;
@@ -490,7 +493,7 @@ v2f vert(appdata_t v)
 #endif
 
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
-    o.uv.xy = v.uv;
+    o.uv = v.uv;
 
 #if defined(_USE_WORLD_SCALE)
     o.scale.z = 1;
@@ -538,7 +541,12 @@ v2f vert(appdata_t v)
     float3 rightTangent = normalize(mul((float3x3)unity_ObjectToWorld, float3(1.0, 0.0, 0.0)));
     float3 incidentWithCenter = normalize(mul(unity_ObjectToWorld, float4(0.0, 0.0, 0.0, 1.0)) - _WorldSpaceCameraPos);
     float tangentDotIncident = dot(rightTangent, incidentWithCenter);
-    o.iridescentColor = Iridescence(tangentDotIncident, _IridescentSpectrumMap, _IridescenceThreshold, v.uv, _IridescenceAngle, _IridescenceIntensity);
+    o.gradient = Iridescence(tangentDotIncident, _IridescentSpectrumMap, _IridescenceThreshold, v.uv, _IridescenceAngle, _IridescenceIntensity);
+ #elif defined(_GRADIENT_LINEAR)
+    float angle = (_GradientAngle + 90.0) * ((UNITY_PI * 2.0) / 360.0);
+    float c = cos(angle);
+    float s = sin(angle);
+    o.gradient = mul(o.uv - 0.5, float2x2(c, -s, s, c)) + 0.5;
 #endif
 
 #if defined(_NORMAL)
@@ -600,14 +608,14 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 #if defined(_USE_SSAA)
     // Does SSAA on the texture, implementation based off this article: https://medium.com/@bgolus/sharper-mipmapping-using-shader-based-supersampling-ed7aadb47bec
     // per pixel screen space partial derivatives
-    float2 dx = ddx(i.uv.xy) * 0.25; // horizontal offset
-    float2 dy = ddy(i.uv.xy) * 0.25; // vertical offset
+    float2 dx = ddx(i.uv) * 0.25; // horizontal offset
+    float2 dy = ddy(i.uv) * 0.25; // vertical offset
     // supersampled 2x2 ordered grid
     fixed4 albedo = 0;
-    albedo += tex2Dbias(_MainTex, float4(i.uv.xy + dx + dy, 0.0, _MipmapBias));
-    albedo += tex2Dbias(_MainTex, float4(i.uv.xy - dx + dy, 0.0, _MipmapBias));
-    albedo += tex2Dbias(_MainTex, float4(i.uv.xy + dx - dy, 0.0, _MipmapBias));
-    albedo += tex2Dbias(_MainTex, float4(i.uv.xy - dx - dy, 0.0, _MipmapBias));
+    albedo += tex2Dbias(_MainTex, float4(i.uv + dx + dy, 0.0, _MipmapBias));
+    albedo += tex2Dbias(_MainTex, float4(i.uv - dx + dy, 0.0, _MipmapBias));
+    albedo += tex2Dbias(_MainTex, float4(i.uv + dx - dy, 0.0, _MipmapBias));
+    albedo += tex2Dbias(_MainTex, float4(i.uv - dx - dy, 0.0, _MipmapBias));
     albedo *= 0.25;
 #else
     fixed4 albedo = tex2D(_MainTex, i.uv);
@@ -720,11 +728,11 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 
 #if defined(_GRADIENT)
 #if defined(_IRIDESCENCE)
-    fixed3 gradientColor = i.iridescentColor;
+    fixed3 gradientColor = i.gradient;
 #elif defined(_GRADIENT_FOUR_POINT)
     fixed3 gradientColor = FourPointGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, i.uv);
 #elif defined(_GRADIENT_LINEAR)
-    fixed3 gradientColor = LinearGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, i.uv);
+    fixed3 gradientColor = LinearGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, i.gradient);
 #endif
 
 #if !defined(_BORDER_LIGHT_USES_GRADIENT)

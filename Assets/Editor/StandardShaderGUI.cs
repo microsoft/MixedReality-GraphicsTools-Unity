@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -39,117 +38,119 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         protected static class Styles
         {
-            public static string primaryMapsTitle = "Main Maps";
-            public static string renderingOptionsTitle = "Rendering Options";
-            public static string advancedOptionsTitle = "Advanced Options";
-            public static string fluentOptionsTitle = "Fluent Options";
-            public static string stencilComparisonName = "_StencilComparison";
-            public static string stencilOperationName = "_StencilOperation";
-            public static string disableAlbedoMapName = "_DISABLE_ALBEDO_MAP";
-            public static string albedoMapAlphaMetallicName = "_METALLIC_TEXTURE_ALBEDO_CHANNEL_A";
-            public static string albedoMapAlphaSmoothnessName = "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A";
-            public static string propertiesComponentHelp = "Use the {0} component(s) to control {1} properties.";
+            public static readonly string primaryMapsTitle = "Main Maps";
+            public static readonly string renderingOptionsTitle = "Rendering Options";
+            public static readonly string advancedOptionsTitle = "Advanced Options";
+            public static readonly string fluentOptionsTitle = "Fluent Options";
+            public static readonly string stencilComparisonName = "_StencilComparison";
+            public static readonly string stencilOperationName = "_StencilOperation";
+            public static readonly string disableAlbedoMapName = "_DISABLE_ALBEDO_MAP";
+            public static readonly string albedoMapAlphaMetallicName = "_METALLIC_TEXTURE_ALBEDO_CHANNEL_A";
+            public static readonly string albedoMapAlphaSmoothnessName = "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A";
+            public static readonly string propertiesComponentHelp = "Use the {0} component(s) to control {1} properties.";
             public static readonly string[] albedoAlphaModeNames = Enum.GetNames(typeof(AlbedoAlphaMode));
             public static readonly string[] gradientModeNames = Enum.GetNames(typeof(GradientMode));
             public static readonly string[] borderColorModeNames = Enum.GetNames(typeof(BorderColorMode));
-            public static GUIContent albedo = new GUIContent("Albedo", "Albedo (RGB) and Transparency (Alpha)");
-            public static GUIContent albedoAssignedAtRuntime = new GUIContent("Assigned at Runtime", "As an optimization albedo operations are disabled when no albedo texture is specified. If a albedo texture will be specified at runtime enable this option.");
-            public static GUIContent alphaCutoff = new GUIContent("Alpha Cutoff", "Threshold for Alpha Cutoff");
-            public static GUIContent metallic = new GUIContent("Metallic", "Metallic Value");
-            public static GUIContent smoothness = new GUIContent("Smoothness", "Smoothness Value");
-            public static GUIContent enableChannelMap = new GUIContent("Channel Map", "Enable Channel Map, a Channel Packing Texture That Follows Unity's Standard Channel Setup");
-            public static GUIContent channelMap = new GUIContent("Channel Map", "Metallic (Red), Occlusion (Green), Emission (Blue), Smoothness (Alpha)");
-            public static GUIContent enableNormalMap = new GUIContent("Normal Map", "Enable Normal Map");
-            public static GUIContent normalMap = new GUIContent("Normal Map");
-            public static GUIContent normalMapScale = new GUIContent("Scale", "Scales the Normal Map Normal");
-            public static GUIContent enableEmission = new GUIContent("Emission", "Enable Emission");
-            public static GUIContent emissiveColor = new GUIContent("Color");
-            public static GUIContent enableTriplanarMapping = new GUIContent("Triplanar Mapping", "Enable Triplanar Mapping, a technique which programmatically generates UV coordinates");
-            public static GUIContent enableSSAA = new GUIContent("Super Sample Anti-Aliasing", "Enable Super Sample Anti-Aliasing, a technique improves texture clarity at long distances");
-            public static GUIContent mipmapBias = new GUIContent("Mipmap Bias", "Degree to bias the mip map. A larger negative value reduces aliasing and improves clarity, but may decrease performance");
-            public static GUIContent enableLocalSpaceTriplanarMapping = new GUIContent("Local Space", "If True Triplanar Mapping is Calculated in Local Space");
-            public static GUIContent triplanarMappingBlendSharpness = new GUIContent("Blend Sharpness", "The Power of the Blend with the Normal");
-            public static GUIContent directionalLight = new GUIContent("Directional Light", "Affected by One Unity Directional Light");
-            public static GUIContent specularHighlights = new GUIContent("Specular Highlights", "Calculate Specular Highlights");
-            public static GUIContent sphericalHarmonics = new GUIContent("Spherical Harmonics", "Read From Spherical Harmonics Data for Ambient Light");
-            public static GUIContent reflections = new GUIContent("Reflections", "Calculate Glossy Reflections");
-            public static GUIContent refraction = new GUIContent("Refraction", "Calculate Refraction");
-            public static GUIContent refractiveIndex = new GUIContent("Refractive Index", "Ratio of Indices of Refraction at the Surface Interface");
-            public static GUIContent rimLight = new GUIContent("Rim Light", "Enable Rim (Fresnel) Lighting");
-            public static GUIContent rimColor = new GUIContent("Color", "Rim Highlight Color");
-            public static GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
-            public static GUIContent vertexColors = new GUIContent("Vertex Colors", "Enable Vertex Color Tinting");
-            public static GUIContent vertexExtrusion = new GUIContent("Vertex Extrusion", "Enable Vertex Extrusion Along the Vertex Normal");
-            public static GUIContent vertexExtrusionValue = new GUIContent("Extrusion Value", "How Far to Extrude the Vertex Along the Vertex Normal");
-            public static GUIContent vertexExtrusionSmoothNormals = new GUIContent("Use Smooth Normals", "Should Vertex Extrusion use the Smooth Normals in UV3, or Default Normals");
-            public static GUIContent blendedClippingWidth = new GUIContent("Blended Clipping Width", "The Width of the Clipping Primitive Clip Fade Region on Non-Cutout Materials");
-            public static GUIContent clippingBorder = new GUIContent("Clipping Border", "Enable a Border Along the Clipping Primitive's Edge");
-            public static GUIContent clippingBorderWidth = new GUIContent("Width", "Width of the Clipping Border");
-            public static GUIContent clippingBorderColor = new GUIContent("Color", "Interpolated Color of the Clipping Border");
-            public static GUIContent nearPlaneFade = new GUIContent("Near Fade", "Objects Disappear (Turn to Black/Transparent) as the Camera (or Hover/Proximity Light) Nears Them");
-            public static GUIContent nearLightFade = new GUIContent("Use Light", "A Hover or Proximity Light (Rather Than the Camera) Determines Near Fade Distance");
-            public static GUIContent fadeBeginDistance = new GUIContent("Fade Begin", "Distance From Camera (or Hover/Proximity Light) to Begin Fade In");
-            public static GUIContent fadeCompleteDistance = new GUIContent("Fade Complete", "Distance From Camera (or Hover/Proximity Light) When Fade is Fully In");
-            public static GUIContent fadeMinValue = new GUIContent("Fade Min Value", "Clamps the Fade Amount to a Minimum Value");
-            public static GUIContent hoverLight = new GUIContent("Hover Light", "Enable utilization of Hover Light(s)");
-            public static GUIContent enableHoverColorOverride = new GUIContent("Override Color", "Override Global Hover Light Color for this Material");
-            public static GUIContent hoverColorOverride = new GUIContent("Color", "Override Hover Light Color");
-            public static GUIContent proximityLight = new GUIContent("Proximity Light", "Enable utilization of Proximity Light(s)");
-            public static GUIContent enableProximityLightColorOverride = new GUIContent("Override Color", "Override Global Proximity Light Color for this Material");
-            public static GUIContent proximityLightCenterColorOverride = new GUIContent("Center Color", "The Override Color of the ProximityLight Gradient at the Center (RGB) and (A) is Gradient Extent");
-            public static GUIContent proximityLightMiddleColorOverride = new GUIContent("Middle Color", "The Override Color of the ProximityLight Gradient at the Middle (RGB) and (A) is Gradient Extent");
-            public static GUIContent proximityLightOuterColorOverride = new GUIContent("Outer Color", "The Override Color of the ProximityLight Gradient at the Outer Edge (RGB) and (A) is Gradient Extent");
-            public static GUIContent proximityLightSubtractive = new GUIContent("Subtractive", "Proximity Lights Remove Light from a Surface, Used to Mimic a Shadow");
-            public static GUIContent proximityLightTwoSided = new GUIContent("Two Sided", "Proximity Lights Apply to Both Sides of a Surface");
-            public static GUIContent fluentLightIntensity = new GUIContent("Light Intensity", "Intensity Scaler for All Hover and Proximity Lights");
-            public static GUIContent roundCorners = new GUIContent("Round Corners", "(Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
-            public static GUIContent roundCornerRadius = new GUIContent("Unit Radius", "Rounded Rectangle Corner Unit Sphere Radius");
-            public static GUIContent roundCornersRadius = new GUIContent("Corners Radius", "UpLeft-UpRight-BottomRight-BottomLeft");
-            public static GUIContent roundCornerMargin = new GUIContent("Margin %", "Distance From Geometry Edge");
-            public static GUIContent independentCorners = new GUIContent("Independent Corners", "Manage each corner separately");
-            public static GUIContent borderLight = new GUIContent("Border Light", "Enable Border Lighting (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
-            public static GUIContent borderLightReplacesAlbedo = new GUIContent("Replace Albedo", "Border Light Replaces Albedo (Replacement Rather Than Additive)");
-            public static GUIContent borderLightOpaque = new GUIContent("Opaque Borders", "Borders Override Alpha Value to Appear Opaque");
-            public static GUIContent borderWidth = new GUIContent("Width %", "Uniform Width Along Border as a % of the Smallest XYZ Dimension");
-            public static GUIContent borderColorMode = new GUIContent("Color Mode", "How the Border is Colored");
-            public static string borderColorModeHoverColorName = "_BORDER_LIGHT_USES_HOVER_COLOR";
-            public static string borderColorModeColorName = "_BORDER_LIGHT_USES_COLOR";
-            public static string borderColorModeGradientName = "_BORDER_LIGHT_USES_GRADIENT";
-            public static GUIContent borderMinValue = new GUIContent("Brightness", "Brightness Scaler");
-            public static GUIContent borderColor = new GUIContent("Border Color", "Border Color");
-            public static GUIContent edgeSmoothingValue = new GUIContent("Edge Smoothing Value", "Smooths Edges When Round Corners and Transparency Is Enabled");
-            public static GUIContent borderLightOpaqueAlpha = new GUIContent("Alpha", "Alpha value of \"opaque\" borders.");
-            public static GUIContent innerGlow = new GUIContent("Inner Glow", "Enable Inner Glow (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
-            public static GUIContent innerGlowColor = new GUIContent("Color", "Inner Glow Color (RGB) and Intensity (A)");
-            public static GUIContent innerGlowPower = new GUIContent("Power", "Power Exponent to Control Glow");
-            public static GUIContent gradientMode = new GUIContent("Gradient Mode", "Specifies the Type of Color Gradient to Apply in UV Space");
-            public static string gradientModeIridescence = "_IRIDESCENCE";
-            public static string gradientModeFourPoint = "_GRADIENT_FOUR_POINT";
-            public static string gradientModeLinear = "_GRADIENT_LINEAR";
-            public static GUIContent iridescentSpectrumMap = new GUIContent("Spectrum Map", "Spectrum of Colors to Apply (Usually a Texture with ROYGBIV from Left to Right)");
-            public static GUIContent iridescenceIntensity = new GUIContent("Intensity", "Intensity of Iridescence");
-            public static GUIContent iridescenceThreshold = new GUIContent("Threshold", "Threshold Window to Sample From the Spectrum Map");
-            public static GUIContent iridescenceAngle = new GUIContent("Angle", "Surface Angle");
-            public static GUIContent fourPointGradientMainColor = new GUIContent("Main", "Primary Tint Color of the Gradient");
-            public static GUIContent fourPointGradientTopLeftColor = new GUIContent("Top Left", "Top Left Color at UV (0, 0)");
-            public static GUIContent fourPointGradientTopRightColor = new GUIContent("Top Right", "Top Right Color at UV (1, 0)");
-            public static GUIContent fourPointGradientBottomLeftColor = new GUIContent("Bottom Left", "Bottom Left Color at UV (0, 1)");
-            public static GUIContent fourPointGradientBottomRightColor = new GUIContent("Bottom Right", "Bottom Right Color at UV (1, 1)");
-            public static GUIContent linearGradientStop0Color = new GUIContent("Stop 0", "TODO");
-            public static GUIContent linearGradientStop1Color = new GUIContent("Stop 1", "TODO");
-            public static GUIContent linearGradientStop2Color = new GUIContent("Stop 2", "TODO");
-            public static GUIContent linearGradientStop3Color = new GUIContent("Stop 3", "TODO");
-            public static GUIContent environmentColoring = new GUIContent("Environment Coloring", "Change Color Based on View");
-            public static GUIContent environmentColorThreshold = new GUIContent("Threshold", "Threshold When Environment Coloring Should Appear Based on Surface Normal");
-            public static GUIContent environmentColorIntensity = new GUIContent("Intensity", "Intensity (or Brightness) of the Environment Coloring");
-            public static GUIContent environmentColorX = new GUIContent("X-Axis Color", "Color Along the World Space X-Axis");
-            public static GUIContent environmentColorY = new GUIContent("Y-Axis Color", "Color Along the World Space Y-Axis");
-            public static GUIContent environmentColorZ = new GUIContent("Z-Axis Color", "Color Along the World Space Z-Axis");
-            public static GUIContent stencil = new GUIContent("Enable Stencil Testing", "Enabled Stencil Testing Operations");
-            public static GUIContent stencilReference = new GUIContent("Stencil Reference", "Value to Compared Against (if Comparison is Anything but Always) and/or the Value to be Written to the Buffer (if Either Pass, Fail or ZFail is Set to Replace)");
-            public static GUIContent stencilComparison = new GUIContent("Stencil Comparison", "Function to Compare the Reference Value to");
-            public static GUIContent stencilOperation = new GUIContent("Stencil Operation", "What to do When the Stencil Test Passes");
-            public static GUIContent useWorldScale = new GUIContent("Use World Scale", "Features That Require Object Scale (Round Corners, Border Light, etc.), Default to Using Absolute (World) Scale when Enabled");
+            public static readonly GUIContent albedo = new GUIContent("Albedo", "Albedo (RGB) and Transparency (Alpha)");
+            public static readonly GUIContent albedoAssignedAtRuntime = new GUIContent("Assigned at Runtime", "As an optimization albedo operations are disabled when no albedo texture is specified. If a albedo texture will be specified at runtime enable this option.");
+            public static readonly GUIContent alphaCutoff = new GUIContent("Alpha Cutoff", "Threshold for Alpha Cutoff");
+            public static readonly GUIContent metallic = new GUIContent("Metallic", "Metallic Value");
+            public static readonly GUIContent smoothness = new GUIContent("Smoothness", "Smoothness Value");
+            public static readonly GUIContent enableChannelMap = new GUIContent("Channel Map", "Enable Channel Map, a Channel Packing Texture That Follows Unity's Standard Channel Setup");
+            public static readonly GUIContent channelMap = new GUIContent("Channel Map", "Metallic (Red), Occlusion (Green), Emission (Blue), Smoothness (Alpha)");
+            public static readonly GUIContent enableNormalMap = new GUIContent("Normal Map", "Enable Normal Map");
+            public static readonly GUIContent normalMap = new GUIContent("Normal Map");
+            public static readonly GUIContent normalMapScale = new GUIContent("Scale", "Scales the Normal Map Normal");
+            public static readonly GUIContent enableEmission = new GUIContent("Emission", "Enable Emission");
+            public static readonly GUIContent emissiveColor = new GUIContent("Color");
+            public static readonly GUIContent enableTriplanarMapping = new GUIContent("Triplanar Mapping", "Enable Triplanar Mapping, a technique which programmatically generates UV coordinates");
+            public static readonly GUIContent enableSSAA = new GUIContent("Super Sample Anti-Aliasing", "Enable Super Sample Anti-Aliasing, a technique improves texture clarity at long distances");
+            public static readonly GUIContent mipmapBias = new GUIContent("Mipmap Bias", "Degree to bias the mip map. A larger negative value reduces aliasing and improves clarity, but may decrease performance");
+            public static readonly GUIContent enableLocalSpaceTriplanarMapping = new GUIContent("Local Space", "If True Triplanar Mapping is Calculated in Local Space");
+            public static readonly GUIContent triplanarMappingBlendSharpness = new GUIContent("Blend Sharpness", "The Power of the Blend with the Normal");
+            public static readonly GUIContent directionalLight = new GUIContent("Directional Light", "Affected by One Unity Directional Light");
+            public static readonly GUIContent specularHighlights = new GUIContent("Specular Highlights", "Calculate Specular Highlights");
+            public static readonly GUIContent sphericalHarmonics = new GUIContent("Spherical Harmonics", "Read From Spherical Harmonics Data for Ambient Light");
+            public static readonly GUIContent reflections = new GUIContent("Reflections", "Calculate Glossy Reflections");
+            public static readonly GUIContent refraction = new GUIContent("Refraction", "Calculate Refraction");
+            public static readonly GUIContent refractiveIndex = new GUIContent("Refractive Index", "Ratio of Indices of Refraction at the Surface Interface");
+            public static readonly GUIContent rimLight = new GUIContent("Rim Light", "Enable Rim (Fresnel) Lighting");
+            public static readonly GUIContent rimColor = new GUIContent("Color", "Rim Highlight Color");
+            public static readonly GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
+            public static readonly GUIContent vertexColors = new GUIContent("Vertex Colors", "Enable Vertex Color Tinting");
+            public static readonly GUIContent vertexExtrusion = new GUIContent("Vertex Extrusion", "Enable Vertex Extrusion Along the Vertex Normal");
+            public static readonly GUIContent vertexExtrusionValue = new GUIContent("Extrusion Value", "How Far to Extrude the Vertex Along the Vertex Normal");
+            public static readonly GUIContent vertexExtrusionSmoothNormals = new GUIContent("Use Smooth Normals", "Should Vertex Extrusion use the Smooth Normals in UV3, or Default Normals");
+            public static readonly GUIContent blendedClippingWidth = new GUIContent("Blended Clipping Width", "The Width of the Clipping Primitive Clip Fade Region on Non-Cutout Materials");
+            public static readonly GUIContent clippingBorder = new GUIContent("Clipping Border", "Enable a Border Along the Clipping Primitive's Edge");
+            public static readonly GUIContent clippingBorderWidth = new GUIContent("Width", "Width of the Clipping Border");
+            public static readonly GUIContent clippingBorderColor = new GUIContent("Color", "Interpolated Color of the Clipping Border");
+            public static readonly GUIContent nearPlaneFade = new GUIContent("Near Fade", "Objects Disappear (Turn to Black/Transparent) as the Camera (or Hover/Proximity Light) Nears Them");
+            public static readonly GUIContent nearLightFade = new GUIContent("Use Light", "A Hover or Proximity Light (Rather Than the Camera) Determines Near Fade Distance");
+            public static readonly GUIContent fadeBeginDistance = new GUIContent("Fade Begin", "Distance From Camera (or Hover/Proximity Light) to Begin Fade In");
+            public static readonly GUIContent fadeCompleteDistance = new GUIContent("Fade Complete", "Distance From Camera (or Hover/Proximity Light) When Fade is Fully In");
+            public static readonly GUIContent fadeMinValue = new GUIContent("Fade Min Value", "Clamps the Fade Amount to a Minimum Value");
+            public static readonly GUIContent hoverLight = new GUIContent("Hover Light", "Enable utilization of Hover Light(s)");
+            public static readonly GUIContent enableHoverColorOverride = new GUIContent("Override Color", "Override Global Hover Light Color for this Material");
+            public static readonly GUIContent hoverColorOverride = new GUIContent("Color", "Override Hover Light Color");
+            public static readonly GUIContent proximityLight = new GUIContent("Proximity Light", "Enable utilization of Proximity Light(s)");
+            public static readonly GUIContent enableProximityLightColorOverride = new GUIContent("Override Color", "Override Global Proximity Light Color for this Material");
+            public static readonly GUIContent proximityLightCenterColorOverride = new GUIContent("Center Color", "The Override Color of the ProximityLight Gradient at the Center (RGB) and (A) is Gradient Extent");
+            public static readonly GUIContent proximityLightMiddleColorOverride = new GUIContent("Middle Color", "The Override Color of the ProximityLight Gradient at the Middle (RGB) and (A) is Gradient Extent");
+            public static readonly GUIContent proximityLightOuterColorOverride = new GUIContent("Outer Color", "The Override Color of the ProximityLight Gradient at the Outer Edge (RGB) and (A) is Gradient Extent");
+            public static readonly GUIContent proximityLightSubtractive = new GUIContent("Subtractive", "Proximity Lights Remove Light from a Surface, Used to Mimic a Shadow");
+            public static readonly GUIContent proximityLightTwoSided = new GUIContent("Two Sided", "Proximity Lights Apply to Both Sides of a Surface");
+            public static readonly GUIContent fluentLightIntensity = new GUIContent("Light Intensity", "Intensity Scaler for All Hover and Proximity Lights");
+            public static readonly GUIContent roundCorners = new GUIContent("Round Corners", "(Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
+            public static readonly GUIContent roundCornerRadius = new GUIContent("Unit Radius", "Rounded Rectangle Corner Unit Sphere Radius");
+            public static readonly GUIContent roundCornersRadius = new GUIContent("Corners Radius", "UpLeft-UpRight-BottomRight-BottomLeft");
+            public static readonly GUIContent roundCornerMargin = new GUIContent("Margin %", "Distance From Geometry Edge");
+            public static readonly GUIContent independentCorners = new GUIContent("Independent Corners", "Manage each corner separately");
+            public static readonly GUIContent borderLight = new GUIContent("Border Light", "Enable Border Lighting (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
+            public static readonly GUIContent borderLightReplacesAlbedo = new GUIContent("Replace Albedo", "Border Light Replaces Albedo (Replacement Rather Than Additive)");
+            public static readonly GUIContent borderLightOpaque = new GUIContent("Opaque Borders", "Borders Override Alpha Value to Appear Opaque");
+            public static readonly GUIContent borderWidth = new GUIContent("Width %", "Uniform Width Along Border as a % of the Smallest XYZ Dimension");
+            public static readonly GUIContent borderColorMode = new GUIContent("Color Mode", "How the Border is Colored");
+            public static readonly string borderColorModeHoverColorName = "_BORDER_LIGHT_USES_HOVER_COLOR";
+            public static readonly string borderColorModeColorName = "_BORDER_LIGHT_USES_COLOR";
+            public static readonly string borderColorModeGradientName = "_BORDER_LIGHT_USES_GRADIENT";
+            public static readonly GUIContent borderMinValue = new GUIContent("Brightness", "Brightness Scaler");
+            public static readonly GUIContent borderColor = new GUIContent("Border Color", "Border Color");
+            public static readonly GUIContent edgeSmoothingValue = new GUIContent("Edge Smoothing Value", "Smooths Edges When Round Corners and Transparency Is Enabled");
+            public static readonly GUIContent borderLightOpaqueAlpha = new GUIContent("Alpha", "Alpha value of \"opaque\" borders.");
+            public static readonly GUIContent innerGlow = new GUIContent("Inner Glow", "Enable Inner Glow (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
+            public static readonly GUIContent innerGlowColor = new GUIContent("Color", "Inner Glow Color (RGB) and Intensity (A)");
+            public static readonly GUIContent innerGlowPower = new GUIContent("Power", "Power Exponent to Control Glow");
+            public static readonly GUIContent gradientMode = new GUIContent("Gradient Mode", "Specifies the Type of Color Gradient to Apply in UV Space");
+            public static readonly string gradientModeIridescence = "_IRIDESCENCE";
+            public static readonly string gradientModeFourPoint = "_GRADIENT_FOUR_POINT";
+            public static readonly string gradientModeLinear = "_GRADIENT_LINEAR";
+            public static readonly GUIContent iridescentSpectrumMap = new GUIContent("Spectrum Map", "Spectrum of Colors to Apply (Usually a Texture with ROYGBIV from Left to Right)");
+            public static readonly GUIContent iridescenceIntensity = new GUIContent("Intensity", "Intensity of Iridescence");
+            public static readonly GUIContent iridescenceThreshold = new GUIContent("Threshold", "Threshold Window to Sample From the Spectrum Map");
+            public static readonly GUIContent iridescenceAngle = new GUIContent("Angle", "Surface Angle");
+            public static readonly GUIContent fourPointGradientMainColor = new GUIContent("Main", "Primary Tint Color of the Gradient");
+            public static readonly GUIContent fourPointGradientTopLeftColor = new GUIContent("Top Left", "Top Left Color at UV (0, 0)");
+            public static readonly GUIContent fourPointGradientTopRightColor = new GUIContent("Top Right", "Top Right Color at UV (1, 0)");
+            public static readonly GUIContent fourPointGradientBottomLeftColor = new GUIContent("Bottom Left", "Bottom Left Color at UV (0, 1)");
+            public static readonly GUIContent fourPointGradientBottomRightColor = new GUIContent("Bottom Right", "Bottom Right Color at UV (1, 1)");
+            public static readonly GUIContent fourPointGradientAutoFillButton = new GUIContent("Auto Fill", "Generates a Visually Pleasing Gradient Based on the Top Left Color");
+            public static readonly GUIContent linearGradientAngle = new GUIContent("Angle", "By Default Gradients Go Top to Bottom the Angle Adjusts That Direction");
+            public static readonly GUIContent linearGradientStop0Color = new GUIContent("Stop 0", "First Color Key (RGB) and Stop Value (Alpha)");
+            public static readonly GUIContent linearGradientStop1Color = new GUIContent("Stop 1", "Second Color Key (RGB) and Stop Value (Alpha)");
+            public static readonly GUIContent linearGradientStop2Color = new GUIContent("Stop 2", "Third Color Key (RGB) and Stop Value (Alpha)");
+            public static readonly GUIContent linearGradientStop3Color = new GUIContent("Stop 3", "Fourth Color Key (RGB) and Stop Value (Alpha)");
+            public static readonly GUIContent environmentColoring = new GUIContent("Environment Coloring", "Change Color Based on View");
+            public static readonly GUIContent environmentColorThreshold = new GUIContent("Threshold", "Threshold When Environment Coloring Should Appear Based on Surface Normal");
+            public static readonly GUIContent environmentColorIntensity = new GUIContent("Intensity", "Intensity (or Brightness) of the Environment Coloring");
+            public static readonly GUIContent environmentColorX = new GUIContent("X-Axis Color", "Color Along the World Space X-Axis");
+            public static readonly GUIContent environmentColorY = new GUIContent("Y-Axis Color", "Color Along the World Space Y-Axis");
+            public static readonly GUIContent environmentColorZ = new GUIContent("Z-Axis Color", "Color Along the World Space Z-Axis");
+            public static readonly GUIContent stencil = new GUIContent("Enable Stencil Testing", "Enabled Stencil Testing Operations");
+            public static readonly GUIContent stencilReference = new GUIContent("Stencil Reference", "Value to Compared Against (if Comparison is Anything but Always) and/or the Value to be Written to the Buffer (if Either Pass, Fail or ZFail is Set to Replace)");
+            public static readonly GUIContent stencilComparison = new GUIContent("Stencil Comparison", "Function to Compare the Reference Value to");
+            public static readonly GUIContent stencilOperation = new GUIContent("Stencil Operation", "What to do When the Stencil Test Passes");
+            public static readonly GUIContent useWorldScale = new GUIContent("Use World Scale", "Features That Require Object Scale (Round Corners, Border Light, etc.), Default to Using Absolute (World) Scale when Enabled");
         }
 
         protected MaterialProperty albedoMap;
@@ -226,6 +227,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty iridescenceIntensity;
         protected MaterialProperty iridescenceThreshold;
         protected MaterialProperty iridescenceAngle;
+        protected MaterialProperty gradientAngle;
         protected MaterialProperty gradientColor0;
         protected MaterialProperty gradientColor1;
         protected MaterialProperty gradientColor2;
@@ -242,6 +244,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty stencilComparison;
         protected MaterialProperty stencilOperation;
         protected MaterialProperty useWorldScale;
+
+        protected string cssGradient = string.Empty;
 
         protected override void FindProperties(MaterialProperty[] props)
         {
@@ -321,6 +325,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             iridescenceIntensity = FindProperty("_IridescenceIntensity", props);
             iridescenceThreshold = FindProperty("_IridescenceThreshold", props);
             iridescenceAngle = FindProperty("_IridescenceAngle", props);
+            gradientAngle = FindProperty("_GradientAngle", props);
             gradientColor0 = FindProperty("_GradientColor0", props);
             gradientColor1 = FindProperty("_GradientColor1", props);
             gradientColor2 = FindProperty("_GradientColor2", props);
@@ -779,6 +784,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         materialEditor.ShaderProperty(gradientColor3, Styles.fourPointGradientBottomLeftColor, 2);
                         materialEditor.ShaderProperty(gradientColor4, Styles.fourPointGradientBottomRightColor, 2);
 
+                        if (GUILayout.Button(Styles.fourPointGradientAutoFillButton))
+                        {
+                            Color topLeft, topRight, bottomLeft, bottomRight, stroke;
+                            StandardShaderUtility.AutofillFourPointGradient(gradientColor1.colorValue, out topLeft, out topRight, out bottomLeft, out bottomRight, out stroke);
+   
+                            gradientColor1.colorValue = topLeft;
+                            gradientColor2.colorValue = topRight;
+                            gradientColor3.colorValue = bottomLeft;
+                            gradientColor4.colorValue = bottomRight;
+                            borderColor.colorValue = stroke;
+                        }
+
                         material.DisableKeyword(Styles.gradientModeIridescence);
                         material.EnableKeyword(Styles.gradientModeFourPoint);
                         material.DisableKeyword(Styles.gradientModeLinear);
@@ -787,10 +804,57 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 case GradientMode.Linear:
                     {
+                        materialEditor.ShaderProperty(gradientAngle, Styles.linearGradientAngle, 2);
                         materialEditor.ShaderProperty(gradientColor0, Styles.linearGradientStop0Color, 2);
                         materialEditor.ShaderProperty(gradientColor1, Styles.linearGradientStop1Color, 2);
                         materialEditor.ShaderProperty(gradientColor2, Styles.linearGradientStop2Color, 2);
                         materialEditor.ShaderProperty(gradientColor3, Styles.linearGradientStop3Color, 2);
+
+                        GUILayout.Label("From CSS Gradient", EditorStyles.boldLabel);
+
+                        EditorGUI.BeginChangeCheck();
+
+                        cssGradient = GUILayout.TextField(cssGradient);
+
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            try
+                            {
+                                // Extract the gradient structure.
+                                const string prefix = "linear-gradient(";
+                                const string postfix = ");";
+                                int start = cssGradient.IndexOf(prefix) + prefix.Length;
+                                int end = cssGradient.IndexOf(postfix, start);
+                                string gradient = cssGradient.Substring(start, end - start);
+
+                                string[] parameters = gradient.Split(',');
+
+                                // Parse each parameter, up to 5 (angle + 4 stops).
+                                for (int i = 0; i < parameters.Length && i < 5; ++i)
+                                {
+                                    Debug.Log(parameters[i]);
+
+                                    // Handle degrees.
+                                    if (i == 0)
+                                    {
+                                        int result;
+                                        if (int.TryParse(parameters[i].Replace("deg", string.Empty), out result))
+                                        {
+                                            gradientAngle.floatValue = result;
+                                        }
+                                    }
+                                    else // Handle colors and stops.
+                                    {
+                                        // TODO
+                                        Debug.Log(parameters[i]);
+                                    }
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogException(e);
+                            }
+                        }
 
                         material.DisableKeyword(Styles.gradientModeIridescence);
                         material.DisableKeyword(Styles.gradientModeFourPoint);

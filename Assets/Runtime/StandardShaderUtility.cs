@@ -57,5 +57,32 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             return shader == GraphicsToolsStandardShader;
         }
+
+        /// <summary>
+        /// Shifts a source color in HSV color space.
+        /// </summary>
+        public static Color ColorShiftHSV(Color source, float hueOffset, float saturationtOffset, float valueOffset)
+        {
+            float hue, saturation, value;
+            Color.RGBToHSV(source, out hue, out saturation, out value);
+            hue = hue + hueOffset;
+            saturation = Mathf.Clamp01(saturation + saturationtOffset);
+            value = Mathf.Clamp01(value + valueOffset);
+            Color output = Color.HSVToRGB(hue, saturation, value);
+            output.a = source.a;
+            return output;
+        }
+
+        /// <summary>
+        /// Given a source color produces a visually pleasing" gradient by shifting the source color in HSV space.
+        /// </summary>
+        public static void AutofillFourPointGradient(Color source, out Color topLeft, out Color topRight, out Color bottomLeft, out Color bottomRight, out Color stroke)
+        {
+            topLeft = source;
+            topRight = ColorShiftHSV(source, 0.02f, -0.2f, -0.1f);
+            bottomLeft = ColorShiftHSV(source, -0.03f, 0.1f, 0.3f);
+            bottomRight = ColorShiftHSV(source, 0.01f, -0.1f, 0.2f);
+            stroke = ColorShiftHSV(source, 0.01f, -0.2f, 0.0f);
+        }
     }
 }
