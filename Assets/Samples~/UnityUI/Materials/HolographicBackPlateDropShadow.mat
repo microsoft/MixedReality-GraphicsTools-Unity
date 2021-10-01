@@ -104,7 +104,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DirectionalLight: 0
     - _DstBlend: 10
-    - _EdgeSmoothingValue: 0.01
+    - _EdgeSmoothingValue: 10
     - _EnableChannelMap: 0
     - _EnableEmission: 0
     - _EnableHoverColorOpaqueOverride: 0
@@ -125,6 +125,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _GradientAngle: 0
     - _GradientMode: 0
     - _HoverLight: 0
     - _HoverLightOpaque: 0
@@ -154,8 +155,8 @@ Material:
     - _RenderQueueOverride: 3001
     - _RimLight: 0
     - _RimPower: 5.83
-    - _RoundCornerMargin: 0.01
-    - _RoundCornerRadius: 0.01
+    - _RoundCornerMargin: 10
+    - _RoundCornerRadius: 10
     - _RoundCorners: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0

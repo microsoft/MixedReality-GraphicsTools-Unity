@@ -74,7 +74,7 @@ Shader "Graphics Tools/Standard"
         [Enum(BorderColorMode)] _BorderColorMode("Border Color Mode", Float) = 0 // "Brightness"
         _BorderMinValue("Border Min Value", Range(0.0, 1.0)) = 0.1
         _BorderColor("Border Color", Color) = (1.0, 1.0, 1.0, 0.0)
-        _EdgeSmoothingValue("Edge Smoothing Value", Range(0.0, 1.0)) = 0.002
+        _EdgeSmoothingValue("Edge Smoothing Value", Float) = 0.002
         _BorderLightOpaqueAlpha("Border Light Opaque Alpha", Range(0.0, 1.0)) = 1.0
         [Toggle(_INNER_GLOW)] _InnerGlow("Inner Glow", Float) = 0.0
         _InnerGlowColor("Inner Glow Color (RGB) and Intensity (A)", Color) = (1.0, 1.0, 1.0, 0.75)

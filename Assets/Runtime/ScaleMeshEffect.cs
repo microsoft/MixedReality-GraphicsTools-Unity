@@ -47,8 +47,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             var scale = new Vector2(rectTransform.rect.width * rectTransform.localScale.x,
                                     rectTransform.rect.height * rectTransform.localScale.y);
 
-            // Pack the min scale into x, and a flag indicating this value comes from a ScaleMeshEffect into y into UV channel 3.
-            var depth = new Vector2(Mathf.Min(scale.x, scale.y), -1.0f);
+            var canvas = GetComponentInParent<Canvas>();
+
+            // Pack the min scale into x, and a flag/parent scale indicating this value comes from a ScaleMeshEffect into y into UV channel 3.
+            var depth = new Vector2(Mathf.Min(scale.x, scale.y), canvas ? -Mathf.Min(canvas.transform.lossyScale.x, canvas.transform.lossyScale.y, canvas.transform.lossyScale.z) : -1.0f);
 
             var vertex = new UIVertex();
 
