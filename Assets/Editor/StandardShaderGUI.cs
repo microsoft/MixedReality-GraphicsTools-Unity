@@ -103,13 +103,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent fluentLightIntensity = new GUIContent("Light Intensity", "Intensity Scaler for All Hover and Proximity Lights");
             public static readonly GUIContent roundCorners = new GUIContent("Round Corners", "(Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
             public static readonly GUIContent roundCornerRadius = new GUIContent("Unit Radius", "Rounded Rectangle Corner Unit Sphere Radius");
+            public static readonly GUIContent roundCornerRadiusWorldScale = new GUIContent("Radius", "Rounded Rectangle Corner Sphere Radius in World Units");
             public static readonly GUIContent roundCornersRadius = new GUIContent("Corners Radius", "UpLeft-UpRight-BottomRight-BottomLeft");
             public static readonly GUIContent roundCornerMargin = new GUIContent("Margin %", "Distance From Geometry Edge");
+            public static readonly GUIContent roundCornerMarginWorldScale = new GUIContent("Margin", "Distance From Geometry Edge in World Units");
             public static readonly GUIContent independentCorners = new GUIContent("Independent Corners", "Manage each corner separately");
             public static readonly GUIContent borderLight = new GUIContent("Border Light", "Enable Border Lighting (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
             public static readonly GUIContent borderLightReplacesAlbedo = new GUIContent("Replace Albedo", "Border Light Replaces Albedo (Replacement Rather Than Additive)");
             public static readonly GUIContent borderLightOpaque = new GUIContent("Opaque Borders", "Borders Override Alpha Value to Appear Opaque");
             public static readonly GUIContent borderWidth = new GUIContent("Width %", "Uniform Width Along Border as a % of the Smallest XYZ Dimension");
+            public static readonly GUIContent borderWidthWorldScale = new GUIContent("Width", "Uniform Width Along Border in World Units");
             public static readonly GUIContent borderColorMode = new GUIContent("Color Mode", "How the Border is Colored");
             public static readonly string borderColorModeHoverColorName = "_BORDER_LIGHT_USES_HOVER_COLOR";
             public static readonly string borderColorModeColorName = "_BORDER_LIGHT_USES_COLOR";
@@ -656,7 +659,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (PropertyEnabled(borderLight))
             {
-                materialEditor.ShaderProperty(borderWidth, Styles.borderWidth, 2);
+                if (PropertyEnabled(useWorldScale))
+                {
+                    // Hide range.
+                    EditorGUI.indentLevel += 2;
+                    borderWidth.floatValue = EditorGUILayout.FloatField(Styles.borderWidthWorldScale, borderWidth.floatValue);
+                    EditorGUI.indentLevel -= 2;
+                }
+                else
+                {
+                    materialEditor.ShaderProperty(borderWidth, Styles.borderWidth, 2);
+                }
 
                 materialEditor.ShaderProperty(borderColorMode, Styles.borderColorMode, 2);
 
@@ -732,10 +745,30 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
                 else
                 {
-                    materialEditor.ShaderProperty(roundCornerRadius, Styles.roundCornerRadius, 2);
+                    if (PropertyEnabled(useWorldScale))
+                    {
+                        // Hide range.
+                        EditorGUI.indentLevel += 2;
+                        roundCornerRadius.floatValue = EditorGUILayout.FloatField(Styles.roundCornerRadiusWorldScale, roundCornerRadius.floatValue);
+                        EditorGUI.indentLevel -= 2;
+                    }
+                    else
+                    {
+                        materialEditor.ShaderProperty(roundCornerRadius, Styles.roundCornerRadius, 2);
+                    }
                 }
 
-                materialEditor.ShaderProperty(roundCornerMargin, Styles.roundCornerMargin, 2);
+                if (PropertyEnabled(useWorldScale))
+                {
+                    // Hide range.
+                    EditorGUI.indentLevel += 2;
+                    roundCornerMargin.floatValue = EditorGUILayout.FloatField(Styles.roundCornerMarginWorldScale, roundCornerMargin.floatValue);
+                    EditorGUI.indentLevel -= 2;
+                }
+                else
+                {
+                    materialEditor.ShaderProperty(roundCornerMargin, Styles.roundCornerMargin, 2);
+                }
             }
 
             if (PropertyEnabled(roundCorners) || PropertyEnabled(borderLight))

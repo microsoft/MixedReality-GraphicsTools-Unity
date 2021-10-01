@@ -344,9 +344,9 @@ fixed _FluentLightIntensity;
 #if defined(_INDEPENDENT_CORNERS)
 float4 _RoundCornersRadius;
 #else
-fixed _RoundCornerRadius;
+float _RoundCornerRadius;
 #endif
-fixed _RoundCornerMargin;
+float _RoundCornerMargin;
 #endif
 
 #if defined(_BORDER_LIGHT)
@@ -682,7 +682,9 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 #if defined(_ROUND_CORNERS)
 #if defined(_INDEPENDENT_CORNERS)
 
+#if !defined(_USE_WORLD_SCALE)
     _RoundCornersRadius = clamp(_RoundCornersRadius, 0, 0.5);
+#endif
 
     if (i.uv.x < 0.5)
     {
@@ -713,7 +715,11 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     currentCornerRadius = 0;
     _RoundCornerMargin = 0.0;
 #endif
+#if defined(_USE_WORLD_SCALE)
+    float cornerCircleRadius = max(currentCornerRadius - _RoundCornerMargin, _MinCorverValue) * i.scale.z;
+#else
     float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, _MinCorverValue)) * i.scale.z;
+#endif
     float2 cornerCircleDistance = halfScale - (_RoundCornerMargin * i.scale.z) - cornerCircleRadius;
 #if defined(_ROUND_CORNERS)
     float roundCornerClip = RoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * i.scale.z);
@@ -828,7 +834,11 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     // Border light.
 #if defined(_BORDER_LIGHT)
     fixed borderMargin = _RoundCornerMargin + _BorderWidth * 0.5;
+#if defined(_USE_WORLD_SCALE)
+    cornerCircleRadius = max(currentCornerRadius - borderMargin, _MinCorverValue) * i.scale.z;
+#else
     cornerCircleRadius = saturate(max(currentCornerRadius - borderMargin, _MinCorverValue)) * i.scale.z;
+#endif
     cornerCircleDistance = halfScale - (borderMargin * i.scale.z) - cornerCircleRadius;
 
     fixed borderValue = 1.0 - RoundCornersSmooth(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * i.scale.z);
