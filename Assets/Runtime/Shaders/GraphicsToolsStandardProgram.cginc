@@ -451,7 +451,7 @@ v2f vert(appdata_t v)
 
 #if defined(_VERTEX_EXTRUSION)
 #if defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
-    worldVertexPosition += UnityObjectToWorldNormal(v.uv2 * o.scale) * _VertexExtrusionValue;
+    worldVertexPosition += UnityObjectToWorldNormal(v.uv2 * o.scale.xy) * _VertexExtrusionValue;
 #else
     worldVertexPosition += worldNormal * _VertexExtrusionValue;
 #endif
