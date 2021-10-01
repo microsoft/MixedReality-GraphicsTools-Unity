@@ -837,7 +837,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     fixed3 borderColor = _HoverColorOverride.rgb * _BorderMinValue;
 #elif defined(_BORDER_LIGHT_USES_COLOR)
     fixed3 borderColor = _BorderColor;
-#elif defined(_BORDER_LIGHT_USES_GRADIENT)
+#elif defined(_BORDER_LIGHT_USES_GRADIENT) && defined(_GRADIENT)
     fixed3 borderColor = gradientColor;
 #else
     fixed3 borderColor = fixed3(_BorderMinValue, _BorderMinValue, _BorderMinValue);
