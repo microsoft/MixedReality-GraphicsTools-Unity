@@ -865,7 +865,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                 string[] parameters = gradient.Split(',');
 
                                 List<Color> colorStops = new List<Color>();
-                                float angle = 0;
+                                float angle = 180.0f; // CSS default.
 
                                 // Parse each parameter, or up to 4 color stops.
                                 for (int i = 0; i < parameters.Length && colorStops.Count <= 4; ++i)
@@ -971,37 +971,26 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                     }
                                 }
 
+                                // Ensure we always have 4 colors.
+                                while (colorStops.Count < 4)
+                                {
+                                    if (colorStops.Count != 0)
+                                    {
+                                        colorStops.Add(colorStops[colorStops.Count - 1]);
+                                    }
+                                    else
+                                    {
+                                        colorStops.Add(Color.white);
+                                    }
+                                }
+
                                 // Apply the angle and color stops.
                                 gradientAngle.floatValue = angle;
 
-                                if (colorStops.Count > 0)
-                                {
-                                    gradientColor0.colorValue = colorStops[0];
-                                }
-                                if (colorStops.Count > 1)
-                                {
-                                    gradientColor1.colorValue = colorStops[1];
-                                }
-                                else
-                                {
-                                    gradientColor1.colorValue = Color.white;
-                                }
-                                if (colorStops.Count > 2)
-                                {
-                                    gradientColor2.colorValue = colorStops[2];
-                                }
-                                else
-                                {
-                                    gradientColor2.colorValue = Color.white;
-                                }
-                                if (colorStops.Count > 3)
-                                {
-                                    gradientColor3.colorValue = colorStops[3];
-                                }
-                                else
-                                {
-                                    gradientColor3.colorValue = Color.white;
-                                }
+                                gradientColor0.colorValue = colorStops[0];
+                                gradientColor1.colorValue = colorStops[1];
+                                gradientColor2.colorValue = colorStops[2];
+                                gradientColor3.colorValue = colorStops[3];
                             }
                             catch
                             {

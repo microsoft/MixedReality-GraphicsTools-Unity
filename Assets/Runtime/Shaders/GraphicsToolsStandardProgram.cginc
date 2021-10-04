@@ -545,10 +545,27 @@ v2f vert(appdata_t v)
     float tangentDotIncident = dot(rightTangent, incidentWithCenter);
     o.gradient = Iridescence(tangentDotIncident, _IridescentSpectrumMap, _IridescenceThreshold, v.uv, _IridescenceAngle, _IridescenceIntensity);
  #elif defined(_GRADIENT_LINEAR)
-    float angle = (_GradientAngle + 90.0) * ((UNITY_PI * 2.0) / 360.0);
-    float c = cos(angle);
-    float s = sin(angle);
-    o.gradient = mul(o.uv - 0.5, float2x2(c, -s, s, c)) + 0.5;
+    // Reference: https://patrickbrosset.medium.com/do-you-really-understand-css-linear-gradients-631d9a895caf
+    // Translate the angle from degress to radians and default pointing up along the unit circle.
+    float angle = (_GradientAngle) * (UNITY_PI / 180.0);
+    float cosA = cos(angle);
+    float sinA = sin(angle);
+
+    // Calculate the length of the gradient line for this rect.
+    float width = o.scale.x;
+    float height = o.scale.y;
+    float length = abs(width * sinA) + abs(height * cosA);
+
+    // Calculate the direction vector of the gradient line.
+    float2 direction = mul(float2(0.0, 1.0), float2x2(cosA, -sinA, sinA, cosA));
+
+    // Calculate start point of the gradient (which can lie outside of the rect).
+    float2 start = float2(0.5, 0.5) - (direction * (length * 0.5));
+
+    // Project the vector from the start point to the current texcoord onto the gradient direction. This will 
+    // tell us how far this texel is along the gradient.
+    float t = dot(o.uv - start, direction) + 0.5;
+    o.gradient = float2(t, 0.0);
 #endif
 
 #if defined(_NORMAL)
