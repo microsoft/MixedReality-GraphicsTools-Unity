@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -250,6 +249,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty useWorldScale;
 
         protected string cssGradient = string.Empty;
+        protected bool cssGradientValid = false;
 
         protected override void FindProperties(MaterialProperty[] props)
         {
@@ -844,158 +844,49 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         materialEditor.ShaderProperty(gradientColor2, Styles.linearGradientStop2Color, 2);
                         materialEditor.ShaderProperty(gradientColor3, Styles.linearGradientStop3Color, 2);
 
-                        GUILayout.Label("From CSS Gradient", EditorStyles.boldLabel);
+                        GUILayout.Label("Import CSS Gradient", EditorStyles.boldLabel);
 
                         EditorGUI.BeginChangeCheck();
 
-                        cssGradient = GUILayout.TextField(cssGradient);
+                        GUILayout.BeginHorizontal("box");
+                        {
+
+                            GUILayout.Box(string.IsNullOrEmpty(cssGradient) ? 
+                                                               EditorGUIUtility.IconContent("orangeLight") : 
+                                                               cssGradientValid ? 
+                                                               EditorGUIUtility.IconContent("greenLight") : 
+                                                               EditorGUIUtility.IconContent("redLight"), 
+                                                               GUILayout.Height(16));
+
+                            cssGradient = GUILayout.TextField(cssGradient);
+                        }
+                        GUILayout.EndHorizontal();
 
                         if (EditorGUI.EndChangeCheck())
                         {
+                            Color[] gradientColors;
+                            float[] gradientStops;
+                            float angle;
 
-                            try
+                            if (StandardShaderUtility.TryParseCSSGradient(cssGradient, 4, out gradientColors, out gradientStops, out angle))
                             {
-                                // Extract the gradient structure.
-                                const string prefix = "linear-gradient(";
-                                const string postfix = ");";
-                                int start = cssGradient.IndexOf(prefix) + prefix.Length;
-                                int end = cssGradient.IndexOf(postfix, start);
-                                string gradient = cssGradient.Substring(start, end - start);
-
-                                string[] parameters = gradient.Split(',');
-
-                                List<Color> colorStops = new List<Color>();
-                                float angle = 180.0f; // CSS default.
-
-                                // Parse each parameter, or up to 4 color stops.
-                                for (int i = 0; i < parameters.Length && colorStops.Count <= 4; ++i)
+                                Color GradientColorStopToColor(Color color, float stop)
                                 {
-                                    // Handle degrees.
-                                    if (parameters[i].Contains("deg"))
-                                    {
-                                        float.TryParse(parameters[i].Replace("deg", string.Empty), out angle);
-                                    }
-                                    else // Handle colors and stops.
-                                    {
-                                        if (parameters[i].Contains("rgba("))
-                                        {
-                                            float red;
-                                            if (float.TryParse(parameters[i].Replace("rgba(", string.Empty), out red))
-                                            {
-                                                if (red > 1.0)
-                                                {
-                                                    red = red / 255;
-                                                }
-                                            }
-
-                                            float green;
-                                            if (float.TryParse(parameters[i + 1], out green))
-                                            {
-                                                if (green > 1.0)
-                                                {
-                                                    green = green / 255;
-                                                }
-                                            }
-
-                                            float blue;
-                                            if (float.TryParse(parameters[i + 2], out blue))
-                                            {
-                                                if (blue > 1.0)
-                                                {
-                                                    blue = blue / 255;
-                                                }
-                                            }
-
-                                            string[] colorStop = parameters[i + 3].Split(new string[] { ") " }, StringSplitOptions.RemoveEmptyEntries);
-
-                                            float alpha;
-                                            if (float.TryParse(colorStop[0], out alpha))
-                                            {
-                                                if (alpha > 1.0)
-                                                {
-                                                    alpha = alpha / 255;
-                                                }
-                                            }
-
-                                            float stop;
-                                            if (colorStop.Length > 1 &&
-                                                float.TryParse(colorStop[1].Replace("%", string.Empty), out stop))
-                                            {
-                                                colorStops.Add(new Color(red, green, blue, stop / 100));
-                                            }
-                                            else
-                                            {
-                                                colorStops.Add(new Color(red, green, blue, -1.0f));
-                                            }
-
-                                            i += 3;
-                                        }
-                                        else
-                                        {
-                                            // Parse #FFFFFF xx.xx%
-                                            string[] colorStop = parameters[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                                            Color color;
-
-                                            if (ColorUtility.TryParseHtmlString(colorStop[0], out color))
-                                            {
-                                                float stop;
-                                                if (colorStop.Length > 1 && 
-                                                    float.TryParse(colorStop[1].Replace("%", string.Empty), out stop))
-                                                {
-                                                    colorStops.Add(new Color(color.r, color.g, color.b, stop / 100));
-                                                }
-                                                else
-                                                {
-                                                    colorStops.Add(new Color(color.r, color.g, color.b, -1.0f));
-                                                }
-                                            }
-                                        }
-                                    }
+                                    return new Color(color.r, color.g, color.b, stop);
                                 }
 
-                                // If no stop was provided, assume regular interval.
-                                for (int i = 0; i < colorStops.Count; ++i)
-                                {
-                                    Color color = colorStops[i];
-
-                                    if (color.a < 0)
-                                    {
-                                        color.a = (colorStops.Count != 1) ? (float)i / (colorStops.Count - 1) : 0.0f;
-                                        colorStops[i] = color;
-                                    }
-
-                                    if (i == (colorStops.Count - 1))
-                                    {
-                                        color.a = 1.0f;
-                                        colorStops[i] = color;
-                                    }
-                                }
-
-                                // Ensure we always have 4 colors.
-                                while (colorStops.Count < 4)
-                                {
-                                    if (colorStops.Count != 0)
-                                    {
-                                        colorStops.Add(colorStops[colorStops.Count - 1]);
-                                    }
-                                    else
-                                    {
-                                        colorStops.Add(Color.white);
-                                    }
-                                }
-
-                                // Apply the angle and color stops.
+                                gradientColor0.colorValue = GradientColorStopToColor(gradientColors[0], gradientStops[0]);
+                                gradientColor1.colorValue = GradientColorStopToColor(gradientColors[1], gradientStops[1]);
+                                gradientColor2.colorValue = GradientColorStopToColor(gradientColors[2], gradientStops[2]);
+                                gradientColor3.colorValue = GradientColorStopToColor(gradientColors[3], gradientStops[3]);
                                 gradientAngle.floatValue = angle;
 
-                                gradientColor0.colorValue = colorStops[0];
-                                gradientColor1.colorValue = colorStops[1];
-                                gradientColor2.colorValue = colorStops[2];
-                                gradientColor3.colorValue = colorStops[3];
+                                cssGradientValid = true;
                             }
-                            catch
+                            else
                             {
-                                // Failed to parse gradient, continue along.
-                            }
+                                cssGradientValid = false;
+                            }    
                         }
 
                         material.DisableKeyword(Styles.gradientModeIridescence);

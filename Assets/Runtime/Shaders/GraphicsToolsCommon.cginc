@@ -110,11 +110,11 @@ fixed3 FourPointGradient(half4 gradientColor, half4 topLeft, half4 topRight, hal
     return gradientColor.rgb * (bottom + (top - bottom) * uv.y);
 }
 
-fixed3 LinearGradient(half4 color0, half4 color1, half4 color2, half4 color3, half2 uv)
+fixed3 LinearGradient(half4 color0, half4 color1, half4 color2, half4 color3, float t)
 {
-    fixed3 color = lerp(color0.rgb, color1.rgb, smoothstep(color0.a, color1.a, uv.x));
-    color = lerp(color, color2, smoothstep(color1.a, color2.a, uv.x));
-    return lerp(color, color3, smoothstep(color2.a, color3.a, uv.x));
+    fixed3 color = lerp(color0.rgb, color1.rgb, smoothstep(color0.a, color1.a, t));
+    color = lerp(color, color2, smoothstep(color1.a, color2.a, t));
+    return lerp(color, color3, smoothstep(color2.a, color3.a, t));
 }
 
 #endif // GRAPHICS_TOOLS_COMMON

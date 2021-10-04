@@ -179,7 +179,7 @@ struct v2f
 #if defined(_IRIDESCENCE)
     fixed3 gradient : COLOR2;
 #elif defined(_GRADIENT_LINEAR)
-    float2 gradient : COLOR2;
+    float gradient : COLOR2;
 #endif
 #if defined(_WORLD_POSITION)
 #if defined(_NEAR_PLANE_FADE)
