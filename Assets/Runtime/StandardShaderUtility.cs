@@ -195,6 +195,18 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                 }
 
+                // If no stop was provided, assume regular interval.
+                for (int i = 0; i < stopKeys.Count; ++i)
+                {
+                    float stop = stopKeys[i];
+
+                    if (stop < 0)
+                    {
+                        stop = (stopKeys.Count != 1) ? (float)i / (stopKeys.Count - 1) : 0.0f;
+                        stopKeys[i] = stop;
+                    }
+                }
+
                 // Ensure we always have keyCount colors/stops.
                 while (colorKeys.Count < keyCount)
                 {
@@ -212,18 +224,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 // Ensure the last stop goes to one.
                 stopKeys[colorKeys.Count - 1] = 1.0f;
-
-                // If no stop was provided, assume regular interval.
-                for (int i = 0; i < stopKeys.Count; ++i)
-                {
-                    float stop = stopKeys[i];
-
-                    if (stop < 0)
-                    {
-                        stop = (stopKeys.Count != 1) ? (float)i / (stopKeys.Count - 1) : 0.0f;
-                        stopKeys[i] = stop;
-                    }
-                }
 
                 gradientColors = colorKeys.ToArray();
                 gradientStops = stopKeys.ToArray();
