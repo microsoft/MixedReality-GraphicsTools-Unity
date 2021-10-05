@@ -92,9 +92,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Note, only linear gradients are supported at the moment. And, not all CSS gradient features are supported.
         /// An example input sting is: background: background: linear-gradient(90deg, #0380FD 0%, #406FC8 19.05%, #2B398F 49.48%, #FF77C1 100%);
         /// </summary>
-        public static bool TryParseCSSGradient(string cssGradient, int keyCount, out Color[] gradientColors, out float[] gradientStops, out float gradientAngle)
+        public static bool TryParseCSSGradient(string cssGradient, out Color[] gradientColors, out float[] gradientStops, out float gradientAngle)
         {
             const float defaultCSSAngle = 180.0f;
+
+            bool success;
 
             try
             {
@@ -111,8 +113,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 List<Color> colorKeys = new List<Color>();
                 List<float> stopKeys = new List<float>();
 
-                // Parse each parameter, or up to `keyCount`.
-                for (int i = 0; i < parameters.Length && colorKeys.Count <= keyCount; ++i)
+                // Parse each parameter.
+                for (int i = 0; i < parameters.Length; ++i)
                 {
                     // Handle degrees.
                     if (parameters[i].Contains("deg"))
@@ -195,35 +197,29 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                 }
 
-                // If no stop was provided, assume regular interval.
-                for (int i = 0; i < stopKeys.Count; ++i)
+                if (stopKeys.Count >= 2)
                 {
-                    float stop = stopKeys[i];
-
-                    if (stop < 0)
+                    // If no stop was provided, assume regular interval.
+                    for (int i = 0; i < stopKeys.Count; ++i)
                     {
-                        stop = (stopKeys.Count != 1) ? (float)i / (stopKeys.Count - 1) : 0.0f;
-                        stopKeys[i] = stop;
-                    }
-                }
+                        float stop = stopKeys[i];
 
-                // Ensure we always have keyCount colors/stops.
-                while (colorKeys.Count < keyCount)
+                        if (stop < 0)
+                        {
+                            stop = (stopKeys.Count != 1) ? (float)i / (stopKeys.Count - 1) : 0.0f;
+                            stopKeys[i] = stop;
+                        }
+                    }
+
+                    // Ensure the last stop goes to one.
+                    stopKeys[colorKeys.Count - 1] = 1.0f;
+
+                    success = true;
+                }
+                else
                 {
-                    if (colorKeys.Count != 0)
-                    {
-                        colorKeys.Add(colorKeys[colorKeys.Count - 1]);
-                        stopKeys.Add(stopKeys[stopKeys.Count - 1]);
-                    }
-                    else
-                    {
-                        colorKeys.Add(Color.white);
-                        stopKeys.Add(1.0f);
-                    }
+                    success = false;
                 }
-
-                // Ensure the last stop goes to one.
-                stopKeys[colorKeys.Count - 1] = 1.0f;
 
                 gradientColors = colorKeys.ToArray();
                 gradientStops = stopKeys.ToArray();
@@ -232,14 +228,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             catch
             {
                 // Failed to parse gradient.
-                gradientColors = new Color[keyCount];
-                gradientStops = new float[keyCount];
-                gradientAngle = defaultCSSAngle;
+                success = false;
 
-                return false;
+                gradientColors = null;
+                gradientStops = null;
+                gradientAngle = defaultCSSAngle;
             }
 
-            return true;
+            return success;
         }
     }
 }

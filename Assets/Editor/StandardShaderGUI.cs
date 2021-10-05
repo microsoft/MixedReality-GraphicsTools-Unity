@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -868,17 +869,27 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                             float[] gradientStops;
                             float angle;
 
-                            if (StandardShaderUtility.TryParseCSSGradient(cssGradient, 4, out gradientColors, out gradientStops, out angle))
+                            if (StandardShaderUtility.TryParseCSSGradient(cssGradient, out gradientColors, out gradientStops, out angle))
                             {
+                                List<Color> colors = new List<Color>(gradientColors);
+                                List<float> stops = new List<float>(gradientStops);
+
+                                // Ensure we always have 4 colors/stops.
+                                while (colors.Count < 4)
+                                {
+                                    colors.Add(colors[colors.Count - 1]);
+                                    stops.Add(stops[stops.Count - 1]);
+                                }
+
                                 Color GradientColorStopToColor(Color color, float stop)
                                 {
                                     return new Color(color.r, color.g, color.b, stop);
                                 }
 
-                                gradientColor0.colorValue = GradientColorStopToColor(gradientColors[0], gradientStops[0]);
-                                gradientColor1.colorValue = GradientColorStopToColor(gradientColors[1], gradientStops[1]);
-                                gradientColor2.colorValue = GradientColorStopToColor(gradientColors[2], gradientStops[2]);
-                                gradientColor3.colorValue = GradientColorStopToColor(gradientColors[3], gradientStops[3]);
+                                gradientColor0.colorValue = GradientColorStopToColor(colors[0], stops[0]);
+                                gradientColor1.colorValue = GradientColorStopToColor(colors[1], stops[1]);
+                                gradientColor2.colorValue = GradientColorStopToColor(colors[2], stops[2]);
+                                gradientColor3.colorValue = GradientColorStopToColor(colors[3], stops[3]);
                                 gradientAngle.floatValue = angle;
 
                                 cssGradientValid = true;
