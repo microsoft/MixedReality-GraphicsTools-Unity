@@ -139,11 +139,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent fourPointGradientBottomLeftColor = new GUIContent("Bottom Left", "Bottom Left Color at UV (0, 1)");
             public static readonly GUIContent fourPointGradientBottomRightColor = new GUIContent("Bottom Right", "Bottom Right Color at UV (1, 1)");
             public static readonly GUIContent fourPointGradientAutoFillButton = new GUIContent("Auto Fill", "Generates a Visually Pleasing Gradient Based on the Top Left Color");
+            public static readonly GUIContent linearGradientColor = new GUIContent("Color Keys (Up to 4)", "Specify up to 4 Colors to Evaluate. (Alpha Keys Not Considered)");
             public static readonly GUIContent linearGradientAngle = new GUIContent("Angle", "By Default Gradients Go Top to Bottom the Angle Adjusts That Direction");
-            public static readonly GUIContent linearGradientStop0Color = new GUIContent("Stop 0", "First Color Key (RGB) and Stop Value (Alpha)");
-            public static readonly GUIContent linearGradientStop1Color = new GUIContent("Stop 1", "Second Color Key (RGB) and Stop Value (Alpha)");
-            public static readonly GUIContent linearGradientStop2Color = new GUIContent("Stop 2", "Third Color Key (RGB) and Stop Value (Alpha)");
-            public static readonly GUIContent linearGradientStop3Color = new GUIContent("Stop 3", "Fourth Color Key (RGB) and Stop Value (Alpha)");
+            public static readonly GUIContent linearCssGradient = new GUIContent("Import From CSS Gradient", "For Example Type: linear-gradient(red, yellow);");
             public static readonly GUIContent environmentColoring = new GUIContent("Environment Coloring", "Change Color Based on View");
             public static readonly GUIContent environmentColorThreshold = new GUIContent("Threshold", "Threshold When Environment Coloring Should Appear Based on Surface Normal");
             public static readonly GUIContent environmentColorIntensity = new GUIContent("Intensity", "Intensity (or Brightness) of the Environment Coloring");
@@ -839,65 +837,104 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 case GradientMode.Linear:
                     {
-                        materialEditor.ShaderProperty(gradientAngle, Styles.linearGradientAngle, 2);
-                        materialEditor.ShaderProperty(gradientColor0, Styles.linearGradientStop0Color, 2);
-                        materialEditor.ShaderProperty(gradientColor1, Styles.linearGradientStop1Color, 2);
-                        materialEditor.ShaderProperty(gradientColor2, Styles.linearGradientStop2Color, 2);
-                        materialEditor.ShaderProperty(gradientColor3, Styles.linearGradientStop3Color, 2);
-
-                        GUILayout.Label("Import CSS Gradient", EditorStyles.boldLabel);
+                        GradientColorKey MaterialPropertyToGradientColorKey(MaterialProperty property)
+                        {
+                            Color color = property.colorValue;
+                            return new GradientColorKey(color, color.a);
+                        }
 
                         EditorGUI.BeginChangeCheck();
-
-                        GUILayout.BeginHorizontal("box");
                         {
-
-                            GUILayout.Box(string.IsNullOrEmpty(cssGradient) ? 
-                                                               EditorGUIUtility.IconContent("orangeLight") : 
-                                                               cssGradientValid ? 
-                                                               EditorGUIUtility.IconContent("greenLight") : 
-                                                               EditorGUIUtility.IconContent("redLight"), 
-                                                               GUILayout.Height(16));
-
-                            cssGradient = GUILayout.TextField(cssGradient);
-                        }
-                        GUILayout.EndHorizontal();
-
-                        if (EditorGUI.EndChangeCheck())
-                        {
-                            Color[] gradientColors;
-                            float[] gradientStops;
-                            float angle;
-
-                            if (StandardShaderUtility.TryParseCSSGradient(cssGradient, out gradientColors, out gradientStops, out angle))
+                            Gradient gradient = new Gradient();
+                            gradient.SetKeys(new GradientColorKey[] { MaterialPropertyToGradientColorKey(gradientColor0),
+                                                                      MaterialPropertyToGradientColorKey(gradientColor1),
+                                                                      MaterialPropertyToGradientColorKey(gradientColor2),
+                                                                      MaterialPropertyToGradientColorKey(gradientColor3) },
+                                             new GradientAlphaKey[0] { });
+                            EditorGUI.indentLevel += 2;
+                            gradient = EditorGUILayout.GradientField(Styles.linearGradientColor, gradient);
+                            EditorGUI.indentLevel -= 2;
+                            if (EditorGUI.EndChangeCheck())
                             {
-                                List<Color> colors = new List<Color>(gradientColors);
-                                List<float> stops = new List<float>(gradientStops);
+                                List<GradientColorKey> colorStops = new List<GradientColorKey>(gradient.colorKeys);
 
                                 // Ensure we always have 4 colors/stops.
-                                while (colors.Count < 4)
+                                while (colorStops.Count < 4)
                                 {
-                                    colors.Add(colors[colors.Count - 1]);
-                                    stops.Add(stops[stops.Count - 1]);
+                                    colorStops.Add(colorStops[colorStops.Count - 1]);
                                 }
 
-                                Color GradientColorStopToColor(Color color, float stop)
+                                Color GradientColorStopToColor(GradientColorKey colorKey)
                                 {
-                                    return new Color(color.r, color.g, color.b, stop);
+                                    return new Color(colorKey.color.r, colorKey.color.g, colorKey.color.b, colorKey.time);
                                 }
 
-                                gradientColor0.colorValue = GradientColorStopToColor(colors[0], stops[0]);
-                                gradientColor1.colorValue = GradientColorStopToColor(colors[1], stops[1]);
-                                gradientColor2.colorValue = GradientColorStopToColor(colors[2], stops[2]);
-                                gradientColor3.colorValue = GradientColorStopToColor(colors[3], stops[3]);
-                                gradientAngle.floatValue = angle;
-
-                                cssGradientValid = true;
+                                gradientColor0.colorValue = GradientColorStopToColor(colorStops[0]);
+                                gradientColor1.colorValue = GradientColorStopToColor(colorStops[1]);
+                                gradientColor2.colorValue = GradientColorStopToColor(colorStops[2]);
+                                gradientColor3.colorValue = GradientColorStopToColor(colorStops[3]);
                             }
-                            else
+                        }
+
+                        materialEditor.ShaderProperty(gradientAngle, Styles.linearGradientAngle, 2);
+
+                        EditorGUI.indentLevel += 2;
+                        EditorGUILayout.LabelField(Styles.linearCssGradient, EditorStyles.boldLabel);
+
+                        EditorGUI.BeginChangeCheck();
+                        {
+                            EditorGUILayout.BeginHorizontal("Label");
                             {
-                                cssGradientValid = false;
-                            }    
+
+
+                                cssGradient = EditorGUILayout.TextField(cssGradient);
+                                GUILayout.Box(string.IsNullOrEmpty(cssGradient) ?
+                                   EditorGUIUtility.IconContent("orangeLight") :
+                                   cssGradientValid ?
+                                   EditorGUIUtility.IconContent("greenLight") :
+                                   EditorGUIUtility.IconContent("redLight"),
+                                   GUILayout.Height(16));
+                            }
+                            EditorGUILayout.EndHorizontal();
+
+                            EditorGUI.indentLevel -= 2;
+
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                Color[] gradientColors;
+                                float[] gradientStops;
+                                float angle;
+
+                                if (StandardShaderUtility.TryParseCSSGradient(cssGradient, out gradientColors, out gradientStops, out angle))
+                                {
+                                    List<Color> colors = new List<Color>(gradientColors);
+                                    List<float> stops = new List<float>(gradientStops);
+
+                                    // Ensure we always have 4 colors/stops.
+                                    while (colors.Count < 4)
+                                    {
+                                        colors.Add(colors[colors.Count - 1]);
+                                        stops.Add(stops[stops.Count - 1]);
+                                    }
+
+                                    Color GradientColorStopToColor(Color color, float stop)
+                                    {
+                                        return new Color(color.r, color.g, color.b, stop);
+                                    }
+
+                                    gradientColor0.colorValue = GradientColorStopToColor(colors[0], stops[0]);
+                                    gradientColor1.colorValue = GradientColorStopToColor(colors[1], stops[1]);
+                                    gradientColor2.colorValue = GradientColorStopToColor(colors[2], stops[2]);
+                                    gradientColor3.colorValue = GradientColorStopToColor(colors[3], stops[3]);
+                                    gradientAngle.floatValue = angle;
+
+                                    cssGradientValid = true;
+                                }
+                                else
+                                {
+                                    cssGradientValid = false;
+                                }
+                            }
                         }
 
                         material.DisableKeyword(Styles.gradientModeIridescence);
