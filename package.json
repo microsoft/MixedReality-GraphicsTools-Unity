@@ -1,6 +1,6 @@
 {
   "name": "com.microsoft.mixedreality.graphicstools.unity",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "displayName": "Mixed Reality Graphics Tools",
   "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
   "unity": "2020.3",
@@ -45,6 +45,11 @@
       "displayName": "Unity UI",
       "description": "Unity UI samples.",
       "path": "Assets/Samples~/UnityUI"
+    },
+    {
+      "displayName": "Canvas Shadow",
+      "description": "Canvas Shadow samples.",
+      "path": "Assets/Samples~/CanvasShadow"
     }
   ]
 }
