@@ -77,7 +77,7 @@ Material:
     - _AlbedoAlphaMode: 1
     - _AlbedoAlphaSmoothness: 0
     - _AlbedoAssignedAtRuntime: 0
-    - _BlendOp: 0
+    - _BlendOp: 2
     - _BlendedClippingWidth: 1
     - _BorderColorMode: 0
     - _BorderLight: 0
@@ -103,7 +103,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DirectionalLight: 0
-    - _DstBlend: 10
+    - _DstBlend: 1
     - _EdgeSmoothingValue: 10
     - _EnableChannelMap: 0
     - _EnableEmission: 0
@@ -140,7 +140,7 @@ Material:
     - _IridescenceThreshold: 0.05
     - _Metallic: 0
     - _MipmapBias: -2
-    - _Mode: 2
+    - _Mode: 5
     - _NearLightFade: 0
     - _NearPlaneFade: 0
     - _NormalMapScale: 1
@@ -156,13 +156,14 @@ Material:
     - _RimLight: 0
     - _RimPower: 5.83
     - _RoundCornerMargin: 10
-    - _RoundCornerRadius: 10
+    - _RoundCornerRadius: 5
     - _RoundCorners: 1
+    - _RoundCornersHideInterior: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 0
     - _SphericalHarmonics: 0
-    - _SrcBlend: 5
+    - _SrcBlend: 1
     - _Stencil: 0
     - _StencilComparison: 0
     - _StencilOperation: 0
@@ -183,7 +184,7 @@ Material:
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
-    - _Color: {r: 0.6792453, g: 0.6792453, b: 0.6792453, a: 0.69803923}
+    - _Color: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 0.69803923}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}

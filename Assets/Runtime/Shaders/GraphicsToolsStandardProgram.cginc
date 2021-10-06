@@ -46,6 +46,7 @@
 #pragma shader_feature _PROXIMITY_LIGHT_TWO_SIDED
 #pragma shader_feature _ROUND_CORNERS
 #pragma shader_feature _INDEPENDENT_CORNERS
+#pragma shader_feature _ROUND_CORNERS_HIDE_INTERIOR
 #pragma shader_feature _BORDER_LIGHT
 #pragma shader_feature _ _BORDER_LIGHT_USES_HOVER_COLOR _BORDER_LIGHT_USES_COLOR _BORDER_LIGHT_USES_GRADIENT
 #pragma shader_feature _BORDER_LIGHT_REPLACES_ALBEDO
@@ -565,7 +566,7 @@ v2f vert(appdata_t v)
     // Project the vector from the start point to the current texcoord onto the gradient direction. This will 
     // tell us how far this texel is along the gradient.
     float t = dot(o.uv - start, direction) + 0.5;
-    o.gradient = float2(t, 0.0);
+    o.gradient = t;
 #endif
 
 #if defined(_NORMAL)
@@ -742,6 +743,9 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     float2 cornerCircleDistance = halfScale - (_RoundCornerMargin * i.scale.z) - cornerCircleRadius;
 #if defined(_ROUND_CORNERS)
     float roundCornerClip = RoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * i.scale.z);
+#if defined(_ROUND_CORNERS_HIDE_INTERIOR)
+    roundCornerClip = (roundCornerClip < 1) ? roundCornerClip : 0.0;
+#endif
 #endif
 #endif
 

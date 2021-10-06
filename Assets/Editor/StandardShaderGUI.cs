@@ -108,7 +108,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent roundCornersRadius = new GUIContent("Corners Radius", "UpLeft-UpRight-BottomRight-BottomLeft");
             public static readonly GUIContent roundCornerMargin = new GUIContent("Margin %", "Distance From Geometry Edge");
             public static readonly GUIContent roundCornerMarginWorldScale = new GUIContent("Margin", "Distance From Geometry Edge in World Units");
-            public static readonly GUIContent independentCorners = new GUIContent("Independent Corners", "Manage each corner separately");
+            public static readonly GUIContent independentCorners = new GUIContent("Independent Corners", "Manage Each Corner Separately");
+            public static readonly GUIContent roundCornersHideInterior = new GUIContent("Hide Interior", "Pixels Within the Rounded Rect Should be Discarded");
             public static readonly GUIContent borderLight = new GUIContent("Border Light", "Enable Border Lighting (Assumes UVs Specify Borders of Surface, Works Best on Unity Cube, Quad, and Plane)");
             public static readonly GUIContent borderLightReplacesAlbedo = new GUIContent("Replace Albedo", "Border Light Replaces Albedo (Replacement Rather Than Additive)");
             public static readonly GUIContent borderLightOpaque = new GUIContent("Opaque Borders", "Borders Override Alpha Value to Appear Opaque");
@@ -212,6 +213,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty roundCornerMargin;
         protected MaterialProperty independentCorners;
         protected MaterialProperty roundCornersRadius;
+        protected MaterialProperty roundCornersHideInterior;
         protected MaterialProperty borderLight;
         protected MaterialProperty borderLightReplacesAlbedo;
         protected MaterialProperty borderLightOpaque;
@@ -311,6 +313,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             roundCornersRadius = FindProperty("_RoundCornersRadius", props);
             roundCornerMargin = FindProperty("_RoundCornerMargin", props);
             independentCorners = FindProperty("_IndependentCorners", props);
+            roundCornersHideInterior = FindProperty("_RoundCornersHideInterior", props);
             borderLight = FindProperty("_BorderLight", props);
             borderLightReplacesAlbedo = FindProperty("_BorderLightReplacesAlbedo", props);
             borderLightOpaque = FindProperty("_BorderLightOpaque", props);
@@ -739,6 +742,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             if (PropertyEnabled(roundCorners))
             {
                 materialEditor.ShaderProperty(independentCorners, Styles.independentCorners, 2);
+
                 if (PropertyEnabled(independentCorners))
                 {
                     materialEditor.ShaderProperty(roundCornersRadius, Styles.roundCornersRadius, 2);
@@ -768,6 +772,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 else
                 {
                     materialEditor.ShaderProperty(roundCornerMargin, Styles.roundCornerMargin, 2);
+                }
+
+                if ((RenderingMode)renderingMode.floatValue != RenderingMode.Opaque &&
+                    (RenderingMode)renderingMode.floatValue != RenderingMode.Cutout)
+                {
+                    materialEditor.ShaderProperty(roundCornersHideInterior, Styles.roundCornersHideInterior, 2);
                 }
             }
 
@@ -1014,6 +1024,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return PropertyEnabled(vertexExtrusion) ||
                    PropertyEnabled(roundCorners) ||
                    PropertyEnabled(borderLight) ||
+                   ((GradientMode)gradientMode.floatValue == GradientMode.Linear) ||
                    (PropertyEnabled(enableTriplanarMapping) && PropertyEnabled(enableLocalSpaceTriplanarMapping));
         }
 

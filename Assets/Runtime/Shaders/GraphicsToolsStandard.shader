@@ -67,6 +67,7 @@ Shader "Graphics Tools/Standard"
         _RoundCornerMargin("Round Corner Margin", Range(0.0, 0.5)) = 0.01
         [Toggle(_INDEPENDENT_CORNERS)] _IndependentCorners("Independent Corners", Float) = 0.0
         _RoundCornersRadius("Round Corners Radius", Vector) = (0.5 ,0.5, 0.5, 0.5)
+        [Toggle(_ROUND_CORNERS_HIDE_INTERIOR)] _RoundCornersHideInterior("Hide Interior", Float) = 0.0
         [Toggle(_BORDER_LIGHT)] _BorderLight("Border Light", Float) = 0.0
         [Toggle(_BORDER_LIGHT_REPLACES_ALBEDO)] _BorderLightReplacesAlbedo("Border Light Replaces Albedo", Float) = 0.0
         [Toggle(_BORDER_LIGHT_OPAQUE)] _BorderLightOpaque("Border Light Opaque", Float) = 0.0
