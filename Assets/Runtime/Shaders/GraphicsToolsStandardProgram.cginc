@@ -96,7 +96,7 @@
 #undef _TRANSPARENT
 #endif
 
-#if defined(_VERTEX_EXTRUSION) || defined(_ROUND_CORNERS) || defined(_BORDER_LIGHT)
+#if defined(_VERTEX_EXTRUSION) || defined(_ROUND_CORNERS) || defined(_BORDER_LIGHT) || defined(_GRADIENT_LINEAR)
 #define _SCALE
 #else
 #undef _SCALE
@@ -432,7 +432,7 @@ v2f vert(appdata_t v)
     o.scale.x = length(mul(unity_ObjectToWorld, float4(1.0, 0.0, 0.0, 0.0)));
     o.scale.y = length(mul(unity_ObjectToWorld, float4(0.0, 1.0, 0.0, 0.0)));
     o.scale.z = length(mul(unity_ObjectToWorld, float4(0.0, 0.0, 1.0, 0.0)));
-    float uguiScale = 1.0;
+    float canvasScale = 1.0;
 #if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
     // uv3.y will contain a negative value when rendered by a UGUI and ScaleMeshEffect.
     if (v.uv3.y < 0.0)
@@ -440,7 +440,7 @@ v2f vert(appdata_t v)
         o.scale.x *= v.uv2.x;
         o.scale.y *= v.uv2.y;
         o.scale.z *= v.uv3.x;
-        uguiScale = -v.uv3.y;
+        canvasScale = -v.uv3.y;
     }
 #endif
 #endif
@@ -498,7 +498,7 @@ v2f vert(appdata_t v)
     o.uv = v.uv;
 
 #if defined(_USE_WORLD_SCALE)
-    o.scale.z = 1 * uguiScale;
+    o.scale.z = 1 * canvasScale;
 #endif
 
     float minScale = min(min(o.scale.x, o.scale.y), o.scale.z);
@@ -735,7 +735,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     _RoundCornerMargin = 0.0;
 #endif
 #if defined(_USE_WORLD_SCALE)
-    float cornerCircleRadius = max(currentCornerRadius - _RoundCornerMargin, _MinCorverValue) * i.scale.z;
+    float cornerCircleRadius = max(currentCornerRadius, _MinCorverValue) * i.scale.z;
 #else
     float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, _MinCorverValue)) * i.scale.z;
 #endif
@@ -854,7 +854,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 #if defined(_BORDER_LIGHT)
 #if defined(_USE_WORLD_SCALE)
     fixed borderMargin = _RoundCornerMargin + _BorderWidth;
-    cornerCircleRadius = max(currentCornerRadius - borderMargin, _MinCorverValue) * i.scale.z;
+    cornerCircleRadius = max(currentCornerRadius - _BorderWidth, _MinCorverValue) * i.scale.z;
 #else
     fixed borderMargin = _RoundCornerMargin + _BorderWidth * 0.5;
     cornerCircleRadius = saturate(max(currentCornerRadius - borderMargin, _MinCorverValue)) * i.scale.z;
@@ -878,7 +878,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
 #if defined(_BORDER_LIGHT_REPLACES_ALBEDO)
     albedo.rgb = lerp(albedo.rgb, borderContribution, borderValue);
 #else
-    albedo.rgb += borderContribution;
+    albedo.rgb += lerp(fixed3(0.0, 0.0, 0.0), borderContribution, borderValue);
 #endif
 #if defined(_HOVER_LIGHT) || defined(_PROXIMITY_LIGHT)
     albedo.rgb += (fluentLightColor * borderValue * pointToLight * _FluentLightIntensity) * 2.0;
