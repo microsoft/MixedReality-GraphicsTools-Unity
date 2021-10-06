@@ -104,7 +104,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DirectionalLight: 0
     - _DstBlend: 0
-    - _EdgeSmoothingValue: 0
+    - _EdgeSmoothingValue: 0.25
     - _EnableChannelMap: 0
     - _EnableEmission: 0
     - _EnableHoverColorOpaqueOverride: 0

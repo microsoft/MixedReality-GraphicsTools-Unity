@@ -873,7 +873,7 @@ fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
     fixed3 borderColor = fixed3(_BorderMinValue, _BorderMinValue, _BorderMinValue);
 #endif
 
-    fixed3 borderContribution = borderColor * borderValue * _FluentLightIntensity;
+    fixed3 borderContribution = borderColor * _FluentLightIntensity;
 
 #if defined(_BORDER_LIGHT_REPLACES_ALBEDO)
     albedo.rgb = lerp(albedo.rgb, borderContribution, borderValue);
