@@ -47,11 +47,18 @@ public class CanvasShadow : MonoBehaviour
     {
         _casterRectTransform = transform.parent.gameObject.GetComponent<RectTransform>();
         _shadowRectTransform = GetComponent<RectTransform>();
-        _lightTransform = Light.transform;
+
+        if (Light != null)
+        {
+            _lightTransform = Light.transform;
+        }
     }
 
     private void UpdateShadow()
     {
+        if (_lightTransform == null)
+            return;
+
         Vector3 shadowLocalPosition = _casterRectTransform.localPosition;
         shadowLocalPosition.z = -_casterRectTransform.localPosition.z + BackingOffset;
         _shadowRectTransform.localPosition = shadowLocalPosition;
