@@ -7,6 +7,9 @@
 #pragma vertex vert
 #pragma fragment frag
 
+// Comment in to help with RenderDoc debugging.
+//#pragma enable_d3d11_debug_symbols
+
 /// <summary>
 /// Features.
 /// </summary>
@@ -500,9 +503,9 @@ v2f vert(appdata_t v)
 
 #if defined(_USE_WORLD_SCALE)
     o.scale.z = 1 * canvasScale;
-#endif
-
+ #else
     float minScale = min(min(o.scale.x, o.scale.y), o.scale.z);
+#endif
 
     if (abs(localNormal.x) == 1.0) // Y,Z plane.
     {
@@ -514,11 +517,7 @@ v2f vert(appdata_t v)
         o.scale.x = o.scale.x;
         o.scale.y = o.scale.z;
     }
-    else  // X,Y plane.
-    {
-        o.scale.x = o.scale.x;
-        o.scale.y = o.scale.y;
-    }
+    // Else X,Y plane.
 
 #if !defined(_USE_WORLD_SCALE)
     o.scale.z = minScale;
@@ -552,20 +551,22 @@ v2f vert(appdata_t v)
     float cosA = cos(angle);
     float sinA = sin(angle);
 
+    // Calculate the direction vector of the gradient line.
+    float2 direction = mul(float2(0.0, 1.0), float2x2(cosA, -sinA, sinA, cosA));
+
     // Calculate the length of the gradient line for this rect.
     float width = o.scale.x;
     float height = o.scale.y;
     float length = abs(width * sinA) + abs(height * cosA);
 
-    // Calculate the direction vector of the gradient line.
-    float2 direction = mul(float2(0.0, 1.0), float2x2(cosA, -sinA, sinA, cosA));
-
     // Calculate start point of the gradient (which can lie outside of the rect).
-    float2 start = float2(0.5, 0.5) - (direction * (length * 0.5));
+    float2 center = float2(width * 0.5, height * 0.5);
+    float2 start = center - (direction * (length * 0.5));
 
-    // Project the vector from the start point to the current texcoord onto the gradient direction. This will 
+    // Project the vector from the start point to the current texel onto the gradient direction. This will 
     // tell us how far this texel is along the gradient.
-    float t = dot(o.uv - start, direction) + 0.5;
+    float2 texel = float2(o.uv.x * width, o.uv.y * height);
+    float t = dot(texel - start, direction / length);
     o.gradient = t;
 #endif
 
