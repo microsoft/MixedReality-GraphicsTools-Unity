@@ -40,12 +40,10 @@ By default assets exist under the `Samples~` subfolder as outlined by Unity's [s
 If you wish to contribute changes to the samples you must make a temporary local change to the Unity project's directory structure.
 
 1. [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) and [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) this [repository](https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git).
-2. Navigate to the `/Assets/Samples~` folder in your file explorer.
-3. Change the folder name from `Samples~` to `Samples`.
-4. Open the Graphics Tools project in Unity. The `Samples` folder will now be visible in the Unity "Project" window.
-5. Make any changes to the samples.
-6. **Important:** When finished, change the folder name back from `Samples` to `Samples~`.
-7. [Commit and push](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository) your changes to your fork and open a [pull request](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/pulls).
+2. Open the Graphics Tools project in Unity. The `Samples` folder will not be visible by default. To show the samples select `Window > Graphics Tools > Show Samples` from the file menu bar.
+3. Make any desired changes to the samples.
+4. **Important:** When finished and before committing your changes, remember to hide the samples. Select `Window > Graphics Tools > Hide Samples` from the file menu bar.
+5. [Commit and push](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository) your changes to your fork and open a [pull request](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/pulls).
 
 ### License agreement 
 
