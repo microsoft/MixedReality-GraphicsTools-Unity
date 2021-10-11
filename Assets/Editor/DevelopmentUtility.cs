@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -40,10 +41,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             try
             {
-                string hiddenPath = GetFullpath(HiddenSamplesPath);
+                string hiddenPath = GetFullPath(HiddenSamplesPath);
                 if (Directory.Exists(hiddenPath))
                 {
-                    Directory.Move(hiddenPath, GetFullpath(VisibleSamplesPath));
+                    string visiblePath = GetFullPath(VisibleSamplesPath);
+                    if (Directory.Exists(visiblePath) && IsDirectoryEmpty(visiblePath))
+                    {
+                        Directory.Delete(visiblePath);
+                    }
+
+                    Directory.Move(hiddenPath, visiblePath);
+
                     AssetDatabase.Refresh();
                 }
             }
@@ -60,7 +68,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         public static bool ValidateShowSamples()
         {
             Initialize();
-            return !InstalledViaPackage && Directory.Exists(GetFullpath(HiddenSamplesPath));
+
+            if (InstalledViaPackage)
+            {
+                return false;
+            }
+
+            string path = GetFullPath(HiddenSamplesPath);
+            return Directory.Exists(path) && !IsDirectoryEmpty(path);
         }
 
         /// <summary>
@@ -71,11 +86,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             try
             {
-                string visiblePath = GetFullpath(VisibleSamplesPath);
+                string visiblePath = GetFullPath(VisibleSamplesPath);
                 if (Directory.Exists(visiblePath))
                 {
-                    Directory.Move(visiblePath, GetFullpath(HiddenSamplesPath));
+                    string hiddenPath = GetFullPath(HiddenSamplesPath);
+                    if (Directory.Exists(hiddenPath) && IsDirectoryEmpty(hiddenPath))
+                    {
+                        Directory.Delete(hiddenPath);
+                    }
+
+                    Directory.Move(visiblePath, hiddenPath);
                     File.Delete(visiblePath + ".meta"); // Remove the lingering meta files as well.
+
                     AssetDatabase.Refresh();
                 }
 
@@ -93,7 +115,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         public static bool ValidateHideSamples()
         {
             Initialize();
-            return !InstalledViaPackage && Directory.Exists(GetFullpath(VisibleSamplesPath));
+
+            if (InstalledViaPackage)
+            {
+                return false;
+            }
+
+            string path = GetFullPath(VisibleSamplesPath);
+            return Directory.Exists(path) && !IsDirectoryEmpty(path);
         }
 
         /// <summary>
@@ -117,9 +146,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Returns the full path of a directory relative to the Assets folder.
         /// </summary>
-        private static string GetFullpath(string localPath)
+        private static string GetFullPath(string localPath)
         {
             return Path.GetFullPath(Path.Combine(Application.dataPath, localPath));
+        }
+
+        /// <summary>
+        /// Returns true if a directory has nothing in it.
+        /// </summary>
+        private static bool IsDirectoryEmpty(string path)
+        {
+            return !Directory.EnumerateFileSystemEntries(path).Any();
         }
     }
 }
