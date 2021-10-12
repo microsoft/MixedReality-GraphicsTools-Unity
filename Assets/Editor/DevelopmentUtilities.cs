@@ -12,7 +12,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     /// <summary>
     /// General utility methods to help with Graphics Tools development.
     /// </summary>
-    public class DevelopmentUtility
+    public class DevelopmentUtilities
     {
         private static bool IsInitialized = false;
         private static bool InstalledViaPackage = true;

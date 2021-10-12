@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     /// be capture at various resolutions and with the current camera's clear color or a transparent 
     /// clear color for use in easy post compositing of images.
     /// </summary>
-    public class ScreenshotUtility
+    public class ScreenshotUtilities
     {
         [MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution")]
         private static void CaptureScreenshot1x()
