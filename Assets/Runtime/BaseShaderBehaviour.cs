@@ -12,7 +12,21 @@ namespace Microsoft.MixedReality.GraphicsTools
     [RequireComponent(typeof(CanvasRenderer))]
     public abstract class BaseShaderBehaviour : MonoBehaviour
     {
+        /// <summary>
+        /// "When animated should a new material be instantiated?"
+        /// </summary>
+        public bool UseSharedMaterial
+        {
+            get { return useSharedMaterial; }
+            set { useSharedMaterial = value; }
+        }
+
+        [Tooltip("When animated should a new material be instantiated?")]
+        [SerializeField]
+        private bool useSharedMaterial = false;
+
         private CanvasRenderer canvasRenderer = null;
+        private Material materialInstance = null;
 
         #region MonoBehaviour Implementation
 
@@ -37,6 +51,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void OnDidApplyAnimationProperties()
         {
             Material material = canvasRenderer.GetMaterial();
+
+            // Create a material instance when first animated.
+            if (!useSharedMaterial && materialInstance == null)
+            {
+                materialInstance = Instantiate(material);
+                canvasRenderer.SetMaterial(materialInstance, 0);
+                material = materialInstance;
+            }
 
             if (material != null)
             {
