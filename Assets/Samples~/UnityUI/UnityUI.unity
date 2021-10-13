@@ -614,6 +614,232 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 385852026}
   m_CullTransparentMesh: 1
+--- !u!1 &423986618
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 423986619}
+  - component: {fileID: 423986624}
+  - component: {fileID: 423986623}
+  - component: {fileID: 423986622}
+  - component: {fileID: 423986621}
+  - component: {fileID: 423986620}
+  m_Layer: 5
+  m_Name: CanvasRendererAnimation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &423986619
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423986618}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 566899116}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 140, y: -64}
+  m_SizeDelta: {x: 48, y: 48}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &423986620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423986618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: addbd2b9d4316f54aa5b4cf935a947ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useSharedMaterial: 0
+  _Color: {r: 1, g: 1, b: 1, a: 1}
+  _MainTex: {fileID: 0}
+  _AlbedoAlphaMode: 0
+  _AlbedoAssignedAtRuntime: 0
+  _Cutoff: 0.5
+  _Metallic: 0
+  _Smoothness: 0.5
+  _EnableChannelMap: 0
+  _ChannelMap: {fileID: 0}
+  _EnableNormalMap: 0
+  _NormalMap: {fileID: 0}
+  _NormalMapScale: 1
+  _EnableEmission: 0
+  _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
+  _EnableTriplanarMapping: 0
+  _EnableSSAA: 0
+  _MipmapBias: -2
+  _EnableLocalSpaceTriplanarMapping: 0
+  _TriplanarMappingBlendSharpness: 4
+  _DirectionalLight: 0
+  _SpecularHighlights: 1
+  _SphericalHarmonics: 0
+  _Reflections: 0
+  _Refraction: 0
+  _RefractiveIndex: 0
+  _RimLight: 0
+  _RimColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  _RimPower: 0.25
+  _VertexColors: 0
+  _VertexExtrusion: 0
+  _VertexExtrusionValue: 0
+  _VertexExtrusionSmoothNormals: 0
+  _BlendedClippingWidth: 1
+  _ClippingBorder: 0
+  _ClippingBorderWidth: 0.025
+  _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
+  _NearPlaneFade: 0
+  _NearLightFade: 0
+  _FadeBeginDistance: 0.85
+  _FadeCompleteDistance: 0.5
+  _FadeMinValue: 0
+  _HoverLight: 0
+  _EnableHoverColorOverride: 0
+  _HoverColorOverride: {r: 1, g: 1, b: 1, a: 1}
+  _ProximityLight: 0
+  _EnableProximityLightColorOverride: 0
+  _ProximityLightCenterColorOverride: {r: 1, g: 0, b: 0, a: 0}
+  _ProximityLightMiddleColorOverride: {r: 0, g: 1, b: 0, a: 0.5}
+  _ProximityLightOuterColorOverride: {r: 0, g: 0, b: 1, a: 1}
+  _ProximityLightSubtractive: 0
+  _ProximityLightTwoSided: 0
+  _FluentLightIntensity: 1
+  _RoundCorners: 1
+  _RoundCornerRadius: 0.25
+  _RoundCornerMargin: 0.01
+  _IndependentCorners: 0
+  _RoundCornersRadius: {x: 0.5, y: 0.5, z: 0.5}
+  _RoundCornersHideInterior: 0
+  _BorderLight: 0
+  _BorderLightReplacesAlbedo: 0
+  _BorderLightOpaque: 0
+  _BorderWidth: 0.1
+  _BorderColorMode: 0
+  _BorderMinValue: 0.1
+  _BorderColor: {r: 1, g: 1, b: 1, a: 0}
+  _EdgeSmoothingValue: 0.01
+  _BorderLightOpaqueAlpha: 1
+  _InnerGlow: 0
+  _InnerGlowColor: {r: 1, g: 1, b: 1, a: 0.75}
+  _InnerGlowPower: 4
+  _GradientMode: 3
+  _IridescentSpectrumMap: {fileID: 0}
+  _IridescenceIntensity: 0.5
+  _IridescenceThreshold: 0.05
+  _IridescenceAngle: -0.78
+  _GradientAngle: 180
+  _GradientColor0: {r: 0.631373, g: 0.631373, b: 0.631373, a: 0}
+  _GradientColor1: {r: 0, g: 0, b: 0, a: 1}
+  _GradientColor2: {r: 0, g: 0, b: 0, a: 1}
+  _GradientColor3: {r: 0, g: 0, b: 0, a: 1}
+  _GradientColor4: {r: 1, g: 1, b: 1, a: 1}
+  _EnvironmentColoring: 0
+  _EnvironmentColorThreshold: 1.5
+  _EnvironmentColorIntensity: 0.5
+  _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
+  _EnvironmentColorY: {r: 0, g: 1, b: 0, a: 1}
+  _EnvironmentColorZ: {r: 0, g: 0, b: 1, a: 1}
+  _Mode: 3
+  _CustomMode: 2
+  _SrcBlend: 1
+  _DstBlend: 10
+  _BlendOp: 0
+  _ZTest: 4
+  _ZWrite: 0
+  _ZOffsetFactor: 0
+  _ZOffsetUnits: 0
+  _ColorWriteMask: 15
+  _CullMode: 2
+  _RenderQueueOverride: -1
+  _UseWorldScale: 0
+  _Stencil: 0
+  _StencilReference: 0
+  _StencilComparison: 0
+  _StencilOperation: 0
+--- !u!95 &423986621
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423986618}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 765df0984dd0f1647aa7f4b388e365f5, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &423986622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423986618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fda4953718e0264291c42cb2a637fb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &423986623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423986618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 2100000, guid: bf41aba50d3eb594eb8cd3609afbb2ed, type: 2}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &423986624
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423986618}
+  m_CullTransparentMesh: 1
 --- !u!1 &469255052
 GameObject:
   m_ObjectHideFlags: 0
@@ -803,6 +1029,7 @@ RectTransform:
   - {fileID: 325265914}
   - {fileID: 1611226406}
   - {fileID: 1261401891}
+  - {fileID: 423986619}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -14,10 +14,13 @@ using UnityEngine.Rendering;
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
-    /// TODO
+    /// General utility methods to help with shader development and usage.
     /// </summary>
     public class ShaderUtilities
     {
+        /// <summary>
+        /// ShaderMonobehaviour formatting strings.
+        /// </summary>
         private static readonly string ClassBody =
  @"// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -28,35 +31,45 @@ namespace Microsoft.MixedReality.GraphicsTools
 {{
     /// <summary>
     /// This class was auto generated via Assets > Graphics Tools > Generate Shader Behaviour.
-    /// Use Mecanim to animate fields on this class to drive materials on Unity UI renderers.
-    /// Version=0.1.0
+    /// Use Unity's animation system to animate fields on this class to drive material properties on CanvasRenderers.
+    /// Version={0}
     /// </summary>
-    public class {0} : BaseShaderBehaviour
-    {{{1}
+    public class {1} : BaseShaderBehaviour
+    {{
+        [Header(""Material Properties"")]{2}
 
         /// <inheritdoc/>
         public override void InitializeFromMaterial(Material material)
-        {{{2}
+        {{{3}
         }}
 
         /// <inheritdoc/>
         public override void ApplyToMaterial(Material material)
-        {{{3}
+        {{{4}
+        }}
+
+        /// <inheritdoc/>
+        public override string GetTargetShaderName()
+        {{{5}
         }}
     }}
 }}
 ";
-
-        private static readonly string PropertyBody = @"        public {0} {1} = {2};";
-        private static readonly string PropertyBodyRange = @"        [Range({3}, {4})] public {0} {1} = {2};";
-        private static readonly string FromMaterialBody = @"            {0} = material.{1}({2});";
-        private static readonly string FromMaterialBodyCast = @"            {0} = ({3})material.{1}({2});";
-        private static readonly string ToMaterialBody = @"            material.{0}({1}, {2});";
-        private static readonly string ToMaterialBodyCast = @"            material.{0}({1}, ({3}){2});";
+        private static readonly string PropertyBody = "        [HideInInspector] public {0} {1} = {2};";
+        private static readonly string PropertyBodyRange = "        [HideInInspector, Range({3}, {4})] public {0} {1} = {2};";
+        private static readonly string PropertyIDBody = "        private static int {0} = Shader.PropertyToID(\"{1}\");";
+        private static readonly string FromMaterialBody = "            {0} = material.{1}({2});";
+        private static readonly string FromMaterialBodyCast = "            {0} = ({3})material.{1}({2});";
+        private static readonly string ToMaterialBody = "            material.{0}({1}, {2});";
+        private static readonly string ToMaterialBodyCast = "            material.{0}({1}, ({3}){2});";
+        private static readonly string TargetShaderNameBody = "{0}            return \"{1}\";";
+        private static readonly string PropertyID = "{0}ID";
         private static readonly string FloatPostfix = "f";
 
         /// <summary>
-        /// TODO
+        /// When one right clicks on a shader asset in the Project window and selects Graphics Tools > Generate Shader Behaviour this
+        /// method will create a new component which contains serialized properties for each of the shader's exposed properties and 
+        /// methods to set and apply their state. 
         /// </summary>
         [MenuItem("Assets/Graphics Tools/Generate Shader Behaviour")]
         private static void GenerateShaderMonobehaviour()
@@ -73,27 +86,33 @@ namespace Microsoft.MixedReality.GraphicsTools
             string properties = string.Empty;
             string fromMaterial = string.Empty;
             string toMaterial = string.Empty;
+            string targetShaderName = string.Format(TargetShaderNameBody, Environment.NewLine, shader.name);
             int count = ShaderUtil.GetPropertyCount(shader);
 
             for (int i = 0; i < count; ++i)
             {
                 string name = ShaderUtil.GetPropertyName(shader, i);
+                string nameID = string.Format(PropertyID, name);
                 ShaderUtil.ShaderPropertyType type = ShaderUtil.GetPropertyType(shader, i);
 
+                // Textures.
                 if (type == ShaderUtil.ShaderPropertyType.TexEnv)
                 {
                     TextureDimension dimension = ShaderUtil.GetTexDim(shader, i);
                     string typeName = TextureDimensionToTypeName(dimension);
                     properties += Environment.NewLine;
                     properties += string.Format(PropertyBody, typeName, name, "null");
- 
+
+                    properties += Environment.NewLine;
+                    properties += string.Format(PropertyIDBody, nameID, name);
+
                     fromMaterial += Environment.NewLine;
-                    fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGettor(type), Shader.PropertyToID(name), typeName);
+                    fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGettor(type), nameID, typeName);
 
                     toMaterial += Environment.NewLine;
-                    toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSettor(type), Shader.PropertyToID(name), name, typeName);
+                    toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSettor(type), nameID, name, typeName);
                 }
-                else 
+                else  // All other types. Colors, floats, vectors, etc.
                 {
                     string defaultValue, minValue = null, maxValue = null;
                     if (type == ShaderUtil.ShaderPropertyType.Float)
@@ -122,21 +141,27 @@ namespace Microsoft.MixedReality.GraphicsTools
                         properties += string.Format(PropertyBodyRange, ShaderPropertyTypeToTypeName(type), name, defaultValue, minValue, maxValue);
                     }
 
+                    properties += Environment.NewLine;
+                    properties += string.Format(PropertyIDBody, nameID, name);
+
                     fromMaterial += Environment.NewLine;
-                    fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGettor(type), Shader.PropertyToID(name));
+                    fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGettor(type), nameID);
 
                     toMaterial += Environment.NewLine;
-                    toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSettor(type), Shader.PropertyToID(name), name);
+                    toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSettor(type), nameID, name);
                 }
             }
 
             try
             {
-                string directory = Path.GetDirectoryName(AssetDatabase.GetAssetPath(shader));
+                // Save a new component out as a C# class.
+                string version = "0.1.0";
                 string className = SanitizeIdentifier(shader.name) + "ShaderBehaviour";
-                string path = Path.Combine(directory, string.Format("{0}.cs", className));
 
-                string classText = string.Format(ClassBody, className, properties, fromMaterial, toMaterial);
+                string classText = string.Format(ClassBody, version, className, properties, fromMaterial, toMaterial, targetShaderName);
+
+                string directory = Path.GetDirectoryName(AssetDatabase.GetAssetPath(shader));
+                string path = Path.Combine(directory, string.Format("{0}.cs", className));
 
                 File.WriteAllText(path, classText);
 
@@ -149,7 +174,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Ensures a shader asset was right clicked on.
         /// </summary>
         [MenuItem("Assets/Graphics Tools/Generate Shader Behaviour", true)]
         private static bool ValidateGenerateShaderMonobehaviour()
@@ -158,7 +183,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// ShaderPropertyType to C# type conversion.
         /// </summary>
         private static string ShaderPropertyTypeToTypeName(ShaderUtil.ShaderPropertyType type)
         {
@@ -174,7 +199,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// ShaderPropertyType to Unity material gettor method.
         /// </summary>
         private static string ShaderPropertyTypeToGettor(ShaderUtil.ShaderPropertyType type)
         {
@@ -190,7 +215,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// ShaderPropertyType to Unity material settor method.
         /// </summary>
         private static string ShaderPropertyTypeToSettor(ShaderUtil.ShaderPropertyType type)
         {
@@ -206,7 +231,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// TextureDimension to C# type conversion. 
         /// </summary>
         private static string TextureDimensionToTypeName(TextureDimension dimension)
         {
@@ -222,7 +247,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// ShaderPropertyType to default C# type value.
         /// </summary>
         private static string ShaderPropertyTypeToDefault(ShaderUtil.ShaderPropertyType type)
         {
@@ -238,7 +263,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Modifies a string so that it adheres to C# identifier rules: https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names
         /// </summary>
         private static string SanitizeIdentifier(string input)
         {
@@ -262,7 +287,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Removes all white space from a string (spaces, tabs, etc.).
         /// </summary>
         private static string RemoveWhitespace(string input)
         {

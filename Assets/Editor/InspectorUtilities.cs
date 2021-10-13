@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
+    /// <summary>
+    /// General utility methods to help with shader inspector development.
+    /// </summary>
     public static class InspectorUtilities
     {
         public static GameObject CreateGameObjectFromMenu<T>(MenuCommand menuCommand) where T : MonoBehaviour
