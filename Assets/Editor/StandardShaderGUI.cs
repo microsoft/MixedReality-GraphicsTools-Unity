@@ -862,7 +862,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                                                       MaterialPropertyToGradientColorKey(gradientColor3) },
                                              new GradientAlphaKey[0] { });
                             EditorGUI.indentLevel += 2;
-                            gradient = EditorGUILayout.GradientField(Styles.linearGradientColor, gradient);
+                            gradient = EditorGUILayout.GradientField(Styles.linearGradientColor, gradient, true);
                             EditorGUI.indentLevel -= 2;
                             if (EditorGUI.EndChangeCheck())
                             {
