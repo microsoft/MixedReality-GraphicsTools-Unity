@@ -57,7 +57,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 ";
         private static readonly string PropertyBody = "        [HideInInspector] public {0} {1} = {2};";
         private static readonly string PropertyBodyRange = "        [HideInInspector, Range({3}, {4})] public {0} {1} = {2};";
-        private static readonly string PropertyIDBody = "        private static int {0} = Shader.PropertyToID(\"{1}\");";
+        private static readonly string PropertyIDBody = "        public static int {0} = Shader.PropertyToID(\"{1}\");";
         private static readonly string FromMaterialBody = "            {0} = material.{1}({2});";
         private static readonly string FromMaterialBodyCast = "            {0} = ({3})material.{1}({2});";
         private static readonly string ToMaterialBody = "            material.{0}({1}, {2});";
