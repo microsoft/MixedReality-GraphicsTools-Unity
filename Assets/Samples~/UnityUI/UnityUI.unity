@@ -666,7 +666,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: addbd2b9d4316f54aa5b4cf935a947ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useSharedMaterial: 0
+  instanceMaterials: 1
   _Color: {r: 1, g: 1, b: 1, a: 1}
   _MainTex: {fileID: 0}
   _AlbedoAlphaMode: 0

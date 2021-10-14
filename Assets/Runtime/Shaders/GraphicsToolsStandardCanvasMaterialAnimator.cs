@@ -6,11 +6,11 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// This class was auto generated via Assets > Graphics Tools > Generate Shader Behaviour.
+    /// This class was auto generated via Assets > Graphics Tools > Generate Canvas Material Animator.
     /// Use Unity's animation system to animate fields on this class to drive material properties on CanvasRenderers.
     /// Version=0.1.0
     /// </summary>
-    public class GraphicsToolsStandardShaderBehaviour : BaseShaderBehaviour
+    public class GraphicsToolsStandardCanvasMaterialAnimator : BaseCanvasMaterialAnimator
     {
         [Header("Material Properties")]
         [HideInInspector] public Color _Color = Color.white;

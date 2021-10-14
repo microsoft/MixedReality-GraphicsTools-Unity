@@ -19,7 +19,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     public class ShaderUtilities
     {
         /// <summary>
-        /// ShaderMonobehaviour formatting strings.
+        /// CanvasMaterialAnimator formatting strings.
         /// </summary>
         private static readonly string ClassBody =
  @"// Copyright (c) Microsoft Corporation.
@@ -30,11 +30,11 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {{
     /// <summary>
-    /// This class was auto generated via Assets > Graphics Tools > Generate Shader Behaviour.
+    /// This class was auto generated via Assets > Graphics Tools > Generate Canvas Material Animator.
     /// Use Unity's animation system to animate fields on this class to drive material properties on CanvasRenderers.
     /// Version={0}
     /// </summary>
-    public class {1} : BaseShaderBehaviour
+    public class {1} : BaseCanvasMaterialAnimator
     {{
         [Header(""Material Properties"")]{2}
 
@@ -67,12 +67,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static readonly string FloatPostfix = "f";
 
         /// <summary>
-        /// When one right clicks on a shader asset in the Project window and selects Graphics Tools > Generate Shader Behaviour this
+        /// When one right clicks on a shader asset in the Project window and selects Graphics Tools > Generate Canvas Material Animator this
         /// method will create a new component which contains serialized properties for each of the shader's exposed properties and 
         /// methods to set and apply their state. 
         /// </summary>
-        [MenuItem("Assets/Graphics Tools/Generate Shader Behaviour")]
-        private static void GenerateShaderMonobehaviour()
+        [MenuItem("Assets/Graphics Tools/Generate Canvas Material Animator")]
+        private static void GenerateCanvasMaterialAnimator()
         {
             Shader shader = Selection.activeObject as Shader;
 
@@ -156,7 +156,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 // Save a new component out as a C# class.
                 string version = "0.1.0";
-                string className = SanitizeIdentifier(shader.name) + "ShaderBehaviour";
+                string className = SanitizeIdentifier(shader.name) + "CanvasMaterialAnimator";
 
                 string classText = string.Format(ClassBody, version, className, properties, fromMaterial, toMaterial, targetShaderName);
 
@@ -176,8 +176,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Ensures a shader asset was right clicked on.
         /// </summary>
-        [MenuItem("Assets/Graphics Tools/Generate Shader Behaviour", true)]
-        private static bool ValidateGenerateShaderMonobehaviour()
+        [MenuItem("Assets/Graphics Tools/Generate Canvas Material Animator", true)]
+        private static bool ValidateGenerateCanvasMaterialAnimator()
         {
             return Selection.activeObject.GetType() == typeof(Shader);
         }

@@ -8,25 +8,25 @@ using UnityEngine.Playables;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// The base class for all shader behaviours generate via Assets > Graphics Tools > Generate Shader Behaviour.
+    /// The base class for all CanvasMaterialAnimators generated via Assets > Graphics Tools > Generate Canvas Material Animator.
     /// This behavior will expose all material properties of a CanvasRenderer so they can animated by Unity's animation system.
     /// </summary>
     [ExecuteInEditMode]
     [RequireComponent(typeof(CanvasRenderer))]
-    public abstract class BaseShaderBehaviour : MonoBehaviour, IAnimationWindowPreview
+    public abstract class BaseCanvasMaterialAnimator : MonoBehaviour, IAnimationWindowPreview
     {
         /// <summary>
         /// "When animated should a new material be instantiated?"
         /// </summary>
-        public bool UseSharedMaterial
+        public bool UseInstanceMaterials
         {
-            get { return useSharedMaterial; }
-            set { useSharedMaterial = value; }
+            get { return instanceMaterials; }
+            set { instanceMaterials = value; }
         }
 
-        [Tooltip("When animated should a new material be instantiated?")]
+        [Tooltip("When animated should a new material be created?")]
         [SerializeField]
-        private bool useSharedMaterial = false;
+        private bool instanceMaterials = false;
 
         private bool isInitialized = false;
         private CanvasRenderer canvasRenderer = null;
@@ -70,12 +70,16 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (material != null)
             {
-                // Create a material instance when first animated.
-                if (!useSharedMaterial && instanceMaterial == null)
+                // Create a material instance when first animated. We must instance materials when not playing
+                // to avoid changing materials on disk.
+                if (UseInstanceMaterials || !Application.isPlaying)
                 {
-                    instanceMaterial = Instantiate(material);
-                    canvasRenderer.SetMaterial(instanceMaterial, 0);
-                    material = instanceMaterial;
+                    if (instanceMaterial == null)
+                    {
+                        instanceMaterial = Instantiate(material);
+                        canvasRenderer.SetMaterial(instanceMaterial, 0);
+                        material = instanceMaterial;
+                    }
                 }
 
                 ApplyToMaterial(material);
@@ -128,7 +132,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #endregion IAnimationWindowPreview Implementation
 
-        #region BaseShaderBehaviour Implementation
+        #region BaseCanvasMaterialAnimator Implementation
 
         /// <summary>
         /// Initializes all material properties based on the default material.
@@ -146,19 +150,19 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
                 else
                 {
-                    Debug.LogErrorFormat("Failed to initialize ShaderBehaviour. Expected shader {0} but using {1}.", GetTargetShaderName(), material.shader.name);
+                    Debug.LogErrorFormat("Failed to initialize CanvasMaterialAnimator. Expected shader {0} but using {1}.", GetTargetShaderName(), material.shader.name);
                 }
             }
         }
 
         /// <summary>
         /// This method will extract all material properties from the material passed in to apply default values to 
-        /// the serialized properties of the current MonoBehaviour.
+        /// the serialized properties of the current CanvasMaterialAnimator.
         /// </summary>
         public abstract void InitializeFromMaterial(Material material);
 
         /// <summary>
-        /// This method will apply all serialized material properties on the current MonoBehaviour to the material passed in.
+        /// This method will apply all serialized material properties on the current CanvasMaterialAnimator to the material passed in.
         /// </summary>
         public abstract void ApplyToMaterial(Material material);
 
@@ -167,6 +171,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public abstract string GetTargetShaderName();
 
-        #endregion BaseShaderBehaviour Implementation
+        #endregion BaseCanvasMaterialAnimator Implementation
     }
 }
