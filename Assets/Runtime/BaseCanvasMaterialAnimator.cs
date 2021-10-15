@@ -11,8 +11,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// The base class for all CanvasMaterialAnimators generated via Assets > Graphics Tools > Generate Canvas Material Animator.
     /// This behavior will expose all material properties of a CanvasRenderer so they can animated by Unity's animation system.
     /// </summary>
-    [ExecuteInEditMode]
-    [RequireComponent(typeof(CanvasRenderer))]
+    [ExecuteInEditMode, RequireComponent(typeof(CanvasRenderer))]
     public abstract class BaseCanvasMaterialAnimator : MonoBehaviour, IAnimationWindowPreview
     {
         /// <summary>
@@ -21,7 +20,17 @@ namespace Microsoft.MixedReality.GraphicsTools
         public bool UseInstanceMaterials
         {
             get { return instanceMaterials; }
-            set { instanceMaterials = value; }
+            set 
+            { 
+                if (isInitialized)
+                {
+                    Debug.LogError("Cannot toggle UseInstanceMaterials after initialization.");
+                }
+                else
+                {
+                    instanceMaterials = value;
+                }
+            }
         }
 
         [Tooltip("When animated should a new material be created?")]
@@ -30,8 +39,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private bool isInitialized = false;
         private CanvasRenderer canvasRenderer = null;
-        private Material instanceMaterial = null;
-        private Material previewSourceMaterial = null;
+        private Material currentMaterial = null;
+        private Material previewMaterial = null;
 
         #region MonoBehaviour Implementation
 
@@ -44,20 +53,15 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Cleans up any materials this component created.
+        /// State clean up.
         /// </summary>
         private void OnDestroy()
         {
-            if (instanceMaterial != null)
-            {
-                Destroy(instanceMaterial);
-                instanceMaterial = null;
-            }
+            Terminate();
         }
 
         /// <summary>
-        /// Event for when the animation system updates any serilzed properties. 
-        /// This method will (lazy) create a material instance and pass it to the derived class to modify based on animation updates.
+        /// Event for when the animation system updates any serialized properties.
         /// </summary>
         private void OnDidApplyAnimationProperties()
         {
@@ -70,19 +74,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (material != null)
             {
-                // Create a material instance when first animated. We must instance materials when not playing
-                // to avoid changing materials on disk.
-                if (UseInstanceMaterials || !Application.isPlaying)
+                if (material != currentMaterial)
                 {
-                    if (instanceMaterial == null)
-                    {
-                        instanceMaterial = Instantiate(material);
-                        canvasRenderer.SetMaterial(instanceMaterial, 0);
-                        material = instanceMaterial;
-                    }
+                    // Do we need to handle this case?
+                    Debug.LogWarning("Material swapped after initialization. Animation will not be applied.");
                 }
-
-                ApplyToMaterial(material);
+                else
+                {
+                    ApplyToMaterial(material);
+                }
             }
         }
 
@@ -95,8 +95,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void StartPreview()
         {
-            // Cache the material so that we can restore it on StopPreview.
-            previewSourceMaterial = canvasRenderer.GetMaterial();
+            previewMaterial = canvasRenderer.GetMaterial();
         }
 
         /// <summary>
@@ -104,13 +103,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void StopPreview()
         {
-            canvasRenderer.SetMaterial(previewSourceMaterial, 0);
+            Terminate();
 
-            if (instanceMaterial != null)
-            {
-                DestroyImmediate(instanceMaterial);
-                instanceMaterial = null;
-            }
+            isInitialized = false;
+            canvasRenderer.SetMaterial(previewMaterial, 0);
         }
 
         /// <summary>
@@ -146,12 +142,51 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (material.shader.name == GetTargetShaderName())
                 {
                     InitializeFromMaterial(material);
+
+                    if (UseInstanceMaterials)
+                    {
+                        currentMaterial = new Material(material);
+                        canvasRenderer.SetMaterial(currentMaterial, 0);
+                    }
+                    else
+                    {
+                        currentMaterial = material;
+                        MaterialRestorer.AddMaterialSnapshot(material);
+                    }
+
                     isInitialized = true;
                 }
                 else
                 {
                     Debug.LogErrorFormat("Failed to initialize CanvasMaterialAnimator. Expected shader {0} but using {1}.", GetTargetShaderName(), material.shader.name);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Destroys any assets this created in initialize.
+        /// </summary>
+        private void Terminate()
+        {
+            if (UseInstanceMaterials)
+            {
+                if (currentMaterial != null)
+                {
+                    if (Application.isPlaying)
+                    {
+                        Destroy(currentMaterial);
+                    }
+                    else
+                    {
+                        DestroyImmediate(currentMaterial);
+                    }
+
+                    currentMaterial = null;
+                }
+            }
+            else
+            {
+                MaterialRestorer.RestoreMaterialSnapshot(currentMaterial);
             }
         }
 
