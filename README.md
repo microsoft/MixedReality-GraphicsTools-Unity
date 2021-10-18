@@ -1,4 +1,4 @@
-![Mixed Reality Toolkit](Documentation~/Images/GraphicsToolsBannerRounded.png)
+![Graphics Tools](Documentation~/Images/GraphicsToolsBannerRounded.png)
 
 # What is Graphics Tools
 
@@ -30,6 +30,15 @@ To open the samples contained within Graphics Tools expand the `"Samples"` list 
 ![Package Manager Samples](Documentation~/Images/ReadMe/PackageManagerSamples.png)
 
 Samples will import into your project's Assets folder so they may be opened and modified.
+
+## Documentation
+
+Click on the below topics to learn more about specific features.
+
+| | | | |
+| :------------- | :----------: | -----------: | -----------: | 
+| [Standard shader](Documentation~/StandardShader.md) | [Clipping primitive](Documentation~/ClippingPrimitive.md) | [Proximity light](Documentation~/ProximityLight.md) | [Hover light](Documentation~/HoverLight.md) | 
+| [Material instance](Documentation~/MaterialInstance.md) | [Animation](Documentation~/Animation.md) | | | 
 
 ## Contributing
 
