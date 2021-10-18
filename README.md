@@ -33,10 +33,12 @@ Samples will import into your project's Assets folder so they may be opened and 
 
 ## Documentation
 
+Click on the below topics to learn more about specific features.
+
 | | | | |
 | :------------- | :----------: | -----------: | -----------: | 
-| [Standard Shader](Documentation~/StandardShader.md) | [Clipping Primitive](Documentation~/ClippingPrimitive.md) | [Proximity Light](Documentation~/ProximityLight.md) | [Hover Light](Documentation~/HoverLight.md) | 
-| [Material Instance](Documentation~/MaterialInstance.md) | [Animation](Documentation~/Animation.md) | | | 
+| [Standard shader](Documentation~/StandardShader.md) | [Clipping primitive](Documentation~/ClippingPrimitive.md) | [Proximity light](Documentation~/ProximityLight.md) | [Hover light](Documentation~/HoverLight.md) | 
+| [Material instance](Documentation~/MaterialInstance.md) | [Animation](Documentation~/Animation.md) | | | 
 
 ## Contributing
 
