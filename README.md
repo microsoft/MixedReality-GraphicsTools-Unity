@@ -31,6 +31,13 @@ To open the samples contained within Graphics Tools expand the `"Samples"` list 
 
 Samples will import into your project's Assets folder so they may be opened and modified.
 
+## Documentation
+
+| | | |
+| :------------- | :----------: | -----------: |
+| [Standard Shader](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader) | [Clipping Primitive](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/clipping-primitive) | [Proximity Light](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/proximity-light) |
+| [Hover Light](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/hover-light) | [Material Instance](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/material-instance) | [Proximity Light](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/proximity-light) |
+
 ## Contributing
 
 ### Updating samples
