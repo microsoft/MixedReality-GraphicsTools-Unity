@@ -18,7 +18,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// automatically instantiates new materials. It is the caller's responsibility to destroy the materials when a material is no longer needed or the game object is 
     /// destroyed. The MaterialInstance behavior helps avoid material leaks and keeps material allocation paths consistent during edit and run time.
     /// </summary>
-    [HelpURL("https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/features/rendering/material-instance")]
+    [HelpURL("https://github.com/microsoft/MixedReality-GraphicsTools-Unity/blob/main/README.md")]
     [ExecuteAlways, RequireComponent(typeof(Renderer))]
     [AddComponentMenu("Scripts/GraphicsTools/MaterialInstance")]
     public class MaterialInstance : MonoBehaviour

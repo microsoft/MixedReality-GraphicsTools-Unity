@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// the "GraphicsTools/Standard" shader "_ProximityLight" feature.
     /// </summary>
     [ExecuteInEditMode]
-    [HelpURL("https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/features/rendering/proximity-light")]
+    [HelpURL("https://github.com/microsoft/MixedReality-GraphicsTools-Unity/blob/main/README.md")]
     [AddComponentMenu("Scripts/GraphicsTools/ProximityLight")]
     public class ProximityLight : MonoBehaviour
     {

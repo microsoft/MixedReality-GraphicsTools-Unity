@@ -1,4 +1,4 @@
-![Mixed Reality Toolkit](Documentation~/Images/GraphicsToolsBannerRounded.png)
+![Graphics Tools](Documentation~/Images/GraphicsToolsBannerRounded.png)
 
 # What is Graphics Tools
 
@@ -35,8 +35,8 @@ Samples will import into your project's Assets folder so they may be opened and 
 
 | | | |
 | :------------- | :----------: | -----------: |
-| [Standard Shader](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/mrtk-standard-shader) | [Clipping Primitive](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/clipping-primitive) | [Proximity Light](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/proximity-light) |
-| [Hover Light](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/hover-light) | [Material Instance](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/material-instance) | [Proximity Light](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/features/rendering/proximity-light) |
+| [Standard Shader](Documentation~/StandardShader) | [Clipping Primitive](Documentation~/ClippingPrimitive) | [Proximity Light](Documentation~/ProximityLight) |
+| [Hover Light](Documentation~/HoverLight) | [Material Instance](Documentation~/MaterialInstance) | [Animation](Documentation~/Animation)  |
 
 ## Contributing
 
