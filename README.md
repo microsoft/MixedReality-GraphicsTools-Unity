@@ -37,8 +37,14 @@ Click on the below topics to learn more about specific features.
 
 | | | | |
 | :------------- | :----------: | -----------: | -----------: | 
-| [Standard shader](Documentation~/StandardShader.md) | [Clipping primitive](Documentation~/ClippingPrimitive.md) | [Proximity light](Documentation~/ProximityLight.md) | [Hover light](Documentation~/HoverLight.md) | 
-| [Material instance](Documentation~/MaterialInstance.md) | [Animation](Documentation~/Animation.md) | | | 
+| [Standard shader](Documentation~/StandardShader.md) 🎨 | [Clipping primitive](Documentation~/ClippingPrimitive.md) ✂ | [Proximity light](Documentation~/ProximityLight.md) 💡 | [Hover light](Documentation~/HoverLight.md) 👆 | 
+| [Material instance](Documentation~/MaterialInstance.md) ✨ | [Animation](Documentation~/Animation.md) 🚶‍♀️ | | | 
+
+## Updating Graphics Tools
+
+To install the latest version of Graphics Tools on GitHub you can select `Window > Graphics Tools > Install Latest Package` from the file menu bar.
+
+![Package Update](Documentation~/Images/ReadMe/PackageUpdate.png)
 
 ## Contributing
 
