@@ -89,8 +89,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
 
                     File.WriteAllText(packagesLockPath, output);
+                    UnityEditor.PackageManager.Client.Resolve();
                     Debug.LogFormat("Installed the latest version of: {0}", packageName);
-                    AssetDatabase.Refresh();
 
                     return;
                 }
