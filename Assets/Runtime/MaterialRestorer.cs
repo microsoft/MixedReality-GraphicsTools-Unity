@@ -75,7 +75,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Restore to the original material snapshot.
                         material.CopyPropertiesFromMaterial(materialRef.Snapshot);
 
-                        AssetDatabase.SaveAssetIfDirty(material);
+                        AssetDatabase.SaveAssets();
 
                         materialsToRestore.Remove(material);
                     }

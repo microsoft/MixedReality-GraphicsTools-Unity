@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,23 +15,102 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     /// </summary>
     public class DevelopmentUtilities
     {
-        private static bool IsInitialized = false;
-        private static bool InstalledViaPackage = true;
+        private static bool isInitialized = false;
+        private static bool installedViaPackage = true;
 
-        private static readonly string VisibleSamplesPath = "Samples";
-        private static readonly string HiddenSamplesPath = "Samples~";
+        private static readonly string packageName = "com.microsoft.mixedreality.graphicstools.unity";
+        private static readonly string visibleSamplesPath = "Samples";
+        private static readonly string hiddenSamplesPath = "Samples~";
+        private static readonly Regex quotesRegex = new Regex("(?<=\")(.*?)(?=\")");
 
         /// <summary>
         /// Performs one time initialization.
         /// </summary>
         private static void Initialize()
         {
-            if (!IsInitialized)
+            if (!isInitialized)
             {
                 // Check if Graphics Tools is currently installed as a package.
-                InstalledViaPackage = IsPackageInstalled("com.microsoft.mixedreality.graphicstools.unity");
-                IsInitialized = true;
+                installedViaPackage = IsPackageInstalled(packageName);
+                isInitialized = true;
             }
+        }
+
+        /// <summary>
+        /// Opens the packages-lock.json files and removes the hash commit for the Graphics Tools package. This forces Unity to re-sync the latest version.
+        /// </summary>
+        [MenuItem("Window/Graphics Tools/Install Latest Package")]
+        public static void InstallLatestPackage()
+        {
+            try
+            {
+                string packagesLockPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "Packages", "packages-lock.json");
+                string[] lines = File.ReadAllLines(packagesLockPath);
+                bool foundPackage = false;
+                bool success = false;
+
+                for (int i = 0; i < lines.Length; ++i)
+                {
+                    string line = lines[i];
+
+                    if (line.Contains(packageName))
+                    {
+                        foundPackage = true;
+
+                        continue;
+                    }
+
+                    if (foundPackage && line.Contains("hash"))
+                    {
+                        line = line.Replace("\"hash\": ", string.Empty);
+                        Match match = quotesRegex.Match(line);
+
+                        if (match.Success)
+                        {
+                            string hash = match.Groups[0].Value;
+                            lines[i] = lines[i].Replace(hash, string.Empty);
+                            success = true;
+
+                            break;
+                        }
+
+                        foundPackage = false;
+                    }
+                }
+
+                if (success)
+                {
+                    string output = string.Empty;
+
+                    foreach (string line in lines)
+                    {
+                        output += line;
+                        output += Environment.NewLine;
+                    }
+
+                    File.WriteAllText(packagesLockPath, output);
+                    Debug.LogFormat("Installed the latest version of {0}: ", packageName);
+
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
+            Debug.LogErrorFormat("Failed to install the latest version of {0}: ", packageName);
+        }
+
+        /// <summary>
+        /// Menu item validation.
+        /// </summary>
+        [MenuItem("Window/Graphics Tools/Install Latest Package", true)]
+        public static bool ValidateInstallLatestPackage()
+        {
+            Initialize();
+
+            return installedViaPackage;
         }
 
         /// <summary>
@@ -41,10 +121,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             try
             {
-                string hiddenPath = GetFullPath(HiddenSamplesPath);
+                string hiddenPath = GetFullPath(hiddenSamplesPath);
                 if (Directory.Exists(hiddenPath))
                 {
-                    string visiblePath = GetFullPath(VisibleSamplesPath);
+                    string visiblePath = GetFullPath(visibleSamplesPath);
                     if (Directory.Exists(visiblePath) && IsDirectoryEmpty(visiblePath))
                     {
                         Directory.Delete(visiblePath);
@@ -69,12 +149,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             Initialize();
 
-            if (InstalledViaPackage)
+            if (installedViaPackage)
             {
                 return false;
             }
 
-            string path = GetFullPath(HiddenSamplesPath);
+            string path = GetFullPath(hiddenSamplesPath);
             return Directory.Exists(path) && !IsDirectoryEmpty(path);
         }
 
@@ -86,10 +166,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             try
             {
-                string visiblePath = GetFullPath(VisibleSamplesPath);
+                string visiblePath = GetFullPath(visibleSamplesPath);
                 if (Directory.Exists(visiblePath))
                 {
-                    string hiddenPath = GetFullPath(HiddenSamplesPath);
+                    string hiddenPath = GetFullPath(hiddenSamplesPath);
                     if (Directory.Exists(hiddenPath) && IsDirectoryEmpty(hiddenPath))
                     {
                         Directory.Delete(hiddenPath);
@@ -116,12 +196,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             Initialize();
 
-            if (InstalledViaPackage)
+            if (installedViaPackage)
             {
                 return false;
             }
 
-            string path = GetFullPath(VisibleSamplesPath);
+            string path = GetFullPath(visibleSamplesPath);
             return Directory.Exists(path) && !IsDirectoryEmpty(path);
         }
 
