@@ -46,6 +46,8 @@ To install the latest version of Graphics Tools on GitHub you can select `Window
 
 ![Package Update](Documentation~/Images/ReadMe/PackageUpdate.png)
 
+> **_NOTE:_** Samples will not update automatically. Samples can be updated via the Package Manager window. 
+
 ## Contributing
 
 ### Updating samples

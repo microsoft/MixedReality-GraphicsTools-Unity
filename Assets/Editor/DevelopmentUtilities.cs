@@ -89,7 +89,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
 
                     File.WriteAllText(packagesLockPath, output);
-                    Debug.LogFormat("Installed the latest version of {0}: ", packageName);
+                    Debug.LogFormat("Installed the latest version of: {0}", packageName);
+                    AssetDatabase.Refresh();
 
                     return;
                 }
@@ -99,7 +100,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 Debug.LogException(e);
             }
 
-            Debug.LogErrorFormat("Failed to install the latest version of {0}: ", packageName);
+            Debug.LogErrorFormat("Failed to install the latest version of: {0}", packageName);
         }
 
         /// <summary>
