@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
+
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
@@ -89,7 +93,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (!XRDeviceIsPresent())
             {
                 // Lock cursor when right mouse button pressed.
+#if ENABLE_INPUT_SYSTEM
+                if (Mouse.current.rightButton.wasPressedThisFrame)
+#else
                 if (Input.GetMouseButtonDown(1))
+#endif
                 {
                     Cursor.lockState = CursorLockMode.Locked;
 #if UNITY_EDITOR
@@ -98,7 +106,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 // Unlock when right mouse button released.
+#if ENABLE_INPUT_SYSTEM
+                if (Mouse.current.rightButton.wasReleasedThisFrame)
+#else
                 if (Input.GetMouseButtonUp(1))
+#endif
                 {
                     Cursor.lockState = CursorLockMode.None;
 #if UNITY_EDITOR
@@ -107,9 +119,18 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 // Rotation.
+#if ENABLE_INPUT_SYSTEM
+                if (Mouse.current.rightButton.isPressed)
+#else
                 if (Input.GetMouseButton(1))
+#endif
                 {
+#if ENABLE_INPUT_SYSTEM
+                    Vector2 delta = Mouse.current.delta.ReadValue() * 0.075f; // Magical value to feel like the editior.
+                    Vector2 mouseMovement = new Vector2(delta.x, delta.y * (InvertY ? 1.0f : -1.0f));
+#else
                     Vector2 mouseMovement = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y") * (InvertY ? 1.0f : -1.0f));
+#endif
 
                     float mouseSensitivityFactor = MouseSensitivityCurve.Evaluate(mouseMovement.magnitude);
 
@@ -121,13 +142,22 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Vector3 translation = GetInputTranslationDirection() * dt;
 
                 // Speed up movement when shift key held.
+#if ENABLE_INPUT_SYSTEM
+                if (Keyboard.current.leftShiftKey.isPressed)
+#else
                 if (Input.GetKey(KeyCode.LeftShift))
+#endif
                 {
                     translation *= 10.0f;
                 }
 
                 // Modify movement by a boost factor (defined in Inspector and modified in play mode through the mouse scroll wheel).
+#if ENABLE_INPUT_SYSTEM
+                Vector2 scroll = Mouse.current.scroll.ReadValue();
+                Boost += scroll.y * dt;
+#else
                 Boost += Input.mouseScrollDelta.y * dt;
+#endif
                 translation *= Mathf.Pow(2.0f, Boost);
 
                 targetCameraState.Translate(translation);
@@ -167,12 +197,21 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             Vector3 direction = new Vector3();
 
+#if ENABLE_INPUT_SYSTEM
+            if (Keyboard.current.wKey.isPressed) { direction += Vector3.forward; }
+            if (Keyboard.current.sKey.isPressed) { direction += Vector3.back; }
+            if (Keyboard.current.aKey.isPressed) { direction += Vector3.left; }
+            if (Keyboard.current.dKey.isPressed) { direction += Vector3.right; }
+            if (Keyboard.current.qKey.isPressed) { direction += Vector3.down; }
+            if (Keyboard.current.eKey.isPressed) { direction += Vector3.up; }
+#else
             if (Input.GetKey(KeyCode.W)) { direction += Vector3.forward; }
             if (Input.GetKey(KeyCode.S)) { direction += Vector3.back; }
             if (Input.GetKey(KeyCode.A)) { direction += Vector3.left; }
             if (Input.GetKey(KeyCode.D)) { direction += Vector3.right; }
             if (Input.GetKey(KeyCode.Q)) { direction += Vector3.down; }
             if (Input.GetKey(KeyCode.E)) { direction += Vector3.up; }
+#endif
 
             return direction;
         }
