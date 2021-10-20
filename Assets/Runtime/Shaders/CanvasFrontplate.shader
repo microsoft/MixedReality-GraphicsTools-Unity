@@ -1,5 +1,11 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-Shader "CanvasButtonFrontplate" {
+/// <summary>
+/// Note, this shader is generated from a tool and is not formated for user readability.
+/// </summary>
+
+Shader "Graphics Tools/Canvas Frontplate" {
 
 Properties {
 

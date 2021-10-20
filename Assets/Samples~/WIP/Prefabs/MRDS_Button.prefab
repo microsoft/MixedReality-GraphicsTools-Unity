@@ -10,8 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6486876200350879337}
   - component: {fileID: 6486876200350879336}
-  - component: {fileID: 9076393557774025913}
-  - component: {fileID: 1603526651730755676}
+  - component: {fileID: 6486876200350879339}
   m_Layer: 5
   m_Name: BackGlow
   m_TagString: Untagged
@@ -46,7 +45,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6486876200350879338}
   m_CullTransparentMesh: 1
---- !u!114 &9076393557774025913
+--- !u!114 &6486876200350879339
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -55,39 +54,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 6486876200350879338}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Script: {fileID: 11500000, guid: 0ea06c1a79a096b4e8ade21898b1fe5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: 5d5533370607d6244b3aa01111a3ee42, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &1603526651730755676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6486876200350879338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0fda4953718e0264291c42cb2a637fb5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &6486876200913630077
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,7 +193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1a68101fe7858d42983738016eb53d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backGlow: {fileID: 0}
+  backGlow: {fileID: 6486876200350879339}
   hoverGraphic: {fileID: 6486876201612510333}
   animationDuration: 0.8
   maxPressDistance: 8
