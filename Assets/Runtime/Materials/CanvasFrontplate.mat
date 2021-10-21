@@ -23,6 +23,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Blob_Enable_: 0
     - _Blob_Enable_2_: 0
@@ -40,7 +44,7 @@ Material:
     - _Blob_Pulse_: 0
     - _Blob_Pulse_2_: 0
     - _Blob_Pulse_Max_Size_: 0.05
-    - _Fade_Out_: 1
+    - _Fade_Out_: 0.4
     - _Filter_Width_: 1.5
     - _Gaze_Focus_: 0
     - _Gaze_Intensity_: 0.7
