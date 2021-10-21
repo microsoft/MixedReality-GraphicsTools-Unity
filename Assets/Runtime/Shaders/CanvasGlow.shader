@@ -8,6 +8,7 @@
 Shader "Graphics Tools/Canvas Glow" {
 
 Properties {
+    [HideInInspector] _MainTex("Texture", 2D) = "white" {} // Added to avoid UnityUI warnings.
 
     [Header(Rounded Rectangle)]
         _Bevel_Radius_("Bevel Radius", Range(0,1)) = .05

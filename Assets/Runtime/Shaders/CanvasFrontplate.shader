@@ -8,6 +8,7 @@
 Shader "Graphics Tools/Canvas Frontplate" {
 
 Properties {
+    [HideInInspector] _MainTex("Texture", 2D) = "white" {} // Added to avoid UnityUI warnings.
 
     [Header(Round Rect)]
         _Radius_("Radius", Range(0,0.5)) = 0.3125

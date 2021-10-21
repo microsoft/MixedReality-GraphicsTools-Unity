@@ -13,6 +13,8 @@ namespace Microsoft.MixedReality.GraphicsTools
     public class GraphicsToolsCanvasGlowCanvasMaterialAnimator : BaseCanvasMaterialAnimator
     {
         [Header("Material Properties")]
+        [HideInInspector] public Texture2D _MainTex = null;
+        public static int _MainTexID = Shader.PropertyToID("_MainTex");
         [HideInInspector, Range(0f, 1f)] public float _Bevel_Radius_ = 0.05f;
         public static int _Bevel_Radius_ID = Shader.PropertyToID("_Bevel_Radius_");
         [HideInInspector, Range(0f, 1f)] public float _Line_Width_ = 0.03f;
@@ -41,6 +43,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         public override void InitializeFromMaterial(Material material)
         {
+            _MainTex = (Texture2D)material.GetTexture(_MainTexID);
             _Bevel_Radius_ = material.GetFloat(_Bevel_Radius_ID);
             _Line_Width_ = material.GetFloat(_Line_Width_ID);
             _Motion_ = material.GetFloat(_Motion_ID);
@@ -58,6 +61,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         public override void ApplyToMaterial(Material material)
         {
+            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
             material.SetFloat(_Bevel_Radius_ID, _Bevel_Radius_);
             material.SetFloat(_Line_Width_ID, _Line_Width_);
             material.SetFloat(_Motion_ID, _Motion_);

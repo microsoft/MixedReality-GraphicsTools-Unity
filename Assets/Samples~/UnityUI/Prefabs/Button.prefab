@@ -10,7 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6486876200350879337}
   - component: {fileID: 6486876200350879336}
-  - component: {fileID: 6486876200350879339}
+  - component: {fileID: 8835159141393762935}
+  - component: {fileID: 415961556075771311}
+  - component: {fileID: 7271501174033291688}
   m_Layer: 5
   m_Name: BackGlow
   m_TagString: Untagged
@@ -45,7 +47,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6486876200350879338}
   m_CullTransparentMesh: 1
---- !u!114 &6486876200350879339
+--- !u!114 &8835159141393762935
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -54,13 +56,62 @@ MonoBehaviour:
   m_GameObject: {fileID: 6486876200350879338}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ea06c1a79a096b4e8ade21898b1fe5c, type: 3}
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: 5d5533370607d6244b3aa01111a3ee42, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+--- !u!114 &415961556075771311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6486876200350879338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fda4953718e0264291c42cb2a637fb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7271501174033291688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6486876200350879338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c32952b3c466d34ba06bd1204afec4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  instanceMaterials: 1
+  _MainTex: {fileID: 0}
+  _Bevel_Radius_: 0.05
+  _Line_Width_: 0.03
+  _Motion_: 0
+  _Max_Intensity_: 0.5
+  _Intensity_Fade_In_Exponent_: 2
+  _Outer_Fuzz_Start_: 0.002
+  _Outer_Fuzz_End_: 0.001
+  _Color_: {r: 1, g: 1, b: 1, a: 1}
+  _Inner_Color_: {r: 1, g: 1, b: 1, a: 1}
+  _Blend_Exponent_: 1
+  _Falloff_: 1
+  _Bias_: 0.5
 --- !u!1 &6486876200913630077
 GameObject:
   m_ObjectHideFlags: 0
@@ -193,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1a68101fe7858d42983738016eb53d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backGlow: {fileID: 6486876200350879339}
+  backGlow: {fileID: 0}
   hoverGraphic: {fileID: 6486876201612510333}
   animationDuration: 0.8
   maxPressDistance: 8
@@ -343,6 +394,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6486876202314994184}
+  - component: {fileID: 9112595343732525457}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -371,3 +423,22 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!95 &9112595343732525457
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6486876202314994187}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c12d1220e7b9d4447b41b99415d20f0c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
