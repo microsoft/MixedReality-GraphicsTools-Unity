@@ -31,7 +31,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         [Tooltip("Controls the depth of the rounded rect along the local z axis.")]
         [SerializeField]
-        private float thickness = 4f;
+        private float thickness = 1f;
 
         /// <summary>
         /// Controls the depth of the rounded rect along the local z axis.

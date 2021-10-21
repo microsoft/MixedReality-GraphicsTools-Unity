@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Iridescent_Map_:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: d898ba0df32e5da43850db9ebcc9f4f0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -31,12 +31,12 @@ Material:
     - _Fade_Out_: 1
     - _Filter_Width_: 1
     - _Frequency_: 1
-    - _Highlight_: 1
+    - _Highlight_: 0
     - _Highlight_Width_: 0.25
-    - _Iridescence_Edge_Intensity_: 0.56
+    - _Iridescence_Edge_Intensity_: 1
     - _Iridescence_Enable_: 1
-    - _Iridescence_Intensity_: 0
-    - _Line_Gradient_Blend_: 0.36
+    - _Iridescence_Intensity_: 0.1
+    - _Line_Gradient_Blend_: 0
     - _Line_Width_: 1
     - _Rate_: 0
     - _Reflected_: 1

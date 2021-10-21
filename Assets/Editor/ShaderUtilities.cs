@@ -156,11 +156,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 // Save a new component out as a C# class.
                 string version = "0.1.0";
-                string className = SanitizeIdentifier(shader.name) + "CanvasMaterialAnimator";
+                string assetPath = AssetDatabase.GetAssetPath(shader);
+
+                string className = SanitizeIdentifier(Path.GetFileNameWithoutExtension(assetPath)) + "CanvasMaterialAnimator";
 
                 string classText = string.Format(ClassBody, version, className, properties, fromMaterial, toMaterial, targetShaderName);
 
-                string directory = Path.GetDirectoryName(AssetDatabase.GetAssetPath(shader));
+                string directory = Path.GetDirectoryName(assetPath);
                 string path = Path.Combine(directory, string.Format("{0}.cs", className));
 
                 File.WriteAllText(path, classText);
