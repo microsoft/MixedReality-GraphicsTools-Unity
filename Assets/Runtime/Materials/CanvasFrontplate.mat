@@ -44,7 +44,7 @@ Material:
     - _Blob_Pulse_: 0
     - _Blob_Pulse_2_: 0
     - _Blob_Pulse_Max_Size_: 0.05
-    - _Fade_Out_: 0.4
+    - _Fade_Out_: 1
     - _Filter_Width_: 1.5
     - _Gaze_Focus_: 0
     - _Gaze_Intensity_: 0.7

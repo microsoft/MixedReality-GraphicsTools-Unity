@@ -20,7 +20,7 @@ Properties {
         _Fade_Out_("Fade Out", Range(0,1)) = 1
      
     [Header(Blob)]
-        [Toggle(_BLOB_ENABLE_)] _Blob_Enable_("Blob Enable", Float) = 1
+        [Toggle(_BLOB_ENABLE_)] _Blob_Enable_("Blob Enable", Float) = 0
         [PerRendererData] _Blob_Position_("Blob Position",Vector) = (.5,0,0.2,1)
         _Blob_Intensity_("Blob Intensity", Range(0,3)) = 0.34
         _Blob_Near_Size_("Blob Near Size", Range(0,1)) = 0.025
@@ -35,15 +35,15 @@ Properties {
      
     [Header(Blob 2)]
         [Toggle(_BLOB_ENABLE_2_)] _Blob_Enable_2_("Blob Enable 2", Float) = 0
-        [PerRendererData] _Blob_Position_2_("Blob Position 2",Vector) = (10,10.1,-0.6,1)
+        [PerRendererData] _Blob_Position_2_("Blob Position 2",Vector) = (0,0,0,1)
         _Blob_Near_Size_2_("Blob Near Size 2", Range(0,1)) = 0.025
         _Blob_Inner_Fade_2_("Blob Inner Fade 2", Range(0,1)) = 0.1
         [PerRendererData] _Blob_Pulse_2_("Blob Pulse 2",Range(0,1)) = 0
         [PerRendererData] _Blob_Fade_2_("Blob Fade 2",Range(0,1)) = 1
      
     [Header(Gaze)]
-        _Gaze_Intensity_("Gaze Intensity", Range(0,1)) = 0
-        _Gaze_Focus_("Gaze Focus", Range(0,1)) = 0.0
+        _Gaze_Intensity_("Gaze Intensity", Range(0,1)) = 0.7
+        _Gaze_Focus_("Gaze Focus", Range(0,1)) = 0
         [PerRendererData] _Pinched_("Pinched",Float) = 0.0
      
     [Header(Blob Texture)]
@@ -91,8 +91,8 @@ SubShader {
     #pragma fragment frag
     #pragma multi_compile_instancing
     #pragma target 4.0
-    #pragma multi_compile _ _BLOB_ENABLE_
     #pragma multi_compile _ _BLOB_ENABLE_2_
+    #pragma multi_compile _ _BLOB_ENABLE_
 
     #include "UnityCG.cginc"
 
@@ -263,6 +263,8 @@ CBUFFER_END
         float3 Normal,
         float3 Tangent,
         float3 Binormal,
+        float Blob_Enable,
+        float Blob_Enable_2,
         out float4 Extra,
         out float Distance_To_Face,
         out float Distance_Fade1,
@@ -277,8 +279,8 @@ CBUFFER_END
         Extra.zw = ProjectProximity(Blob_Position_2,Position,Face_Center,Normal,Tangent*Proximity_Anisotropy,Binormal,distz2)/Relative_Scale;
         
         Distance_To_Face = dot(Normal,Position-Face_Center);
-        Distance_Fade1 = 1.0 - saturate(distz1/Proximity_Far_Distance);
-        Distance_Fade2 = 1.0 - saturate(distz2/Proximity_Far_Distance);
+        Distance_Fade1 = (1.0 - saturate(distz1/Proximity_Far_Distance))*Blob_Enable;
+        Distance_Fade2 = (1.0 - saturate(distz2/Proximity_Far_Distance))*Blob_Enable_2;
         
     }
     //BLOCK_END Proximity_Vertex
@@ -386,6 +388,15 @@ CBUFFER_END
     }
     //BLOCK_END Object_To_World_Pos
 
+    //BLOCK_BEGIN Permutation_To_FloatBool 142
+
+    void Permutation_To_FloatBool_B142(
+        out float Enabled    )
+    {
+        Enabled = 1.0;
+    }
+    //BLOCK_END Permutation_To_FloatBool
+
     //BLOCK_BEGIN Selection_Vertex 78
 
     float2 ramp2(float2 start, float2 end, float2 x)
@@ -430,12 +441,14 @@ CBUFFER_END
         float Far_Distance,
         float Fade_Length,
         float3 Active_Face_Dir,
+        float Blob_Enable,
+        float Blob_Enable_2,
         out float Show_Selection    )
     {
-        float select1 = computeSelection(Blob_Position,Normal,Tangent,Bitangent,Face_Center,Face_Size,Selection_Fuzz,Far_Distance,Fade_Length);
-        float select2 = computeSelection(Blob_Position_2,Normal,Tangent,Bitangent,Face_Center,Face_Size,Selection_Fuzz,Far_Distance,Fade_Length);
-        
+        float select1 = computeSelection(Blob_Position,Normal,Tangent,Bitangent,Face_Center,Face_Size,Selection_Fuzz,Far_Distance,Fade_Length)*Blob_Enable;
+        float select2 = computeSelection(Blob_Position_2,Normal,Tangent,Bitangent,Face_Center,Face_Size,Selection_Fuzz,Far_Distance,Fade_Length)*Blob_Enable_2;
         Show_Selection = lerp(max(select1,select2),1.0,Selected);
+        
     }
     //BLOCK_END Selection_Vertex
 
@@ -507,6 +520,12 @@ CBUFFER_END
         float3 Face_Center_Q77;
         Face_Center_Q77=(mul(unity_ObjectToWorld, float4(float3(0,0,0), 1)));
         
+        // Face_Size (#82)
+        float2 Face_Size_Q82;
+        float ScaleY_Q82;
+        Face_Size_Q82 = vertInput.uv2; //float2(length(Tangent_World),length(Bitangent_World));
+        ScaleY_Q82 = vertInput.uv2.y; //Face_Size_Q82.y;
+        
         // Anisotropy (#69)
         float Anisotropy_Q69=vertInput.uv2.x/vertInput.uv2.y;
 
@@ -514,6 +533,20 @@ CBUFFER_END
         float3 Result_Q88;
         Result_Q88 = _Use_Global_Right_Index_ ? Global_Right_Index_Tip_Position.xyz : _Blob_Position_2_;
         
+        float Enabled_Q142;
+        #if defined(_BLOB_ENABLE_)
+          Permutation_To_FloatBool_B142(Enabled_Q142);
+        #else
+          Enabled_Q142 = 0;
+        #endif
+
+        float Enabled_Q137;
+        #if defined(_BLOB_ENABLE_2_)
+          Permutation_To_FloatBool_B142(Enabled_Q137);
+        #else
+          Enabled_Q137 = 0;
+        #endif
+
         // Lerp (#99)
         float Value_At_T_Q99=lerp(_Blob_Near_Size_2_,_Blob_Pulse_Max_Size_,_Blob_Pulse_2_);
 
@@ -527,20 +560,20 @@ CBUFFER_END
         // Multiply (#89)
         float Product_Q89 = _Gaze_Intensity_ * _Gaze_Focus_;
 
+        // Scale_Radius_And_Width (#83)
+        float Out_Radius_Q83;
+        float Out_Line_Width_Q83;
+        Out_Radius_Q83 = true ? _Radius_ : _Radius_ / ScaleY_Q82;
+        Out_Line_Width_Q83 = true ? _Line_Width_ : _Line_Width_ / ScaleY_Q82;
+
         // Normalize3 (#63)
         float3 Tangent_World_N_Q63 = normalize(Tangent_World_Q61);
 
         // Normalize3 (#64)
         float3 Binormal_World_N_Q64 = normalize(Binormal_World_Q62);
 
-        // Face_Size (#82)
-        float2 Face_Size_Q82;
-        float ScaleY_Q82;
-        Face_Size_Q82 = float2(length(Tangent_World_Q61),length(Binormal_World_Q62));
-        ScaleY_Q82 = Face_Size_Q82.y;
-        
         float Show_Selection_Q78;
-        Selection_Vertex_B78(Result_Q87,Result_Q88,Face_Center_Q77,Face_Size_Q82,Nrm_World_Q72,Tangent_World_N_Q63,Binormal_World_N_Q64,_Selection_Fuzz_,_Selected_,_Selected_Distance_,_Selected_Fade_Length_,float3(0,0,-1),Show_Selection_Q78);
+        Selection_Vertex_B78(Result_Q87,Result_Q88,Face_Center_Q77,Face_Size_Q82,Nrm_World_Q72,Tangent_World_N_Q63,Binormal_World_N_Q64,_Selection_Fuzz_,_Selected_,_Selected_Distance_,_Selected_Fade_Length_,float3(0,0,-1),Enabled_Q142,Enabled_Q137,Show_Selection_Q78);
 
         // Step (#90)
         float Step_Q90 = step(0.0001, Product_Q89);
@@ -554,6 +587,9 @@ CBUFFER_END
           Blob_Info_Q112 = float3(0,0,0);
         #endif
 
+        float4 Rect_Parms_Q107;
+        Round_Rect_Vertex_B107(vertInput.uv0,Out_Radius_Q83,Anisotropy_Q69,Rect_Parms_Q107);
+
         float4 Blob_Info_Q120;
         #if defined(_BLOB_ENABLE_2_)
           Blob_Vertex_B120(Face_Center_Q100,Nrm_World_Q72,Tangent_World_N_Q63,Binormal_World_N_Q64,Result_Q88,_Blob_Intensity_,Value_At_T_Q99,_Blob_Far_Size_,_Blob_Near_Distance_,_Blob_Far_Distance_,vertInput.uv0,Face_Center_Q77,Face_Size_Q82,_Blob_Fade_Length_,_Selection_Fade_,_Selection_Fade_Size_,_Blob_Inner_Fade_2_,_Blob_Pulse_2_,_Blob_Fade_2_,Blob_Info_Q120);
@@ -563,12 +599,6 @@ CBUFFER_END
 
         float Width_Q96;
         Proximity_Visibility_B96(Show_Selection_Q78,Result_Q87,Result_Q88,_Proximity_Far_Distance_,_Proximity_Near_Radius_,Face_Center_Q77,Nrm_World_Q72,Face_Size_Q82,Step_Q90,Width_Q96);
-
-        // Scale_Radius_And_Width (#83)
-        float Out_Radius_Q83;
-        float Out_Line_Width_Q83;
-        Out_Radius_Q83 = true ? _Radius_ : _Radius_ / ScaleY_Q82;
-        Out_Line_Width_Q83 = true ? _Line_Width_ : _Line_Width_ / ScaleY_Q82;
 
         // Multiply (#108)
         float Product_Q108 = Out_Line_Width_Q83 * Width_Q96;
@@ -586,9 +616,6 @@ CBUFFER_END
         // From_XYZ (#103)
         float3 Vec3_Q103 = float3(Out_Radius_Q83,Product_Q108,0);
 
-        float4 Rect_Parms_Q107;
-        Round_Rect_Vertex_B107(vertInput.uv0,Out_Radius_Q83,Anisotropy_Q69,Rect_Parms_Q107);
-
         float3 Pos_World_Q60;
         Object_To_World_Pos_B60(New_P_Q79,Pos_World_Q60);
 
@@ -596,7 +623,7 @@ CBUFFER_END
         float Distance_To_Face_Q80;
         float Distance_Fade1_Q80;
         float Distance_Fade2_Q80;
-        Proximity_Vertex_B80(Result_Q87,Result_Q88,Face_Center_Q77,Pos_World_Q60,_Proximity_Far_Distance_,1.0,_Proximity_Anisotropy_,Nrm_World_Q72,Tangent_World_N_Q63,Binormal_World_N_Q64,Extra_Q80,Distance_To_Face_Q80,Distance_Fade1_Q80,Distance_Fade2_Q80);
+        Proximity_Vertex_B80(Result_Q87,Result_Q88,Face_Center_Q77,Pos_World_Q60,_Proximity_Far_Distance_,1.0,_Proximity_Anisotropy_,Nrm_World_Q72,Tangent_World_N_Q63,Binormal_World_N_Q64,Enabled_Q142,Enabled_Q137,Extra_Q80,Distance_To_Face_Q80,Distance_Fade1_Q80,Distance_Fade2_Q80);
 
         // From_XYZ (#113)
         float3 Vec3_Q113 = float3(MaxAB_Q85,Distance_Fade1_Q80,Distance_Fade2_Q80);
@@ -693,7 +720,6 @@ CBUFFER_END
         float proximity2 = (1.0-saturate(length(Deltas.zw)/Proximity_Near_Radius))*Distance_Fade2;
         
         Proximity = (Proximity_Max_Intensity * max(proximity1, proximity2) *(1.0-Show_Selection)+Show_Selection);
-        
     }
     //BLOCK_END Proximity_Fragment
 
