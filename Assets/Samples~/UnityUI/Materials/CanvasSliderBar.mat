@@ -60,7 +60,7 @@ Material:
     - _Cutoff: 0.5
     - _DirectionalLight: 0
     - _DstBlend: 10
-    - _EdgeSmoothingValue: 0.002
+    - _EdgeSmoothingValue: 0.1
     - _EnableChannelMap: 0
     - _EnableEmission: 0
     - _EnableHoverColorOverride: 0
@@ -107,7 +107,7 @@ Material:
     - _RenderQueueOverride: -1
     - _RimLight: 0
     - _RimPower: 0.25
-    - _RoundCornerMargin: 0.01
+    - _RoundCornerMargin: 0.5
     - _RoundCornerRadius: 37.23
     - _RoundCorners: 1
     - _RoundCornersHideInterior: 0
