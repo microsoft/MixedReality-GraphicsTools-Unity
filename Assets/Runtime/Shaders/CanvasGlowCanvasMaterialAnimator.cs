@@ -10,7 +10,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Use Unity's animation system to animate fields on this class to drive material properties on CanvasRenderers.
     /// Version=0.1.0
     /// </summary>
-    public class GraphicsToolsCanvasGlowCanvasMaterialAnimator : BaseCanvasMaterialAnimator
+    public class CanvasGlowCanvasMaterialAnimator : BaseCanvasMaterialAnimator
     {
         [Header("Material Properties")]
         [HideInInspector] public Texture2D _MainTex = null;

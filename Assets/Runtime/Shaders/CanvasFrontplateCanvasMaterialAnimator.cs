@@ -10,9 +10,11 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Use Unity's animation system to animate fields on this class to drive material properties on CanvasRenderers.
     /// Version=0.1.0
     /// </summary>
-    public class GraphicsToolsCanvasFrontplateCanvasMaterialAnimator : BaseCanvasMaterialAnimator
+    public class CanvasFrontplateCanvasMaterialAnimator : BaseCanvasMaterialAnimator
     {
         [Header("Material Properties")]
+        [HideInInspector] public Texture2D _MainTex = null;
+        public static int _MainTexID = Shader.PropertyToID("_MainTex");
         [HideInInspector, Range(0f, 0.5f)] public float _Radius_ = 0.3125f;
         public static int _Radius_ID = Shader.PropertyToID("_Radius_");
         [HideInInspector, Range(0f, 1f)] public float _Line_Width_ = 0.031f;
@@ -23,7 +25,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public static int _Edge_Color_ID = Shader.PropertyToID("_Edge_Color_");
         [HideInInspector, Range(0f, 1f)] public float _Fade_Out_ = 1f;
         public static int _Fade_Out_ID = Shader.PropertyToID("_Fade_Out_");
-        [HideInInspector] public float _Blob_Enable_ = 1f;
+        [HideInInspector] public float _Blob_Enable_ = 0f;
         public static int _Blob_Enable_ID = Shader.PropertyToID("_Blob_Enable_");
         [HideInInspector] public Vector3 _Blob_Position_ = Vector3.zero;
         public static int _Blob_Position_ID = Shader.PropertyToID("_Blob_Position_");
@@ -59,7 +61,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public static int _Blob_Pulse_2_ID = Shader.PropertyToID("_Blob_Pulse_2_");
         [HideInInspector, Range(0f, 1f)] public float _Blob_Fade_2_ = 1f;
         public static int _Blob_Fade_2_ID = Shader.PropertyToID("_Blob_Fade_2_");
-        [HideInInspector, Range(0f, 1f)] public float _Gaze_Intensity_ = 0f;
+        [HideInInspector, Range(0f, 1f)] public float _Gaze_Intensity_ = 0.7f;
         public static int _Gaze_Intensity_ID = Shader.PropertyToID("_Gaze_Intensity_");
         [HideInInspector, Range(0f, 1f)] public float _Gaze_Focus_ = 0f;
         public static int _Gaze_Focus_ID = Shader.PropertyToID("_Gaze_Focus_");
@@ -95,6 +97,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         public override void InitializeFromMaterial(Material material)
         {
+            _MainTex = (Texture2D)material.GetTexture(_MainTexID);
             _Radius_ = material.GetFloat(_Radius_ID);
             _Line_Width_ = material.GetFloat(_Line_Width_ID);
             _Filter_Width_ = material.GetFloat(_Filter_Width_ID);
@@ -139,6 +142,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         public override void ApplyToMaterial(Material material)
         {
+            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
             material.SetFloat(_Radius_ID, _Radius_);
             material.SetFloat(_Line_Width_ID, _Line_Width_);
             material.SetFloat(_Filter_Width_ID, _Filter_Width_);

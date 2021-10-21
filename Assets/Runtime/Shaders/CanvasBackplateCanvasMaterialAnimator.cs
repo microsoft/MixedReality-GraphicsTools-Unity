@@ -10,7 +10,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Use Unity's animation system to animate fields on this class to drive material properties on CanvasRenderers.
     /// Version=0.1.0
     /// </summary>
-    public class GraphicsToolsCanvasBackplateCanvasMaterialAnimator : BaseCanvasMaterialAnimator
+    public class CanvasBackplateCanvasMaterialAnimator : BaseCanvasMaterialAnimator
     {
         [Header("Material Properties")]
         [HideInInspector, Range(0f, 10f)] public float _Line_Width_ = 1f;
