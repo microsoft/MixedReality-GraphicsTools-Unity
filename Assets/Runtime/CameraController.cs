@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -70,12 +74,30 @@ namespace Microsoft.MixedReality.GraphicsTools
         private CameraState interpolatingCameraState = new CameraState();
         private List<XRDisplaySubsystem> xrDisplaySubsystems = new List<XRDisplaySubsystem>();
 
+        /// <summary>
+        /// Validates the state of this game object with the editor.
+        /// </summary>
+        private void OnValidate()
+        {
+            // Within projects that don't use scriptable render pipelines the camera will contain a few missing scripts.
+            // This cleans up those missing references.
+#if UNITY_EDITOR
+            GameObjectUtility.RemoveMonoBehavioursWithMissingScript(gameObject);
+#endif
+        }
+
+        /// <summary>
+        /// Called when the game object state from from inactive to active.
+        /// </summary>
         private void OnEnable()
         {
             targetCameraState.SetFromTransform(transform);
             interpolatingCameraState.SetFromTransform(transform);
         }
 
+        /// <summary>
+        /// Sets up initial state.
+        /// </summary>
         private void Start()
         {
             SubsystemManager.GetInstances(xrDisplaySubsystems);
@@ -85,6 +107,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif
         }
 
+        /// <summary>
+        /// Called every frame to poll input and update the camera transform.
+        /// </summary>
         private void Update()
         {
             float dt = Time.deltaTime;
@@ -172,6 +197,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+        /// <summary>
+        /// Displays the camera controls via a user interface.
+        /// </summary>
         private void OnGUI()
         {
             if (!XRDeviceIsPresent() && showControlsText)
@@ -180,6 +208,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+        /// <summary>
+        /// Returns true if an XR device is connected and running. For example a VR headset.
+        /// </summary>
         private bool XRDeviceIsPresent()
         {
             foreach (var xrDisplay in xrDisplaySubsystems)
@@ -193,9 +224,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             return false;
         }
 
+        /// <summary>
+        /// Turns WASD controls into an input vector.
+        /// </summary>
         private Vector3 GetInputTranslationDirection()
         {
-            Vector3 direction = new Vector3();
+            Vector3 direction = Vector3.zero;
 
 #if ENABLE_INPUT_SYSTEM
             if (Keyboard.current.wKey.isPressed) { direction += Vector3.forward; }
@@ -212,6 +246,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (Input.GetKey(KeyCode.Q)) { direction += Vector3.down; }
             if (Input.GetKey(KeyCode.E)) { direction += Vector3.up; }
 #endif
+
+            direction.Normalize();
 
             return direction;
         }
