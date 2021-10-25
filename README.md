@@ -8,7 +8,10 @@ Graphics tools and components for developing Mixed Reality applications in Unity
 
 # Getting started with Graphics Tools
 
-Graphics Tools is designed to be imported as a [Unity package](https://docs.unity3d.com/Manual/Packages.html). 
+This repo is marked as **internal** which means you need to sign in with your Microsoft linked GitHub account to access it. To ensure your account can access this repo:
+
+1. Click on this link and follow the account linking instructions: https://repos.opensource.microsoft.com/link
+2. Ensure you are then part of the "microsoft" organization: https://repos.opensource.microsoft.com/orgs
 
 > **_NOTE:_** Graphics Tools requires Unity 2020.x and above.
 
@@ -22,7 +25,9 @@ To import Graphics Tools into your Unity project follow the below steps:
 4. Graphics Tools will now be installed within your Unity project as an immutable package.
 ![Package Manager Installed](Documentation~/Images/ReadMe/PackageManagerInstalled.png)
 
-> **_NOTE:_** If you would like a specific release of the Graphics Tools package please navigate to the [releases page](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/releases) and append the desired release tag onto the URL in step 3. For example, to download the [v0.1.0](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/releases/tag/v0.1.0) release you would specify: `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git#v0.1.0`
+> **_NOTE:_** If you encounter an error during any of the above steps make sure your GitHub credentials are cached with this tool: https://docs.github.com/en/get-started/getting-started-with-git/caching-your-github-credentials-in-git#github-cli
+
+If you would like a specific release of the Graphics Tools package please navigate to the [releases page](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/releases) and append the desired release tag onto the URL in step 3. For example, to download the [v0.1.0](https://github.com/microsoft/MixedReality-GraphicsTools-Unity/releases/tag/v0.1.0) release you would specify: `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git#v0.1.0`
 
 ## Importing samples
 
