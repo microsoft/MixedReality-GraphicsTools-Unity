@@ -5,10 +5,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -73,18 +69,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         private CameraState targetCameraState = new CameraState();
         private CameraState interpolatingCameraState = new CameraState();
         private List<XRDisplaySubsystem> xrDisplaySubsystems = new List<XRDisplaySubsystem>();
-
-        /// <summary>
-        /// Validates the state of this game object with the editor.
-        /// </summary>
-        private void OnValidate()
-        {
-            // Within projects that don't use scriptable render pipelines the camera will contain a few missing scripts.
-            // This cleans up those missing references.
-#if UNITY_EDITOR
-            GameObjectUtility.RemoveMonoBehavioursWithMissingScript(gameObject);
-#endif
-        }
 
         /// <summary>
         /// Called when the game object state from from inactive to active.

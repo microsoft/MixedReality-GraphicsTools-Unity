@@ -4,10 +4,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
@@ -15,7 +11,6 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     public class AutoAddInputModules : MonoBehaviour
     {
-#if UNITY_EDITOR
         private void OnValidate()
         {
             // Check if a valid input module exists.
@@ -28,7 +23,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                     // If the app is using the legacy input system and not the "new" one (they can be used at the same time). 
                     // Then add the default input module.
 #if ENABLE_LEGACY_INPUT_MANAGER && !ENABLE_INPUT_SYSTEM
-                    GameObjectUtility.RemoveMonoBehavioursWithMissingScript(gameObject);
 
                     if (gameObject.GetComponent<StandaloneInputModule>() == null)
                     {
@@ -38,6 +32,5 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
         }
-#endif
     }
 }
