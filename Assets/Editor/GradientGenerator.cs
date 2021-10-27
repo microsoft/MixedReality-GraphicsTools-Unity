@@ -131,40 +131,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void OnGUI()
         {
-            if (GUILayout.Button("Sample colors from canvas backplate"))
-            {
-                if (Selection.activeObject is GameObject go)
-                {
-                    if (go.GetComponent<CanvasElementRoundedRect>().material is Material mat)
-                    {
-                        if (mat.HasProperty(_gradientColor))
-                        {
-                            Tint = mat.GetColor(_gradientColor);
-                        }
-
-                        if (mat.HasProperty(_topLeftPropName))
-                        {
-                            TopLeft = mat.GetColor(_topLeftPropName);
-                        }
-
-                        if (mat.HasProperty(_topRightPropName))
-                        {
-                            TopRight = mat.GetColor(_topRightPropName);
-                        }
-
-                        if (mat.HasProperty(_bottomLeftPropName))
-                        {
-                            BottomLeft = mat.GetColor(_bottomLeftPropName);
-                        }
-
-                        if (mat.HasProperty(_bottomRightPropName))
-                        {
-                            BottomRight = mat.GetColor(_bottomRightPropName);
-                        }
-                    }
-                }
-            }
-
             EditorGUILayout.BeginHorizontal();
             {
                 Method = (GradientMethod)EditorGUILayout.EnumPopup("Method", Method);
@@ -202,6 +168,40 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 OutputResolution = EditorGUILayout.IntSlider(OutputResolution, 1, 2048);
             }
             GUILayout.EndHorizontal();
+
+            if (GUILayout.Button("Sample colors from canvas backplate"))
+            {
+                if (Selection.activeObject is GameObject go)
+                {
+                    if (go.GetComponent<CanvasElementRoundedRect>().material is Material mat)
+                    {
+                        if (mat.HasProperty(_gradientColor))
+                        {
+                            Tint = mat.GetColor(_gradientColor);
+                        }
+
+                        if (mat.HasProperty(_topLeftPropName))
+                        {
+                            TopLeft = mat.GetColor(_topLeftPropName);
+                        }
+
+                        if (mat.HasProperty(_topRightPropName))
+                        {
+                            TopRight = mat.GetColor(_topRightPropName);
+                        }
+
+                        if (mat.HasProperty(_bottomLeftPropName))
+                        {
+                            BottomLeft = mat.GetColor(_bottomLeftPropName);
+                        }
+
+                        if (mat.HasProperty(_bottomRightPropName))
+                        {
+                            BottomRight = mat.GetColor(_bottomRightPropName);
+                        }
+                    }
+                }
+            }
 
             // WARRNING The gradient preview gets called a lot, when the window is open.
 
