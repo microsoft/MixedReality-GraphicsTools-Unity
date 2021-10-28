@@ -14,7 +14,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     public enum GradientMethod
     {
         QuadLinear,
-        QuadSRGB
+        QuadPerceptualLinear
     }
 
     /// <summary>
@@ -105,7 +105,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                     switch (method)
                     {
-                        case GradientMethod.QuadSRGB:
+                        case GradientMethod.QuadPerceptualLinear:
+                            // Squash the linear colors so when they
+                            // are boosted by sRGB they look more uniform.
                             gradient = SrgbToLinear(gradient);
                             result.SetPixel(x, y, gradient);
 
