@@ -1,0 +1,17 @@
+{
+    "name": "Microsoft.MixedReality.GraphicsTools.Samples.UnityUI",
+    "rootNamespace": "Microsoft.MixedReality.GraphicsTools.Samples.UnityUI",
+    "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:22213891bfe50254781c448a2277a9a5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

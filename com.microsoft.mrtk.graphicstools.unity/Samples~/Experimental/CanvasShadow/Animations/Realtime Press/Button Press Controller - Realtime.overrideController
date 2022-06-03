@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Button Press Controller - Realtime
+  m_Controller: {fileID: 9100000, guid: 500bddc963ae77448b46585557f2d954, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 4cddb3d80bd135d48860cefaa01d455c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 215bd427195af064aa05a3b94c7e4545, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: a59752dd2ad69a342b3d2abff949343f, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: a22b71df172697343a415060a62b80d4, type: 2}

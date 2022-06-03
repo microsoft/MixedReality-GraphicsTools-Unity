@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 18342f7729240d149a9e5b0fa50b4891
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - targetCamera: {instanceID: 0}
+  - kawaseFilterMaterial: {fileID: 2100000, guid: c640b4daee68a054f8c9ff460546a1b5, type: 2}
+  - dualFilterMaterial: {fileID: 2100000, guid: 50dc523b24a2cfc409af7babd1bddb04, type: 2}
+  - blendMaterial: {fileID: 2100000, guid: 7c5f9a68423319b48a2bced3c034faa5, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

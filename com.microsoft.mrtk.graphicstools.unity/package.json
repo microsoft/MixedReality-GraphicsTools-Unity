@@ -1,0 +1,55 @@
+{
+  "name": "com.microsoft.mrtk.graphicstools.unity",
+  "version": "0.4.0",
+  "displayName": "MRTK Graphics Tools",
+  "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
+  "msftFeatureCategory": "MRTK3",
+  "unity": "2020.3",
+  "author": "Microsoft",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/MixedReality-GraphicsTools-Unity"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/MixedReality-GraphicsTools-Unity/issues"
+  },
+  "keywords": [
+    "microsoft",
+    "mixed",
+    "reality",
+    "hololens",
+    "ar",
+    "vr",
+    "xr",
+    "graphics",
+    "shaders"
+  ],
+  "samples": [
+    {
+      "displayName": "Material Gallery",
+      "description": "A handful of material samples demonstrating effects that can be created with the Graphics Tools/Standard shader.",
+      "path": "Samples~/MaterialGallery"
+    },
+    {
+      "displayName": "Unity UI",
+      "description": "Examples of components and shaders than can be used with UnityUI canvases.",
+      "path": "Samples~/UnityUI"
+    },
+    {
+      "displayName": "Mesh Outlines",
+      "description": "Samples of different mesh outlining techniques that don't use post processing.",
+      "path": "Samples~/MeshOutlines"
+    },
+    {
+      "displayName": "Acrylic (Experimental)",
+      "description": "Examples of how the acrylic effect can be utilized to give materials a translucent/frosted glass look.",
+      "path": "Samples~/Experimental/Acrylic"
+    },
+    {
+      "displayName": "Canvas Shadow (Experimental)",
+      "description": "Demonstrates how to add a procedural drop shadow on a canvas.",
+      "path": "Samples~/Experimental/CanvasShadow"
+    }
+  ]
+}

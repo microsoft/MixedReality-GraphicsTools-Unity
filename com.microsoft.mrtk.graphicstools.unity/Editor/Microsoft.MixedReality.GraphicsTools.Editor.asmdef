@@ -1,0 +1,25 @@
+{
+    "name": "Microsoft.MixedReality.GraphicsTools.Editor",
+    "rootNamespace": "Microsoft.MixedReality.GraphicsTools.Editor",
+    "references": [
+        "GUID:22213891bfe50254781c448a2277a9a5",
+        "GUID:6546d7765b4165b40850b3667f981c26"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "10.6.0",
+            "define": "GT_USE_URP"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Non-CanvasBeveled
+  m_Shader: {fileID: 4800000, guid: 779835e0a5652024fb34a171d6dd6e92, type: 3}
+  m_ShaderKeywords: _DECAL_FRONT_ONLY__ON _FRESNEL_ENABLED_ _SKY_ENABLED_
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Decal_:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Indirect_Environment_:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Iridescence_Texture_:
+        m_Texture: {fileID: 2800000, guid: d898ba0df32e5da43850db9ebcc9f4f0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Reflection_Map_:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Bevel_Back_: 0.03
+    - _Bevel_Back_Stretch_: 0
+    - _Bevel_Front_: 0.035
+    - _Bevel_Front_Stretch_: 0
+    - _Decal_Enable_: 0
+    - _Decal_Front_Only_: 1
+    - _Edge_Reflect_: 1
+    - _Env_Enable_: 0
+    - _Fresnel_Enabled_: 1
+    - _Front_Reflect_: 0
+    - _Horizon_Power_: 1
+    - _Indirect_Diffuse_: 1
+    - _Iridescence_Enabled_: 0
+    - _Iridescence_Intensity_: 0
+    - _Power_: 1
+    - _Radius_: 0.3
+    - _Radius_Bottom_Left_: 1
+    - _Radius_Bottom_Right_: 1
+    - _Radius_Top_Left_: 1
+    - _Radius_Top_Right_: 1
+    - _Reflection_: 0.75
+    - _Sharpness_: 0
+    - _Shininess_: 10
+    - _Sky_Enabled_: 1
+    - _Specular_: 0
+    - _StencilComparison: 0
+    - _StencilOperation: 0
+    - _StencilReference: 0
+    - _Subsurface_: 0
+    - _Sun_Intensity_: 1
+    - _Sun_Phi_: 0.4
+    - _Sun_Theta_: 0.9
+    m_Colors:
+    - _Albedo_: {r: 0.0117647, g: 0.505882, b: 0.99607795, a: 1}
+    - _Decal_Scale_XY_: {r: 1.5, g: 1.5, b: 0, a: 0}
+    - _Ground_Color_: {r: 0, g: 0.25490198, b: 0.9803919, a: 1}
+    - _Horizon_Color_: {r: 0.0117647, g: 0.33333296, b: 0.99607795, a: 1}
+    - _Sky_Color_: {r: 0.0117647, g: 0.960784, b: 0.99607795, a: 1}
+  m_BuildTextureStacks: []

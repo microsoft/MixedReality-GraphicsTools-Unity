@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: AcrylicLayer1
+  m_Shader: {fileID: 4800000, guid: 94108ee2b453da64089a4ed5a18d42e7, type: 3}
+  m_ShaderKeywords: _BLUR_TEXTURE_2_ENABLE_ _IRIDESCENCE_ENABLE_ _REFLECTED__ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Blur_Texture_:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Iridescent_Map_:
+        m_Texture: {fileID: 2800000, guid: d898ba0df32e5da43850db9ebcc9f4f0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Noise_Texture_:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OccludedTex:
+        m_Texture: {fileID: 2800000, guid: 23483cd776bef754697d5a16ff5d49aa, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Angle_: -45
+    - _Blue_Edge_Intensity_: 0.932
+    - _Blur_Edge_Intensity_: 0.994
+    - _Blur_Texture_2_Enable_: 1
+    - _Blur_Texture_Enable_: 0
+    - _Blur_Texture_Intensity_: 0.521
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _Edge_Only_: 0
+    - _Edge_Power_: 2
+    - _Edge_Width_: 0.5
+    - _Fade_Out_: 1
+    - _Filter_Width_: 1
+    - _Frequency_: 1
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _Gradient_Disabled_: 0
+    - _GridScale: 0.02
+    - _Highlight_: 0
+    - _Highlight_Width_: 0.567
+    - _Iridescence_Edge_Intensity_: 0.394
+    - _Iridescence_Enable_: 1
+    - _Iridescence_Intensity_: 0.009
+    - _Line_Disabled_: 0
+    - _Line_Gradient_Blend_: 0
+    - _Line_Width_: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _Noise_: 0.05
+    - _Noise_Enable_: 0
+    - _Noise_Frequency_: 1
+    - _Occluded_Blur_Edge_Intensity_: 0.994
+    - _Occluded_Blur_Intensity_: 0.521
+    - _Occluded_Intensity_: 1
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _Rate_: 0.05
+    - _Reflected_: 1
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _StencilComparison: 0
+    - _StencilOperation: 0
+    - _StencilReference: 0
+    - _UVSec: 0
+    - _Vertical_Offset_: 0
+    - _ZTest: 4
+    - _ZWrite: 1
+    m_Colors:
+    - _Base_Color_: {r: 0, g: 0, b: 0, a: 1}
+    - _Bottom_Left_: {r: 0, g: 0.33, b: 0.88, a: 1}
+    - _Bottom_Right_: {r: 0.41331434, g: 0.45916453, b: 0.6792453, a: 1}
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _ClipRectRadii: {r: 10, g: 10, b: 10, a: 10}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Fallback_Color_: {r: 0, g: 0, b: 0, a: 1}
+    - _Gradient_Color_: {r: 0.65426666, g: 0.701, b: 0.49249744, a: 1}
+    - _Highlight_Color_: {r: 0.98, g: 0.98, b: 0.98, a: 1}
+    - _Highlight_Transform_: {r: 1, g: 1, b: 0, a: 0}
+    - _Iridescence_Tint_: {r: 1, g: 1, b: 1, a: 1}
+    - _Line_Color_: {r: 0.16299999, g: 0.16299999, b: 0.16299999, a: 1}
+    - _OccludedColor: {r: 0, g: 0.5, b: 1, a: 1}
+    - _Top_Left_: {r: 0.66541547, g: 0.5420078, b: 0.7924528, a: 1}
+    - _Top_Right_: {r: 0, g: 0.32941177, b: 0.8784314, a: 1}
+  m_BuildTextureStacks: []

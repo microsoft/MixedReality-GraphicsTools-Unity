@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CanvasBeveled
+  m_Shader: {fileID: 4800000, guid: 7193af651ef24f748aeaef4e23706b61, type: 3}
+  m_ShaderKeywords: _SKY_ENABLED_
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Decal_:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Indirect_Environment_:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Iridescence_Texture_:
+        m_Texture: {fileID: 2800000, guid: d898ba0df32e5da43850db9ebcc9f4f0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Reflection_Map_:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Decal_Enable_: 0
+    - _Decal_Front_Only_: 1
+    - _Edge_Reflect_: 1
+    - _Fresnel_Disabled_: 0
+    - _Front_Reflect_: 0
+    - _Horizon_Power_: 1
+    - _Indirect_Diffuse_: 1
+    - _Iridescence_Enabled_: 0
+    - _Iridescence_Intensity_: 0
+    - _Mapped_Environment_Enabled_: 0
+    - _Power_: 1
+    - _Reflection_: 0.75
+    - _Sharpness_: 0
+    - _Shininess_: 10
+    - _Sky_Enabled_: 1
+    - _Specular_: 1
+    - _StencilComparison: 0
+    - _StencilOperation: 0
+    - _StencilReference: 0
+    - _Subsurface_: 0
+    - _Sun_Intensity_: 1
+    - _Sun_Phi_: 0.4
+    - _Sun_Theta_: 0.9
+    - _ZTest: 4
+    - _ZWrite: 1
+    m_Colors:
+    - _Albedo_: {r: 0.011764706, g: 0.5058824, b: 0.99607843, a: 1}
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _ClipRectRadii: {r: 10, g: 10, b: 10, a: 10}
+    - _Decal_Scale_XY_: {r: 1.5, g: 1.5, b: 0, a: 0}
+    - _Ground_Color_: {r: 0, g: 0.25490198, b: 0.98039216, a: 1}
+    - _Horizon_Color_: {r: 0.011764706, g: 0.33333334, b: 0.99607843, a: 1}
+    - _Sky_Color_: {r: 0.011764706, g: 0.9607843, b: 0.99607843, a: 1}
+  m_BuildTextureStacks: []

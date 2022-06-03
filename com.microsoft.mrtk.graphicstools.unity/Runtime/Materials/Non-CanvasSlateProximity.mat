@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Non-CanvasSlateProximity
+  m_Shader: {fileID: 4800000, guid: e9e70fce84abffe4c956b212f9419f45, type: 3}
+  m_ShaderKeywords: _ROUNDED_
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Blob_Texture_:
+        m_Texture: {fileID: 2800000, guid: 60383fbd9df11344da29f00f32399ed5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Blob_Fade_: 1
+    - _Blob_Fade_2_: 1
+    - _Blob_Fade_Length_: 0.08
+    - _Blob_Far_Distance_: 0.08
+    - _Blob_Far_Size_: 0.05
+    - _Blob_Inner_Fade_: 0.1
+    - _Blob_Inner_Fade_2_: 0.1
+    - _Blob_Intensity_: 1
+    - _Blob_Near_Distance_: 0
+    - _Blob_Near_Size_: 0.02
+    - _Blob_Near_Size_2_: 0.02
+    - _Blob_Pulse_: 0
+    - _Blob_Pulse_2_: 0
+    - _Radius_: 0.01
+    - _Rounded_: 1
+    - _Use_Global_Left_Index_: 1
+    - _Use_Global_Right_Index_: 1
+    m_Colors:
+    - _Blob_Position_: {r: 0, g: 0, b: 0, a: 1}
+    - _Blob_Position_2_: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []

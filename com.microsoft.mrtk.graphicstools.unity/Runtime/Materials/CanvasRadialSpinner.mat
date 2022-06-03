@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CanvasRadialSpinner
+  m_Shader: {fileID: 4800000, guid: 6c31338ea9dd77a42802cbe9db3b1fa7, type: 3}
+  m_ShaderKeywords: _CYCLE_
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _blurTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Blur_Circle_: 0
+    - _Circle_Width_: 0.3
+    - _Cycle_: 1
+    - _Cycle_Offset_: 0
+    - _Cycle_Rate_: 0.7
+    - _DstBlend: 10
+    - _Fill_Vary_: 1
+    - _Filled_Fraction_: 0.1
+    - _Period_: 1
+    - _Rate_Vary_: 0.6
+    - _SrcBlend: 1
+    - _StencilComparison: 0
+    - _StencilOperation: 0
+    - _StencilReference: 0
+    - _ZTest: 4
+    - _ZWrite: 1
+    m_Colors:
+    - _BlurBackgroundRect: {r: 0, g: 0, b: 1, a: 1}
+    - _Circle_Color_: {r: 0.23921597, g: 0.23921597, b: 0.23921597, a: 1}
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _ClipRectRadii: {r: 10, g: 10, b: 10, a: 10}
+    - _Fill_1_: {r: 0.36470598, g: 0.35686296, b: 0.831373, a: 1}
+    - _Fill_2_: {r: 0.623529, g: 0.635294, b: 0.98823494, a: 1}
+  m_BuildTextureStacks: []
