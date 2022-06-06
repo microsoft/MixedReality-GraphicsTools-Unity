@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for the MRTK
+about: Suggest an idea for Graphics Tools
 title: ''
 labels: Feature Request
 assignees: ''
