@@ -9,4 +9,4 @@ _(Links to sample github project preferred)_
 
 ## Unity editor version
 
-## Mixed Reality Toolkit release version
+## Graphics Tools release version
