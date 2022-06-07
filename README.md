@@ -19,7 +19,7 @@ Graphics Tools is normally ingested as a Unity [package](https://docs.unity3d.co
 
     ![Package Manager Add](README/PackageManagerAdd.png)
 
-3. Paste `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#v0.4.0` into the text field and click `"Add"`
+3. Paste *https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#v0.4.0* into the text field and click `"Add"`
 
     ![Package Manager Paste](README/PackageManagerPaste.png)
 
@@ -29,9 +29,9 @@ It is advised you use a specific release of the Graphics Tools package to ensure
 
 | Syntax           | URL example                                                                                                                                               |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Specific version | `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#vX.Y.Z`                                   |
-| Specific branch  | `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#my_branch`                                |
-| Git commit hash  | `https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#badc0ffee0ddf00ddead10cc8badf00d1badb002` |
+| Specific version | *https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#vX.Y.Z*                                   |
+| Specific branch  | *https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#my_branch*                                |
+| Git commit hash  | *https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#badc0ffee0ddf00ddead10cc8badf00d1badb002* |
 
 ## Documentation
 
