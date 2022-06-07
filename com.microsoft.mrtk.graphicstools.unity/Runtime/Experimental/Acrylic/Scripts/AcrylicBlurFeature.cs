@@ -68,6 +68,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             blurFilter = _blurFilter;
         }
 
+        public AcrylicFilterDual GetBlurMethod()
+        {
+            return blurFilter;
+        }
+
         public override void Create()
         {
             pass = new AcrylicBlurRenderPass(name, downSample, blur, blurMaterial, textureName, applyBlur, providedTexture, blurFilter);
