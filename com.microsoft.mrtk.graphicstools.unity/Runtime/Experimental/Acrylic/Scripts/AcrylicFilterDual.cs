@@ -32,11 +32,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             buffers = new List<RenderTexture>();
         }
 
-        ~AcrylicFilterDual()
-        {
-            FreeBuffers();
-        }
-
         public void QueueBlur(CommandBuffer cmd, RenderTexture image, int iterations)
         {
             if (image.width != lastWidth || image.height != lastHeight || iterations != lastIterations)
@@ -79,6 +74,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             Graphics.ExecuteCommandBuffer(cmd);
             Profiler.EndSample();
         }
+        public void FreeBuffers()
+        {
+            for (int i = 0; i < buffers.Count; i++)
+            {
+                Object.Destroy(buffers[i]);
+            }
+            buffers.Clear();
+        }
 
         private void InitBuffers(int width, int height, int iterations)
         {
@@ -90,15 +93,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 nextWidth = (nextWidth + 1) / 2;
                 nextHeight = (nextHeight + 1) / 2;
             }
-        }
-
-        private void FreeBuffers()
-        {
-            for (int i = 0; i < buffers.Count; i++)
-            {
-                Object.Destroy(buffers[i]);
-            }
-            buffers.Clear();
         }
 
         private void LocalBlit(CommandBuffer cmd, RenderTexture source, RenderTexture target, Material material, int pass)
