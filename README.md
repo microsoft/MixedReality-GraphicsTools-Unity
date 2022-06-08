@@ -39,7 +39,7 @@ Documentation can be found on Microsoft's technical documentation website.
 
 | Documentation Category | Link                                                                                                               |
 |------------------------|--------------------------------------------------------------------------------------------------------------------|
-| Conceptual             | [MRTK Unity](https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/)                                         |
+| Conceptual             | [MRTK Unity](https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/mrtk3-graphicstools/)                                         |
 | API Reference          | [Microsoft.MixedReality.GraphicsTools](https://docs.microsoft.com/dotnet/api/Microsoft.MixedReality.GraphicsTools) |
 
 ## Importing samples
