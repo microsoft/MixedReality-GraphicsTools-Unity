@@ -166,36 +166,26 @@ namespace Microsoft.MixedReality.GraphicsTools
         public void RemoveLayerRendererFeatures(ForwardRendererData rendererData)
 #endif
         {
-            if (blur != null)
+            if (rendererData == null) return;
+
+            rendererData.rendererFeatures.Remove(blur);
+
+            if (renderOpaque != null)
             {
-                AcrylicFilterDual blurMethod = blur.GetBlurMethod();
-                if (blurMethod != null)
-                {
-                    blurMethod.FreeBuffers();
-                }
+                LayerMask opaqueMask = rendererData.opaqueLayerMask;
+                rendererData.rendererFeatures.Remove(renderOpaque);
+                opaqueMask |= settings.renderLayers;
+                rendererData.opaqueLayerMask = opaqueMask;
+            }
+            if (renderTransparent != null)
+            {
+                LayerMask transparentMask = rendererData.transparentLayerMask;
+                rendererData.rendererFeatures.Remove(renderTransparent);
+                transparentMask |= settings.renderLayers;
+                rendererData.transparentLayerMask = transparentMask;
             }
 
-            if (rendererData != null)
-            {
-                rendererData.rendererFeatures.Remove(blur);
-
-                if (renderOpaque != null)
-                {
-                    LayerMask opaqueMask = rendererData.opaqueLayerMask;
-                    rendererData.rendererFeatures.Remove(renderOpaque);
-                    opaqueMask |= settings.renderLayers;
-                    rendererData.opaqueLayerMask = opaqueMask;
-                }
-                if (renderTransparent != null)
-                {
-                    LayerMask transparentMask = rendererData.transparentLayerMask;
-                    rendererData.rendererFeatures.Remove(renderTransparent);
-                    transparentMask |= settings.renderLayers;
-                    rendererData.transparentLayerMask = transparentMask;
-                }
-
-                rendererData.SetDirty();
-            }
+            rendererData.SetDirty();
         }
 
         public void SwapRenderTargets()
