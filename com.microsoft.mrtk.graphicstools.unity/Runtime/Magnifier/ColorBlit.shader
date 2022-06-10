@@ -69,7 +69,7 @@ Shader "ColorBlit"
 	float RadiusInner;
 	float RadiusOuter;
 	float Amount;
-    bool MagnifyingGlassIsInCircle (float2 uv, float4 cr, float radiusOuter)
+    bool MagnifyingGlassIsInCircle(float2 uv, float4 cr, float radiusOuter)
 {
 	float2 ray = uv - cr.xy;
 	float len = length(ray / cr.zw);
@@ -79,7 +79,7 @@ Shader "ColorBlit"
 		return false;
 }
 
-float4 MagnifyingGlassSampleTexture (float2 uv, float4 cr, float amount, float radiusInner, float radiusOuter)
+float4 MagnifyingGlassSampleTexture(float2 uv, float4 cr, float amount, float radiusInner, float radiusOuter)
 {
 	float2 ray = uv - cr.xy;
 	float len = length(ray / cr.zw);
@@ -105,7 +105,7 @@ float4 MagnifyingGlassSampleTexture (float2 uv, float4 cr, float amount, float r
    
 }
 		
-float4 frag_Single (Varyings i) : SV_Target
+float4 frag_Single(Varyings i) : SV_Target
 		{
 			UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i)
 			float4 c;

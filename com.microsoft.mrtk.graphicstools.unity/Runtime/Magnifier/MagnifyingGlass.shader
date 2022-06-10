@@ -1,7 +1,7 @@
 Shader "Magnifying Glass/Circle" {
 	Properties {
 		[HideInInspector] 
-		_MainTex ("Main", 2D) = "white" {}
+		_MainTex ("Main", any) = "" {}
         CenterRadial ("Radial", Vector) = (0, 0, 0, 0)
 		Amount      ("Amount", Float) = 0.85
 		RadiusInner  ("Radius Inner", Float) = 0.2
@@ -10,7 +10,8 @@ Shader "Magnifying Glass/Circle" {
 	}
 	CGINCLUDE
 	#include "UnityCG.cginc"
-	sampler2D _MainTex;	
+	UNITY_DECLARE_SCREENSPACE_TEXTURE(_MainTex);
+	
 	float4 CenterRadial;
 	float RadiusInner;
 	float RadiusOuter;
@@ -55,7 +56,7 @@ float4 frag_Single (v2f_img i) : SV_Target
 			if (MagnifyingGlassIsInCircle (i.uv, CenterRadial, RadiusOuter))
 				c = MagnifyingGlassSampleTexture (i.uv, CenterRadial, Amount, RadiusInner, RadiusOuter);
 			else
-				c = tex2D(_MainTex, i.uv);
+				c =  UNITY_SAMPLE_SCREENSPACE_TEXTURE(_MainTex,i.uv);
 			return c;
        	}
 		
@@ -68,6 +69,31 @@ float4 frag_Single (v2f_img i) : SV_Target
 			#pragma vertex vert_img
 			#pragma fragment frag_Single
 
+			uniform float4 _MainTex_ST;
+
+            struct appdata_t
+            {
+                float4 vertex : POSITION;
+                float2 texcoord : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float2 texcoord : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata_t v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.texcoord = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
+                return o;
+            }
 			ENDCG
 		}
 		
