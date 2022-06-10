@@ -8,7 +8,6 @@ public class MagnifyingGlass : MonoBehaviour
 	public float m_InitialRadiusY = 0.1f;
 	public float m_InitialRadiusInner = 0.3f;
 	public float m_InitialRadiusOuter = 0.6f;
-	
 	private float m_Amount;
 	private float m_RadiusX ;
 	private float m_RadiusY;
@@ -19,7 +18,7 @@ public class MagnifyingGlass : MonoBehaviour
 	//private bool m_TraceMouse = false;
 	private Rect[] m_GUIRects = new Rect[9];
 	private bool m_InvertScale = false;
-	private int m_GlassIndex = 0;
+	//private int m_GlassIndex = 0;
 	
 	void ResetData ()
 	{
@@ -61,7 +60,7 @@ public class MagnifyingGlass : MonoBehaviour
 	{
 		int pass = 0;
 	
-		int ind = m_GlassIndex;
+		
 		
 		string Amount = "Amount";
 		m_Mat.SetFloat (Amount, m_Amount);
@@ -108,7 +107,7 @@ public class MagnifyingGlass : MonoBehaviour
 	}
 	void OnGUI ()
 	{
-		int previousFrameGlassIndex = m_GlassIndex;
+		
 	
 		GUI.Box (new Rect (10, 130, 80, 25), "Amount");
 		m_Amount = GUI.HorizontalSlider (m_GUIRects[3], m_Amount, 0f, 1f);

@@ -45,7 +45,7 @@ float4 MagnifyingGlassSampleTexture (float2 uv, float4 cr, float amount, float r
 		c = c / 2;                                  // 0 ~ 1
 		newUV = ((cr.xy + ray * amt) * c) + (uv * (1 - c));
 	}
-	return  tex2D(_MainTex, newUV);
+	return  UNITY_SAMPLE_SCREENSPACE_TEXTURE(_MainTex, newUV);
 }
 		
 float4 frag_Single (v2f_img i) : SV_Target
@@ -55,7 +55,7 @@ float4 frag_Single (v2f_img i) : SV_Target
 			if (MagnifyingGlassIsInCircle (i.uv, CenterRadial, RadiusOuter))
 				c = MagnifyingGlassSampleTexture (i.uv, CenterRadial, Amount, RadiusInner, RadiusOuter);
 			else
-				c = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_MainTex, i.uv);
+				c = tex2D(_MainTex, i.uv);
 			return c;
        	}
 		
