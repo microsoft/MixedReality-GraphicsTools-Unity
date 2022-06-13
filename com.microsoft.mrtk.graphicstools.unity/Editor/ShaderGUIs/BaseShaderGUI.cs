@@ -48,6 +48,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static string customRenderingModeName = "_CustomMode";
             public static string sourceBlendName = "_SrcBlend";
             public static string destinationBlendName = "_DstBlend";
+            public static string sourceBlendAlphaName = "_SrcBlendAlpha";
+            public static string destinationBlendAlphaName = "_DstBlendAlpha";
             public static string blendOperationName = "_BlendOp";
             public static string depthTestName = "_ZTest";
             public static string depthWriteName = "_ZWrite";
@@ -68,8 +70,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly string[] blendModeNames = Enum.GetNames(typeof(BlendMode));
             public static readonly string[] depthTestNames = Enum.GetNames(typeof(CompareFunction));
             public static readonly string[] depthWriteNames = Enum.GetNames(typeof(DepthWrite));
-            public static GUIContent sourceBlend = new GUIContent("Source Blend", "Blend Mode of Newly Calculated Color");
-            public static GUIContent destinationBlend = new GUIContent("Destination Blend", "Blend Mode of Existing Color");
+            public static GUIContent sourceBlend = new GUIContent("Source Blend", "Blend Mode of Newly Calculated Color (RGB)");
+            public static GUIContent destinationBlend = new GUIContent("Destination Blend", "Blend Mode of Existing Color (RGB)");
+            public static GUIContent sourceBlendAlpha = new GUIContent("Source Blend Alpha", "Blend Mode of Newly Calculated Alpha Channel (A)");
+            public static GUIContent destinationBlendAlpha = new GUIContent("Destination Blend Alpha", "Blend Mode of Existing Alpha Channel (A)");
             public static GUIContent blendOperation = new GUIContent("Blend Operation", "Operation for Blending New Color With Existing Color");
             public static GUIContent depthTest = new GUIContent("Depth Test", "How Should Depth Testing Be Performed.");
             public static GUIContent depthWrite = new GUIContent("Depth Write", "Controls Whether Pixels From This Material Are Written to the Depth Buffer");
@@ -86,6 +90,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty customRenderingMode;
         protected MaterialProperty sourceBlend;
         protected MaterialProperty destinationBlend;
+        protected MaterialProperty sourceBlendAlpha;
+        protected MaterialProperty destinationBlendAlpha;
         protected MaterialProperty blendOperation;
         protected MaterialProperty depthTest;
         protected MaterialProperty depthWrite;
@@ -124,6 +130,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             customRenderingMode = FindProperty(BaseStyles.customRenderingModeName, props);
             sourceBlend = FindProperty(BaseStyles.sourceBlendName, props);
             destinationBlend = FindProperty(BaseStyles.destinationBlendName, props);
+            sourceBlendAlpha = FindProperty(BaseStyles.sourceBlendAlphaName, props);
+            destinationBlendAlpha = FindProperty(BaseStyles.destinationBlendAlphaName, props);
             blendOperation = FindProperty(BaseStyles.blendOperationName, props);
             depthTest = FindProperty(BaseStyles.depthTestName, props, false);
             depthWrite = FindProperty(BaseStyles.depthWriteName, props);
@@ -195,6 +203,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 customRenderingMode.floatValue = EditorGUILayout.Popup(customRenderingMode.displayName, (int)customRenderingMode.floatValue, BaseStyles.renderingModeNames);
                 materialEditor.ShaderProperty(sourceBlend, BaseStyles.sourceBlend);
                 materialEditor.ShaderProperty(destinationBlend, BaseStyles.destinationBlend);
+                materialEditor.ShaderProperty(sourceBlendAlpha, BaseStyles.sourceBlendAlpha);
+                materialEditor.ShaderProperty(destinationBlendAlpha, BaseStyles.destinationBlendAlpha);
                 materialEditor.ShaderProperty(blendOperation, BaseStyles.blendOperation);
                 materialEditor.ShaderProperty(depthTest, BaseStyles.depthTest);
                 depthWrite.floatValue = EditorGUILayout.Popup(depthWrite.displayName, (int)depthWrite.floatValue, BaseStyles.depthWriteNames);

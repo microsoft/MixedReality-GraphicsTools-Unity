@@ -49,6 +49,20 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     destinationBlend.floatValue = EditorGUILayout.Popup(destinationBlend.displayName, (int)destinationBlend.floatValue, BaseShaderGUI.BaseStyles.blendModeNames);
                 }
+
+                var sourceBlendAlpha = FindProperty(BaseShaderGUI.BaseStyles.sourceBlendAlphaName, m_Properties, false);
+
+                if (sourceBlendAlpha != null)
+                {
+                    sourceBlendAlpha.floatValue = EditorGUILayout.Popup(sourceBlendAlpha.displayName, (int)sourceBlendAlpha.floatValue, BaseShaderGUI.BaseStyles.blendModeNames);
+                }
+
+                var destinationBlendAlpha = FindProperty(BaseShaderGUI.BaseStyles.destinationBlendAlphaName, m_Properties, false);
+
+                if (destinationBlendAlpha != null)
+                {
+                    destinationBlendAlpha.floatValue = EditorGUILayout.Popup(destinationBlendAlpha.displayName, (int)destinationBlendAlpha.floatValue, BaseShaderGUI.BaseStyles.blendModeNames);
+                }
             }
             GUI.enabled = true;
 
