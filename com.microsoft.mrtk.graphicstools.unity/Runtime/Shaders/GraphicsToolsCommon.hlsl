@@ -131,8 +131,9 @@ inline float GTPointVsRoundedBox(in float2 position, in float2 cornerCircleDista
 
 inline float FilterDistance(in float distance)
 {
-    float filterWidth = fwidth(distance);
-    return smoothstep(filterWidth, -filterWidth, distance);
+    float2 filterWidth = length(float2(ddx(distance), ddy(distance)));
+    float pixelDistance = distance / length(filterWidth);
+    return saturate(0.5 - pixelDistance);
 }
 
 inline float GTRoundCornersSmooth(in float2 position, in float2 cornerCircleDistance, in float cornerCircleRadius, in float smoothingValue)

@@ -19,6 +19,8 @@ Shader "Graphics Tools/Wireframe"
         [Enum(RenderingMode)] _CustomMode("Mode", Float) = 0                                         // "Opaque"
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                 // "One"
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 0            // "Zero"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1      // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1 // "One"
         [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Float) = 0                 // "Add"
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4                // "LessEqual"
         [Enum(DepthWrite)] _ZWrite("Depth Write", Float) = 1                                         // "On"
@@ -35,7 +37,7 @@ Shader "Graphics Tools/Wireframe"
         Pass
         {
             Name "Main"
-            Blend[_SrcBlend][_DstBlend]
+            Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
             BlendOp[_BlendOp]
             ZTest[_ZTest]
             ZWrite[_ZWrite]
