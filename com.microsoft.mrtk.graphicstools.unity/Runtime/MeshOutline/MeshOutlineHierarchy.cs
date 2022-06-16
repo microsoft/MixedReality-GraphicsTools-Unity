@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools
@@ -12,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     [AddComponentMenu("Scripts/GraphicsTools/MeshOutlineHierarchy")]
     public class MeshOutlineHierarchy : BaseMeshOutline
     {
-        private MeshOutline[] meshOutlines = null;
+        private List<MeshOutline> meshOutlines = null;
 
         #region MonoBehaviour Implementation
 
@@ -21,15 +22,18 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Awake()
         {
-            MeshRenderer[] meshRenderers = GetComponentsInChildren<MeshRenderer>();
-            meshOutlines = new MeshOutline[meshRenderers.Length];
+            Renderer[] meshRenderers = GetComponentsInChildren<Renderer>();
+            meshOutlines = new List<MeshOutline>();
 
             for (int i = 0; i < meshRenderers.Length; ++i)
             {
-                var meshOutline = meshRenderers[i].gameObject.AddComponent<MeshOutline>();
-                meshOutline.OutlineMaterial = outlineMaterial;
-                meshOutline.OutlineWidth = outlineWidth;
-                meshOutlines[i] = meshOutline;
+                if (meshRenderers[i] as SpriteRenderer == null)
+                {
+                    var meshOutline = meshRenderers[i].gameObject.AddComponent<MeshOutline>();
+                    meshOutline.OutlineMaterial = outlineMaterial;
+                    meshOutline.OutlineWidth = outlineWidth;
+                    meshOutlines.Add(meshOutline);
+                }
             }
         }
 
