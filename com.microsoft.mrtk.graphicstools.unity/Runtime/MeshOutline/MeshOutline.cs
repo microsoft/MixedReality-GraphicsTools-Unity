@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// This behavior is designed to be used in conjunction with the Graphics Tools/Standard shader. Limitations of this effect include it not working well 
     /// on objects which are not watertight (or required to be two sided) and depth sorting issues can occur on overlapping objects.
     /// </summary>
-    [RequireComponent(typeof(MeshRenderer))]
+    [RequireComponent(typeof(Renderer))]
     [AddComponentMenu("Scripts/GraphicsTools/MeshOutline")]
     public class MeshOutline : BaseMeshOutline
     {
@@ -21,7 +21,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private const string vertexExtrusionSmoothNormalsKeyword = "_VERTEX_EXTRUSION_SMOOTH_NORMALS";
         private const string vertexExtrusionValueName = "_VertexExtrusionValue";
 
-        private MeshRenderer meshRenderer = null;
+        private Renderer meshRenderer = null;
         private MaterialPropertyBlock propertyBlock = null;
         private int vertexExtrusionValueID = 0;
         private Material[] defaultMaterials = null;
@@ -34,7 +34,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Awake()
         {
-            meshRenderer = GetComponent<MeshRenderer>();
+            if (GetComponent<SpriteRenderer>() != null)
+            {
+                Debug.LogWarning($"{this.GetType()} is not supported on SpriteRenderers");
+            }
+
+            meshRenderer = GetComponent<Renderer>();
             propertyBlock = new MaterialPropertyBlock();
             vertexExtrusionValueID = Shader.PropertyToID(vertexExtrusionValueName);
             defaultMaterials = meshRenderer.sharedMaterials;
