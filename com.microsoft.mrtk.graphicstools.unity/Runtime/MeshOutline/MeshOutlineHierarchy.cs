@@ -27,7 +27,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             for (int i = 0; i < meshRenderers.Length; ++i)
             {
-                if (meshRenderers[i].GetComponent<SpriteRenderer>() == null)
+                if (meshRenderers[i] as SpriteRenderer == null)
                 {
                     var meshOutline = meshRenderers[i].gameObject.AddComponent<MeshOutline>();
                     meshOutline.OutlineMaterial = outlineMaterial;

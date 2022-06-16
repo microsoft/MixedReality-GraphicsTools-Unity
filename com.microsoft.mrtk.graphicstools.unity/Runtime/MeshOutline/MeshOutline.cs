@@ -36,7 +36,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (GetComponent<SpriteRenderer>() != null)
             {
-                Debug.Log($"{this.GetType()} is not supported on SpriteRenderers");
+                Debug.LogWarning($"{this.GetType()} is not supported on SpriteRenderers");
             }
 
             meshRenderer = GetComponent<Renderer>();
