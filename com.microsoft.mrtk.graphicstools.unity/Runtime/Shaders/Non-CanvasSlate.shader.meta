@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 7f40e5db9f97abf458b774bcf48a3069
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _EyeCursor_Texture_: {instanceID: 0}
+  - _Iridescent_Map_: {instanceID: 0}
+  - _MainTex: {instanceID: 0}
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
