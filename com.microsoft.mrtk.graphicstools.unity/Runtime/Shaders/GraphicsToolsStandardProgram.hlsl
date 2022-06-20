@@ -466,6 +466,14 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif 
 #endif
 
+#if defined(_EMISSION)
+#if defined(_URP)
+    half3 emissionMap = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv);
+#else
+    half3 emissionMap = tex2D(_EmissiveMap, input.uv);
+#endif
+#endif
+    
     // Primitive clipping.
 #if defined(_CLIPPING_PRIMITIVE)
     float primitiveDistance = 1.0;
@@ -839,8 +847,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_EMISSION)
 #if defined(UNITY_COLORSPACE_GAMMA)
     half3 emission = _EmissiveColor.rgb;
+    emission *= emissionMap;
 #else // Since emission is an HDR color convert from sRGB to linear.
     half3 emission = GTsRGBToLinear(_EmissiveColor.rgb);
+    emission *= emissionMap;
 #endif
 #if defined(_CHANNEL_MAP)
     output.rgb += emission * channel.b;
