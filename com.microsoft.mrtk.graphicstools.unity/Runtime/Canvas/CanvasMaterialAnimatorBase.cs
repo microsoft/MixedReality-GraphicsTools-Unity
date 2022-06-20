@@ -233,15 +233,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (material != null)
             {
+                // Release the previous material and obtain the current.
                 if (material != currentMaterial)
                 {
-                    // Do we need to handle this case?
-                    Debug.LogWarning("Material swapped after initialization. Animation will not be applied.");
+                    Terminate();
+                    Initialize();
                 }
-                else
-                {
-                    ApplyToMaterial(material);
-                }
+
+                ApplyToMaterial(material);
             }
         }
 
