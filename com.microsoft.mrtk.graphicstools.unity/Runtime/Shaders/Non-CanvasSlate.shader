@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-Shader "Non-CanvasSlate" {
+Shader "Graphics Tools/Non-Canvas/Slate" {
 
 Properties {
 
