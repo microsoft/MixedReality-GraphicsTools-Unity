@@ -65,6 +65,7 @@ Material:
     - _Cutoff: 0.5
     - _DirectionalLight: 0
     - _DstBlend: 0
+    - _DstBlendAlpha: 1
     - _EdgeSmoothingMode: 0
     - _EdgeSmoothingValue: 0.002
     - _EnableChannelMap: 0
@@ -120,6 +121,7 @@ Material:
     - _SpecularHighlights: 0
     - _SphericalHarmonics: 0
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _Stencil: 0
     - _StencilComparison: 0
     - _StencilOperation: 0
