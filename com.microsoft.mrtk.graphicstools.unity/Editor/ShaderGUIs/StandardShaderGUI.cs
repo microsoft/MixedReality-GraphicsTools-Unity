@@ -93,7 +93,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent normalMap = new GUIContent("Normal Map");
             public static readonly GUIContent enableEmission = new GUIContent("Emission", "Enable Emission");
             public static readonly GUIContent emissiveColor = new GUIContent("Color");
-            public static readonly GUIContent emissiveMap = new GUIContent("EmissiveMap");
+            public static readonly GUIContent emissiveMap = new GUIContent("EmissionMap");
             public static readonly GUIContent enableTriplanarMapping = new GUIContent("Triplanar Mapping", "Enable Triplanar Mapping, a technique which programmatically generates UV coordinates");
             public static readonly GUIContent enableLocalSpaceTriplanarMapping = new GUIContent("Local Space", "If True Triplanar Mapping is Calculated in Local Space");
             public static readonly GUIContent triplanarMappingBlendSharpness = new GUIContent("Blend Sharpness", "The Power of the Blend with the Normal");
@@ -629,8 +629,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (PropertyEnabled(enableEmission))
             {
-                materialEditor.ShaderProperty(emissiveColor, Styles.emissiveColor, 2);
-                materialEditor.ShaderProperty(emissiveMap,Styles.emissiveMap);
+                materialEditor.TexturePropertySingleLine(Styles.emissiveColor,emissiveMap, emissiveColor);
             }
 
             GUI.enabled = !PropertyEnabled(enableSSAA);

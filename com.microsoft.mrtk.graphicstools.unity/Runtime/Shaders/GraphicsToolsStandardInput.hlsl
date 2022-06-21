@@ -123,6 +123,7 @@ SAMPLER(sampler_blurTexture);
 #endif
 #else
 sampler2D _MainTex;
+sampler2D _EmissiveMap;
 #if defined(_CHANNEL_MAP)
 sampler2D _ChannelMap;
 #endif
@@ -130,7 +131,7 @@ sampler2D _ChannelMap;
 sampler2D _NormalMap;
 #endif
 #if defined(_EMISSION)
-sampler2D _EmissiveMap;
+//sampler2D _EmissiveMap;
 #endif
 #if defined(_IRIDESCENCE)
 sampler2D _IridescentSpectrumMap;
