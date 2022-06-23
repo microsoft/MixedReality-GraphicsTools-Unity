@@ -14,7 +14,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     [ExecuteInEditMode]
     [AddComponentMenu("Scripts/GraphicsTools/ProximityLight")]
-    public class ProximityLight : MonoBehaviour
+    public class ProximityLight : BaseLight
     {
         // Two proximity lights are supported at this time.
         private const int proximityLightCount = 2;
@@ -183,35 +183,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private void OnEnable()
-        {
-            AddProximityLight(this);
-        }
+        #region MonoBehaviour Implementation
 
-        private void OnDisable()
+        /// <summary>
+        /// TODO
+        /// </summary>
+        protected override void OnDisable()
         {
-            RemoveProximityLight(this);
-            UpdateProximityLights(true);
+            base.OnDisable();
             pulseTime = 0.0f;
             pulseFade = 0.0f;
-        }
-
-#if UNITY_EDITOR
-        private void Update()
-        {
-            if (Application.isPlaying)
-            {
-                return;
-            }
-
-            Initialize();
-            UpdateProximityLights();
-        }
-#endif // UNITY_EDITOR
-
-        private void LateUpdate()
-        {
-            UpdateProximityLights();
         }
 
         private void OnDrawGizmosSelected()
@@ -240,29 +221,46 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private static void AddProximityLight(ProximityLight light)
-        {
-            if (activeProximityLights.Count >= proximityLightCount)
-            {
-                Debug.LogWarningFormat("Max proximity light count ({0}) exceeded.", proximityLightCount);
-            }
+        #endregion MonoBehaviour Implementation
 
-            activeProximityLights.Add(light);
-        }
+        #region BaseLight Implementation
 
-        private static void RemoveProximityLight(ProximityLight light)
-        {
-            activeProximityLights.Remove(light);
-        }
-
-        private static void Initialize()
+        /// <summary>
+        /// TODO
+        /// </summary>
+        protected override void Initialize()
         {
             proximityLightDataID = Shader.PropertyToID("_ProximityLightData");
             globalPositionLeftID = Shader.PropertyToID("Global_Left_Index_Tip_Position");
             globalPositionRightID = Shader.PropertyToID("Global_Right_Index_Tip_Position");
         }
 
-        private static void UpdateProximityLights(bool forceUpdate = false)
+        /// <summary>
+        /// TODO
+        /// </summary>
+        protected override void AddLight()
+        {
+            if (activeProximityLights.Count >= proximityLightCount)
+            {
+                Debug.LogWarningFormat("Max proximity light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader.", proximityLightCount, gameObject.name);
+            }
+
+            activeProximityLights.Add(this);
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        protected override void RemoveLight()
+        {
+            activeProximityLights.Remove(this);
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="forceUpdate"></param>
+        protected override void UpdateLights(bool forceUpdate = false)
         {
             if (lastProximityLightUpdate == -1)
             {
@@ -332,6 +330,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             lastProximityLightUpdate = Time.frameCount;
         }
+
+        #endregion BaseLight Implementation
 
         private IEnumerator PulseRoutine(float pulseDuration, float fadeBegin, float fadeSpeed)
         {
