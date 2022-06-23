@@ -23,7 +23,6 @@ Material:
   m_Name: leCat_mat
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ValidKeywords:
-  - _DIRECTIONAL_LIGHT
   - _HOVER_LIGHT
   - _SPECULAR_HIGHLIGHTS
   - _USE_WORLD_SCALE
@@ -136,7 +135,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DirectionalLight: 1
+    - _DirectionalLight: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 1
     - _EdgeSmoothingMode: 0
