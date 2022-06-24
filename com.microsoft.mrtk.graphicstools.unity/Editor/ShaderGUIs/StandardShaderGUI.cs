@@ -629,7 +629,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (PropertyEnabled(enableEmission))
             {
+                EditorGUI.indentLevel += 2;
                 materialEditor.TexturePropertySingleLine(Styles.emissiveColor,emissiveMap, emissiveColor);
+                EditorGUI.indentLevel -= 2;
             }
 
             GUI.enabled = !PropertyEnabled(enableSSAA);
