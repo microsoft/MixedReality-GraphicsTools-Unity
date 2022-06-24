@@ -2,23 +2,15 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 8
+  serializedVersion: 6
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: OutlineReveal
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ValidKeywords:
-  - _ADDITIVE_ON
-  - _DISABLE_ALBEDO_MAP
-  - _NEAR_LIGHT_FADE
-  - _NEAR_PLANE_FADE
-  - _PROXIMITY_LIGHT
-  - _RIM_LIGHT
-  - _USE_WORLD_SCALE
-  - _VERTEX_EXTRUSION
-  m_InvalidKeywords: []
+  m_ShaderKeywords: _ADDITIVE_ON _DISABLE_ALBEDO_MAP _NEAR_LIGHT_FADE _NEAR_PLANE_FADE
+    _PROXIMITY_LIGHT _RIM_LIGHT _USE_WORLD_SCALE _VERTEX_EXTRUSION
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
