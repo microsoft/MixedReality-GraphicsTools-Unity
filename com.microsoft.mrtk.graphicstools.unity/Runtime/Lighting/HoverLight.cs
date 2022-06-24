@@ -73,39 +73,30 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #region BaseLight Implementation
 
-        /// <summary>
-        /// TODO
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Initialize()
         {
             _HoverLightDataID = Shader.PropertyToID("_HoverLightData");
         }
 
-        /// <summary>
-        /// TODO
-        /// </summary>
+        /// <inheritdoc/>
         protected override void AddLight()
         {
-            if (activeHoverLights.Count >= hoverLightCount)
+            if (activeHoverLights.Count == hoverLightCount)
             {
-                Debug.LogWarningFormat("Max hover light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader.", hoverLightCount, gameObject.name);
+                Debug.LogWarningFormat("Max hover light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", hoverLightCount, gameObject.name);
             }
 
             activeHoverLights.Add(this);
         }
 
-        /// <summary>
-        /// TODO
-        /// </summary>
+        /// <inheritdoc/>
         protected override void RemoveLight()
         {
             activeHoverLights.Remove(this);
         }
 
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <param name="forceUpdate"></param>
+        /// <inheritdoc/>
         protected override void UpdateLights(bool forceUpdate = false)
         {
             if (lastHoverLightUpdate == -1)

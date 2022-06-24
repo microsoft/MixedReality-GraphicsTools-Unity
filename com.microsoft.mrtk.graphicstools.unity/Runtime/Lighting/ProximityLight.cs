@@ -185,9 +185,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #region MonoBehaviour Implementation
 
-        /// <summary>
-        /// TODO
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnDisable()
         {
             base.OnDisable();
@@ -225,9 +223,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #region BaseLight Implementation
 
-        /// <summary>
-        /// TODO
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Initialize()
         {
             proximityLightDataID = Shader.PropertyToID("_ProximityLightData");
@@ -235,31 +231,24 @@ namespace Microsoft.MixedReality.GraphicsTools
             globalPositionRightID = Shader.PropertyToID("Global_Right_Index_Tip_Position");
         }
 
-        /// <summary>
-        /// TODO
-        /// </summary>
+        /// <inheritdoc/>
         protected override void AddLight()
         {
-            if (activeProximityLights.Count >= proximityLightCount)
+            if (activeProximityLights.Count == proximityLightCount)
             {
-                Debug.LogWarningFormat("Max proximity light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader.", proximityLightCount, gameObject.name);
+                Debug.LogWarningFormat("Max proximity light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", proximityLightCount, gameObject.name);
             }
 
             activeProximityLights.Add(this);
         }
 
-        /// <summary>
-        /// TODO
-        /// </summary>
+        /// <inheritdoc/>
         protected override void RemoveLight()
         {
             activeProximityLights.Remove(this);
         }
 
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <param name="forceUpdate"></param>
+        /// <inheritdoc/>
         protected override void UpdateLights(bool forceUpdate = false)
         {
             if (lastProximityLightUpdate == -1)
