@@ -118,7 +118,7 @@
 #undef _GRADIENT
 #endif
 
-#if !defined(_DISABLE_ALBEDO_MAP) || defined(_TRIPLANAR_MAPPING) || defined(_CHANNEL_MAP) || defined(_NORMAL_MAP) || defined(_DISTANCE_TO_EDGE) || defined(_GRADIENT)
+#if !defined(_DISABLE_ALBEDO_MAP) || defined(_TRIPLANAR_MAPPING) || defined(_CHANNEL_MAP) || defined(_NORMAL_MAP) || defined(_DISTANCE_TO_EDGE) || defined(_GRADIENT) || defined(_EMISSION)
 #define _UV
 #else
 #undef _UV
@@ -266,7 +266,7 @@ Varyings VertexStage(Attributes input)
 #endif
 
 #elif defined(_UV)
-    output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+ output.uv = TRANSFORM_TEX(input.uv, _MainTex);
 #endif
 
 #if defined(_UV_SCREEN)
@@ -468,9 +468,9 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
 #if defined(_EMISSION)
 #if defined(_URP)
-    half3 emissionMap = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv);
+    half3 emissionMap = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv).xyz;
 #else
-    half3 emissionMap = tex2D(_EmissiveMap, input.uv);
+    half3 emissionMap = tex2D(_EmissiveMap, input.uv).xyz;
 #endif
 #endif
     
