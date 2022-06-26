@@ -266,7 +266,7 @@ Varyings VertexStage(Attributes input)
 #endif
 
 #elif defined(_UV)
- output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+    output.uv = TRANSFORM_TEX(input.uv, _MainTex);
 #endif
 
 #if defined(_UV_SCREEN)
