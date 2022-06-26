@@ -3,7 +3,7 @@ guid: c331f6c43a2ef0945864cb668f2653c9
 ShaderImporter:
   externalObjects: {}
   defaultTextures:
-  - _MainTex: {fileID: 10309, guid: 0000000000000000f000000000000000, type: 0}
+  - _MainTex: {instanceID: 0}
   - _ChannelMap: {instanceID: 0}
   - _NormalMap: {instanceID: 0}
   - _EmissiveMap: {instanceID: 0}

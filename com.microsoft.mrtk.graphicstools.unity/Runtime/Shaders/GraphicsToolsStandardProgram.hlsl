@@ -19,7 +19,7 @@
 #pragma shader_feature_local_fragment _ _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 #pragma shader_feature_local _CHANNEL_MAP
 #pragma shader_feature_local _NORMAL_MAP
-#pragma shader_feature_local_fragment _EMISSION
+#pragma shader_feature_local _EMISSION
 #pragma shader_feature_local _TRIPLANAR_MAPPING
 #pragma shader_feature_local _LOCAL_SPACE_TRIPLANAR_MAPPING
 #pragma shader_feature_local_fragment _USE_SSAA
