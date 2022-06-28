@@ -676,8 +676,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             EditorGUILayout.Space();
             GUILayout.Label(Styles.renderingOptionsTitle, EditorStyles.boldLabel);
 
-            //materialEditor.ShaderProperty(lightMode, Styles.lightMode);
-
             lightMode.floatValue = EditorGUILayout.Popup(Styles.lightMode, (int)lightMode.floatValue, Styles.lightModeNames);
 
             switch ((LightMode)lightMode.floatValue)
