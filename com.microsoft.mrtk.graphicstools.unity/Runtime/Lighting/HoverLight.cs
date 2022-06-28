@@ -7,8 +7,8 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Utility component to animate and visualize a light that can be used with 
-    /// the GraphicsTools/Standard and GraphicsTools/Standard Canvas shaders "_HoverLight" feature.
+    /// Utility component to animate and visualize a light that can be used with the GraphicsTools/Standard and 
+    /// GraphicsTools/Standard Canvas shaders that have the "_HOVER_LIGHT" keyword enabled.
     /// </summary>
     [ExecuteInEditMode]
     [AddComponentMenu("Scripts/GraphicsTools/HoverLight")]
@@ -24,7 +24,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static int lastHoverLightUpdate = -1;
 
         [Tooltip("Specifies the radius of the HoverLight effect.")]
-        [SerializeField]
+        [SerializeField, Min(0.0f)]
         private float radius = 0.15f;
 
         /// <summary>
@@ -48,15 +48,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             get => color;
             set => color = value;
         }
-
-        #region MonoBehaviour Implementation
-
-        private void OnValidate()
-        {
-            radius = Mathf.Max(0.0f, radius);
-        }
-
-        #endregion MonoBehaviour Implementation
 
         #region BaseLight Implementation
 

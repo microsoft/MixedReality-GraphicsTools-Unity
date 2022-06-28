@@ -7,7 +7,15 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// TODO
+    /// Utility component to animate and visualize a light that can be used with the GraphicsTools/Standard and 
+    /// GraphicsTools/Standard Canvas shaders that have the "_DISTANT_LIGHT" keyword enabled.
+    /// 
+    /// A DistantLight can be used as a replacement for a Unity DirectionalLight. The main purpose of DistantLights is to recreate 
+    /// important light sources for environments, i.e. the sun or moon.
+    /// 
+    /// By default The Graphics Tools/Standard and Graphics Tools/Standard Canvas shaders use the first Unity DirectionalLight 
+    /// added to a scene. But, there are some cases where you need a light that is decoupled from the environment (such as 
+    /// in user interfaces). Unity normally performs this decoupling with light masks. But, light masks can be expensive on some platforms.
     /// </summary>
     [ExecuteInEditMode]
     [AddComponentMenu("Scripts/GraphicsTools/DistantLight")]
@@ -36,7 +44,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         [Tooltip("Scales the brightness of the light.")]
-        [SerializeField]
+        [SerializeField, Min(0.0f)]
         private float intensity = 1.0f;
 
         /// <summary>
@@ -47,15 +55,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             get => intensity;
             set => intensity = Mathf.Max(0.0f, value);
         }
-
-        #region MonoBehaviour Implementation
-
-        private void OnValidate()
-        {
-            intensity = Mathf.Max(0.0f, intensity);
-        }
-
-        #endregion MonoBehaviour Implementation
 
         #region BaseLight Implementation
 
@@ -102,7 +101,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (light)
                 {
-                    Vector4 direction = light.transform.forward;
+                    Vector4 direction = -light.transform.forward;
                     distantLightData[dataIndex] = new Vector4(direction.x,
                                                               direction.y,
                                                               direction.z,

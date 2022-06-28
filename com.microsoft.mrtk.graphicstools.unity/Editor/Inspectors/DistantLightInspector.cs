@@ -23,6 +23,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             new Vector3(-1, 1, 0).normalized,
             new Vector3(-1, -1, 0).normalized
         };
+
         private void OnSceneGUI()
         {
             DistantLight light = target as DistantLight;

@@ -242,7 +242,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 direction += new Vector2(delta.x, delta.y * (InvertY ? 1.0f : -1.0f));
             }
 #else
-                // TODO - [thmicka] is is possible to query the right stick without setting up virtual axes in the legacy input system?
+                // TODO - [Cameron-Micka] is is possible to query the right stick without setting up virtual axes in the legacy input system?
 #endif
 
                 return direction;

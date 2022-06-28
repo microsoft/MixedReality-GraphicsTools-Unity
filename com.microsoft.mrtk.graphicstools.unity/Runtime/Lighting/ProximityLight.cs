@@ -9,8 +9,8 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Utility component to animate and visualize a light that can be used with 
-    /// the GraphicsTools/Standard and GraphicsTools/Standard Canvas shaders "_ProximityLight" feature.
+    /// Utility component to animate and visualize a light that can be used with the GraphicsTools/Standard and 
+    /// GraphicsTools/Standard Canvas shaders that have the "_PROXIMITY_LIGHT" keyword enabled.
     /// </summary>
     [ExecuteInEditMode]
     [AddComponentMenu("Scripts/GraphicsTools/ProximityLight")]
@@ -64,8 +64,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             [Header("Proximity Settings")]
             [Tooltip("Specifies the radius of the ProximityLight effect when near to a surface.")]
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
+            [SerializeField, Min(0.0f)]
             private float nearRadius = 0.05f;
 
             /// <summary>
@@ -78,8 +77,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             [Tooltip("Specifies the radius of the ProximityLight effect when far from a surface.")]
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
+            [SerializeField, Min(0.0f)]
             private float farRadius = 0.2f;
 
             /// <summary>
@@ -92,8 +90,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             [Tooltip("Specifies the distance a ProximityLight must be from a surface to be considered near.")]
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
+            [SerializeField, Min(0.0f)]
             private float nearDistance = 0.02f;
 
             /// <summary>
@@ -106,8 +103,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             [Tooltip("When a ProximityLight is near, the smallest size percentage from the far size it can shrink to.")]
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
+            [SerializeField, Min(0.0f)]
             private float minNearSizePercentage = 0.35f;
 
             /// <summary>
@@ -237,7 +233,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // Initially disable the light for the Graphics Tools front plate shaders by moving them "far away." If enabled, they will be
             // moved to the correct location in the below loop.
-            // TODO - [thmicka] add a better way to disable these lights?
+            // TODO - [Cameron-Micka] add a better way to disable these lights?
             Vector3 farAwayPosition = Vector3.one * float.MaxValue;
             Shader.SetGlobalVector(globalPositionLeftID, farAwayPosition);
             Shader.SetGlobalVector(globalPositionRightID, farAwayPosition);

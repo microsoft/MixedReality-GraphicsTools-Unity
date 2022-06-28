@@ -147,6 +147,12 @@ sampler2D _blurTexture;
 half4 _LightColor0;
 #endif
 
+#if defined(_DISTANT_LIGHT)
+#define DISTANT_LIGHT_COUNT 1
+#define DISTANT_LIGHT_DATA_SIZE 2
+float4 _DistantLightData[DISTANT_LIGHT_COUNT * DISTANT_LIGHT_DATA_SIZE];
+#endif
+
 #if defined(_HOVER_LIGHT) || defined(_NEAR_LIGHT_FADE)
 #define HOVER_LIGHT_COUNT 4
 #define HOVER_LIGHT_DATA_SIZE 2
@@ -294,7 +300,7 @@ CBUFFER_END
 /// Constant properties.
 /// </summary>
 
-#if defined(_DIRECTIONAL_LIGHT)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
 static const half _MinMetallicLightContribution = 0.7;
 static const half _IblContribution = 0.1;
 #endif
