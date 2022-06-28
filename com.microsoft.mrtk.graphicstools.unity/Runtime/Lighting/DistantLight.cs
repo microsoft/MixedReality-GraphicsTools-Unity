@@ -24,6 +24,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         // The Graphics Tools/Standard and Graphics Tools/Standard Canvas shaders supports up to one (1) distant lights.
         private const int distantLightCount = 1;
         private const int distantLightDataSize = 2;
+        private static readonly Vector4 invalidLightDirection = new Vector4(0.0f, 0.0f, 1.0f, 0.0f);
 
         private static List<DistantLight> activeDistantLights = new List<DistantLight>(distantLightCount);
         private static Vector4[] distantLightData = new Vector4[distantLightDataSize * distantLightCount];
@@ -113,7 +114,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
                 else
                 {
-                    distantLightData[dataIndex] = Vector4.zero;
+                    distantLightData[dataIndex] = invalidLightDirection;
+                    distantLightData[dataIndex + 1] = Vector4.zero;
                 }
             }
 
