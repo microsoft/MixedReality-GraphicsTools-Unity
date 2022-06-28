@@ -55,18 +55,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             intensity = Mathf.Max(0.0f, intensity);
         }
 
-        private void OnDrawGizmosSelected()
-        {
-            if (!enabled)
-            {
-                return;
-            }
-
-            Gizmos.color = Color;
-            Gizmos.DrawWireSphere(transform.position, 0.5f);
-            // TODO
-        }
-
         #endregion MonoBehaviour Implementation
 
         #region BaseLight Implementation
@@ -119,9 +107,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                                                               direction.y,
                                                               direction.z,
                                                               1.0f);
-                    distantLightData[dataIndex + 1] = new Vector4(light.Color.r * Intensity,
-                                                                  light.Color.g * Intensity,
-                                                                  light.Color.b * Intensity, 
+                    distantLightData[dataIndex + 1] = new Vector4(light.Color.r * intensity,
+                                                                  light.Color.g * intensity,
+                                                                  light.Color.b * intensity, 
                                                                   1.0f);
                 }
                 else

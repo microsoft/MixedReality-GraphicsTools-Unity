@@ -25,7 +25,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         [Tooltip("Specifies the radius of the HoverLight effect.")]
         [SerializeField]
-        [Range(0.0f, 1.0f)]
         private float radius = 0.15f;
 
         /// <summary>
@@ -34,7 +33,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public float Radius
         {
             get => radius;
-            set => radius = value;
+            set => radius = Mathf.Max(0.0f, value);
         }
 
         [Tooltip("Specifies the highlight color.")]
@@ -52,21 +51,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #region MonoBehaviour Implementation
 
-        private void OnDrawGizmosSelected()
+        private void OnValidate()
         {
-            if (!enabled)
-            {
-                return;
-            }
-
-            Gizmos.color = Color;
-            Gizmos.DrawWireSphere(transform.position, Radius);
-            Gizmos.DrawIcon(transform.position + Vector3.right * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.left * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.up * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.down * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.forward * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.back * Radius, string.Empty, false);
+            radius = Mathf.Max(0.0f, radius);
         }
 
         #endregion MonoBehaviour Implementation

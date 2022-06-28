@@ -193,32 +193,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             pulseFade = 0.0f;
         }
 
-        private void OnDrawGizmosSelected()
-        {
-            if (!enabled)
-            {
-                return;
-            }
-
-            Vector3[] directions = new Vector3[] { Vector3.right, Vector3.left, Vector3.up, Vector3.down, Vector3.forward, Vector3.back };
-
-            Gizmos.color = new Color(Settings.CenterColor.r, Settings.CenterColor.g, Settings.CenterColor.b);
-            Gizmos.DrawWireSphere(transform.position, Settings.NearRadius);
-
-            foreach (Vector3 direction in directions)
-            {
-                Gizmos.DrawIcon(transform.position + direction * Settings.NearRadius, string.Empty, false);
-            }
-
-            Gizmos.color = new Color(Settings.OuterColor.r, Settings.OuterColor.g, Settings.OuterColor.b);
-            Gizmos.DrawWireSphere(transform.position, Settings.FarRadius);
-
-            foreach (Vector3 direction in directions)
-            {
-                Gizmos.DrawIcon(transform.position + direction * Settings.FarRadius, string.Empty, false);
-            }
-        }
-
         #endregion MonoBehaviour Implementation
 
         #region BaseLight Implementation
