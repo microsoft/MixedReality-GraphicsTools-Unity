@@ -699,6 +699,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     {
                         material.DisableKeyword(Styles.lightModeLitDirectional);
                         material.EnableKeyword(Styles.lightModeLitDistant);
+
+                        GUILayout.Box(string.Format(Styles.propertiesComponentHelp, nameof(DistantLight), Styles.lightModeNames[(int)LightMode.LitDistant]), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
                     }
                     break;
             }
