@@ -109,7 +109,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent enableSSAA = new GUIContent("Super Sample Anti-Aliasing", "Enable Super Sample Anti-Aliasing, a technique improves texture clarity at long distances");
             public static readonly GUIContent mipmapBias = new GUIContent("Mipmap Bias", "Degree to bias the mip map. A larger negative value reduces aliasing and improves clarity, but may decrease performance");
             public static readonly GUIContent lightMode = new GUIContent("Light Mode", "What Type of Direct Light Affects the Surface");
-            public static readonly string[] lightModeNames = new string[] { "Unlit", "Lit - Directional", "Lit - Direct" };
+            public static readonly string[] lightModeNames = new string[] { "Unlit", "Lit - Directional", "Lit - Distant" };
             public static readonly string lightModeLitDirectional = "_DIRECTIONAL_LIGHT";
             public static readonly string lightModeLitDistant = "_DISTANT_LIGHT";
             public static readonly GUIContent specularHighlights = new GUIContent("Specular Highlights", "Calculate Specular Highlights");
