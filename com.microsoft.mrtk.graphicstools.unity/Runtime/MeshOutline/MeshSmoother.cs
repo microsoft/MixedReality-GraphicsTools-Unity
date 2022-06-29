@@ -113,7 +113,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (smoothNormalsOnAwake)
             {
+                // WebGL doesn't support threaded operations.
+#if UNITY_WEBGL
+                SmoothNormals();
+#else
                 SmoothNormalsAsync();
+#endif
             }
         }
 
@@ -138,7 +143,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        #endregion MonoBehaviour Implementation
+#endregion MonoBehaviour Implementation
 
         /// <summary>
         /// Safely acquires a mesh for processing. Checks for meshes which have already been processed and increments reference counts.
