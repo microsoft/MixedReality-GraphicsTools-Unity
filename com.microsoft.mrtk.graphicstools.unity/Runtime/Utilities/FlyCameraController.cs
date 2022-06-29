@@ -53,6 +53,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("Minimum boost factor applied to translation.")]
         public float MinBoost = 0.5f;
 
+        [Tooltip("Maximum boost factor applied to translation.")]
+        public float MaxBoost = 4.0f;
+
         [Tooltip("Time it takes to interpolate camera position 99% of the way to the target."), Range(0.001f, 1.0f)]
         public float PositionLerpTime = 0.2f;
 
@@ -150,7 +153,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #else
                 Boost += Input.mouseScrollDelta.y * dt;
 #endif
-                Boost = Mathf.Max(Boost, MinBoost);
+                Boost = Mathf.Clamp(Boost, MinBoost, MaxBoost);
 
                 translation *= Mathf.Pow(2.0f, Boost);
 
@@ -242,7 +245,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 direction += new Vector2(delta.x, delta.y * (InvertY ? 1.0f : -1.0f));
             }
 #else
-                // TODO - [thmicka] is is possible to query the right stick without setting up virtual axes in the legacy input system?
+                // TODO - [Cameron-Micka] is is possible to query the right stick without setting up virtual axes in the legacy input system?
 #endif
 
                 return direction;

@@ -25,6 +25,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
 
         /// <summary>
+        /// What type of direct light affects the surface.
+        /// </summary>
+        protected enum LightMode
+        {
+            Unlit = 0,
+            LitDirectional = 1,
+            LitDistant = 2
+        }
+
+        /// <summary>
         /// What type of gradient to generate.
         /// </summary>
         protected enum GradientMode
@@ -98,7 +108,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent triplanarMappingBlendSharpness = new GUIContent("Blend Sharpness", "The Power of the Blend with the Normal");
             public static readonly GUIContent enableSSAA = new GUIContent("Super Sample Anti-Aliasing", "Enable Super Sample Anti-Aliasing, a technique improves texture clarity at long distances");
             public static readonly GUIContent mipmapBias = new GUIContent("Mipmap Bias", "Degree to bias the mip map. A larger negative value reduces aliasing and improves clarity, but may decrease performance");
-            public static readonly GUIContent directionalLight = new GUIContent("Directional Light", "Affected by One Unity Directional Light");
+            public static readonly GUIContent lightMode = new GUIContent("Light Mode", "What Type of Direct Light Affects the Surface");
+            public static readonly string[] lightModeNames = new string[] { "Unlit", "Lit - Directional", "Lit - Distant" };
+            public static readonly string lightModeLitDirectional = "_DIRECTIONAL_LIGHT";
+            public static readonly string lightModeLitDistant = "_DISTANT_LIGHT";
             public static readonly GUIContent specularHighlights = new GUIContent("Specular Highlights", "Calculate Specular Highlights");
             public static readonly GUIContent sphericalHarmonics = new GUIContent("Spherical Harmonics", "Read From Spherical Harmonics Data for Ambient Light");
             public static readonly GUIContent reflections = new GUIContent("Reflections", "Calculate Glossy Reflections");
@@ -215,7 +228,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty mipmapBias;
         protected MaterialProperty metallic;
         protected MaterialProperty smoothness;
-        protected MaterialProperty directionalLight;
+        protected MaterialProperty lightMode;
         protected MaterialProperty specularHighlights;
         protected MaterialProperty sphericalHarmonics;
         protected MaterialProperty reflections;
@@ -328,7 +341,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             triplanarMappingBlendSharpness = FindProperty("_TriplanarMappingBlendSharpness", props);
             enableSSAA = FindProperty("_EnableSSAA", props);
             mipmapBias = FindProperty("_MipmapBias", props);
-            directionalLight = FindProperty("_DirectionalLight", props);
+            lightMode = FindProperty("_DirectionalLight", props);
             specularHighlights = FindProperty("_SpecularHighlights", props);
             sphericalHarmonics = FindProperty("_SphericalHarmonics", props);
             reflections = FindProperty("_Reflections", props);
@@ -607,7 +620,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 EditorGUI.indentLevel -= 2;
             }
 
-            if (PropertyEnabled(directionalLight) ||
+            if ((LightMode)lightMode.floatValue != LightMode.Unlit ||
                 PropertyEnabled(reflections) ||
                 PropertyEnabled(rimLight) ||
                 PropertyEnabled(environmentColoring))
@@ -663,9 +676,34 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             EditorGUILayout.Space();
             GUILayout.Label(Styles.renderingOptionsTitle, EditorStyles.boldLabel);
 
-            materialEditor.ShaderProperty(directionalLight, Styles.directionalLight);
+            lightMode.floatValue = EditorGUILayout.Popup(Styles.lightMode, (int)lightMode.floatValue, Styles.lightModeNames);
 
-            if (PropertyEnabled(directionalLight))
+            switch ((LightMode)lightMode.floatValue)
+            {
+                default:
+                case LightMode.Unlit:
+                    {
+                        material.DisableKeyword(Styles.lightModeLitDirectional);
+                        material.DisableKeyword(Styles.lightModeLitDistant);
+                    }
+                    break;
+                case LightMode.LitDirectional:
+                    {
+                        material.EnableKeyword(Styles.lightModeLitDirectional);
+                        material.DisableKeyword(Styles.lightModeLitDistant);
+                    }
+                    break;
+                case LightMode.LitDistant:
+                    {
+                        material.DisableKeyword(Styles.lightModeLitDirectional);
+                        material.EnableKeyword(Styles.lightModeLitDistant);
+
+                        GUILayout.Box(string.Format(Styles.propertiesComponentHelp, nameof(DistantLight), Styles.lightModeNames[(int)LightMode.LitDistant]), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
+                    }
+                    break;
+            }
+
+            if ((LightMode)lightMode.floatValue != LightMode.Unlit)
             {
                 materialEditor.ShaderProperty(specularHighlights, Styles.specularHighlights, 2);
             }
@@ -736,7 +774,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="material">Current material in use.</param>
         protected void FluentOptions(MaterialEditor materialEditor, Material material)
         {
-            ///  TODO - [thmicka] this function has grown quite large. Might make sense to break up into more logical sections?
+            ///  TODO - [Cameron-Micka] this function has grown quite large. Might make sense to break up into more logical sections?
             EditorGUILayout.Space();
             GUILayout.Label(Styles.fluentOptionsTitle, EditorStyles.boldLabel);
             RenderingMode mode = (RenderingMode)renderingMode.floatValue;
@@ -792,6 +830,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 materialEditor.ShaderProperty(borderColorMode, Styles.borderColorMode, 2);
 
+                ///  TODO - [Cameron-Micka] Could switch to using the KeywordEnum property drawer in the future.
                 switch ((BorderColorMode)borderColorMode.floatValue)
                 {
                     default:

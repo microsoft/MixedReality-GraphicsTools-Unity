@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             Material targetMaterial = maskableTarget.materialForRendering;
 
-            // TODO - [thmicka] for cleanliness we should reset these keywords/properties when done. But, since UnityUI controls the
+            // TODO - [Cameron-Micka] for cleanliness we should reset these keywords/properties when done. But, since UnityUI controls the
             // material's lifetime it is difficult to achieve. Fortunately the "UNITY_UI_CLIP_RECT" keyword does get reset by UnityUI which
             // means the below keywords/properties no longer factor into shader computations but may dirty the material state.
             if (targetMaterial != null)
