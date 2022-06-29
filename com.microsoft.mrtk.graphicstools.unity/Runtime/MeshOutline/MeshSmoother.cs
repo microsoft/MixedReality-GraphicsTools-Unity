@@ -143,7 +143,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#endregion MonoBehaviour Implementation
+        #endregion MonoBehaviour Implementation
 
         /// <summary>
         /// Safely acquires a mesh for processing. Checks for meshes which have already been processed and increments reference counts.
