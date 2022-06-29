@@ -23,7 +23,7 @@
 #pragma shader_feature_local _TRIPLANAR_MAPPING
 #pragma shader_feature_local _LOCAL_SPACE_TRIPLANAR_MAPPING
 #pragma shader_feature_local_fragment _USE_SSAA
-#pragma shader_feature_local _DIRECTIONAL_LIGHT
+#pragma shader_feature_local _ _DIRECTIONAL_LIGHT _DISTANT_LIGHT
 #pragma shader_feature_local_fragment _SPECULAR_HIGHLIGHTS
 #pragma shader_feature_local _SPHERICAL_HARMONICS
 #pragma shader_feature_local _REFLECTIONS
@@ -58,7 +58,7 @@
 ///  Defines and includes.
 /// </summary>
 
-#if defined(_TRIPLANAR_MAPPING) || defined(_DIRECTIONAL_LIGHT) || defined(_SPHERICAL_HARMONICS) || defined(_REFLECTIONS) || defined(_RIM_LIGHT) || defined(_PROXIMITY_LIGHT) || defined(_ENVIRONMENT_COLORING) || defined(LIGHTMAP_ON)
+#if defined(_TRIPLANAR_MAPPING) || defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_SPHERICAL_HARMONICS) || defined(_REFLECTIONS) || defined(_RIM_LIGHT) || defined(_PROXIMITY_LIGHT) || defined(_ENVIRONMENT_COLORING) || defined(LIGHTMAP_ON)
 #define _NORMAL
 #else
 #undef _NORMAL
@@ -100,7 +100,7 @@
 #undef _SCALE
 #endif
 
-#if defined(_DIRECTIONAL_LIGHT) || defined(_RIM_LIGHT)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_RIM_LIGHT)
 #define _FRESNEL
 #else
 #undef _FRESNEL
@@ -755,7 +755,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 
     // Blinn phong lighting.
-#if defined(_DIRECTIONAL_LIGHT)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
+#if defined(_DISTANT_LIGHT)
+    half3 directionalLightDirection = _DistantLightData[0].xyz;
+    half3 directionalLightColor = _DistantLightData[1].xyz;
+#else
 #if defined(_URP)
     Light directionalLight = GetMainLight();
     half3 directionalLightDirection = directionalLight.direction;
@@ -763,6 +767,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #else
     half3 directionalLightDirection = _WorldSpaceLightPos0.xyz;
     half3 directionalLightColor = _LightColor0.rgb;
+#endif
 #endif
     half diffuse = max(0.0, dot(worldNormal, directionalLightDirection.xyz));
 #if defined(_SPECULAR_HIGHLIGHTS)
@@ -813,7 +818,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     half3 ambient = glstate_lightmodel_ambient.rgb + half3(0.25, 0.25, 0.25);
 #endif
     half minProperty = min(_Smoothness, _Metallic);
-#if defined(_DIRECTIONAL_LIGHT)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
     half oneMinusMetallic = (1.0 - _Metallic);
     output.rgb = lerp(output.rgb, ibl, minProperty);
 #if !defined(LIGHTMAP_ON)

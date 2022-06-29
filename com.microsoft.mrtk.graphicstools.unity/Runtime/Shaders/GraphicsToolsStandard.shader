@@ -32,7 +32,7 @@ Shader "Graphics Tools/Standard"
         _MipmapBias("Mipmap Bias", Range(-5.0, 0.0)) = -2.0
 
         // Rendering options.
-        [Toggle(_DIRECTIONAL_LIGHT)] _DirectionalLight("Directional Light", Float) = 1.0
+        [Enum(LightMode)] _DirectionalLight("Light Mode", Float) = 1.0 // "LitDirectional"
         [Toggle(_SPECULAR_HIGHLIGHTS)] _SpecularHighlights("Specular Highlights", Float) = 1.0
         [Toggle(_SPHERICAL_HARMONICS)] _SphericalHarmonics("Spherical Harmonics", Float) = 0.0
         [Toggle(_REFLECTIONS)] _Reflections("Reflections", Float) = 0.0
