@@ -217,6 +217,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     List<Vector3> vertices = new List<Vector3>();
                     Mesh.GetVertices(vertices);
+                    List<Color> colors = new List<Color>();
+                    Mesh.GetColors(colors);
                     List<Vector2> uv0s = new List<Vector2>();
                     Mesh.GetUVs(0, uv0s);
                     List<Vector2> uv1s = new List<Vector2>();
@@ -254,7 +256,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Set the other attributes.
                         vertex.normal = normals[i];
                         vertex.tangent = tangents[i];
-                        vertex.color = color;
+                        vertex.color = colors[i] * color;
+
 
                         if (i < uv0s.Count)
                         {
