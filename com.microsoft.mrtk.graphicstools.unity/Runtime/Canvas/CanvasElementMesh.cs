@@ -256,7 +256,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Set the other attributes.
                         vertex.normal = normals[i];
                         vertex.tangent = tangents[i];
-                        vertex.color = colors[i]*color;
+                        vertex.color = colors[i] * color;
+
 
                         if (i < uv0s.Count)
                         {
