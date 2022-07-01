@@ -137,7 +137,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             vh.Clear();
 
-            RefresheMesh();
+            RefreshMesh();
 
             if (Mesh == null || uiVerticies.Count == 0)
             {
@@ -204,7 +204,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Determines if vertex attributes within the Mesh need to be re-cached.
         /// </summary>
         [ContextMenu("Refresh Mesh")]
-        private void RefresheMesh()
+        private void RefreshMesh()
         {
             if (previousMesh != Mesh ||
                 previousColor != color ||
@@ -256,8 +256,15 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Set the other attributes.
                         vertex.normal = normals[i];
                         vertex.tangent = tangents[i];
-                        vertex.color = colors[i] * color;
 
+                        if (i < colors.Count)
+                        {
+                            vertex.color = colors[i] * color;
+                        }
+                        else
+                        {
+                            vertex.color = color;
+                        }
 
                         if (i < uv0s.Count)
                         {
