@@ -113,7 +113,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (smoothNormalsOnAwake)
             {
+                // WebGL doesn't support threaded operations.
+#if UNITY_WEBGL
+                SmoothNormals();
+#else
                 SmoothNormalsAsync();
+#endif
             }
         }
 

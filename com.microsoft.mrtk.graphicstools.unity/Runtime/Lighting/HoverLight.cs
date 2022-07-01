@@ -7,12 +7,12 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Utility component to animate and visualize a light that can be used with 
-    /// the GraphicsTools/Standard and GraphicsTools/Standard Canvas shaders "_HoverLight" feature.
+    /// Utility component to animate and visualize a light that can be used with the GraphicsTools/Standard and 
+    /// GraphicsTools/Standard Canvas shaders that have the "_HOVER_LIGHT" keyword enabled.
     /// </summary>
     [ExecuteInEditMode]
     [AddComponentMenu("Scripts/GraphicsTools/HoverLight")]
-    public class HoverLight : MonoBehaviour
+    public class HoverLight : BaseLight
     {
         // The Graphics Tools/Standard and Graphics Tools/Standard Canvas shaders supports up to four (4) hover lights.
         private const int hoverLightCount = 4;
@@ -23,26 +23,25 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static int _HoverLightDataID;
         private static int lastHoverLightUpdate = -1;
 
-        [Tooltip("Specifies the radius of the HoverLight effect")]
-        [SerializeField]
-        [Range(0.0f, 1.0f)]
+        [Tooltip("Specifies the radius of the HoverLight effect.")]
+        [SerializeField, Min(0.0f)]
         private float radius = 0.15f;
 
         /// <summary>
-        /// Specifies the Radius of the HoverLight effect
+        /// Specifies the Radius of the HoverLight effect.
         /// </summary>
         public float Radius
         {
             get => radius;
-            set => radius = value;
+            set => radius = Mathf.Max(0.0f, value);
         }
 
-        [Tooltip("Specifies the highlight color")]
+        [Tooltip("Specifies the highlight color.")]
         [SerializeField]
         private Color color = new Color(0.3f, 0.3f, 0.3f, 1.0f);
 
         /// <summary>
-        /// Specifies the highlight color
+        /// Specifies the highlight color.
         /// </summary>
         public Color Color
         {
@@ -50,73 +49,33 @@ namespace Microsoft.MixedReality.GraphicsTools
             set => color = value;
         }
 
-        private void OnEnable()
-        {
-            AddHoverLight(this);
-        }
+        #region BaseLight Implementation
 
-        private void OnDisable()
-        {
-            RemoveHoverLight(this);
-            UpdateHoverLights(true);
-        }
-
-#if UNITY_EDITOR
-        private void Update()
-        {
-            if (Application.isPlaying)
-            {
-                return;
-            }
-
-            Initialize();
-            UpdateHoverLights();
-        }
-#endif // UNITY_EDITOR
-
-        private void LateUpdate()
-        {
-            UpdateHoverLights();
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (!enabled)
-            {
-                return;
-            }
-
-            Gizmos.color = Color;
-            Gizmos.DrawWireSphere(transform.position, Radius);
-            Gizmos.DrawIcon(transform.position + Vector3.right * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.left * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.up * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.down * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.forward * Radius, string.Empty, false);
-            Gizmos.DrawIcon(transform.position + Vector3.back * Radius, string.Empty, false);
-        }
-
-        private void AddHoverLight(HoverLight light)
-        {
-            if (activeHoverLights.Count >= hoverLightCount)
-            {
-                Debug.LogWarningFormat("Max hover light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader.", hoverLightCount, light.gameObject.name);
-            }
-
-            activeHoverLights.Add(light);
-        }
-
-        private void RemoveHoverLight(HoverLight light)
-        {
-            activeHoverLights.Remove(light);
-        }
-
-        private void Initialize()
+        /// <inheritdoc/>
+        protected override void Initialize()
         {
             _HoverLightDataID = Shader.PropertyToID("_HoverLightData");
         }
 
-        private void UpdateHoverLights(bool forceUpdate = false)
+        /// <inheritdoc/>
+        protected override void AddLight()
+        {
+            if (activeHoverLights.Count == hoverLightCount)
+            {
+                Debug.LogWarningFormat("Max hover light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", hoverLightCount, gameObject.name);
+            }
+
+            activeHoverLights.Add(this);
+        }
+
+        /// <inheritdoc/>
+        protected override void RemoveLight()
+        {
+            activeHoverLights.Remove(this);
+        }
+
+        /// <inheritdoc/>
+        protected override void UpdateLights(bool forceUpdate = false)
         {
             if (lastHoverLightUpdate == -1)
             {
@@ -154,5 +113,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             lastHoverLightUpdate = Time.frameCount;
         }
+
+        #endregion BaseLight Implementation
     }
 }
