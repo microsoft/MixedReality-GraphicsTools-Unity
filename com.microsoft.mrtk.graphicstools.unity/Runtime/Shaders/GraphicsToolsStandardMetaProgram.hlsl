@@ -78,6 +78,8 @@ half4 PixelStage(MetaVaryings input) : SV_Target
 #if defined(_EMISSION)
 #if defined(_CHANNEL_MAP)
     output.Emission = SAMPLE_TEXTURE2D(_ChannelMap, sampler_ChannelMap, input.uv) * _EmissiveColor;
+#else
+    output.Emission = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv) * _EmissiveColor;
 #endif
 #endif
 
@@ -89,7 +91,7 @@ half4 PixelStage(MetaVaryings input) : SV_Target
 #if defined(_CHANNEL_MAP)
     output.Emission += tex2D(_ChannelMap, input.uv).b * _EmissiveColor;
 #else
-    output.Emission += _EmissiveColor;
+    output.Emission = tex2D(_EmissiveMap, input.uv) * _EmissiveColor;
 #endif
 #endif
     output.SpecularColor = _LightColor0.rgb;

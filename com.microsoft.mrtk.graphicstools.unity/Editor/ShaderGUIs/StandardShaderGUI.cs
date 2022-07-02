@@ -452,6 +452,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Texture normalMapTexture = material.HasProperty("_BumpMap") ? material.GetTexture("_BumpMap") : null;
             float? emission = null;
             Color? emissionColor = GetColorProperty(material, "_EmissionColor");
+            Texture emissionMapTexture = material.HasProperty("_EmissionMap") ? material.GetTexture("_EmissionMap") : null;
             float? reflections = null;
             float? rimLighting = null;
             Vector4? textureScaleOffset = null;
@@ -492,6 +493,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             if (normalMapTexture)
             {
                 material.SetTexture("_NormalMap", normalMapTexture);
+            }
+
+            if (emissionMapTexture)
+            {
+                material.SetTexture("_EmissiveMap", emissionMapTexture);
             }
 
             SetShaderFeatureActive(material, "_EMISSION", "_EnableEmission", emission);
@@ -630,7 +636,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             if (PropertyEnabled(enableEmission))
             {
                 EditorGUI.indentLevel += 2;
-                materialEditor.TexturePropertySingleLine(Styles.emissiveColor,emissiveMap, emissiveColor);
+                materialEditor.TexturePropertySingleLine(Styles.emissiveColor, emissiveMap, emissiveColor);
                 EditorGUI.indentLevel -= 2;
             }
 
