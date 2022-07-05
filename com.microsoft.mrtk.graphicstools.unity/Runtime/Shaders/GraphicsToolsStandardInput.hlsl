@@ -103,6 +103,10 @@ SAMPLER(sampler_ChannelMap);
 TEXTURE2D(_NormalMap);
 SAMPLER(sampler_NormalMap);
 #endif
+#if defined(_EMISSION)
+TEXTURE2D(_EmissiveMap);
+SAMPLER(sampler_EmissiveMap);
+#endif
 #if defined(_IRIDESCENCE)
 TEXTURE2D(_IridescentSpectrumMap);
 SAMPLER(sampler_IridescentSpectrumMap);
@@ -124,6 +128,9 @@ sampler2D _ChannelMap;
 #endif
 #if defined(_NORMAL_MAP)
 sampler2D _NormalMap;
+#endif
+#if defined(_EMISSION)
+sampler2D _EmissiveMap;
 #endif
 #if defined(_IRIDESCENCE)
 sampler2D _IridescentSpectrumMap;

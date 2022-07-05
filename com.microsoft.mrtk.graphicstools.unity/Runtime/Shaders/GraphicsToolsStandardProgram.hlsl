@@ -19,7 +19,7 @@
 #pragma shader_feature_local_fragment _ _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 #pragma shader_feature_local _CHANNEL_MAP
 #pragma shader_feature_local _NORMAL_MAP
-#pragma shader_feature_local_fragment _EMISSION
+#pragma shader_feature_local _EMISSION
 #pragma shader_feature_local _TRIPLANAR_MAPPING
 #pragma shader_feature_local _LOCAL_SPACE_TRIPLANAR_MAPPING
 #pragma shader_feature_local_fragment _USE_SSAA
@@ -118,7 +118,7 @@
 #undef _GRADIENT
 #endif
 
-#if !defined(_DISABLE_ALBEDO_MAP) || defined(_TRIPLANAR_MAPPING) || defined(_CHANNEL_MAP) || defined(_NORMAL_MAP) || defined(_DISTANCE_TO_EDGE) || defined(_GRADIENT)
+#if !defined(_DISABLE_ALBEDO_MAP) || defined(_TRIPLANAR_MAPPING) || defined(_CHANNEL_MAP) || defined(_NORMAL_MAP) || defined(_DISTANCE_TO_EDGE) || defined(_GRADIENT) || defined(_EMISSION)
 #define _UV
 #else
 #undef _UV
@@ -466,6 +466,14 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif 
 #endif
 
+#if defined(_EMISSION)
+#if defined(_URP)
+    half3 emissionMap = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv).xyz;
+#else
+    half3 emissionMap = tex2D(_EmissiveMap, input.uv).xyz;
+#endif
+#endif
+    
     // Primitive clipping.
 #if defined(_CLIPPING_PRIMITIVE)
     float primitiveDistance = 1.0;
@@ -844,8 +852,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_EMISSION)
 #if defined(UNITY_COLORSPACE_GAMMA)
     half3 emission = _EmissiveColor.rgb;
+    emission *= emissionMap;
 #else // Since emission is an HDR color convert from sRGB to linear.
     half3 emission = GTsRGBToLinear(_EmissiveColor.rgb);
+    emission *= emissionMap;
 #endif
 #if defined(_CHANNEL_MAP)
     output.rgb += emission * channel.b;
