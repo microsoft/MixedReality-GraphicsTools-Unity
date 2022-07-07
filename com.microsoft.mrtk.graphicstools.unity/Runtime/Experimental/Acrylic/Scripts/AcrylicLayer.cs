@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #if GT_USE_URP
+using System;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.Profiling;
@@ -14,9 +15,8 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Class representing a single acrylic layer, used in conjuction with AcrylicLayerManager
     /// </summary>
 
-    public class AcrylicLayer
+    public class AcrylicLayer : IDisposable
     {
-       
         [System.Serializable]
         public class Settings
         {   
@@ -87,6 +87,33 @@ namespace Microsoft.MixedReality.GraphicsTools
             useDualBlur = _useDualBlur;
             kawaseBlur = _kawaseBlur;
             if (useDualBlur) dualBlur = new AcrylicFilterDual(_dualBlur);
+        }
+
+        public void Dispose()
+        {
+            if (blur != null)
+            {
+                DestroyScriptableObject(blur);
+                blur = null;
+            }
+
+            if (renderOpaque != null)
+            {
+                DestroyScriptableObject(renderOpaque);
+                renderOpaque = null;
+            }
+
+            if (renderTransparent != null)
+            {
+                DestroyScriptableObject(renderTransparent);
+                renderTransparent = null;
+            }
+
+            if (dualBlur != null)
+            {
+                dualBlur.Dispose();
+                dualBlur = null;
+            }    
         }
 
 #if UNITY_2021_2_OR_NEWER
@@ -332,24 +359,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        public void DestroyRendererFeatures()
-        {
-            if (blur != null)
-            {
-                DestroyScriptableObject(blur);
-                blur = null;
-            }
-            if (renderOpaque != null)
-            {
-                DestroyScriptableObject(renderOpaque);
-                renderOpaque = null;
-            }
-            if (renderTransparent != null)
-            {
-                DestroyScriptableObject(renderTransparent);
-                renderTransparent = null;
-            }
-        }
 #endregion
 
 #region Blur and blend methods
@@ -544,7 +553,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, 0, blitProperties);
         }
 
-        private void DestroyScriptableObject(Object o)
+        private void DestroyScriptableObject(UnityEngine.Object o)
         {
             if (Application.isPlaying)
             {

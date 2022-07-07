@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #if GT_USE_URP
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -13,7 +14,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// <summary>
     /// Methods to perform dual filter bluring.
     /// </summary>
-    public class AcrylicFilterDual
+    public class AcrylicFilterDual : IDisposable
     {   
         private int lastWidth;
         private int lastHeight;
@@ -32,7 +33,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             buffers = new List<RenderTexture>();
         }
 
-        ~AcrylicFilterDual()
+        public void Dispose()
         {
             FreeBuffers();
         }
@@ -96,7 +97,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             for (int i = 0; i < buffers.Count; i++)
             {
-                Object.Destroy(buffers[i]);
+                UnityEngine.Object.Destroy(buffers[i]);
             }
             buffers.Clear();
         }
