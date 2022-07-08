@@ -9,8 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: ShaderBallEmissiveMap
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ShaderKeywords: _DIRECTIONAL_LIGHT _EMISSION _HOVER_LIGHT _METALLIC_TEXTURE_ALBEDO_CHANNEL_A
-    _NORMAL_MAP _REFLECTIONS _SPECULAR_HIGHLIGHTS _USE_WORLD_SCALE
+  m_ShaderKeywords: _DIRECTIONAL_LIGHT _DISABLE_ALBEDO_MAP _EMISSION _HOVER_LIGHT
+    _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _USE_WORLD_SCALE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -58,7 +58,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 32c57306df745a147a2e02f8827a8cdc, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0.38}
     - _MetallicGlossMap:
@@ -119,7 +119,7 @@ Material:
     - _EnableHoverColorOverride: 0
     - _EnableLightMap: 0
     - _EnableLocalSpaceTriplanarMapping: 0
-    - _EnableNormalMap: 1
+    - _EnableNormalMap: 0
     - _EnableProximityLightColorOverride: 0
     - _EnableSSAA: 0
     - _EnableStencil: 0
@@ -160,7 +160,7 @@ Material:
     - _ProximityLight: 0
     - _ProximityLightSubtractive: 0
     - _ProximityLightTwoSided: 0
-    - _Reflections: 1
+    - _Reflections: 0
     - _Refraction: 0
     - _RefractiveIndex: 1.1
     - _RenderQueueOverride: -1
@@ -173,7 +173,7 @@ Material:
     - _RoundCornersHideInterior: 0
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
-    - _SpecularHighlights: 1
+    - _SpecularHighlights: 0
     - _SphericalHarmonics: 0
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
