@@ -56,16 +56,27 @@ Properties {
     [Header(Antialiasing)]
         [Toggle(_SMOOTH_EDGES_)] _Smooth_Edges_("Smooth Edges", Float) = 0
      
+    [Header(Blending)]
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1       // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 0  // "Zero"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1      // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1 // "One"
 
     [Header(Stencil)]
         _StencilReference("Stencil Reference", Range(0, 255)) = 0
         [Enum(UnityEngine.Rendering.CompareFunction)]_StencilComparison("Stencil Comparison", Int) = 0
         [Enum(UnityEngine.Rendering.StencilOp)]_StencilOperation("Stencil Operation", Int) = 0
+
+    [Header(Depth)]
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4 // "LessEqual"
+        [Enum(DepthWrite)] _ZWrite("Depth Write", Float) = 1 // "On"
 }
 
 SubShader {
     Tags{ "RenderType" = "Opaque" }
-    Blend Off
+    Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
+    ZWrite[_ZWrite]
+    ZTest[_ZTest]
     Tags {"DisableBatching" = "True"}
     Stencil
     {
