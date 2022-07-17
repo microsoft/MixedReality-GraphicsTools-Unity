@@ -591,7 +591,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // Swizzle tangent normals to match world normal and blend together.
     worldNormal = normalize(tangentNormalX.zyx * triplanarBlend.x +
                             tangentNormalY.xzy * triplanarBlend.y +
-                            tangentNormalZ.xyz * triplanarBlend.z);
+                            tangentNormalZ.xyz * triplanarBlend.z)*_NormalMapScale;
 #else
 #if defined(_URP)
     half3 tangentNormal = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, input.uv));
@@ -601,10 +601,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     worldNormal.x = dot(input.tangentX, tangentNormal);
     worldNormal.y = dot(input.tangentY, tangentNormal);
     worldNormal.z = dot(input.tangentZ, tangentNormal);
-    worldNormal = normalize(worldNormal) * (facing ? 1.0 : -1.0);
+    worldNormal = normalize(worldNormal) * (facing ? 1.0 : -1.0)*_NormalMapScale;
 #endif
 #else
-    worldNormal = normalize(input.worldNormal) * (facing ? 1.0 : -1.0);
+    worldNormal = normalize(input.worldNormal) * (facing ? 1.0 : -1.0)*_NormalMapScale;
 #endif
 #endif
 

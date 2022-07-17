@@ -101,6 +101,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent channelMap = new GUIContent("Channel Map", "Metallic (Red), Occlusion (Green), Emission (Blue), Smoothness (Alpha)");
             public static readonly GUIContent enableNormalMap = new GUIContent("Normal Map", "Enable Normal Map");
             public static readonly GUIContent normalMap = new GUIContent("Normal Map");
+            public static readonly GUIContent normalMaoScale = new GUIContent("Normal Map Scale");
             public static readonly GUIContent enableEmission = new GUIContent("Emission", "Enable Emission");
             public static readonly GUIContent emissiveColor = new GUIContent("Color");
             public static readonly GUIContent emissiveMap = new GUIContent("EmissionMap");
@@ -220,6 +221,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty channelMap;
         protected MaterialProperty enableNormalMap;
         protected MaterialProperty normalMap;
+        protected MaterialProperty normalMapScale;
         protected MaterialProperty enableEmission;
         protected MaterialProperty emissiveColor;
         protected MaterialProperty emissiveMap;
@@ -336,6 +338,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             channelMap = FindProperty("_ChannelMap", props);
             enableNormalMap = FindProperty("_EnableNormalMap", props);
             normalMap = FindProperty("_NormalMap", props);
+            normalMapScale = FindProperty("_NormalMapScale", props);
             enableEmission = FindProperty("_EnableEmission", props);
             emissiveMap = FindProperty("_EmissiveMap", props);
             emissiveColor = FindProperty("_EmissiveColor", props);
@@ -463,6 +466,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
             float? normalMap = null;
             Texture normalMapTexture = material.HasProperty("_BumpMap") ? material.GetTexture("_BumpMap") : null;
+            float? normalMapScale = GetFloatProperty(material, "_BumpScale");
             float? emission = null;
             Color? emissionColor = GetColorProperty(material, "_EmissionColor");
             Texture emissionMapTexture = material.HasProperty("_EmissionMap") ? material.GetTexture("_EmissionMap") : null;
@@ -507,6 +511,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 material.SetTexture("_NormalMap", normalMapTexture);
             }
+            
+            SetShaderFeatureActive(material, null, "_NormalScale", normalMapScale);
 
             if (emissionMapTexture)
             {
@@ -639,7 +645,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 if (PropertyEnabled(enableNormalMap))
                 {
                     EditorGUI.indentLevel += 2;
-                    materialEditor.TexturePropertySingleLine(Styles.normalMap, normalMap);
+                    materialEditor.TexturePropertySingleLine(Styles.normalMap, normalMap,normalMapScale);
                     EditorGUI.indentLevel -= 2;
                 }
             }
