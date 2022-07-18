@@ -27,7 +27,6 @@
 #pragma shader_feature_local_fragment _SPECULAR_HIGHLIGHTS
 #pragma shader_feature_local _SPHERICAL_HARMONICS
 #pragma shader_feature_local _REFLECTIONS
-#pragma shader_feature_local_fragment _REFRACTION
 #pragma shader_feature_local _RIM_LIGHT
 #pragma shader_feature_local _VERTEX_COLORS
 #pragma shader_feature_local _VERTEX_EXTRUSION
@@ -866,6 +865,15 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
     output.rgb = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
     output.rgb += GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir);
+
+#elif defined(_REFLECTIONS)
+    half3 reflectVector = reflect(-worldViewDir, worldNormal);
+#if defined(_CHANNEL_MAP)
+    half3 occlusion = channel.g;
+#else
+    half3 occlusion = half(1.0);
+#endif
+    output.rgb += GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
 #endif
 
 #if defined(_RIM_LIGHT)

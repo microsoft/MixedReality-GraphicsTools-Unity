@@ -219,9 +219,6 @@ CBUFFER_START(UnityPerMaterial)
     // #if defined(_TRIPLANAR_MAPPING)
     float _TriplanarMappingBlendSharpness;
 
-    // #if defined(_REFRACTION)
-    half _RefractiveIndex;
-
     // #if defined(_RIM_LIGHT)
     half3 _RimColor;
     half _RimPower;
