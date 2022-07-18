@@ -100,12 +100,6 @@
 #undef _SCALE
 #endif
 
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_RIM_LIGHT)
-#define _FRESNEL
-#else
-#undef _FRESNEL
-#endif
-
 #if defined(_ROUND_CORNERS) || defined(_BORDER_LIGHT) || defined(_INNER_GLOW)
 #define _DISTANCE_TO_EDGE
 #else
@@ -131,7 +125,9 @@
 #endif
 
 #if defined(_URP)
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
 #else
 #include "UnityCG.cginc"
 #include "UnityStandardConfig.cginc"
@@ -140,6 +136,7 @@
 
 #include "GraphicsToolsCommon.hlsl"
 #include "GraphicsToolsStandardInput.hlsl"
+#include "GraphicsToolsLighting.hlsl"
 
 /// <summary>
 /// Vertex shader entry point.
@@ -454,6 +451,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     half4 channel = tex2D(_ChannelMap, input.uv);
 #endif
     _Metallic = channel.r;
+    // TODO - [Cameron-Micka] should occlusion be applied to albedo or just lighting?
     albedo.rgb *= channel.g;
     _Smoothness = channel.a;
 #else
@@ -763,90 +761,116 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 
     // Blinn phong lighting.
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
-#if defined(_DISTANT_LIGHT)
-    half3 directionalLightDirection = _DistantLightData[0].xyz;
-    half3 directionalLightColor = _DistantLightData[1].xyz;
-#else
-#if defined(_URP)
-    Light directionalLight = GetMainLight();
-    half3 directionalLightDirection = directionalLight.direction;
-    half3 directionalLightColor = directionalLight.color;
-#else
-    half3 directionalLightDirection = _WorldSpaceLightPos0.xyz;
-    half3 directionalLightColor = _LightColor0.rgb;
-#endif
-#endif
-    half diffuse = max(0.0, dot(worldNormal, directionalLightDirection.xyz));
-#if defined(_SPECULAR_HIGHLIGHTS)
-    half halfVector = max(0.0, dot(worldNormal, normalize(directionalLightDirection.xyz + worldViewDir)));
-    half specular = saturate(pow(halfVector, _Shininess * pow(_Smoothness, 4.0)) * (_Smoothness * 2.0) * _Metallic);
-#else
-    half specular = 0.0;
-#endif
-#endif
-
-    // Image based lighting (attempt to mimic the Standard shader).
-#if defined(_REFLECTIONS)
-    half3 worldReflection = reflect(incident, worldNormal);
-#if defined(_URP)
-    half4 skyData = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, worldReflection, (1.0 - _Smoothness) * UNITY_SPECCUBE_LOD_STEPS);
-    half3 ibl = DecodeHDREnvironment(skyData, unity_SpecCube0_HDR);
-#else
-    half4 iblData = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, worldReflection, (1.0 - _Smoothness) * UNITY_SPECCUBE_LOD_STEPS);
-    half3 ibl = DecodeHDR(iblData, unity_SpecCube0_HDR);
-#endif
-#if defined(_REFRACTION)
-#if defined(_URP)
-    half4 refractColor = SAMPLE_TEXTURECUBE(unity_SpecCube0, samplerunity_SpecCube0, refract(incident, worldNormal, _RefractiveIndex));
-    ibl *= DecodeHDREnvironment(refractColor, unity_SpecCube0_HDR);
-#else
-    half4 refractColor = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, refract(incident, worldNormal, _RefractiveIndex));
-    ibl *= DecodeHDR(refractColor, unity_SpecCube0_HDR);
-#endif
-#endif
-#else
-    half3 ibl = unity_IndirectSpecColor.rgb;
-#endif
-
-    // Fresnel lighting.
-#if defined(_FRESNEL)
-    half fresnel = 1.0 - saturate(abs(dot(worldViewDir, worldNormal)));
-#if defined(_RIM_LIGHT)
-    half3 fresnelColor = _RimColor * pow(fresnel, _RimPower);
-#else
-    half3 fresnelColor = unity_IndirectSpecColor.rgb * (pow(fresnel, _FresnelPower) * max(_Smoothness, 0.5));
-#endif
-#endif
+//#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
+//#if defined(_DISTANT_LIGHT)
+//    half3 directionalLightDirection = _DistantLightData[0].xyz;
+//    half3 directionalLightColor = _DistantLightData[1].xyz;
+//#else
+//#if defined(_URP)
+//    Light directionalLight = GetMainLight();
+//    half3 directionalLightDirection = directionalLight.direction;
+//    half3 directionalLightColor = directionalLight.color;
+//#else
+//    half3 directionalLightDirection = _WorldSpaceLightPos0.xyz;
+//    half3 directionalLightColor = _LightColor0.rgb;
+//#endif
+//#endif
+//    half diffuse = max(0.0, dot(worldNormal, directionalLightDirection.xyz));
+//#if defined(_SPECULAR_HIGHLIGHTS)
+//    half halfVector = max(0.0, dot(worldNormal, normalize(directionalLightDirection.xyz + worldViewDir)));
+//    half specular = saturate(pow(halfVector, _Shininess * pow(_Smoothness, 4.0)) * (_Smoothness * 2.0) * _Metallic);
+//#else
+//    half specular = 0.0;
+//#endif
+//#endif
+//
+//    // Image based lighting (attempt to mimic the Standard shader).
+//#if defined(_REFLECTIONS)
+//    half3 worldReflection = reflect(incident, worldNormal);
+//#if defined(_URP)
+//    half4 skyData = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, worldReflection, (1.0 - _Smoothness) * UNITY_SPECCUBE_LOD_STEPS);
+//    half3 ibl = DecodeHDREnvironment(skyData, unity_SpecCube0_HDR);
+//#else
+//    half4 iblData = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, worldReflection, (1.0 - _Smoothness) * UNITY_SPECCUBE_LOD_STEPS);
+//    half3 ibl = DecodeHDR(iblData, unity_SpecCube0_HDR);
+//#endif
+//#if defined(_REFRACTION)
+//#if defined(_URP)
+//    half4 refractColor = SAMPLE_TEXTURECUBE(unity_SpecCube0, samplerunity_SpecCube0, refract(incident, worldNormal, _RefractiveIndex));
+//    ibl *= DecodeHDREnvironment(refractColor, unity_SpecCube0_HDR);
+//#else
+//    half4 refractColor = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, refract(incident, worldNormal, _RefractiveIndex));
+//    ibl *= DecodeHDR(refractColor, unity_SpecCube0_HDR);
+//#endif
+//#endif
+//#else
+//    half3 ibl = unity_IndirectSpecColor.rgb;
+//#endif
+//
+//    // Fresnel lighting.
+//#if defined(_FRESNEL)
+//    half fresnel = 1.0 - saturate(abs(dot(worldViewDir, worldNormal)));
+//#if defined(_RIM_LIGHT)
+//    half3 fresnelColor = _RimColor * pow(fresnel, _RimPower);
+//#else
+//    half3 fresnelColor = unity_IndirectSpecColor.rgb * (pow(fresnel, _FresnelPower) * max(_Smoothness, 0.5));
+//#endif
+//#endif
     // Final lighting mix.
     half4 output = albedo;
-#if defined(_SPHERICAL_HARMONICS)
-    half3 ambient = input.ambient;
-#else
-    half3 ambient = glstate_lightmodel_ambient.rgb + half3(0.25, 0.25, 0.25);
-#endif
-    half minProperty = min(_Smoothness, _Metallic);
+//#if defined(_SPHERICAL_HARMONICS)
+//    half3 ambient = input.ambient;
+//#else
+//    half3 ambient = glstate_lightmodel_ambient.rgb + half3(0.25, 0.25, 0.25);
+//#endif
+//    half minProperty = min(_Smoothness, _Metallic);
+//#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
+//    half oneMinusMetallic = (1.0 - _Metallic);
+//    output.rgb = lerp(output.rgb, ibl, minProperty);
+//#if !defined(LIGHTMAP_ON)
+//    output.rgb *= lerp((ambient + directionalLightColor * diffuse + directionalLightColor * specular) * max(oneMinusMetallic, _MinMetallicLightContribution), albedo.rgb, minProperty);
+//#endif
+//    output.rgb += (directionalLightColor * albedo.rgb * specular) + (directionalLightColor * specular * _Smoothness);
+//    output.rgb += ibl * oneMinusMetallic * _IblContribution;
+//#elif defined(_REFLECTIONS)
+//    output.rgb = lerp(output.rgb, ibl, minProperty);
+//    output.rgb *= lerp(ambient, albedo.rgb, minProperty);
+//#elif defined(_SPHERICAL_HARMONICS)
+//    output.rgb *= ambient;
+//#endif
+//
+//#if defined(_FRESNEL)
+//#if defined(_RIM_LIGHT) || !defined(_REFLECTIONS)
+//    output.rgb += fresnelColor;
+//#else
+//    output.rgb += fresnelColor * (1.0 - minProperty);
+//#endif
+//#endif
+
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
-    half oneMinusMetallic = (1.0 - _Metallic);
-    output.rgb = lerp(output.rgb, ibl, minProperty);
-#if !defined(LIGHTMAP_ON)
-    output.rgb *= lerp((ambient + directionalLightColor * diffuse + directionalLightColor * specular) * max(oneMinusMetallic, _MinMetallicLightContribution), albedo.rgb, minProperty);
-#endif
-    output.rgb += (directionalLightColor * albedo.rgb * specular) + (directionalLightColor * specular * _Smoothness);
-    output.rgb += ibl * oneMinusMetallic * _IblContribution;
-#elif defined(_REFLECTIONS)
-    output.rgb = lerp(output.rgb, ibl, minProperty);
-    output.rgb *= lerp(ambient, albedo.rgb, minProperty);
-#elif defined(_SPHERICAL_HARMONICS)
-    output.rgb *= ambient;
+    GTBRDFData brdfData;
+    GTInitializeBRDFData(albedo, _Metallic, 1.0, _Smoothness, albedo.a, brdfData);
+    GTMainLight light = GTGetMainLight();
+
+ #if defined(_SPHERICAL_HARMONICS)
+    half3 bakedGI = input.ambient;
+#else
+    half3 bakedGI = glstate_lightmodel_ambient.rgb + half3(0.25, 0.25, 0.25);
 #endif
 
-#if defined(_FRESNEL)
-#if defined(_RIM_LIGHT) || !defined(_REFLECTIONS)
-    output.rgb += fresnelColor;
+#if defined(_CHANNEL_MAP)
+    half3 occlusion = channel.g;
 #else
-    output.rgb += fresnelColor * (1.0 - minProperty);
+    half3 occlusion = half(1.0);
 #endif
+
+    output.rgb = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
+    output.rgb += GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir);
+#endif
+
+#if defined(_RIM_LIGHT)
+    half fresnel = 1.0 - saturate(abs(dot(worldViewDir, worldNormal)));
+    output.rgb += _RimColor * pow(fresnel, _RimPower);
 #endif
 
 #if defined(_EMISSION)
