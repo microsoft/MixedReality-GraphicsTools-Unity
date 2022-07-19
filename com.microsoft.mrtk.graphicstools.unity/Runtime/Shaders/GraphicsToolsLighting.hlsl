@@ -168,7 +168,7 @@ half3 GTEnvironmentBRDF(GTBRDFData brdfData, half3 indirectDiffuse, half3 indire
     return c;
 }
 
-half3 GTGlobalIllumination(GTBRDFData brdfData,half3 bakedGI, half occlusion, half3 normalWS, half3 viewDirectionWS)
+half3 GTGlobalIllumination(GTBRDFData brdfData, half3 bakedGI, half occlusion, half3 normalWS, half3 viewDirectionWS)
 {
     half3 reflectVector = reflect(-viewDirectionWS, normalWS);
     half NoV = saturate(dot(normalWS, viewDirectionWS));

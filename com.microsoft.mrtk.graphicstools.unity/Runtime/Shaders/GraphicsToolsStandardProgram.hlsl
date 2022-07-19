@@ -764,15 +764,15 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS)
 #if defined(_CHANNEL_MAP)
-    half3 occlusion = channel.g;
+    half occlusion = channel.g;
 #else
-    half3 occlusion = 1.0h;
+    half occlusion = 1.0h;
 #endif
 #endif
 
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
     GTBRDFData brdfData;
-    GTInitializeBRDFData(albedo, _Metallic, 1.0, _Smoothness, albedo.a, brdfData);
+    GTInitializeBRDFData(albedo, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
 
  #if defined(_SPHERICAL_HARMONICS)
     half3 bakedGI = input.ambient;
