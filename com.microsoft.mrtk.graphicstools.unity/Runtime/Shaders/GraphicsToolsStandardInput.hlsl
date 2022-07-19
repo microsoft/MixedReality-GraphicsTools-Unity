@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#ifndef GRAPHICS_TOOLS_STANDARD_INPUT
-#define GRAPHICS_TOOLS_STANDARD_INPUT
+#ifndef GT_STANDARD_INPUT
+#define GT_STANDARD_INPUT
 
 /// <summary>
 /// Vertex attributes passed into the vertex shader from the app.
@@ -300,21 +300,4 @@ CBUFFER_START(UnityPerMaterial)
 
 CBUFFER_END
 
-/// <summary>
-/// Constant properties.
-/// </summary>
-
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
-static const half _MinMetallicLightContribution = 0.7;
-static const half _IblContribution = 0.1;
-#endif
-
-#if defined(_SPECULAR_HIGHLIGHTS)
-static const float _Shininess = 800.0;
-#endif
-
-#if defined(_FRESNEL)
-static const float _FresnelPower = 8.0;
-#endif
-
-#endif // GRAPHICS_TOOLS_STANDARD_INPUT
+#endif // GT_STANDARD_INPUT

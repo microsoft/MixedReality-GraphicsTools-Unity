@@ -1,12 +1,13 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// Copyright © 2020 Unity Technologies ApS
+// Licensed under the Unity Companion License for Unity-dependent projects--see https://unity3d.com/legal/licenses/Unity_Companion_License
+// Unless expressly provided otherwise, the Software under this license is made available strictly on an “AS IS” BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
 
 #ifndef GT_LIGHTING
 #define GT_LIGHTING
 
-#define GRAPHICS_TOOLS_FLT_MIN  1.175494351e-38 // Minimum normalized positive floating-point number
-#define GRAPHICS_TOOLS_HALF_MIN 6.103515625e-5  // 2^-14, the same value for 10, 11 and 16-bit: https://www.khronos.org/opengl/wiki/Small_Float_Formats
-#define GRAPHICS_TOOLS_HALF_MIN_SQRT 0.0078125  // 2^-7 == sqrt(HALF_MIN), useful for ensuring HALF_MIN after x^2
+/// <summary>
+/// Light accessors.
+/// </summary>
 
 struct GTMainLight
 {
@@ -35,19 +36,12 @@ GTMainLight GTGetMainLight()
     return light;
 }
 
-// Normalize that account for vectors with zero length
-float3 GTSafeNormalize(float3 inVec)
-{
-    float dp3 = max(GRAPHICS_TOOLS_FLT_MIN, dot(inVec, inVec));
-    return inVec * rsqrt(dp3);
-}
+/// <summary>
+/// Physically based rendering methods forked from https://github.com/Unity-Technologies/Graphics to provide mixed reality specific adjustments.
+/// </summary>
 
-half GTPow4(half x)
-{
-    return (x * x) * (x * x);
-}
-
-#define GTDielectricSpec half4(0.04, 0.04, 0.04, 1.0 - 0.04) // standard dielectric reflectivity coef at incident angle (= 4%)
+// Standard dielectric reflectivity coef at incident angle (= 4%).
+#define GTDielectricSpec half4(0.04, 0.04, 0.04, 1.0 - 0.04)
 
 struct GTBRDFData
 {
@@ -84,7 +78,7 @@ half GTPerceptualRoughnessToRoughness(half perceptualRoughness)
 
 half GTPerceptualSmoothnessToPerceptualRoughness(half perceptualSmoothness)
 {
-    return (1.0 - perceptualSmoothness);
+    return (1.0h - perceptualSmoothness);
 }
 
 inline void GTInitializeBRDFDataDirect(half3 albedo, half3 diffuse, half3 specular, half reflectivity, half oneMinusReflectivity, half smoothness, inout half alpha, out GTBRDFData outBRDFData)
@@ -96,8 +90,8 @@ inline void GTInitializeBRDFDataDirect(half3 albedo, half3 diffuse, half3 specul
     outBRDFData.reflectivity = reflectivity;
 
     outBRDFData.perceptualRoughness = GTPerceptualSmoothnessToPerceptualRoughness(smoothness);
-    outBRDFData.roughness = max(GTPerceptualRoughnessToRoughness(outBRDFData.perceptualRoughness), GRAPHICS_TOOLS_HALF_MIN_SQRT);
-    outBRDFData.roughness2 = max(outBRDFData.roughness * outBRDFData.roughness, GRAPHICS_TOOLS_HALF_MIN);
+    outBRDFData.roughness = max(GTPerceptualRoughnessToRoughness(outBRDFData.perceptualRoughness), GT_HALF_MIN_SQRT);
+    outBRDFData.roughness2 = max(outBRDFData.roughness * outBRDFData.roughness, GT_HALF_MIN);
     outBRDFData.grazingTerm = saturate(smoothness + reflectivity);
     outBRDFData.normalizationTerm = outBRDFData.roughness * 4.0h + 2.0h;
     outBRDFData.roughness2MinusOne = outBRDFData.roughness2 - 1.0h;
@@ -151,7 +145,7 @@ half3 GTGlossyEnvironmentReflection(half3 reflectVector, half perceptualRoughnes
 #endif
 
     return irradiance * occlusion;
-#endif // _REFLECTIONS
+#endif
 
 #if defined(_URP)
     return _GlossyEnvironmentColor.rgb * occlusion;
@@ -214,7 +208,7 @@ half GTDirectBRDFSpecular(GTBRDFData brdfData, half3 normalWS, half3 lightDirect
     // clamp below was added specifically to "fix" that, but dx compiler (we convert bytecode to metal/gles)
     // sees that specularTerm have only non-negative terms, so it skips max(0,..) in clamp (leaving only min(100,...))
 #if defined (SHADER_API_MOBILE)
-    specularTerm = specularTerm - GRAPHICS_TOOLS_HALF_MIN;
+    specularTerm = specularTerm - GT_HALF_MIN;
     specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
 #endif
 
@@ -231,7 +225,7 @@ half3 GTLightingPhysicallyBased(GTBRDFData brdfData,
     half3 brdf = brdfData.diffuse;
 #if defined(_SPECULAR_HIGHLIGHTS)
     brdf += brdfData.specular * GTDirectBRDFSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
-#endif // _SPECULAR_HIGHLIGHTS
+#endif
 
     return brdf * radiance;
 }

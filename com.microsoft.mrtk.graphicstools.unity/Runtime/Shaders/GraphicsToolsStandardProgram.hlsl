@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#ifndef GRAPHICS_TOOLS_STANDARD_PROGRAM
-#define GRAPHICS_TOOLS_STANDARD_PROGRAM
+#ifndef GT_STANDARD_PROGRAM
+#define GT_STANDARD_PROGRAM
 
 #pragma vertex VertexStage
 #pragma fragment PixelStage
@@ -210,7 +210,7 @@ Varyings VertexStage(Attributes input)
 #if defined(_NEAR_PLANE_FADE)
     float rangeInverse = 1.0 / (_FadeBeginDistance - _FadeCompleteDistance);
 #if defined(_NEAR_LIGHT_FADE)
-    float fadeDistance = GRAPHICS_TOOLS_MAX_NEAR_LIGHT_DIST;
+    float fadeDistance = GT_MAX_NEAR_LIGHT_DIST;
 
     [unroll]
     for (int hoverLightIndex = 0; hoverLightIndex < HOVER_LIGHT_COUNT; ++hoverLightIndex)
@@ -324,7 +324,7 @@ Varyings VertexStage(Attributes input)
  #elif defined(_GRADIENT_LINEAR)
     // Reference: https://patrickbrosset.medium.com/do-you-really-understand-css-linear-gradients-631d9a895caf
     // Translate the angle from degress to radians and default pointing up along the unit circle.
-    float angle = _GradientAngle * GRAPHICS_TOOLS_DEGREES_TO_RADIANS;
+    float angle = _GradientAngle * GT_DEGREES_TO_RADIANS;
     float cosA = cos(angle);
     float sinA = sin(angle);
 
@@ -387,7 +387,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_TRIPLANAR_MAPPING)
     // Calculate triplanar uvs and apply texture scale and offset values like TRANSFORM_TEX.
     half3 triplanarBlend = pow(abs(input.triplanarNormal), _TriplanarMappingBlendSharpness);
-    triplanarBlend /= dot(triplanarBlend, half3(1.0, 1.0, 1.0));
+    triplanarBlend /= dot(triplanarBlend, half3(1.0h, 1.0h, 1.0h));
     float2 uvX = input.triplanarPosition.zy * _MainTex_ST.xy + _MainTex_ST.zw;
     float2 uvY = input.triplanarPosition.xz * _MainTex_ST.xy + _MainTex_ST.zw;
     float2 uvZ = input.triplanarPosition.xy * _MainTex_ST.xy + _MainTex_ST.zw;
@@ -401,7 +401,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
 // Texturing.
 #if defined(_DISABLE_ALBEDO_MAP)
-    half4 albedo = half4(1.0, 1.0, 1.0, 1.0);
+    half4 albedo = half4(1.0h, 1.0h, 1.0h, 1.0h);
 #else
 #if defined(_TRIPLANAR_MAPPING)
 #if defined(_URP)
@@ -456,10 +456,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #else
 #if defined(_METALLIC_TEXTURE_ALBEDO_CHANNEL_A)
     _Metallic = albedo.a;
-    albedo.a = 1.0;
+    albedo.a = 1.0h;
 #elif defined(_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A)
     _Smoothness = albedo.a;
-    albedo.a = 1.0;
+    albedo.a = 1.0h;
 #endif 
 #endif
 
@@ -484,15 +484,15 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     primitiveDistance = min(primitiveDistance, GTPointVsBox(input.worldPosition.xyz, _ClipBoxInverseTransform) * _ClipBoxSide);
 #endif
 #if defined(_CLIPPING_BORDER)
-    half3 primitiveBorderColor = lerp(_ClippingBorderColor, half3(0.0, 0.0, 0.0), primitiveDistance / _ClippingBorderWidth);
-    albedo.rgb += primitiveBorderColor * (primitiveDistance < _ClippingBorderWidth ? 1.0 : 0.0);
+    half3 primitiveBorderColor = lerp(_ClippingBorderColor, half3(0.0h, 0.0h, 0.0h), primitiveDistance / _ClippingBorderWidth);
+    albedo.rgb += primitiveBorderColor * (primitiveDistance < _ClippingBorderWidth ? 1.0h : 0.0h);
 #endif
 #endif
 
 #if defined(_DISTANCE_TO_EDGE)
     half2 distanceToEdge;
-    distanceToEdge.x = abs(input.uv.x - 0.5) * 2.0;
-    distanceToEdge.y = abs(input.uv.y - 0.5) * 2.0;
+    distanceToEdge.x = abs(input.uv.x - 0.5h) * 2.0h;
+    distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
 #endif
 
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
@@ -505,26 +505,26 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_ROUND_CORNERS)
 #if defined(_INDEPENDENT_CORNERS)
 #if !defined(_USE_WORLD_SCALE)
-    _RoundCornersRadius = clamp(_RoundCornersRadius, 0, 0.5);
+    _RoundCornersRadius = clamp(_RoundCornersRadius, 0.0h, 0.5h);
 #endif
     currentCornerRadius = GTFindCornerRadius((input.uv - float2(0.5, 0.5)) * 2.0, _RoundCornersRadius);
 #else 
     currentCornerRadius = _RoundCornerRadius;
 #endif
 #else
-    currentCornerRadius = 0;
-    _RoundCornerMargin = 0.0;
+    currentCornerRadius = 0.0h;
+    _RoundCornerMargin = 0.0h;
 #endif
 #if defined(_USE_WORLD_SCALE)
-    float cornerCircleRadius = max(currentCornerRadius, GRAPHICS_TOOLS_MIN_CORNER_VALUE) * input.scale.z;
+    float cornerCircleRadius = max(currentCornerRadius, GT_MIN_CORNER_VALUE) * input.scale.z;
 #else
-    float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, GRAPHICS_TOOLS_MIN_CORNER_VALUE)) * input.scale.z;
+    float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, GT_MIN_CORNER_VALUE)) * input.scale.z;
 #endif
     float2 cornerCircleDistance = halfScale - (_RoundCornerMargin * input.scale.z) - cornerCircleRadius;
 #if defined(_ROUND_CORNERS)
     float roundCornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * input.scale.z);
 #if defined(_ROUND_CORNERS_HIDE_INTERIOR)
-    roundCornerClip = (roundCornerClip < 1) ? roundCornerClip : 0.0;
+    roundCornerClip = (roundCornerClip < 1.0) ? roundCornerClip : 0.0;
 #endif
 #endif
 #endif
@@ -540,7 +540,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
 #if defined(_GRADIENT)
 #if defined(_IRIDESCENCE)
-    half4 gradientColor = half4(input.gradient, 1.0);
+    half4 gradientColor = half4(input.gradient, 1.0h);
 #elif defined(_GRADIENT_FOUR_POINT)
     half4 gradientColor = GTFourPointGradient(_GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, input.uv);
 #elif defined(_GRADIENT_LINEAR)
@@ -598,10 +598,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     worldNormal.x = dot(input.tangentX, tangentNormal);
     worldNormal.y = dot(input.tangentY, tangentNormal);
     worldNormal.z = dot(input.tangentZ, tangentNormal);
-    worldNormal = normalize(worldNormal) * (facing ? 1.0 : -1.0);
+    worldNormal = normalize(worldNormal) * (facing ? 1.0h : -1.0h);
 #endif
 #else
-    worldNormal = normalize(input.worldNormal) * (facing ? 1.0 : -1.0);
+    worldNormal = normalize(input.worldNormal) * (facing ? 1.0h : -1.0h);
 #endif
 #endif
 
@@ -615,7 +615,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 
     half pointToLight = 1.0;
-    half3 fluentLightColor = half3(0.0, 0.0, 0.0);
+    half3 fluentLightColor = half3(0.0h, 0.0h, 0.0h);
 
     // Hover light.
 #if defined(_HOVER_LIGHT)
@@ -628,7 +628,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
         half hoverValue = GTHoverLight(_HoverLightData[dataIndex], _HoverLightData[dataIndex + 1].w, input.worldPosition.xyz);
         pointToLight += hoverValue;
 #if !defined(_HOVER_COLOR_OVERRIDE)
-        fluentLightColor += lerp(half3(0.0, 0.0, 0.0), _HoverLightData[dataIndex + 1].rgb, hoverValue);
+        fluentLightColor += lerp(half3(0.0h, 0.0h, 0.0h), _HoverLightData[dataIndex + 1].rgb, hoverValue);
 #endif
     }
 #if defined(_HOVER_COLOR_OVERRIDE)
@@ -654,15 +654,15 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
         half3 proximityColor = GTMixProximityLightColor(_ProximityLightData[dataIndex + 3], _ProximityLightData[dataIndex + 4], _ProximityLightData[dataIndex + 5], colorValue);
 #endif  
 #if defined(_PROXIMITY_LIGHT_SUBTRACTIVE)
-        fluentLightColor -= lerp(half3(0.0, 0.0, 0.0), proximityColor, proximityValue);
+        fluentLightColor -= lerp(half3(0.0h, 0.0h, 0.0h), proximityColor, proximityValue);
 #else
-        fluentLightColor += lerp(half3(0.0, 0.0, 0.0), proximityColor, proximityValue);
+        fluentLightColor += lerp(half3(0.0h, 0.0h, 0.0h), proximityColor, proximityValue);
 #endif    
     }
 #endif
 
 #if defined(_BLUR_TEXTURE) || defined(_BLUR_TEXTURE_2) || defined(_BLUR_TEXTURE_PREBAKED_BACKGROUND)
-    half3 blurColor = half3(0.0f, 0.0f, 0.0f);
+    half3 blurColor = half3(0.0h, 0.0h, 0.0h);
 #if defined(_UV_SCREEN)
     float2 uvScreen = input.uvScreen.xy / input.uvScreen.w;
 #if defined(_BLUR_TEXTURE)
@@ -692,10 +692,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_BORDER_LIGHT)
 #if defined(_USE_WORLD_SCALE)
     half borderMargin = _RoundCornerMargin + _BorderWidth;
-    cornerCircleRadius = max(currentCornerRadius - _BorderWidth, GRAPHICS_TOOLS_MIN_CORNER_VALUE) * input.scale.z;
+    cornerCircleRadius = max(currentCornerRadius - _BorderWidth, GT_MIN_CORNER_VALUE) * input.scale.z;
 #else
-    half borderMargin = _RoundCornerMargin + _BorderWidth * 0.5;
-    cornerCircleRadius = saturate(max(currentCornerRadius - borderMargin, GRAPHICS_TOOLS_MIN_CORNER_VALUE)) * input.scale.z;
+    half borderMargin = _RoundCornerMargin + _BorderWidth * 0.5h;
+    cornerCircleRadius = saturate(max(currentCornerRadius - borderMargin, GT_MIN_CORNER_VALUE)) * input.scale.z;
 #endif
     cornerCircleDistance = halfScale - (borderMargin * input.scale.z) - cornerCircleRadius;
 
@@ -720,10 +720,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_BORDER_LIGHT_REPLACES_ALBEDO)
     albedo.rgb = lerp(albedo.rgb, borderContribution, borderValue);
 #else
-    albedo.rgb += lerp(half3(0.0, 0.0, 0.0), borderContribution, borderValue);
+    albedo.rgb += lerp(half3(0.0h, 0.0h, 0.0h), borderContribution, borderValue);
 #endif
 #if defined(_HOVER_LIGHT) || defined(_PROXIMITY_LIGHT)
-    albedo.rgb += (fluentLightColor * borderValue * pointToLight * _FluentLightIntensity) * 2.0;
+    albedo.rgb += (fluentLightColor * borderValue * pointToLight * _FluentLightIntensity) * 2.0h;
 #endif
 #if defined(_BORDER_LIGHT_OPAQUE)
     albedo.a = max(albedo.a, borderValue * _BorderLightOpaqueAlpha);
@@ -762,41 +762,45 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // Final lighting mix.
     half4 output = albedo;
 
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS)
+#if defined(_CHANNEL_MAP)
+    half3 occlusion = channel.g;
+#else
+    half3 occlusion = 1.0h;
+#endif
+#endif
+
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
     GTBRDFData brdfData;
     GTInitializeBRDFData(albedo, _Metallic, 1.0, _Smoothness, albedo.a, brdfData);
-    GTMainLight light = GTGetMainLight();
 
  #if defined(_SPHERICAL_HARMONICS)
     half3 bakedGI = input.ambient;
 #else
-    half3 bakedGI = glstate_lightmodel_ambient.rgb + half3(0.25, 0.25, 0.25);
+    half3 bakedGI = glstate_lightmodel_ambient.rgb + half3(0.25h, 0.25h, 0.25h);
 #endif
 
-#if defined(_CHANNEL_MAP)
-    half3 occlusion = channel.g;
-#else
-    half3 occlusion = half(1.0);
-#endif
-
+    // Indirect lighting.
     output.rgb = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
+
+    // Direct lighting.
+    GTMainLight light = GTGetMainLight();
     output.rgb += GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir);
 
-#elif defined(_REFLECTIONS)
+    // No lighting, but show reflections.
+#elif defined(_REFLECTIONS) 
     half3 reflectVector = reflect(-worldViewDir, worldNormal);
-#if defined(_CHANNEL_MAP)
-    half3 occlusion = channel.g;
-#else
-    half3 occlusion = half(1.0);
-#endif
-    output.rgb += GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
+    half3 reflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
+    output.rgb = (albedo * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h);
 #endif
 
+    // Fresnel lighting.
 #if defined(_RIM_LIGHT)
-    half fresnel = 1.0 - saturate(abs(dot(worldViewDir, worldNormal)));
+    half fresnel = 1.0h - saturate(abs(dot(worldViewDir, worldNormal)));
     output.rgb += _RimColor * pow(fresnel, _RimPower);
 #endif
 
+    // Emmissive light.
 #if defined(_EMISSION)
 #if defined(UNITY_COLORSPACE_GAMMA)
     half3 emission = _EmissiveColor.rgb;
@@ -815,7 +819,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // Inner glow.
 #if defined(_INNER_GLOW)
     half2 uvGlow = pow(abs(distanceToEdge * _InnerGlowColor.a), _InnerGlowPower);
-    output.rgb += lerp(half3(0.0, 0.0, 0.0), _InnerGlowColor.rgb, uvGlow.x + uvGlow.y);
+    output.rgb += lerp(half3(0.0h, 0.0h, 0.0h), _InnerGlowColor.rgb, uvGlow.x + uvGlow.y);
 #endif
 
     // Environment coloring.
@@ -842,7 +846,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
     // Perform non-alpha clipped primitive clipping on the final output.
 #if defined(_CLIPPING_PRIMITIVE) && !defined(_ALPHA_CLIP)
-    output *= saturate(primitiveDistance * (1.0f / _BlendedClippingWidth));
+    output *= saturate(primitiveDistance * (1.0 / _BlendedClippingWidth));
 #endif
 
     // Fade the alpha channel (or RGB channels when additive) on the final output.
@@ -855,4 +859,4 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     return output;
 }
 
-#endif // GRAPHICS_TOOLS_STANDARD_PROGRAM
+#endif // GT_STANDARD_PROGRAM
