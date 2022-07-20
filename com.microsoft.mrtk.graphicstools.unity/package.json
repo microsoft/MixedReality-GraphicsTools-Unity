@@ -42,6 +42,11 @@
       "path": "Samples~/MeshOutlines"
     },
     {
+      "displayName": "Mesh Instancing",
+      "description": "Samples of different mesh instancing techniques that use the MeshInstancer.",
+      "path": "Samples~/MeshInstancing"
+    },
+    {
       "displayName": "Acrylic (Experimental)",
       "description": "Examples of how the acrylic effect can be utilized to give materials a translucent/frosted glass look.",
       "path": "Samples~/Experimental/Acrylic"

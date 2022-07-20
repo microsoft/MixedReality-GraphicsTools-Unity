@@ -1,0 +1,16 @@
+{
+    "name": "Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing",
+    "rootNamespace": "Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing",
+    "references": [
+        "GUID:22213891bfe50254781c448a2277a9a5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
