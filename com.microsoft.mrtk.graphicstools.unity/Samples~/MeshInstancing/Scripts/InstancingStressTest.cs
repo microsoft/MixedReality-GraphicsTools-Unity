@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
     {
         [SerializeField]
         private MeshInstancer instancer = null;
-        [SerializeField, Range(0, 50000)]
+        [SerializeField, Range(0, 100000)]
         private int instanceCount = 500;
         [SerializeField]
         private bool uniformScale = true;
@@ -49,7 +49,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         private int colorID;
         private MeshInstancer.RaycastHit lastRaycastHit;
 
-        private struct SimulationData
+        private class SimulationData
         {
             public float speed;
             public float turnTime;

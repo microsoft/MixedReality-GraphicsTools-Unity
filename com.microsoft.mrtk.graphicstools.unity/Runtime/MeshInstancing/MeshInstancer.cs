@@ -541,23 +541,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void LateUpdate()
         {
-            // Spin up an update job for each instance bucket.
-            float deltaTime = Time.deltaTime;
-            Matrix4x4 localToWorld = transform.localToWorldMatrix;
             RaycastHits.Clear();
-            int runningJobs = instanceBuckets.Count;
 
-            Parallel.ForEach(instanceBuckets, (bucket) =>
-            {
-                if (RaycastInstances)
-                {
-                    bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider);
-                }
-                else
-                {
-                    bucket.UpdateJob(deltaTime, localToWorld);
-                }
-            });
+            // WebGL doesn't support threaded operations.
+#if UNITY_WEBGL
+            UpdateBuckets();
+#else
+            UpdateBucketsAync();
+#endif
 
             foreach (var bucket in instanceBuckets)
             {
@@ -570,6 +561,43 @@ namespace Microsoft.MixedReality.GraphicsTools
                     RaycastHits.AddRange(bucket.RaycastHits);
                 }
             }
+        }
+
+        private void UpdateBucketsAync()
+        {
+            float deltaTime = Time.deltaTime;
+            Matrix4x4 localToWorld = transform.localToWorldMatrix;
+
+            // Spin up an update job for each instance bucket.
+            Parallel.ForEach(instanceBuckets, (bucket) =>
+            {
+                if (RaycastInstances)
+                {
+                    bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider);
+                }
+                else
+                {
+                    bucket.UpdateJob(deltaTime, localToWorld);
+                }
+            });
+        }
+
+        private void UpdateBuckets()
+        {
+            float deltaTime = Time.deltaTime;
+            Matrix4x4 localToWorld = transform.localToWorldMatrix;
+
+            foreach (InstanceBucket bucket in instanceBuckets)
+            {
+                if (RaycastInstances)
+                {
+                    bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider);
+                }
+                else
+                {
+                    bucket.UpdateJob(deltaTime, localToWorld);
+                }
+            };
         }
 
         private void OnDrawGizmos()

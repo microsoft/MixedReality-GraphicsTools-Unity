@@ -22,8 +22,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: InstancedColor
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ShaderKeywords: _BORDER_LIGHT _BORDER_LIGHT_REPLACES_ALBEDO _DIRECTIONAL_LIGHT
-    _DISABLE_ALBEDO_MAP _SPECULAR_HIGHLIGHTS
+  m_ShaderKeywords: _BORDER_LIGHT_REPLACES_ALBEDO _DIRECTIONAL_LIGHT _DISABLE_ALBEDO_MAP
+    _REFLECTIONS _SPECULAR_HIGHLIGHTS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -117,7 +117,7 @@ Material:
     - _BlurMode: 0
     - _BlurTextureIntensity: 1
     - _BorderColorMode: 0
-    - _BorderLight: 1
+    - _BorderLight: 0
     - _BorderLightOpaque: 0
     - _BorderLightOpaqueAlpha: 1
     - _BorderLightReplacesAlbedo: 1
@@ -183,7 +183,7 @@ Material:
     - _ProximityLightTwoSided: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Reflections: 0
+    - _Reflections: 1
     - _Refraction: 0
     - _RefractiveIndex: 0
     - _RenderQueueOverride: -1
@@ -193,7 +193,7 @@ Material:
     - _RoundCornerRadius: 0.25
     - _RoundCorners: 0
     - _RoundCornersHideInterior: 0
-    - _Smoothness: 0
+    - _Smoothness: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SphericalHarmonics: 0
