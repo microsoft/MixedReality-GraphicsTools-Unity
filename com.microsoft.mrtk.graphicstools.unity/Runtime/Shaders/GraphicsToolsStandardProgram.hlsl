@@ -849,9 +849,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     output *= saturate(primitiveDistance * (1.0 / _BlendedClippingWidth));
 #endif
 
-    // Fade the alpha channel (or RGB channels when additive) on the final output.
-#if defined(_ALPHABLEND_ON) || defined(_ALPHABLEND_TRANS_ON)
+    // Fade the alpha channel (or RGB channels) on the final output.
+#if defined(_ALPHABLEND_ON)
     output.a *= _Fade;
+#elif defined(_ALPHABLEND_TRANS_ON)
+    output *= _Fade;
 #elif defined(_ADDITIVE_ON)
     output *= _Fade;
 #endif
