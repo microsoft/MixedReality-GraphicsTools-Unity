@@ -1,26 +1,40 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#ifndef GRAPHICS_TOOLS_COMMON
-#define GRAPHICS_TOOLS_COMMON
+#ifndef GT_COMMON
+#define GT_COMMON
 
 /// <summary>
 /// Constants
 /// </summary>
 
-#define GRAPHICS_TOOLS_PI                 3.14159265359
-#define GRAPHICS_TOOLS_TWO_PI             6.28318530718
-#define GRAPHICS_TOOLS_FOUR_PI            12.56637061436
-#define GRAPHICS_TOOLS_INV_PI             0.31830988618
-#define GRAPHICS_TOOLS_INV_TWO_PI         0.15915494309
-#define GRAPHICS_TOOLS_INV_FOUR_PI        0.07957747155
-#define GRAPHICS_TOOLS_HALF_PI            1.57079632679
-#define GRAPHICS_TOOLS_INV_HALF_PI        0.636619772367
-#define GRAPHICS_TOOLS_DEGREES_TO_RADIANS (GRAPHICS_TOOLS_PI / 180.0)
+#define GT_PI                    3.14159265359
+#define GT_DEGREES_TO_RADIANS    (GT_PI / 180.0)
 
-#define GRAPHICS_TOOLS_MIN_CORNER_VALUE      1e-3
-#define GRAPHICS_TOOLS_MIN_CORNER_VALUE_RECT 1e-1
-#define GRAPHICS_TOOLS_MAX_NEAR_LIGHT_DIST   10.0
+#define GT_FLT_MIN               1.175494351e-38 // Minimum normalized positive floating-point number.
+#define GT_HALF_MIN              6.103515625e-5  // 2^-14, the same value for 10, 11 and 16-bit: https://www.khronos.org/opengl/wiki/Small_Float_Formats
+#define GT_HALF_MIN_SQRT         0.0078125  // 2^-7 == sqrt(GT_HALF_MIN), useful for ensuring GT_HALF_MIN after x^2.
+
+#define GT_MIN_CORNER_VALUE      1e-3
+#define GT_MIN_CORNER_VALUE_RECT 1e-1
+#define GT_MAX_NEAR_LIGHT_DIST   10.0
+
+/// <summary>
+/// Math methods.
+/// </summary>
+
+// Normalize that accounts for vectors of zero length.
+inline float3 GTSafeNormalize(float3 vec)
+{
+    float length = max(GT_FLT_MIN, dot(vec, vec));
+    return vec * rsqrt(length);
+}
+
+// Specialization of pow(x, 4).
+inline half GTPow4(half x)
+{
+    return (x * x) * (x * x);
+}
 
 /// <summary>
 /// Transformation methods.
@@ -64,43 +78,6 @@ inline half3 GTsRGBToLinear(half3 sRGB)
 inline half4 GTsRGBToLinear(half4 sRGB)
 {
     return half4(GTsRGBToLinear(sRGB.rgb), sRGB.a);
-}
-
-/// <summary>
-/// Lighting methods.
-/// </summary>
-
-inline float GTNearLightDistance(float4 light, float3 worldPosition)
-{
-    return distance(worldPosition, light.xyz) + ((1.0 - light.w) * GRAPHICS_TOOLS_MAX_NEAR_LIGHT_DIST);
-}
-
-inline float GTHoverLight(float4 hoverLight, float inverseRadius, float3 worldPosition)
-{
-    return (1.0 - saturate(length(hoverLight.xyz - worldPosition) * inverseRadius)) * hoverLight.w;
-}
-
-inline float GTProximityLight(float4 proximityLight, float4 proximityLightParams, float4 proximityLightPulseParams, float3 worldPosition, float3 worldNormal, out half colorValue)
-{
-    float proximityLightDistance = dot(proximityLight.xyz - worldPosition, worldNormal);
-#if defined(_PROXIMITY_LIGHT_TWO_SIDED)
-    worldNormal = proximityLightDistance < 0.0 ? -worldNormal : worldNormal;
-    proximityLightDistance = abs(proximityLightDistance);
-#endif
-    float normalizedProximityLightDistance = saturate(proximityLightDistance * proximityLightParams.y);
-    float3 projectedProximityLight = proximityLight.xyz - (worldNormal * abs(proximityLightDistance));
-    float projectedProximityLightDistance = length(projectedProximityLight - worldPosition);
-    float attenuation = (1.0 - normalizedProximityLightDistance) * proximityLight.w;
-    colorValue = saturate(projectedProximityLightDistance * proximityLightParams.z);
-    float pulse = step(proximityLightPulseParams.x, projectedProximityLightDistance) * proximityLightPulseParams.y;
-
-    return smoothstep(1.0, 0.0, projectedProximityLightDistance / (proximityLightParams.x * max(pow(normalizedProximityLightDistance, 0.25), proximityLightParams.w))) * pulse * attenuation;
-}
-
-inline half3 GTMixProximityLightColor(half4 centerColor, half4 middleColor, half4 outerColor, half t)
-{
-    half3 color = lerp(centerColor.rgb, middleColor.rgb, smoothstep(centerColor.a, middleColor.a, t));
-    return lerp(color, outerColor.rgb, smoothstep(middleColor.a, outerColor.a, t));
 }
 
 /// <summary>
@@ -206,23 +183,23 @@ inline float GTUnityUIClipRect(in float2 position, in float4 clipRect, in float4
 {
 #if defined(UNITY_UI_ALPHACLIP)
 #if defined(_UI_CLIP_RECT_ROUNDED)
-    radii.x = max(radii.x, GRAPHICS_TOOLS_MIN_CORNER_VALUE_RECT);
+    radii.x = max(radii.x, GT_MIN_CORNER_VALUE_RECT);
     return GTGet2DClippingRounded(position, clipRect, radii.x) <= 0.0;
 #elif defined(_UI_CLIP_RECT_ROUNDED_INDEPENDENT)
-    radii = max(radii, GRAPHICS_TOOLS_MIN_CORNER_VALUE_RECT);
+    radii = max(radii, GT_MIN_CORNER_VALUE_RECT);
     return GTGet2DClippingRoundedIndependent(position, clipRect, radii) <= 0.0;
 #else
-    return GTGet2DClippingRounded(position, clipRect, GRAPHICS_TOOLS_MIN_CORNER_VALUE_RECT) <= 0.0;
+    return GTGet2DClippingRounded(position, clipRect, GT_MIN_CORNER_VALUE_RECT) <= 0.0;
 #endif
 #else
 #if defined(_UI_CLIP_RECT_ROUNDED)
-    radii.x = max(radii.x, GRAPHICS_TOOLS_MIN_CORNER_VALUE_RECT);
+    radii.x = max(radii.x, GT_MIN_CORNER_VALUE_RECT);
     return GTGet2DClippingRoundedSoft(position, clipRect, radii.x);
 #elif defined(_UI_CLIP_RECT_ROUNDED_INDEPENDENT)
-    radii = max(radii, GRAPHICS_TOOLS_MIN_CORNER_VALUE_RECT);
+    radii = max(radii, GT_MIN_CORNER_VALUE_RECT);
     return GTGet2DClippingRoundedIndependentSoft(position, clipRect, radii);
 #else
-    return GTGet2DClippingRoundedSoft(position, clipRect, GRAPHICS_TOOLS_MIN_CORNER_VALUE_RECT);
+    return GTGet2DClippingRoundedSoft(position, clipRect, GT_MIN_CORNER_VALUE_RECT);
 #endif
 #endif
 }
@@ -275,4 +252,41 @@ half4 GTLinearGradient(half4 color0, half4 color1, half4 color2, half4 color3, h
     return output;
 }
 
-#endif // GRAPHICS_TOOLS_COMMON
+/// <summary>
+/// Custom lighting methods.
+/// </summary>
+
+inline float GTNearLightDistance(float4 light, float3 worldPosition)
+{
+    return distance(worldPosition, light.xyz) + ((1.0 - light.w) * GT_MAX_NEAR_LIGHT_DIST);
+}
+
+inline float GTHoverLight(float4 hoverLight, float inverseRadius, float3 worldPosition)
+{
+    return (1.0 - saturate(length(hoverLight.xyz - worldPosition) * inverseRadius)) * hoverLight.w;
+}
+
+inline float GTProximityLight(float4 proximityLight, float4 proximityLightParams, float4 proximityLightPulseParams, float3 worldPosition, float3 worldNormal, out half colorValue)
+{
+    float proximityLightDistance = dot(proximityLight.xyz - worldPosition, worldNormal);
+#if defined(_PROXIMITY_LIGHT_TWO_SIDED)
+    worldNormal = proximityLightDistance < 0.0 ? -worldNormal : worldNormal;
+    proximityLightDistance = abs(proximityLightDistance);
+#endif
+    float normalizedProximityLightDistance = saturate(proximityLightDistance * proximityLightParams.y);
+    float3 projectedProximityLight = proximityLight.xyz - (worldNormal * abs(proximityLightDistance));
+    float projectedProximityLightDistance = length(projectedProximityLight - worldPosition);
+    float attenuation = (1.0 - normalizedProximityLightDistance) * proximityLight.w;
+    colorValue = saturate(projectedProximityLightDistance * proximityLightParams.z);
+    float pulse = step(proximityLightPulseParams.x, projectedProximityLightDistance) * proximityLightPulseParams.y;
+
+    return smoothstep(1.0, 0.0, projectedProximityLightDistance / (proximityLightParams.x * max(pow(normalizedProximityLightDistance, 0.25), proximityLightParams.w))) * pulse * attenuation;
+}
+
+inline half3 GTMixProximityLightColor(half4 centerColor, half4 middleColor, half4 outerColor, half t)
+{
+    half3 color = lerp(centerColor.rgb, middleColor.rgb, smoothstep(centerColor.a, middleColor.a, t));
+    return lerp(color, outerColor.rgb, smoothstep(middleColor.a, outerColor.a, t));
+}
+
+#endif // GT_COMMON
