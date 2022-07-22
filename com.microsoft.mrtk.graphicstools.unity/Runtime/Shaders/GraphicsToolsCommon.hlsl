@@ -16,7 +16,7 @@
 #define GT_HALF_MIN_SQRT         0.0078125  // 2^-7 == sqrt(GT_HALF_MIN), useful for ensuring GT_HALF_MIN after x^2.
 
 #define GT_MIN_CORNER_VALUE      1e-3
-#define GT_MIN_CORNER_VALUE_RECT 1e-1
+#define GT_MIN_CORNER_VALUE_RECT 1e-3
 #define GT_MAX_NEAR_LIGHT_DIST   10.0
 
 /// <summary>
