@@ -125,8 +125,8 @@
 
 #if defined(_URP)
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-
 #else
 #include "UnityCG.cginc"
 #include "UnityStandardConfig.cginc"
@@ -282,8 +282,10 @@ Varyings VertexStage(Attributes input)
     output.lightMapUV.xy = input.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 #endif
 
+    output.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
+
 #if defined(_VERTEX_COLORS)
-    output.color = input.color;
+    output.color *= input.color;
 #endif
 
 #if defined(_SPHERICAL_HARMONICS)
@@ -529,13 +531,9 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 #endif
 
-    albedo *= _Color;
-
-#if defined(_VERTEX_COLORS)
     albedo *= input.color;
 #if defined(_ADDITIVE_ON)
     albedo.rgb *= input.color.a;
-#endif
 #endif
 
 #if defined(_GRADIENT)
@@ -772,7 +770,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
     GTBRDFData brdfData;
-    GTInitializeBRDFData(albedo, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
+    GTInitializeBRDFData(albedo.rgb, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
 
  #if defined(_SPHERICAL_HARMONICS)
     half3 bakedGI = input.ambient;
