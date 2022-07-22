@@ -420,7 +420,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     float2 dx = ddx(input.uv) * 0.25; // horizontal offset
     float2 dy = ddy(input.uv) * 0.25; // vertical offset
     // supersampled 2x2 ordered grid
-    half4 albedo = 0;
+    half4 albedo = half4(0.0h, 0.0h, 0.0h, 0.0h);
 #if defined(_URP)
     albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv + dx + dy), _MipmapBias);
     albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv - dx + dy), _MipmapBias);
@@ -772,7 +772,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
     GTBRDFData brdfData;
-    GTInitializeBRDFData(albedo, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
+    GTInitializeBRDFData(albedo.rgb, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
 
  #if defined(_SPHERICAL_HARMONICS)
     half3 bakedGI = input.ambient;
@@ -791,7 +791,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #elif defined(_REFLECTIONS) 
     half3 reflectVector = reflect(-worldViewDir, worldNormal);
     half3 reflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
-    output.rgb = (albedo * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h);
+    output.rgb = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h);
 #endif
 
     // Fresnel lighting.
