@@ -100,8 +100,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent enableChannelMap = new GUIContent("Channel Map", "Enable Channel Map, a Channel Packing Texture That Follows Unity's Standard Channel Setup");
             public static readonly GUIContent channelMap = new GUIContent("Channel Map", "Metallic (Red), Occlusion (Green), Emission (Blue), Smoothness (Alpha)");
             public static readonly GUIContent enableNormalMap = new GUIContent("Normal Map", "Enable Normal Map");
-            public static readonly GUIContent normalMap = new GUIContent("Normal Map");
-            public static readonly GUIContent normalMaoScale = new GUIContent("Normal Map Scale");
+            public static readonly GUIContent normalMap = new GUIContent("Normal Map"); 
             public static readonly GUIContent enableEmission = new GUIContent("Emission", "Enable Emission");
             public static readonly GUIContent emissiveColor = new GUIContent("Color");
             public static readonly GUIContent emissiveMap = new GUIContent("EmissionMap");
@@ -512,7 +511,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 material.SetTexture("_NormalMap", normalMapTexture);
             }
             
-            SetShaderFeatureActive(material, null, "_NormalScale", normalMapScale);
+            SetShaderFeatureActive(material, null, "_NormalMapScale", normalMapScale);
 
             if (emissionMapTexture)
             {
@@ -645,7 +644,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 if (PropertyEnabled(enableNormalMap))
                 {
                     EditorGUI.indentLevel += 2;
-                    materialEditor.TexturePropertySingleLine(Styles.normalMap, normalMap,normalMapScale);
+                    materialEditor.TexturePropertySingleLine(Styles.normalMap, normalMap, normalMapScale);
                     EditorGUI.indentLevel -= 2;
                 }
             }
