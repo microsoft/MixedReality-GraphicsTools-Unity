@@ -12,7 +12,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     [CustomEditor(typeof(CanvasElementBeveledRect))]
     public class CanvasElementBeveledRectInspector : UnityEditor.Editor
     {
-        [MenuItem("GameObject/UI/Beveled Rect - Graphics Tools")]
+        [MenuItem("GameObject/UI/Graphics Tools/Beveled Rect")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
             GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementBeveledRect>(menuCommand);

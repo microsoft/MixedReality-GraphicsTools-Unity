@@ -77,7 +77,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return new Bounds(light.transform.position, Vector3.one * Mathf.Max(light.Settings.NearRadius, light.Settings.FarRadius));
         }
 
-        [MenuItem("GameObject/Light/Proximity Light")]
+       [MenuItem("GameObject/Light/Graphics Tools/Proximity Light")]
         private static void CreateProximityLight(MenuCommand menuCommand)
         {
             InspectorUtilities.CreateGameObjectFromMenu<ProximityLight>(menuCommand);
