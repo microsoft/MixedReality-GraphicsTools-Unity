@@ -198,6 +198,7 @@ CBUFFER_START(UnityPerMaterial)
     half _Metallic;
     half _Smoothness;
 
+    half _NormalMapScale;
     // #if defined(_ALPHA_CLIP)
     half _Cutoff;
 

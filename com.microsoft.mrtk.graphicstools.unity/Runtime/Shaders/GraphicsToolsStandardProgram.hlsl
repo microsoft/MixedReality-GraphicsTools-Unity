@@ -568,13 +568,13 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_NORMAL_MAP)
 #if defined(_TRIPLANAR_MAPPING)
 #if defined(_URP)
-    half3 tangentNormalX = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, uvX));
-    half3 tangentNormalY = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, uvY));
-    half3 tangentNormalZ = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, uvZ));
+    half3 tangentNormalX = UnpackNormalScale(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, uvX), _NormalMapScale);
+    half3 tangentNormalY = UnpackNormalScale(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, uvY), _NormalMapScale);
+    half3 tangentNormalZ = UnpackNormalScale(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, uvZ), _NormalMapScale);
 #else
-    half3 tangentNormalX = UnpackNormal(tex2D(_NormalMap, uvX));
-    half3 tangentNormalY = UnpackNormal(tex2D(_NormalMap, uvY));
-    half3 tangentNormalZ = UnpackNormal(tex2D(_NormalMap, uvZ));
+    half3 tangentNormalX = UnpackScaleNormal(tex2D(_NormalMap, uvX), _NormalMapScale);
+    half3 tangentNormalY = UnpackScaleNormal(tex2D(_NormalMap, uvY), _NormalMapScale);
+    half3 tangentNormalZ = UnpackScaleNormal(tex2D(_NormalMap, uvZ), _NormalMapScale);
 #endif
     tangentNormalX.x *= axisSign.x;
     tangentNormalY.x *= axisSign.y;
@@ -591,9 +591,9 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
                             tangentNormalZ.xyz * triplanarBlend.z);
 #else
 #if defined(_URP)
-    half3 tangentNormal = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, input.uv));
+    half3 tangentNormal = UnpackNormalScale(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, input.uv), _NormalMapScale);
 #else
-    half3 tangentNormal = UnpackNormal(tex2D(_NormalMap, input.uv));
+    half3 tangentNormal = UnpackScaleNormal(tex2D(_NormalMap, input.uv), _NormalMapScale);
 #endif
     worldNormal.x = dot(input.tangentX, tangentNormal);
     worldNormal.y = dot(input.tangentY, tangentNormal);
