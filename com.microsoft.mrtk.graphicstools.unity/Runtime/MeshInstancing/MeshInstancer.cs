@@ -133,6 +133,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// TODO
         /// </summary>
+        [Header("Diagnostics")]
+        [Tooltip("TODO")]
+        public bool DisplayUpdateTime = false;
+
+        /// <summary>
+        /// TODO
+        /// </summary>
         public class Instance
         {
             /// <summary>
@@ -422,9 +429,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            public void UpdateJob(float deltaTime, Matrix4x4 localToWorld)
+            public void UpdateJob(float deltaTime, Matrix4x4 localToWorld, int firstIndex, int lastIndex)
             {
-                for (int i = 0; i < InstanceCount; ++i)
+                for (int i = firstIndex; i < lastIndex; ++i)
                 {
                     // Apply any per instance logic.
                     AsynchronousUpdates[i]?.Invoke(deltaTime, Instances[i]);
@@ -434,7 +441,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            public void UpdateJobRaycast(float deltaTime, Matrix4x4 localToWorld, Box box, Ray ray)
+            public void UpdateJobRaycast(float deltaTime, Matrix4x4 localToWorld, Box box, Ray ray, int firstIndex, int lastIndex)
             {
                 // Pre calculate collider info.
                 Vector3 boxHalfSize = box.Size * 0.5f;
@@ -442,7 +449,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Vector3 boxMax = box.Center + boxHalfSize;
                 RaycastHits.Clear();
 
-                for (int i = 0; i < InstanceCount; ++i)
+                for (int i = firstIndex; i < lastIndex; ++i)
                 {
                     // Apply any per instance logic.
                     AsynchronousUpdates[i]?.Invoke(deltaTime, Instances[i]);
@@ -513,6 +520,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         private List<KeyValuePair<int, Vector4>> vectorMaterialProperties = new List<KeyValuePair<int, Vector4>>();
         private List<KeyValuePair<int, Matrix4x4>> matrixMaterialProperties = new List<KeyValuePair<int, Matrix4x4>>();
 
+        private System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+        private long[] stopwatchSamples = new long[120];
+        private int stopwatchSampleIndex = 0;
+        private float averageElapsedMilliseconds = 0.0f;
+
         private void Awake()
         {
             // Register all properties specified in the component properties.
@@ -543,12 +555,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             RaycastHits.Clear();
 
-            // WebGL doesn't support threaded operations.
-#if UNITY_WEBGL
             UpdateBuckets();
-#else
-            UpdateBucketsAync();
-#endif
 
             foreach (var bucket in instanceBuckets)
             {
@@ -563,41 +570,117 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private void UpdateBucketsAync()
+        private void OnGUI()
         {
-            float deltaTime = Time.deltaTime;
-            Matrix4x4 localToWorld = transform.localToWorldMatrix;
-
-            // Spin up an update job for each instance bucket.
-            Parallel.ForEach(instanceBuckets, (bucket) =>
+            if (DisplayUpdateTime)
             {
-                if (RaycastInstances)
+                if (stopwatchSampleIndex == stopwatchSamples.Length)
                 {
-                    bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider);
+                    long sum = 0;
+                    for (int i = 0; i < stopwatchSampleIndex; ++i)
+                    {
+                        sum += stopwatchSamples[i];
+                    }
+
+                    averageElapsedMilliseconds = (float)sum / stopwatchSampleIndex;
+                    stopwatchSampleIndex = 0;
                 }
                 else
                 {
-                    bucket.UpdateJob(deltaTime, localToWorld);
+                    stopwatchSamples[stopwatchSampleIndex] = stopwatch.ElapsedMilliseconds;
+                    ++stopwatchSampleIndex;
                 }
-            });
+
+                string label = string.Format("MeshInstancer Update: {0:f2} ms", averageElapsedMilliseconds);
+                GUI.Label(new Rect(10.0f, Screen.height - 24.0f, Screen.height, 128.0f), label);
+            }
         }
 
         private void UpdateBuckets()
         {
+            // Nothing to process.
+            if (instanceBuckets.Count == 0)
+            {
+                return;
+            }
+
+            if (DisplayUpdateTime)
+            {
+                stopwatch.Restart();
+            }
+
             float deltaTime = Time.deltaTime;
             Matrix4x4 localToWorld = transform.localToWorldMatrix;
+            int processorCount = Environment.ProcessorCount;
 
-            foreach (InstanceBucket bucket in instanceBuckets)
+            // WebGL doesn't support threaded operations.
+#if UNITY_WEBGL
+            processorCount = 1;
+#endif
+            // We are on a single processor machine, so best to not multi-thread.
+            if (processorCount == 1)
             {
-                if (RaycastInstances)
+                foreach (InstanceBucket bucket in instanceBuckets)
                 {
-                    bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider);
-                }
-                else
+                    if (RaycastInstances)
+                    {
+                        bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider, 0, bucket.InstanceCount);
+                    }
+                    else
+                    {
+                        bucket.UpdateJob(deltaTime, localToWorld, 0, bucket.InstanceCount);
+                    }
+                };
+            }
+            else if (processorCount > instanceBuckets.Count)  // More processors than buckets so split up the work within buckets.
+            {
+                int processorsPerBucket = Mathf.CeilToInt((float)processorCount / instanceBuckets.Count);
+                int count = UNITY_MAX_INSTANCE_COUNT / processorsPerBucket;
+
+                Parallel.For(0, instanceBuckets.Count * processorsPerBucket, (i, state) =>
                 {
-                    bucket.UpdateJob(deltaTime, localToWorld);
-                }
-            };
+                    int bucketIndex = i / processorsPerBucket;
+                    InstanceBucket bucket = instanceBuckets[bucketIndex];
+
+                    int iteration = i % processorsPerBucket;
+                    int firstIndex = iteration * count;
+
+                    if (firstIndex < bucket.InstanceCount)
+                    {
+                        // Ensure the whole bucket is processed for the last iteration.
+                        int lastIndex = (iteration == (processorsPerBucket - 1)) ? bucket.InstanceCount : firstIndex + count;
+
+                        if (RaycastInstances)
+                        {
+                            bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider, firstIndex, lastIndex);
+                        }
+                        else
+                        {
+                            bucket.UpdateJob(deltaTime, localToWorld, firstIndex, lastIndex);
+                        }
+                    }
+                });
+            }
+            else // More buckets than processors, so each processor gets (at least) a bucket to chew though.
+            {
+                // Spin up an update job for each instance bucket.
+                Parallel.ForEach(instanceBuckets, (bucket) =>
+                {
+                    if (RaycastInstances)
+                    {
+                        bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider, 0, bucket.InstanceCount);
+                    }
+                    else
+                    {
+                        bucket.UpdateJob(deltaTime, localToWorld, 0, bucket.InstanceCount);
+                    }
+                });
+            }
+
+            if (DisplayUpdateTime)
+            {
+                stopwatch.Stop();
+            }
         }
 
         private void OnDrawGizmos()
