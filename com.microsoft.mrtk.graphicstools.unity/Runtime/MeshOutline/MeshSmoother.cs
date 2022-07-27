@@ -30,10 +30,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private class MeshReference
         {
-            public UnityEngine.Mesh Mesh;
+            public Mesh Mesh;
             private int referenceCount;
 
-            public MeshReference(UnityEngine.Mesh mesh)
+            public MeshReference(Mesh mesh)
             {
                 Mesh = mesh;
                 referenceCount = 1;
@@ -55,7 +55,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private static Dictionary<UnityEngine.Mesh, MeshReference> processedMeshes = new Dictionary<UnityEngine.Mesh, MeshReference>();
+        private static Dictionary<Mesh, MeshReference> processedMeshes = new Dictionary<Mesh, MeshReference>();
 
         /// <summary>
         /// Performs normal smoothing on the current mesh filter associated with this component synchronously.
@@ -63,7 +63,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void SmoothNormals()
         {
-            UnityEngine.Mesh mesh;
+            Mesh mesh;
 
             // No need to do any smoothing if this mesh has already been processed.
             if (AcquirePreprocessedMesh(out mesh))
@@ -82,7 +82,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <returns>A task which will complete once normal smoothing is finished.</returns>
         public Task SmoothNormalsAsync()
         {
-            UnityEngine.Mesh mesh;
+            Mesh mesh;
 
             // No need to do any smoothing if this mesh has already been processed.
             if (AcquirePreprocessedMesh(out mesh))
@@ -150,7 +150,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         /// <param name="mesh">A reference to the mesh which was already processed or is ready to be processed.</param>
         /// <returns>True if the mesh was already processed, false otherwise.</returns>
-        private bool AcquirePreprocessedMesh(out UnityEngine.Mesh mesh)
+        private bool AcquirePreprocessedMesh(out Mesh mesh)
         {
             if (meshFilter == null)
             {
