@@ -23,7 +23,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private Renderer meshRenderer = null;
         private MaterialPropertyBlock propertyBlock = null;
-        private int vertexExtrusionValueID = 0;
         private Material[] defaultMaterials = null;
         private MeshSmoother createdMeshSmoother = null;
 
@@ -36,12 +35,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (GetComponent<SpriteRenderer>() != null)
             {
-                Debug.LogWarning($"{this.GetType()} is not supported on SpriteRenderers");
+                Debug.LogWarning($"{GetType()} is not supported on SpriteRenderers");
             }
 
             meshRenderer = GetComponent<Renderer>();
             propertyBlock = new MaterialPropertyBlock();
-            vertexExtrusionValueID = Shader.PropertyToID(vertexExtrusionValueName);
             defaultMaterials = meshRenderer.sharedMaterials;
         }
 
