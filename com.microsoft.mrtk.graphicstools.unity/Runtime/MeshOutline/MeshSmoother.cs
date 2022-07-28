@@ -144,7 +144,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                     processedMeshes.Remove(sharedMesh);
                 }
             }
-
         }
 
         #endregion MonoBehaviour Implementation
