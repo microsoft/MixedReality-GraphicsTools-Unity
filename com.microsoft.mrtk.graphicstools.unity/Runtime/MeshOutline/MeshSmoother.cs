@@ -23,10 +23,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         [SerializeField]
         private bool smoothNormalsOnAwake = false;
 
-        [SerializeField]
-        private Mesh originalMesh;
-
         private MeshFilter meshFilter = null;
+        private Mesh originalMesh;
 
         /// <summary>
         /// Helper class to track mesh references.
