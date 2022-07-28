@@ -23,6 +23,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         [SerializeField]
         private bool smoothNormalsOnAwake = false;
 
+        [SerializeField]
+        private Mesh originalMesh;
+
         private MeshFilter meshFilter = null;
 
         /// <summary>
@@ -127,6 +130,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnDestroy()
         {
+            meshFilter.sharedMesh = originalMesh;
+
             MeshReference meshReference;
             var sharedMesh = meshFilter.sharedMesh;
 
@@ -141,6 +146,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     processedMeshes.Remove(sharedMesh);
                 }
             }
+
         }
 
         #endregion MonoBehaviour Implementation
@@ -170,6 +176,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 return true;
             }
+
+            originalMesh = meshFilter.sharedMesh;
 
             // Clone the mesh, and create a mesh reference which can be keyed off either the original mesh or cloned mesh.
             mesh = meshFilter.mesh;
