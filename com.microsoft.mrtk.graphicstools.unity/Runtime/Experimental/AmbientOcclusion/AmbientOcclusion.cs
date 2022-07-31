@@ -1,108 +1,118 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using UnityEditor.UI;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
     [RequireComponent(typeof(MeshFilter), typeof(MeshCollider))]
     public class AmbientOcclusion : MonoBehaviour
     {
-        [SerializeField]
-        private int seed = 32;
+        [SerializeField] private int _seed = 32;
 
-        [SerializeField]
-        private int sampleCount = 32;
+        [SerializeField] private int _sampleCount = 32;
 
-        [SerializeField]
-        private float MaxDistance;
+        [SerializeField] private float _maxDistance = 1;
 
         [Header("Visualization")]
 
-        [SerializeField]
-        private bool shouldShowNormals;
+        [SerializeField] private bool _shouldShowNormals;
+        [SerializeField] private bool _shouldShowSamples;
+        [SerializeField] private bool _shouldShowHits;
+        [SerializeField] private float _normalScale = .1f;
 
-        [SerializeField]
-        private float normalScale;
+        [SerializeField] private float _sampleSphereRadius = .005f;
 
-        //[SerializeField]
-        //private float sphereRadius = .01f;
+        [SerializeField] private int _vertexIndex;
 
-        [SerializeField]
-        private float sampleSphereRaidus = .005f;
-
-
-        [SerializeField]
-        private int vertexVisualizationIndex;
-
-
-
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
-        private Mesh mesh;
-        private Vector3[] vertexs;
-        private Vector3[] normals;
-        private Vector3[] sampleDirections;
-        private float[] coverage;
+        private Mesh _mesh;
+        private Vector3[] _vertexs;
+        private Vector3[] _vertexNormals;
+        private Vector3[] _sampleDirections;
+        private Vector3[] _visSampleDirections;
+        private float[] _vertexCoverage;
 
         private List<RaycastHit> sampleHits = new List<RaycastHit>();
         private List<RaycastHit> debugSampleHits = new List<RaycastHit>();
 
+        private Mesh originalMesh;
 
-        [ContextMenu(nameof(Process))]
-        public void Process()
+        private MeshFilter _filter;
+
+        private MeshFilter Filter
         {
-            Random.InitState(seed);
+            get
+            {
+                if (_filter == null)
+                {
+                    _filter = GetComponent<MeshFilter>();
+                }
+                return _filter;
+            }
+            set { _filter = value; }
+        }
+
+        private void OnEnable()
+        {
+            originalMesh = Filter.sharedMesh;
+        }
+
+        [ContextMenu(nameof(CalculateAmbientOcclusion))]
+        public void CalculateAmbientOcclusion()
+        {
+            Random.InitState(_seed);
 
             var watch = Stopwatch.StartNew();
+            _vertexs = Filter.mesh.vertices;
+            _vertexNormals = Filter.mesh.normals;
+            _vertexCoverage = new float[_vertexs.Length];
 
-            var filter = GetComponent<MeshFilter>();
+            if (_shouldShowSamples)
+            {
+                _visSampleDirections = new Vector3[_sampleCount];
+            }
 
-            vertexs = filter.mesh.vertices;
-            normals = filter.mesh.normals;
-            coverage = new float[vertexs.Length];
-
-            ChangeLocalToWorldSpace(vertexs, normals); // modifies input!
+            ChangeLocalToWorldSpace(_vertexs, _vertexNormals); // modifies input!
 
             RaycastHit hit;
 
             debugSampleHits.Clear();
 
-            for (int i = 0; i < vertexs.Length; i++)
+            for (int vertexIndex = 0; vertexIndex < _vertexs.Length; vertexIndex++)
             {
-                sampleDirections = HemisphereSamplesForNormal(normals[i], sampleCount);
+                _sampleDirections = HemisphereSamplesForNormal(_vertexNormals[vertexIndex], _sampleCount);
 
                 sampleHits.Clear();
 
-                for (int j = 0; j < sampleCount; j++)
+                for (int sampleIndex = 0; sampleIndex < _sampleCount; sampleIndex++)
                 {
-                    if (Physics.Raycast(vertexs[i], sampleDirections[i], out hit, MaxDistance))
+                    bool needsRecord = true;
+
+                    if (Physics.Raycast(_vertexs[vertexIndex], _sampleDirections[sampleIndex], out hit, _maxDistance))
                     {
                         // Stash this specific vertex result for the gizmo
-                        if (i == vertexVisualizationIndex)
+                        if (vertexIndex == _vertexIndex)
                         {
                             debugSampleHits.Add(hit);
+                            needsRecord = false;
                         }
                         sampleHits.Add(hit);
                     }
 
-                    coverage[i] = (float)sampleHits.Count / sampleCount;
+                    if (_shouldShowSamples && needsRecord)
+                    {
+                        if (vertexIndex == _vertexIndex)
+                        {
+                            _visSampleDirections[sampleIndex] = _sampleDirections[sampleIndex];
+                        }
+                    }    
 
-                    UnityEngine.Debug.Log($"coverage={coverage}");
+                    _vertexCoverage[vertexIndex] = (float)sampleHits.Count / _sampleCount;
+
+                    //UnityEngine.Debug.Log($"coverage={coverage[i]}");
                 }
             }
-
-            UnityEngine.Debug.LogFormat("Ambient occlusion took {0} ms on {1} vertices.", watch.ElapsedMilliseconds, vertexs.Length);
+            UnityEngine.Debug.LogFormat($"{nameof(CalculateAmbientOcclusion)} took {watch.ElapsedMilliseconds} ms for {_vertexs.Length} vertices.");
         }
 
         private Vector3[] SphericalSamples(int sampleCount)
@@ -127,56 +137,83 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private Vector3[] HemisphereSamplesForNormal(Vector3 normalizedReferenceNormal, int sampleCount)
         {
-            var samples = new Vector3[sampleCount];
-            var i = 0;
-            while (i < sampleCount)
+            var watch = Stopwatch.StartNew();
+
+            var validSamples = new Vector3[sampleCount];
+            var validSampleCount = 0;
+            float angle;
+            Vector3 randomAxis;
+            while (validSampleCount < sampleCount)
             {
-                var sampleDirection = Random.rotationUniform.eulerAngles;
+                Random.rotationUniform.ToAngleAxis(out angle, out randomAxis);
                 // Only allow samples that point the same way as our reference normal
                 // Critical that the incoming normal is normalized (but not this functions job)
-                if (Vector3.Dot(sampleDirection, normalizedReferenceNormal) > 0)
+                if (Vector3.Dot(randomAxis, normalizedReferenceNormal) > 0)
                 {
-                    samples[i] = sampleDirection;
-                    ++i;
+                    validSamples[validSampleCount] = randomAxis;
+                    ++validSampleCount;
                 }
             }
-            return samples;
+
+            UnityEngine.Debug.LogFormat($"{nameof(HemisphereSamplesForNormal)} took {watch.ElapsedMilliseconds} ms for {sampleCount} samples.");
+
+            return validSamples;
         }
 
         void OnDrawGizmos()
         {
-            for (int i = 0; i < vertexs.Length; i++)
+            if (_vertexs == null)
             {
-                if (i == vertexVisualizationIndex)
+                return;
+            }
+
+            if (_shouldShowNormals)
+            {
+                var normal = _vertexNormals[_vertexIndex];
+                Gizmos.color = ColorVector(normal);
+                Gizmos.DrawLine(_vertexs[_vertexIndex], _vertexs[_vertexIndex] + _vertexNormals[_vertexIndex] * _normalScale);
+            }
+
+            // AO spheres
+            for (int i = 0; i < _vertexs.Length; i++)
+            {
+                var occ = 1 - _vertexCoverage[i];
+                Gizmos.color = new Color(occ, occ, occ, 1);
+                Gizmos.DrawSphere(_vertexs[i], _sampleSphereRadius);
+            }
+
+            if (_shouldShowSamples)
+            {
+                foreach (var sampleDir in _visSampleDirections)
                 {
-                    if (shouldShowNormals)
-                    {
-                        var normal = normals[i];
-                        var r = normal.x * .5f + .5f;
-                        var g = normal.y * .5f + .5f;
-                        var b = normal.z * .5f + .5f;
-                        var normalColor = new Color32(254, 235, 134, 255);
-                        Gizmos.color = normalColor;
-                        Gizmos.DrawLine(vertexs[i], vertexs[i] + normals[i] * normalScale);
-                    }
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawLine(_vertexs[_vertexIndex], _vertexs[_vertexIndex] + sampleDir);
+                }
+            }
 
-                    //var occ = 1 - coverage[i];
-                    //Gizmos.color = new Color(occ, occ, occ, 1);
-                    //Gizmos.DrawSphere(vertexs[i], sphereRadius);
-
-                    foreach (var hit in debugSampleHits)
-                    {
-                        Gizmos.color = new Color(1, 0, 1, 1);
-                        Gizmos.DrawLine(vertexs[i], hit.point);
-                        Gizmos.DrawSphere(hit.point, sampleSphereRaidus);
-                    }
+            if (_shouldShowHits)
+            {
+                // Show hits from samples
+                foreach (var hit in debugSampleHits)
+                {
+                    Gizmos.color = Color.magenta;
+                    Gizmos.DrawLine(_vertexs[_vertexIndex], hit.point);
+                    Gizmos.DrawSphere(hit.point, _sampleSphereRadius);
                 }
             }
         }
 
         private void OnValidate()
         {
-            Process();
+            CalculateAmbientOcclusion();
+        }
+
+        private Color ColorVector(Vector3 vector3)
+        {
+            return new Color(
+                vector3.x * .5f + .5f,
+                vector3.y * .5f + .5f,
+                vector3.z * .5f + .5f);
         }
     }
 }
