@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools
@@ -12,7 +10,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void OnEnable()
         {
             originalMesh = GetComponent<MeshFilter>().sharedMesh;
-            ColorVerts();
+            ApplySamplerCoverageToVertexs();
         }
 
         private void OnDisable()
@@ -26,10 +24,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             mesh.colors = colors;
         }
 
-        [ContextMenu(nameof(ColorVerts))]
-        public void ColorVerts()
+        [ContextMenu(nameof(ApplySamplerCoverageToVertexs))]
+        public void ApplySamplerCoverageToVertexs()
         {
-            GetComponent<Sampler>().Gather();
             var coverages = GetComponent<Sampler>().Coverages;
             var mesh = GetComponent<MeshFilter>().sharedMesh;
             var colors = new Color[mesh.vertexCount];
@@ -43,7 +40,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void OnValidate()
         {
-            ColorVerts();
+            ApplySamplerCoverageToVertexs();
         }
     }
 }
