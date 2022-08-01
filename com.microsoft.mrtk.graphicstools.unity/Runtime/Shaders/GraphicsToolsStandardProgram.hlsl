@@ -507,7 +507,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if !defined(_USE_WORLD_SCALE)
     _RoundCornersRadius = clamp(_RoundCornersRadius, 0.0h, 0.5h);
 #endif
-    currentCornerRadius = GTFindCornerRadius((input.uv - float2(0.5, 0.5)) * 2.0, _RoundCornersRadius);
+    currentCornerRadius = GTFindCornerRadius(input.uv.xy, _RoundCornersRadius);
 #else 
     currentCornerRadius = _RoundCornerRadius;
 #endif

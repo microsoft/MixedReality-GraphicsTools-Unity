@@ -110,7 +110,13 @@ inline float FilterDistance(in float distance)
 {
     float2 filterWidth = length(float2(ddx(distance), ddy(distance)));
     float pixelDistance = distance / length(filterWidth);
+
+#if defined(_INDEPENDENT_CORNERS) || defined(_UI_CLIP_RECT_ROUNDED_INDEPENDENT)
+    // To avoid artifacts at discontinuities in the SDF distance increase the pixel width.
+    return saturate(1.0 - pixelDistance);
+#else
     return saturate(0.5 - pixelDistance);
+#endif
 }
 
 inline float GTRoundCornersSmooth(in float2 position, in float2 cornerCircleDistance, in float cornerCircleRadius, in float smoothingValue)
@@ -132,17 +138,17 @@ inline float GTRoundCorners(in float2 position, in float2 cornerCircleDistance, 
 #endif
 }
 
-inline float GTFindCornerRadius(in float2 offset, in float4 radii)
+inline float GTFindCornerRadius(in float2 uv, in float4 radii)
 {
-    if (offset.x < 0)
+    if (uv.x < 0.5)
     {
-        if (offset.y > 0) { return radii.x; }
-        else { return radii.z; }
+        if (uv.y > 0.5) { return radii.x; } // Top left.
+        else { return radii.z; } // Bottom left.
     }
     else
     {
-        if (offset.y > 0) { return radii.y; }
-        else { return radii.w; }
+        if (uv.y > 0.5) { return radii.y; } // Top right.
+        else { return radii.w; } // Bottom right.
     }
 }
 
