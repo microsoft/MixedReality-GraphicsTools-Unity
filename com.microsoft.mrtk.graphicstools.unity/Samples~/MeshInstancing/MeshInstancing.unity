@@ -523,7 +523,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 2129533738}
-  instanceCount: 10000
+  instanceCount: 50000
   uniformScale: 0
   instanceSizeMin: 0.02
   instanceSizeMax: 0.08
@@ -565,6 +565,7 @@ MonoBehaviour:
   BoxCollider:
     Center: {x: 0, y: 0, z: 0}
     Size: {x: 1, y: 1, z: 1}
+  DisplayUpdateTime: 1
 --- !u!4 &2129533739
 Transform:
   m_ObjectHideFlags: 0
