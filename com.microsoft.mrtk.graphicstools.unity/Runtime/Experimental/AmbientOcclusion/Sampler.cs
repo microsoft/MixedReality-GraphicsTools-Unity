@@ -29,10 +29,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Header("Events")]
         public UnityEvent SamplesUpdated;
 
-        [Header("Visualization")]
-        public int ReferenceVertexIndex;
-
         public float[] Coverages;
+
+        [Header("Visualization")]
+        [Tooltip("The index of vertex to visualize")]
+        public int ReferenceVertexIndex;
 
         [SerializeField] private bool _showNormal;
         [SerializeField] private Color _normalColor = Color.cyan;
@@ -87,7 +88,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void OnEnable()
         {
             // This forces the Inspector to show the active checkbox for this component
-            UpdateCoverage();
+            PerformGather();
         }
 
         private void OnValidate()
@@ -101,7 +102,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 ReferenceVertexIndex = Mathf.Clamp(ReferenceVertexIndex, 0, _vertexes.Length);
             }
 
-            UpdateCoverage();
+            PerformGather();
 
             PerFrameCount = Mathf.Clamp(PerFrameCount, 0, RaysPerVertex);
         }
@@ -208,9 +209,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             return validSamples;
         }
 
-        [ContextMenu(nameof(UpdateCoverage))]
-        public void UpdateCoverage()
+        [ContextMenu(nameof(PerformGather))]
+        public void PerformGather()
         {
+            var watch = Stopwatch.StartNew();
+
             Random.InitState(Seed);
 
             _vertexes = SourceMesh.vertices;
@@ -284,6 +287,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             SamplesUpdated.Invoke();
+            UnityEngine.Debug.LogFormat($"{nameof(PerformGather)} took {watch.ElapsedMilliseconds} ms for {_vertexes.Length} verticies.");
         }
     }
 }
