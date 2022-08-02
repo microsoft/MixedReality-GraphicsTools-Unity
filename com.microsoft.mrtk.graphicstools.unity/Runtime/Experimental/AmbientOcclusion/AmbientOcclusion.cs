@@ -5,6 +5,11 @@ namespace Microsoft.MixedReality.GraphicsTools
     [RequireComponent(typeof(MeshFilter), typeof(MeshCollider), typeof(Sampler))]
     public class AmbientOcclusion : MonoBehaviour
     {
+        private void OnValidate()
+        {
+            ApplySamplerCoverageToVertexs();
+        }
+
         private void Start()
         {
             Debug.Log(nameof(Start));

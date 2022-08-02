@@ -8,39 +8,48 @@ namespace Microsoft.MixedReality.GraphicsTools
 {
     public class Sampler : MonoBehaviour
     {
-        public int Seed = 32;
+        [Header("Ray tracing options")]
         public int RaysCastPerVertex = 100;
         public float MaxSampleDistance = 1;
+        public int Seed = 32;
+
+        [Header("Configuration")]
         public bool UseSharedMesh = true;
+
+        [Header("Events")]
+        public UnityEvent samplesUpdated;
 
         [Header("Visualization")]
         public int SelectedVertexId;
 
-        public UnityEvent samplesUpdated;
+        public float[] Coverages;
 
         [SerializeField] private bool _showNormal;
         [SerializeField] private Color _normalColor = Color.cyan;
         [SerializeField] private float _normalScale = 1;
         [SerializeField] private float _normalOriginRadius = .03f;
 
+        [SerializeField] private bool _showLeastCoverageNormal;
+        [SerializeField] private Color _leastCoverageNormalColor = Color.magenta;
+        [SerializeField] private float _leastCoverageNormalScale = 1;
+
         [SerializeField] private bool _showSamples;
-        [SerializeField] private Color _sampleColor = Color.magenta;
+        [SerializeField] private Color _sampleColor = Color.yellow;
 
         [SerializeField] private bool _showHits;
-        [SerializeField] private Color _hitColor = Color.yellow;
+        [SerializeField] private Color _hitColor = Color.black;
         [SerializeField] private float _hitRadius = .03f;
 
         [SerializeField] private bool _showCoverage;
         [SerializeField] private float _coverageRadius = .03f;
 
-        private List<Vector3> _selectedVertexSamples = new List<Vector3>();
-        private List<RaycastHit> _selectedVertexHits = new List<RaycastHit>();
         private const float OriginNormalOffset = .0001f;
 
-
+        private List<Vector3> _selectedVertexSamples = new List<Vector3>();
+        private List<RaycastHit> _selectedVertexHits = new List<RaycastHit>();
         private Vector3[] _vertexes;
         private Vector3[] _normals;
-        public float[] Coverages;
+        private Vector3[] _bentNormals;
 
         private Mesh _sourceMesh;
         public Mesh SourceMesh
@@ -80,6 +89,71 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 SelectedVertexId = Mathf.Clamp(SelectedVertexId, 0, _vertexes.Length);
             }
+
+            UpdateCoverage();
+        }
+
+        void OnDrawGizmosSelected()
+        {
+            // The various tests for being "all good"
+            var shouldReturnEarly = false;
+            shouldReturnEarly |= _vertexes == null;
+            shouldReturnEarly |= _vertexes.Length == 0;
+            shouldReturnEarly |= !isActiveAndEnabled;
+            shouldReturnEarly |= SelectedVertexId >= _vertexes.Length;
+            shouldReturnEarly |= SelectedVertexId >= _normals.Length;
+
+            if (shouldReturnEarly)
+            {
+                return;
+            }
+
+            if (_showNormal)
+            {
+                Gizmos.color = _normalColor;
+                Gizmos.DrawSphere(_vertexes[SelectedVertexId], _normalOriginRadius);
+                Gizmos.DrawLine(
+                    _vertexes[SelectedVertexId],
+                    _vertexes[SelectedVertexId] + _normals[SelectedVertexId] * _normalScale);
+            }
+
+            if (_showLeastCoverageNormal)
+            {
+                Gizmos.color = _leastCoverageNormalColor;
+                Gizmos.DrawSphere(_vertexes[SelectedVertexId], _normalOriginRadius);
+                Gizmos.DrawLine(
+                    _vertexes[SelectedVertexId],
+                    _vertexes[SelectedVertexId] + _bentNormals[SelectedVertexId] * _leastCoverageNormalScale);
+            }
+
+            if (_showSamples)
+            {
+                for (int i = 0; i < _selectedVertexSamples.Count; i++)
+                {
+                    Gizmos.color = _sampleColor;
+                    Gizmos.DrawLine(
+                        _vertexes[SelectedVertexId],
+                        _vertexes[SelectedVertexId] + _selectedVertexSamples[i] * MaxSampleDistance);
+                }
+            }
+
+            if (_showCoverage)
+            {
+                for (int i = 0; i < _vertexes.Length; i++)
+                {
+                    Gizmos.color = new Color(Coverages[i], Coverages[i], Coverages[i], 1);
+                    Gizmos.DrawSphere(_vertexes[i], _coverageRadius);
+                }
+            }
+
+            if (_showHits)
+            {
+                for (int i = 0; i < _selectedVertexHits.Count; i++)
+                {
+                    Gizmos.color = _hitColor;
+                    Gizmos.DrawSphere(_selectedVertexHits[i].point, _hitRadius);
+                }
+            }
         }
 
         private Vector3[] SampleHemisphere(Vector3 normalizedReferenceNormal, int sampleCount)
@@ -112,6 +186,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             _vertexes = SourceMesh.vertices;
             _normals = SourceMesh.normals;
+            _bentNormals = new Vector3[_vertexes.Length];
             Coverages = new float[_vertexes.Length];
 
             RaycastHit hit;
@@ -173,57 +248,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             samplesUpdated.Invoke();
-        }
-
-        void OnDrawGizmosSelected()
-        {
-            if (_vertexes == null || _vertexes.Length == 0 || !isActiveAndEnabled)
-            {
-                return;
-            }
-
-            if (SelectedVertexId >= _vertexes.Length || SelectedVertexId >= _normals.Length)
-            {
-                return;
-            }
-
-            if (_showNormal)
-            {
-                Gizmos.color = _normalColor;
-                Gizmos.DrawSphere(_vertexes[SelectedVertexId], _normalOriginRadius);
-                Gizmos.DrawLine(
-                    _vertexes[SelectedVertexId],
-                    _vertexes[SelectedVertexId] + _normals[SelectedVertexId] * _normalScale);
-            }
-
-            if (_showSamples)
-            {
-                for (int i = 0; i < _selectedVertexSamples.Count; i++)
-                {
-                    Gizmos.color = _sampleColor;
-                    Gizmos.DrawLine(
-                        _vertexes[SelectedVertexId],
-                        _vertexes[SelectedVertexId] + _selectedVertexSamples[i] * MaxSampleDistance);
-                }
-            }
-
-            if (_showCoverage)
-            {
-                for (int i = 0; i < _vertexes.Length; i++)
-                {
-                    Gizmos.color = new Color(Coverages[i], Coverages[i], Coverages[i], 1);
-                    Gizmos.DrawSphere(_vertexes[i], _coverageRadius);
-                }
-            }
-
-            if (_showHits)
-            {
-                for (int i = 0; i < _selectedVertexHits.Count; i++)
-                {
-                    Gizmos.color = _hitColor;
-                    Gizmos.DrawSphere(_selectedVertexHits[i].point, _hitRadius);
-                }
-            }
         }
     }
 }
