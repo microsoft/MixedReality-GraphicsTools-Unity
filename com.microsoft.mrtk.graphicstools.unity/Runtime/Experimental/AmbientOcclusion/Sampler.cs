@@ -6,15 +6,22 @@ using UnityEngine.Events;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
+    public enum GatherBatchingMethod
+    {
+        None,
+        Perframe
+    }
+
     public class Sampler : MonoBehaviour
     {
+        [Header("Configuration")]
+        public GatherBatchingMethod BatchingMethod;
+        public bool UseSharedMesh = true;
+
         [Header("Ray tracing options")]
-        public int RaysCastPerVertex = 100;
+        public int RaysPerVertex = 100;
         public float MaxSampleDistance = 1;
         public int Seed = 32;
-
-        [Header("Configuration")]
-        public bool UseSharedMesh = true;
 
         [Header("Events")]
         public UnityEvent samplesUpdated;
@@ -29,9 +36,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         [SerializeField] private float _normalScale = 1;
         [SerializeField] private float _normalOriginRadius = .03f;
 
-        [SerializeField] private bool _showLeastCoverageNormal;
-        [SerializeField] private Color _leastCoverageNormalColor = Color.magenta;
-        [SerializeField] private float _leastCoverageNormalScale = 1;
+        [SerializeField] private bool _showBentNormal;
+        [SerializeField] private Color _bentNormalColor = Color.magenta;
+        [SerializeField] private float _bentNormalScale = 1;
 
         [SerializeField] private bool _showSamples;
         [SerializeField] private Color _sampleColor = Color.yellow;
@@ -45,11 +52,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private const float OriginNormalOffset = .0001f;
 
-        private List<Vector3> _selectedVertexSamples = new List<Vector3>();
-        private List<RaycastHit> _selectedVertexHits = new List<RaycastHit>();
         private Vector3[] _vertexes;
         private Vector3[] _normals;
         private Vector3[] _bentNormals;
+        private List<Vector3> _selectedVertexSamples = new List<Vector3>();
+        private List<RaycastHit> _selectedVertexHits = new List<RaycastHit>();
+        private Queue<Vector3[]> _directionsToSample = new Queue<Vector3[]>();
 
         private Mesh _sourceMesh;
         public Mesh SourceMesh
@@ -117,13 +125,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                     _vertexes[SelectedVertexId] + _normals[SelectedVertexId] * _normalScale);
             }
 
-            if (_showLeastCoverageNormal)
+            if (_showBentNormal)
             {
-                Gizmos.color = _leastCoverageNormalColor;
+                Gizmos.color = _bentNormalColor;
                 Gizmos.DrawSphere(_vertexes[SelectedVertexId], _normalOriginRadius);
                 Gizmos.DrawLine(
                     _vertexes[SelectedVertexId],
-                    _vertexes[SelectedVertexId] + _bentNormals[SelectedVertexId] * _leastCoverageNormalScale);
+                    _vertexes[SelectedVertexId] + _bentNormals[SelectedVertexId] * _bentNormalScale);
             }
 
             if (_showSamples)
@@ -210,11 +218,12 @@ namespace Microsoft.MixedReality.GraphicsTools
                 _normals[vi] = transform.TransformVector(_normals[vi]);
 
                 // Cast a bunch of rays
-                var sampleDirections = SampleHemisphere(_normals[vi].normalized, RaysCastPerVertex);
+                var sampleDirections = SampleHemisphere(_normals[vi].normalized, RaysPerVertex);
 
+                Vector3 averageDir = Vector3.zero;
                 //var coverage = 0f;
 
-                for (int ni = 0; ni < sampleDirections.Length; ni++)
+                for (int ni = 0; ni < RaysPerVertex; ni++)
                 {
                     // Save samples for reference vertex visualization
                     if (vi == SelectedVertexId && _showSamples)
@@ -234,17 +243,23 @@ namespace Microsoft.MixedReality.GraphicsTools
                         sampleHits.Add(hit);
                         //coverage += Mathf.Clamp01(Vector3.Dot(_normals[vi], sampleDirections[ni]));
                     }
+                    else
+                    {
+                        averageDir += sampleDirections[ni];
+                    }
                 }
+
+                _bentNormals[vi] = averageDir.normalized;
 
                 // now do it backwards :)
                 // captures planes without backplates
 
-                for (int ni = 0; ni < sampleDirections.Length; ni++)
+                for (int ni = 0; ni < RaysPerVertex; ni++)
                 {                                                                                                                                                                                                                                                                                                                                                                                 
 
                 }
 
-                Coverages[vi] = (float)sampleHits.Count / RaysCastPerVertex;
+                Coverages[vi] = (float)sampleHits.Count / RaysPerVertex;
             }
 
             samplesUpdated.Invoke();
