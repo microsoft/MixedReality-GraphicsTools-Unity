@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// The MeshInstancer is a component used for quickly using Unity's Graphics.DrawMeshInstanced API. The MeshInstancer should be
     /// used when you need to render and update massive amounts of objects (greater than ~1000). Note, each object rendered is not
     /// a typical Unity GameObject, for performance reasons, but is instead a MeshInstancer.Instance. MeshInstancer.Instances can be
-    /// updated concurrently by specifying a AsyncUpdate delegate.
+    /// updated concurrently by specifying a ParallelUpdate delegate.
     /// </summary>
     public class MeshInstancer : MonoBehaviour
     {
@@ -128,7 +128,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// TODO
         /// </summary>
-        public delegate void AsyncUpdate(float deltaTime, Instance instance);
+        public delegate void ParallelUpdate(float deltaTime, Instance instance);
 
         /// <summary>
         /// TODO
@@ -136,6 +136,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Header("Diagnostics")]
         [Tooltip("TODO")]
         public bool DisplayUpdateTime = false;
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        [Tooltip("TODO")]
+        public bool ForceSingleThreaded = false;
 
         /// <summary>
         /// TODO
@@ -375,11 +381,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// <summary>
             /// TODO
             /// </summary>
-            public void SetAsyncUpdate(AsyncUpdate asyncUpdate)
+            public void SetParallelUpdate(ParallelUpdate parallelUpdate)
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to the AsyncUpdate on a destroyed MeshInstancer instance."); return; }
+                if (Destroyed) { Debug.LogWarning("Attempting to set the ParallelUpdate method on a destroyed MeshInstancer instance."); return; }
 
-                meshInstancer.instanceBuckets[InstanceBucketIndex].AsynchronousUpdates[InstanceIndex] = asyncUpdate;
+                meshInstancer.instanceBuckets[InstanceBucketIndex].ParallelUpdates[InstanceIndex] = parallelUpdate;
             }
         }
 
@@ -389,7 +395,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             public Instance[] Instances = new Instance[UNITY_MAX_INSTANCE_COUNT];
             public Matrix4x4[] Matricies = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
             public MaterialPropertyBlock Properties = new MaterialPropertyBlock();
-            public AsyncUpdate[] AsynchronousUpdates = new AsyncUpdate[UNITY_MAX_INSTANCE_COUNT];
+            public ParallelUpdate[] ParallelUpdates = new ParallelUpdate[UNITY_MAX_INSTANCE_COUNT];
             public List<RaycastHit> RaycastHits = new List<RaycastHit>(UNITY_MAX_INSTANCE_COUNT);
 
             private Matrix4x4[] matrixScratchBuffer = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
@@ -434,7 +440,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 for (int i = firstIndex; i < lastIndex; ++i)
                 {
                     // Apply any per instance logic.
-                    AsynchronousUpdates[i]?.Invoke(deltaTime, Instances[i]);
+                    ParallelUpdates[i]?.Invoke(deltaTime, Instances[i]);
 
                     // Calculate the final transformation matrix.
                     matrixScratchBuffer[i] = localToWorld * Matricies[i];
@@ -452,7 +458,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 for (int i = firstIndex; i < lastIndex; ++i)
                 {
                     // Apply any per instance logic.
-                    AsynchronousUpdates[i]?.Invoke(deltaTime, Instances[i]);
+                    ParallelUpdates[i]?.Invoke(deltaTime, Instances[i]);
 
                     // Calculate the final transformation matrix.
                     matrixScratchBuffer[i] = localToWorld * Matricies[i];
@@ -618,7 +624,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             processorCount = 1;
 #endif
             // We are on a single processor machine, so best to not multi-thread.
-            if (processorCount == 1)
+            if (processorCount == 1 || ForceSingleThreaded)
             {
                 foreach (InstanceBucket bucket in instanceBuckets)
                 {
@@ -759,7 +765,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             // Destroy in reverse order to avoid array compacting.
             for (int i = (instanceBuckets.Count - 1); i >= 0; --i)
             {
-                for (int j = (instanceBuckets.Count - 1); j >= 0; --j)
+                for (int j = (instanceBuckets[i].InstanceCount - 1); j >= 0; --j)
                 {
                     instanceBuckets[i].Instances[j].Destroy();
                 }
@@ -1006,8 +1012,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                     bucket.Properties.SetMatrixArray(property.Key, values);
                 }
 
-                // Update the asynchronous update delegate.
-                bucket.AsynchronousUpdates[instance.InstanceIndex] = bucket.AsynchronousUpdates[newInstanceCount];
+                // Update the parallel update delegate.
+                bucket.ParallelUpdates[instance.InstanceIndex] = bucket.ParallelUpdates[newInstanceCount];
             }
 
             bucket.InstanceCount = newInstanceCount;

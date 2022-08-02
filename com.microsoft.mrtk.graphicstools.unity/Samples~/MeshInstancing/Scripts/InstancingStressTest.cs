@@ -77,7 +77,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 
                 if (animate)
                 {
-                    instance.SetAsyncUpdate(AsyncUpdate);
+                    instance.SetParallelUpdate(AsyncUpdate);
                 }
             }
         }

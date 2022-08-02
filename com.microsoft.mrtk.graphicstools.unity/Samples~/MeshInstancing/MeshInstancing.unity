@@ -504,7 +504,7 @@ GameObject:
   - component: {fileID: 2129533738}
   - component: {fileID: 2129533737}
   m_Layer: 0
-  m_Name: Mesh Instancer
+  m_Name: PointMassMeshInstancer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -519,26 +519,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 2129533736}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b607442fa6b799428ddde45f51d4c41, type: 3}
+  m_Script: {fileID: 11500000, guid: cd01170f710173f4dac0b80e4d3cef98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 2129533738}
-  instanceCount: 30000
-  uniformScale: 0
-  instanceSizeMin: 0.02
+  instanceCount: 20000
+  instanceSizeMin: 0.01
   instanceSizeMax: 0.08
-  instanceRadius: 2
-  minHue: 0
-  maxHue: 1
-  minSaturation: 0
-  maxSaturation: 0
-  minValue: 0
-  maxValue: 1
-  animate: 1
-  minMovepeed: 1
-  maxMovepeed: 5
-  minTurnUpdateTime: 1
-  maxTurnUpdateTime: 5
+  containmentRadius: 3
 --- !u!114 &2129533738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,7 +539,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1799f82e0b5368d469551845b28c12b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InstanceMesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  InstanceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   InstanceSubMeshIndex: 0
   InstanceMaterial: {fileID: 2100000, guid: 69af75886e0915b438f342df5b623b55, type: 2}
   ShadowCastingMode: 0
@@ -559,13 +547,14 @@ MonoBehaviour:
   FloatMaterialProperties: []
   VectorMaterialProperties:
   - Name: _Color
-    DefaultValue: {x: 0, y: 0, z: 0, w: 0}
+    DefaultValue: {x: 0.5, y: 0.5, z: 0.5, w: 1}
   MatrixMaterialProperties: []
   RaycastInstances: 1
   BoxCollider:
     Center: {x: 0, y: 0, z: 0}
-    Size: {x: 1, y: 2, z: 1}
+    Size: {x: 1, y: 1, z: 1}
   DisplayUpdateTime: 1
+  ForceSingleThreaded: 0
 --- !u!4 &2129533739
 Transform:
   m_ObjectHideFlags: 0
