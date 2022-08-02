@@ -72,14 +72,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void OnValidate()
         {
-            if (_vertexes != null)
+            if (_vertexes == null)
+            {
+                SelectedVertexId = 0;
+            }
+            else
             {
                 SelectedVertexId = Mathf.Clamp(SelectedVertexId, 0, _vertexes.Length);
-            }
-
-            if (isActiveAndEnabled)
-            {
-                UpdateCoverage();
             }
         }
 
@@ -131,6 +130,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 sampleHits.Clear();
 
+                // Do the work in world space
                 _vertexes[vi] = transform.TransformPoint(_vertexes[vi]);
                 _normals[vi] = transform.TransformVector(_normals[vi]);
 
@@ -141,7 +141,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 for (int ni = 0; ni < sampleDirections.Length; ni++)
                 {
-                    // Stash this specific vertex result for the gizmo
+                    // Save samples for reference vertex visualization
                     if (vi == SelectedVertexId && _showSamples)
                     {
                         _selectedVertexSamples.Add(sampleDirections[ni]);
@@ -159,9 +159,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                         sampleHits.Add(hit);
                         //coverage += Mathf.Clamp01(Vector3.Dot(_normals[vi], sampleDirections[ni]));
                     }
+                }
 
-                    // now do it backwards :)
-                    // captures planes without backplates
+                // now do it backwards :)
+                // captures planes without backplates
+
+                for (int ni = 0; ni < sampleDirections.Length; ni++)
+                {                                                                                                                                                                                                                                                                                                                                                                                 
+
                 }
 
                 Coverages[vi] = (float)sampleHits.Count / RaysCastPerVertex;

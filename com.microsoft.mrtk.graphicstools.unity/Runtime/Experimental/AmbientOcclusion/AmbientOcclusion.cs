@@ -5,6 +5,17 @@ namespace Microsoft.MixedReality.GraphicsTools
     [RequireComponent(typeof(MeshFilter), typeof(MeshCollider), typeof(Sampler))]
     public class AmbientOcclusion : MonoBehaviour
     {
+        private void Start()
+        {
+            Debug.Log(nameof(Start));
+        }
+
+        private void Awake()
+        {
+            Debug.Log(nameof(Awake));
+            ApplySamplerCoverageToVertexs();
+        }
+
         // stores mesh before we go and mess with vertex color
         private Mesh originalMesh;
         private void OnEnable()
@@ -36,11 +47,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 colors[i] = new Color(ao, ao, ao);
             }
             mesh.colors = colors;
-        }
-
-        private void OnValidate()
-        {
-            ApplySamplerCoverageToVertexs();
         }
     }
 }
