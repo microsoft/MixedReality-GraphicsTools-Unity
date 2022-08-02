@@ -523,15 +523,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 2129533738}
-  instanceCount: 50000
+  instanceCount: 30000
   uniformScale: 0
   instanceSizeMin: 0.02
   instanceSizeMax: 0.08
   instanceRadius: 2
   minHue: 0
   maxHue: 1
-  minSaturation: 0.5
-  maxSaturation: 1
+  minSaturation: 0
+  maxSaturation: 0
   minValue: 0
   maxValue: 1
   animate: 1
@@ -561,10 +561,10 @@ MonoBehaviour:
   - Name: _Color
     DefaultValue: {x: 0, y: 0, z: 0, w: 0}
   MatrixMaterialProperties: []
-  RaycastInstances: 0
+  RaycastInstances: 1
   BoxCollider:
     Center: {x: 0, y: 0, z: 0}
-    Size: {x: 1, y: 1, z: 1}
+    Size: {x: 1, y: 2, z: 1}
   DisplayUpdateTime: 1
 --- !u!4 &2129533739
 Transform:

@@ -3,6 +3,10 @@
 
 using UnityEngine;
 
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
+
 namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 {
     /// <summary>
@@ -82,8 +86,28 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         {
             if (instancer.RaycastInstances)
             {
-                // Update the ray to be the main camera's look vector.
-                instancer.RayCollider = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+                // Default to the camera look position.
+                Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+
+#if ENABLE_INPUT_SYSTEM
+                if (Mouse.current != null)
+                {
+                    Vector2 mousePosition2D = Mouse.current.position.ReadValue();
+                    Vector3 mousePosition = new Vector3(mousePosition2D.x, mousePosition2D.y, Camera.main.nearClipPlane);
+                    ray.origin = Camera.main.ScreenToWorldPoint(mousePosition);
+                    ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
+                }
+#else
+                if (Input.mousePresent)
+                {
+                    Vector3 mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
+                    ray.origin = Camera.main.ScreenToWorldPoint(mousePosition);
+                    ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
+                }
+#endif
+
+                // Update the ray each frame.
+                instancer.RayCollider = ray;
 
                 // Visualize the ray and hits.
                 Debug.DrawLine(instancer.RayCollider.origin, instancer.RayCollider.origin + instancer.RayCollider.direction * 100.0f, Color.red);
