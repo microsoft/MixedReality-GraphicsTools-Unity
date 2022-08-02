@@ -7,7 +7,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     {
         private void OnValidate()
         {
-            ApplySamplerCoverageToVertexs();
+            ApplyVertexColor();
         }
 
         private void Start()
@@ -18,7 +18,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void Awake()
         {
             Debug.Log(nameof(Awake));
-            ApplySamplerCoverageToVertexs();
+            ApplyVertexColor();
         }
 
         // stores mesh before we go and mess with vertex color
@@ -26,7 +26,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void OnEnable()
         {
             originalMesh = GetComponent<MeshFilter>().sharedMesh;
-            ApplySamplerCoverageToVertexs();
+            ApplyVertexColor();
         }
 
         private void OnDisable()
@@ -40,8 +40,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             mesh.colors = colors;
         }
 
-        [ContextMenu(nameof(ApplySamplerCoverageToVertexs))]
-        public void ApplySamplerCoverageToVertexs()
+        [ContextMenu(nameof(ApplyVertexColor))]
+        public void ApplyVertexColor()
         {
             var coverages = GetComponent<Sampler>().Coverages;
             var mesh = GetComponent<MeshFilter>().sharedMesh;

@@ -9,25 +9,28 @@ namespace Microsoft.MixedReality.GraphicsTools
     public enum GatherBatchingMethod
     {
         None,
-        Perframe
+        PerFrame
     }
 
     public class Sampler : MonoBehaviour
     {
         [Header("Configuration")]
-        public GatherBatchingMethod BatchingMethod;
         public bool UseSharedMesh = true;
 
-        [Header("Ray tracing options")]
+        [Header("Batching")]
+        public GatherBatchingMethod BatchingMethod;
+        public int PerFrameCount;
+
+        [Header("Ray tracing")]
         public int RaysPerVertex = 100;
         public float MaxSampleDistance = 1;
         public int Seed = 32;
 
         [Header("Events")]
-        public UnityEvent samplesUpdated;
+        public UnityEvent SamplesUpdated;
 
         [Header("Visualization")]
-        public int SelectedVertexId;
+        public int ReferenceVertexIndex;
 
         public float[] Coverages;
 
@@ -55,8 +58,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Vector3[] _vertexes;
         private Vector3[] _normals;
         private Vector3[] _bentNormals;
-        private List<Vector3> _selectedVertexSamples = new List<Vector3>();
-        private List<RaycastHit> _selectedVertexHits = new List<RaycastHit>();
+        private List<Vector3> _referenceVertexSamples = new List<Vector3>();
+        private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
         private Queue<Vector3[]> _directionsToSample = new Queue<Vector3[]>();
 
         private Mesh _sourceMesh;
@@ -91,14 +94,16 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (_vertexes == null)
             {
-                SelectedVertexId = 0;
+                ReferenceVertexIndex = 0;
             }
             else
             {
-                SelectedVertexId = Mathf.Clamp(SelectedVertexId, 0, _vertexes.Length);
+                ReferenceVertexIndex = Mathf.Clamp(ReferenceVertexIndex, 0, _vertexes.Length);
             }
 
             UpdateCoverage();
+
+            PerFrameCount = Mathf.Clamp(PerFrameCount, 0, RaysPerVertex);
         }
 
         void OnDrawGizmosSelected()
@@ -108,8 +113,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             shouldReturnEarly |= _vertexes == null;
             shouldReturnEarly |= _vertexes.Length == 0;
             shouldReturnEarly |= !isActiveAndEnabled;
-            shouldReturnEarly |= SelectedVertexId >= _vertexes.Length;
-            shouldReturnEarly |= SelectedVertexId >= _normals.Length;
+            shouldReturnEarly |= ReferenceVertexIndex >= _vertexes.Length;
+            shouldReturnEarly |= ReferenceVertexIndex >= _normals.Length;
 
             if (shouldReturnEarly)
             {
@@ -119,29 +124,29 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (_showNormal)
             {
                 Gizmos.color = _normalColor;
-                Gizmos.DrawSphere(_vertexes[SelectedVertexId], _normalOriginRadius);
+                Gizmos.DrawSphere(_vertexes[ReferenceVertexIndex], _normalOriginRadius);
                 Gizmos.DrawLine(
-                    _vertexes[SelectedVertexId],
-                    _vertexes[SelectedVertexId] + _normals[SelectedVertexId] * _normalScale);
+                    _vertexes[ReferenceVertexIndex],
+                    _vertexes[ReferenceVertexIndex] + _normals[ReferenceVertexIndex] * _normalScale);
             }
 
             if (_showBentNormal)
             {
                 Gizmos.color = _bentNormalColor;
-                Gizmos.DrawSphere(_vertexes[SelectedVertexId], _normalOriginRadius);
+                Gizmos.DrawSphere(_vertexes[ReferenceVertexIndex], _normalOriginRadius);
                 Gizmos.DrawLine(
-                    _vertexes[SelectedVertexId],
-                    _vertexes[SelectedVertexId] + _bentNormals[SelectedVertexId] * _bentNormalScale);
+                    _vertexes[ReferenceVertexIndex],
+                    _vertexes[ReferenceVertexIndex] + _bentNormals[ReferenceVertexIndex] * _bentNormalScale);
             }
 
             if (_showSamples)
             {
-                for (int i = 0; i < _selectedVertexSamples.Count; i++)
+                for (int i = 0; i < _referenceVertexSamples.Count; i++)
                 {
                     Gizmos.color = _sampleColor;
                     Gizmos.DrawLine(
-                        _vertexes[SelectedVertexId],
-                        _vertexes[SelectedVertexId] + _selectedVertexSamples[i] * MaxSampleDistance);
+                        _vertexes[ReferenceVertexIndex],
+                        _vertexes[ReferenceVertexIndex] + _referenceVertexSamples[i] * MaxSampleDistance);
                 }
             }
 
@@ -156,15 +161,31 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (_showHits)
             {
-                for (int i = 0; i < _selectedVertexHits.Count; i++)
+                for (int i = 0; i < _referenceVertexHits.Count; i++)
                 {
                     Gizmos.color = _hitColor;
-                    Gizmos.DrawSphere(_selectedVertexHits[i].point, _hitRadius);
+                    Gizmos.DrawSphere(_referenceVertexHits[i].point, _hitRadius);
                 }
             }
         }
 
-        private Vector3[] SampleHemisphere(Vector3 normalizedReferenceNormal, int sampleCount)
+        private Vector3 GetHemisphereSample(Vector3 normalizedReferenceNormal, int sampleCount)
+        {
+            float angle;
+            Vector3 randomAxis;
+            while (true)
+            {
+                Random.rotationUniform.ToAngleAxis(out angle, out randomAxis);
+                // Only allow samples that point the same way as our reference normal
+                // Critical that the incoming normal is normalized (but not this functions job)
+                if (Vector3.Dot(randomAxis, normalizedReferenceNormal) > 0)
+                {
+                    return randomAxis;
+                }
+            }
+        }
+
+        private Vector3[] GetHemisphereSamples(Vector3 normalizedReferenceNormal, int sampleCount)
         {
             var watch = Stopwatch.StartNew();
             var validSamples = new Vector3[sampleCount];
@@ -183,7 +204,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
             Assert.AreEqual(sampleCount, validSampleCount);
-            UnityEngine.Debug.LogFormat($"{nameof(SampleHemisphere)} took {watch.ElapsedMilliseconds} ms for {sampleCount} samples.");
+            UnityEngine.Debug.LogFormat($"{nameof(GetHemisphereSamples)} took {watch.ElapsedMilliseconds} ms for {sampleCount} samples.");
             return validSamples;
         }
 
@@ -201,10 +222,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (_showSamples)
             {
-                _selectedVertexSamples.Clear();
+                _referenceVertexSamples.Clear();
             }
 
-            _selectedVertexHits.Clear();
+            _referenceVertexHits.Clear();
 
             var sampleHits = new List<RaycastHit>(_vertexes.Length);
 
@@ -218,7 +239,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 _normals[vi] = transform.TransformVector(_normals[vi]);
 
                 // Cast a bunch of rays
-                var sampleDirections = SampleHemisphere(_normals[vi].normalized, RaysPerVertex);
+                var sampleDirections = GetHemisphereSamples(_normals[vi].normalized, RaysPerVertex);
 
                 Vector3 averageDir = Vector3.zero;
                 //var coverage = 0f;
@@ -226,9 +247,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 for (int ni = 0; ni < RaysPerVertex; ni++)
                 {
                     // Save samples for reference vertex visualization
-                    if (vi == SelectedVertexId && _showSamples)
+                    if (vi == ReferenceVertexIndex && _showSamples)
                     {
-                        _selectedVertexSamples.Add(sampleDirections[ni]);
+                        _referenceVertexSamples.Add(sampleDirections[ni]);
                     }
 
                     var origin = _vertexes[vi] + _normals[vi].normalized * OriginNormalOffset;
@@ -236,9 +257,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (Physics.Raycast(origin, sampleDirections[ni], out hit, MaxSampleDistance))
                     {
                         // Stash this specific vertex result for the gizmo
-                        if (vi == SelectedVertexId)
+                        if (vi == ReferenceVertexIndex)
                         {
-                            _selectedVertexHits.Add(hit);
+                            _referenceVertexHits.Add(hit);
                         }
                         sampleHits.Add(hit);
                         //coverage += Mathf.Clamp01(Vector3.Dot(_normals[vi], sampleDirections[ni]));
@@ -262,7 +283,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Coverages[vi] = (float)sampleHits.Count / RaysPerVertex;
             }
 
-            samplesUpdated.Invoke();
+            SamplesUpdated.Invoke();
         }
     }
 }
