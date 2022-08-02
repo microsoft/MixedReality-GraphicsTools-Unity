@@ -141,7 +141,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// TODO
         /// </summary>
         [Tooltip("TODO")]
-        public bool ForceSingleThreaded = false;
+        public bool DisableParallelUpdate = false;
 
         /// <summary>
         /// TODO
@@ -624,7 +624,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             processorCount = 1;
 #endif
             // We are on a single processor machine, so best to not multi-thread.
-            if (processorCount == 1 || ForceSingleThreaded)
+            if (processorCount == 1 || DisableParallelUpdate)
             {
                 foreach (InstanceBucket bucket in instanceBuckets)
                 {
