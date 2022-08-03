@@ -81,24 +81,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                     lastRaycastHit.Instance.SetVector(colorID, lastColor);
                 }
 
-                // Find the closest raycast hit.
-                lastRaycastHit = new MeshInstancer.RaycastHit();
-                lastRaycastHit.Distance = float.MaxValue;
-
-                foreach (MeshInstancer.RaycastHit hit in instancer.RaycastHits)
-                {
-                    if (hit.Distance < lastRaycastHit.Distance)
-                    {
-                        lastRaycastHit = hit;
-                    }
-                }
-
                 // Color the hit as red.
-                if (lastRaycastHit.Instance != null)
+                if (instancer.GetClosestRaycastHit(ref lastRaycastHit))
                 {
                     Debug.DrawLine(lastRaycastHit.Point, lastRaycastHit.Point + lastRaycastHit.Direction, Color.blue);
                     lastColor = lastRaycastHit.Instance.GetVector(colorID);
                     lastRaycastHit.Instance.SetVector(colorID, Color.red);
+
+                    // DEBUG
+                    if (Mouse.current.leftButton.isPressed)
+                    {
+                        lastRaycastHit.Instance.Destroy();
+                        lastRaycastHit.Instance = null;
+                    }
                 }
             }
         }
@@ -120,7 +115,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 {
                     for (int k = 0; k < dimension; ++k)
                     {
-                        MeshInstancer.Instance instance = instancer.Instantiate(new Vector3(i, j, k), Quaternion.identity, Vector3.one * 0.9f);
+                        MeshInstancer.Instance instance = instancer.Instantiate(new Vector3(i, j, k), Quaternion.identity, Vector3.one);
 
                         // Set the instance color.
                         instance.SetVector(colorID, new Color((float)i / dimension, (float)j / dimension, (float)k / dimension, 1.0f));

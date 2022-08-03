@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -108,6 +109,17 @@ namespace Microsoft.MixedReality.GraphicsTools
             public float Distance;
             public Vector3 Point;
             public Vector3 Direction;
+
+            /// <summary>
+            /// TODO
+            /// </summary>
+            public void Clear()
+            {
+                Instance = null;
+                Distance = float.MaxValue;
+                Point = Vector3.zero;
+                Direction = Vector3.zero;
+            }
         }
 
         /// <summary>
@@ -396,7 +408,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             public Matrix4x4[] Matricies = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
             public MaterialPropertyBlock Properties = new MaterialPropertyBlock();
             public ParallelUpdate[] ParallelUpdates = new ParallelUpdate[UNITY_MAX_INSTANCE_COUNT];
-            public List<RaycastHit> RaycastHits = new List<RaycastHit>(UNITY_MAX_INSTANCE_COUNT);
+            public ConcurrentBag<RaycastHit> RaycastHits = new ConcurrentBag<RaycastHit>();
 
             private Matrix4x4[] matrixScratchBuffer = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
 
@@ -453,7 +465,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Vector3 boxHalfSize = box.Size * 0.5f;
                 Vector3 boxMin = box.Center - boxHalfSize;
                 Vector3 boxMax = box.Center + boxHalfSize;
-                RaycastHits.Clear();
 
                 for (int i = firstIndex; i < lastIndex; ++i)
                 {
@@ -466,10 +477,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                     // Perform a ray cast against the current instance.
                     RaycastHit hitInfo;
 
-                    if (RaycastBox(matrixScratchBuffer[i], boxMin, boxMax, ray, out hitInfo))
+                    if (RaycastOOBB(matrixScratchBuffer[i], boxMin, boxMax, ray, out hitInfo))
                     {
                         hitInfo.Instance = Instances[i];
-                        hitInfo.Point = ray.origin + ray.direction * hitInfo.Distance;
+                        hitInfo.Point = ray.origin + (ray.direction * hitInfo.Distance);
                         hitInfo.Direction = -ray.direction;
                         RaycastHits.Add(hitInfo);
                     }
@@ -481,43 +492,47 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, recieveShadows);
             }
 
-            private bool RaycastBox(Matrix4x4 localToWorld, Vector3 boxMin, Vector3 boxMax, Ray ray, out RaycastHit hitInfo)
+            private bool RaycastOOBB(Matrix4x4 localToWorld, Vector3 boxMin, Vector3 boxMax, Ray ray, out RaycastHit hitInfo)
             {
-                // Fast, Branch-less Ray/Bounding Box Intersections.
-                // https://tavianator.com/fast-branchless-raybounding-box-intersections/
+                // Transform the ray into the instance's local space.
+                Matrix4x4 localToWorldInverse = localToWorld.inverse;
+                Ray localRay = new Ray();
+                localRay.origin = localToWorldInverse.MultiplyPoint3x4(ray.origin);
+                localRay.direction = localToWorldInverse.MultiplyVector(ray.direction);
+
+                if (RacastAABB(boxMin, boxMax, localRay, out hitInfo))
+                {
+                    // TODO - [Cameron-Micka] figure out world space intersection distance.
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            private bool RacastAABB(Vector3 boxMin, Vector3 boxMax, Ray ray, out RaycastHit hitInfo)
+            {
+                // Fast and Robust Ray/OBB Intersection Using the Lorentz Transformation
+                // https://www.realtimerendering.com/raytracinggems/rtg2/index.html
+
+                Vector3 rayDirectionInverse = new Vector3(1.0f / ray.direction.x, 1.0f / ray.direction.y, 1.0f / ray.direction.z);
+
+                Vector3 tMin = Vector3.Scale(boxMin - ray.origin, rayDirectionInverse);
+                Vector3 tMax = Vector3.Scale(boxMax - ray.origin, rayDirectionInverse);
+                Vector3 tMins = Vector3.Min(tMin, tMax);
+                Vector3 tMaxes = Vector3.Max(tMin, tMax);
+                float tBoxMin = Mathf.Max(Mathf.Max(tMins.x, tMins.y), tMins.z);
+                float tBoxMax = Mathf.Min(Mathf.Min(tMaxes.x, tMaxes.y), tMaxes.z);
 
                 hitInfo = new RaycastHit();
 
-                // Transform the ray into the instance's local space.
-                Matrix4x4 localToWorldInverse = localToWorld.inverse;
-                ray.origin = localToWorldInverse.MultiplyPoint(ray.origin);
-                ray.direction = localToWorldInverse.MultiplyVector(ray.direction);
-                Vector3 rayDirectionInverse = new Vector3(1.0f / ray.direction.x, 1.0f / ray.direction.y, 1.0f / ray.direction.z);
-
-                float t1 = (boxMin.x - ray.origin.x) * rayDirectionInverse.x;
-                float t2 = (boxMax.x - ray.origin.x) * rayDirectionInverse.x;
-
-                float tMin = Math.Min(t1, t2);
-                float tMax = Math.Max(t1, t2);
-
-                for (int i = 1; i < 3; ++i)
+                if (tBoxMin <= tBoxMax)
                 {
-                    t1 = (boxMin[i] - ray.origin[i]) * rayDirectionInverse[i];
-                    t2 = (boxMax[i] - ray.origin[i]) * rayDirectionInverse[i];
-
-                    tMin = Math.Max(tMin, Math.Min(t1, t2));
-                    tMax = Math.Min(tMax, Math.Max(t1, t2));
+                    hitInfo.Distance = tBoxMin < 0.0f ? tBoxMax : tBoxMin;
+                    return true;
                 }
 
-                bool hit = tMax > Math.Max(tMin, 0.0f);
-
-                if (hit)
-                {
-                    // TODO - [Cameron-Micka] Calculate correct intersection time for non-uniformly scaled boxes.
-                    hitInfo.Distance = (tMin < 0) ? tMax : tMin;
-                }
-
-                return hit;
+                return false;
             }
         }
 
@@ -630,6 +645,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     if (RaycastInstances)
                     {
+                        bucket.RaycastHits = new ConcurrentBag<RaycastHit>();
                         bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider, 0, bucket.InstanceCount);
                     }
                     else
@@ -642,6 +658,15 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 int processorsPerBucket = Mathf.CeilToInt((float)processorCount / instanceBuckets.Count);
                 int count = UNITY_MAX_INSTANCE_COUNT / processorsPerBucket;
+
+                // Clear all bucket raycast hits before splicing the bucket.
+                if (RaycastInstances)
+                {
+                    foreach (InstanceBucket bucket in instanceBuckets)
+                    {
+                        bucket.RaycastHits = new ConcurrentBag<RaycastHit>();
+                    }
+                }
 
                 Parallel.For(0, instanceBuckets.Count * processorsPerBucket, (i, state) =>
                 {
@@ -674,6 +699,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     if (RaycastInstances)
                     {
+                        bucket.RaycastHits = new ConcurrentBag<RaycastHit>();
                         bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider, 0, bucket.InstanceCount);
                     }
                     else
@@ -841,7 +867,25 @@ namespace Microsoft.MixedReality.GraphicsTools
             return true;
         }
 
-        private bool RegisterMaterialPropertyCommonVector(int nameID, Vector4 defaultValue)
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public bool GetClosestRaycastHit(ref RaycastHit hit)
+        {
+            hit.Clear();
+
+            foreach (RaycastHit h in RaycastHits)
+            {
+                if (h.Distance < hit.Distance)
+                {
+                    hit = h;
+                }
+            }
+
+            return (hit.Instance != null);
+        }
+
+    private bool RegisterMaterialPropertyCommonVector(int nameID, Vector4 defaultValue)
         {
             if (vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
