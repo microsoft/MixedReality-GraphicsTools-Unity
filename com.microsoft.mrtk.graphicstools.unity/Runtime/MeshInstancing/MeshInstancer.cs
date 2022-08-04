@@ -707,8 +707,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (firstIndex < bucket.InstanceCount)
                     {
+                        int lastIndex = firstIndex + count;
+
                         // Ensure the whole bucket is processed for the last iteration.
-                        int lastIndex = (iteration == (processorsPerBucket - 1)) ? bucket.InstanceCount : firstIndex + count;
+                        if (iteration == (processorsPerBucket - 1) || lastIndex > bucket.InstanceCount)
+                        {
+                            lastIndex = bucket.InstanceCount;
+                        }
 
                         if (RaycastInstances)
                         {

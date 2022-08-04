@@ -33,7 +33,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             public Vector3 velocity;
             public bool reflecting;
         }
-        
+
         /// <summary>
         /// Re-spawn instances when a property changes.
         /// </summary>
@@ -55,7 +55,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         }
 
         /// <summary>
-        ///  Render the containment radius.
+        /// Render the bounds of the instances.
         /// </summary>
         private void OnDrawGizmosSelected()
         {
@@ -79,17 +79,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 
             for (int i = 0; i < instanceCount; ++i)
             {
-                // Create a random scale/mass.
+                // Create some random initial properties.
                 Vector3 scale = Vector3.one * Random.Range(instanceSizeMin, instanceSizeMax);
                 float normalizedMass = ((scale.x * scale.y * scale.z) - minMass) / maxMass;
                 Vector3 velocity = Random.onUnitSphere * ((1.0f - normalizedMass) * 0.2f);
 
                 // Create an instance object at a random position within the containment radius.
-                MeshInstancer.Instance instance = instancer.Instantiate(Random.insideUnitSphere * containmentRadius, 
-                                                                        Quaternion.LookRotation(velocity) * rotate90, 
-                                                                        scale);
-                
-                // Set the instance color.
+                var instance = instancer.Instantiate(Random.insideUnitSphere * containmentRadius,
+                                                     Quaternion.LookRotation(velocity) * rotate90,
+                                                     scale);
                 instance.SetVector(colorID, Color.HSVToRGB(Mathf.Lerp(1.0f, 0.6f, normalizedMass), 1.0f, 0.5f));
 
                 // Set user data to use during update.
@@ -107,6 +105,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         /// </summary>
         private void ParallelUpdate(float deltaTime, MeshInstancer.Instance instance)
         {
+            // Cast the user data to our data type.
             PointMassData data = (PointMassData)instance.UserData;
 
             // Euler integration.
@@ -130,7 +129,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 data.reflecting = false;
             }
 
-            // Update the user data.
+            // Update the user data state.
             instance.UserData = data;
         }
 

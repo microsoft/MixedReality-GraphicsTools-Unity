@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 {
     /// <summary>
-    /// TODO
+    /// Renders a (dimension x dimension x dimension) cube of instances that can be clicked on and destroyed.
     /// </summary>
     public class InstancingMining : MonoBehaviour
     {
@@ -48,28 +48,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         {
             if (instancer.RaycastInstances)
             {
-                // Default to the camera look position.
-                Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-
-#if ENABLE_INPUT_SYSTEM
-                if (Mouse.current != null)
-                {
-                    Vector2 mousePosition2D = Mouse.current.position.ReadValue();
-                    Vector3 mousePosition = new Vector3(mousePosition2D.x, mousePosition2D.y, Camera.main.nearClipPlane);
-                    ray.origin = Camera.main.ScreenToWorldPoint(mousePosition);
-                    ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
-                }
-#else
-                if (Input.mousePresent)
-                {
-                    Vector3 mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
-                    ray.origin = Camera.main.ScreenToWorldPoint(mousePosition);
-                    ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
-                }
-#endif
-
                 // Update the ray each frame.
-                instancer.RayCollider = ray;
+                instancer.RayCollider = GetRay();
 
                 // Visualize the ray and hits.
                 Debug.DrawLine(instancer.RayCollider.origin, instancer.RayCollider.origin + instancer.RayCollider.direction * 100.0f, Color.red);
@@ -81,21 +61,34 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                     lastRaycastHit.Instance.SetVector(colorID, lastColor);
                 }
 
-                // Color the hit as red.
+                // Get the closest hit and color it red.
                 if (instancer.GetClosestRaycastHit(ref lastRaycastHit))
                 {
-                    Debug.DrawLine(lastRaycastHit.Point, lastRaycastHit.Point + lastRaycastHit.Direction, Color.blue);
                     lastColor = lastRaycastHit.Instance.GetVector(colorID);
                     lastRaycastHit.Instance.SetVector(colorID, Color.red);
 
-                    // DEBUG
+                    // Destroy the instance if the mouse is pressed.
+#if ENABLE_INPUT_SYSTEM
                     if (Mouse.current.leftButton.isPressed)
+#else
+                    if (Input.GetMouseButtonDown(0))
+#endif
                     {
                         lastRaycastHit.Instance.Destroy();
                         lastRaycastHit.Instance = null;
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Render the bounds of the instances.
+        /// </summary>
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(Vector3.zero, Vector3.one * dimension);
         }
 
         /// <summary>
@@ -108,6 +101,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             instancer.Clear();
 
             int colorID = Shader.PropertyToID("_Color");
+            Vector3 offset = Vector3.one * (dimension - 1) * 0.5f;
 
             for (int i = 0; i < dimension; ++i)
             {
@@ -115,13 +109,38 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 {
                     for (int k = 0; k < dimension; ++k)
                     {
-                        MeshInstancer.Instance instance = instancer.Instantiate(new Vector3(i, j, k), Quaternion.identity, Vector3.one);
-
-                        // Set the instance color.
+                        var instance = instancer.Instantiate(new Vector3(i, j, k) - offset, Quaternion.identity, Vector3.one);
                         instance.SetVector(colorID, new Color((float)i / dimension, (float)j / dimension, (float)k / dimension, 1.0f));
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns the ray going from the mouse (or camera if no mouse) into the world.
+        /// </summary>
+        private Ray GetRay()
+        {
+            // Default to the camera look position.
+            Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+
+#if ENABLE_INPUT_SYSTEM
+            if (Mouse.current != null)
+            {
+                Vector2 mousePosition2D = Mouse.current.position.ReadValue();
+                Vector3 mousePosition = new Vector3(mousePosition2D.x, mousePosition2D.y, Camera.main.nearClipPlane);
+                ray.origin = Camera.main.ScreenToWorldPoint(mousePosition);
+                ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
+            }
+#else
+            if (Input.mousePresent)
+            {
+                Vector3 mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
+                ray.origin = Camera.main.ScreenToWorldPoint(mousePosition);
+                ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
+            }
+#endif
+            return ray;
         }
     }
 }
