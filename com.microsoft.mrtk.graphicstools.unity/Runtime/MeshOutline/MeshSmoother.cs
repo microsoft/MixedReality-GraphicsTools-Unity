@@ -24,17 +24,17 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool smoothNormalsOnAwake = false;
 
         private MeshFilter meshFilter = null;
-        private Mesh originalMesh;
+        private UnityEngine.Mesh originalMesh;
 
         /// <summary>
         /// Helper class to track mesh references.
         /// </summary>
         private class MeshReference
         {
-            public Mesh Mesh;
+            public UnityEngine.Mesh Mesh;
             private int referenceCount;
 
-            public MeshReference(Mesh mesh)
+            public MeshReference(UnityEngine.Mesh mesh)
             {
                 Mesh = mesh;
                 referenceCount = 1;
@@ -56,7 +56,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private static Dictionary<Mesh, MeshReference> processedMeshes = new Dictionary<Mesh, MeshReference>();
+        private static Dictionary<UnityEngine.Mesh, MeshReference> processedMeshes = new Dictionary<UnityEngine.Mesh, MeshReference>();
 
         /// <summary>
         /// Performs normal smoothing on the current mesh filter associated with this component synchronously.
@@ -64,7 +64,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void SmoothNormals()
         {
-            Mesh mesh;
+            UnityEngine.Mesh mesh;
 
             // No need to do any smoothing if this mesh has already been processed.
             if (AcquirePreprocessedMesh(out mesh))
@@ -83,7 +83,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <returns>A task which will complete once normal smoothing is finished.</returns>
         public Task SmoothNormalsAsync()
         {
-            Mesh mesh;
+            UnityEngine.Mesh mesh;
 
             // No need to do any smoothing if this mesh has already been processed.
             if (AcquirePreprocessedMesh(out mesh))
@@ -153,7 +153,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         /// <param name="mesh">A reference to the mesh which was already processed or is ready to be processed.</param>
         /// <returns>True if the mesh was already processed, false otherwise.</returns>
-        private bool AcquirePreprocessedMesh(out Mesh mesh)
+        private bool AcquirePreprocessedMesh(out UnityEngine.Mesh mesh)
         {
             if (meshFilter == null)
             {
