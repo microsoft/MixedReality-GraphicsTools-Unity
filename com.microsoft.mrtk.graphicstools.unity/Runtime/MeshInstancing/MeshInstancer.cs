@@ -106,9 +106,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         public struct RaycastHit
         {
             public Instance Instance;
-            public float Distance;
             public Vector3 Point;
-            public Vector3 Direction;
+            public float Distance;
+            public Ray Ray;
 
             /// <summary>
             /// TODO
@@ -116,9 +116,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             public void Clear()
             {
                 Instance = null;
-                Distance = float.MaxValue;
                 Point = Vector3.zero;
-                Direction = Vector3.zero;
+                Distance = float.MaxValue;
+                Ray = new Ray();
             }
         }
 
@@ -474,15 +474,19 @@ namespace Microsoft.MixedReality.GraphicsTools
                     // Calculate the final transformation matrix.
                     matrixScratchBuffer[i] = localToWorld * Matricies[i];
 
-                    // Perform a ray cast against the current instance.
-                    RaycastHit hitInfo;
+                    // Perform a ray cast against the current instance. First do a coarse test against a sphere then a fine test against the OOBB.
+                    // TODO - [Cameron-Micka] accelerate this with spatial partitioning?
+                    Vector3 boxHalfSizeScaled = Vector3.Scale(boxHalfSize, matrixScratchBuffer[i].lossyScale);
+                    float radius = Mathf.Max(Mathf.Max(boxHalfSizeScaled.x, boxHalfSizeScaled.y), boxHalfSizeScaled.z);
 
-                    if (RaycastOOBB(matrixScratchBuffer[i], boxMin, boxMax, ray, out hitInfo))
+                    if (RaycastSphere(ray, matrixScratchBuffer[i].GetColumn(3), radius))
                     {
-                        hitInfo.Instance = Instances[i];
-                        hitInfo.Point = ray.origin + (ray.direction * hitInfo.Distance);
-                        hitInfo.Direction = -ray.direction;
-                        RaycastHits.Add(hitInfo);
+                        RaycastHit hitInfo;
+                        if (RaycastOOBB(ray, matrixScratchBuffer[i], boxMin, boxMax, out hitInfo))
+                        {
+                            hitInfo.Instance = Instances[i];
+                            RaycastHits.Add(hitInfo);
+                        }
                     }
                 }
             }
@@ -492,17 +496,42 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, recieveShadows);
             }
 
-            private bool RaycastOOBB(Matrix4x4 localToWorld, Vector3 boxMin, Vector3 boxMax, Ray ray, out RaycastHit hitInfo)
+            private bool RaycastSphere(Ray ray, Vector3 center, float radius)
+            {
+                // 5.3.2 Intersecting Ray or Segment Against Sphere
+                // http://realtimecollisiondetection.net/
+
+                Vector3 m = ray.origin - center;
+                float b = Vector3.Dot(m, ray.direction);
+                float c = Vector3.Dot(m, m) - (radius * radius);
+
+                // Exit if ray’s origin outside sphere (c > 0) and ray pointing away from sphere (b > 0).
+                if (c > 0.0f && b > 0.0f)
+                {
+                    return false;
+                }
+
+                // A negative discriminant corresponds to ray missing sphere.
+                float discriminant = b * b - c;
+
+                return (discriminant >= 0.0f);
+            }
+
+            private bool RaycastOOBB(Ray ray, Matrix4x4 localToWorld, Vector3 boxMin, Vector3 boxMax, out RaycastHit hitInfo)
             {
                 // Transform the ray into the instance's local space.
                 Matrix4x4 localToWorldInverse = localToWorld.inverse;
+
                 Ray localRay = new Ray();
                 localRay.origin = localToWorldInverse.MultiplyPoint3x4(ray.origin);
                 localRay.direction = localToWorldInverse.MultiplyVector(ray.direction);
 
-                if (RacastAABB(boxMin, boxMax, localRay, out hitInfo))
+                if (RacastAABB(localRay, boxMin, boxMax, out hitInfo))
                 {
-                    // TODO - [Cameron-Micka] figure out world space intersection distance.
+                    // Transform back to world space.
+                    hitInfo.Point = localToWorld.MultiplyPoint3x4(localRay.origin + (localRay.direction * hitInfo.Distance));
+                    hitInfo.Distance = (hitInfo.Point - ray.origin).magnitude;
+                    hitInfo.Ray = ray;
 
                     return true;
                 }
@@ -510,7 +539,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return false;
             }
 
-            private bool RacastAABB(Vector3 boxMin, Vector3 boxMax, Ray ray, out RaycastHit hitInfo)
+            private bool RacastAABB(Ray ray, Vector3 boxMin, Vector3 boxMax, out RaycastHit hitInfo)
             {
                 // Fast and Robust Ray/OBB Intersection Using the Lorentz Transformation
                 // https://www.realtimerendering.com/raytracinggems/rtg2/index.html
