@@ -92,7 +92,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         }
 
         /// <summary>
-        /// Create a bunch of random point masses.
+        /// Create a bunch of instances in a cube formation.
         /// </summary>
         private void CreateInstances()
         {

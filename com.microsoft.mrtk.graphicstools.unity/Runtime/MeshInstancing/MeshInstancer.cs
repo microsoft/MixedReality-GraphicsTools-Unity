@@ -23,34 +23,33 @@ namespace Microsoft.MixedReality.GraphicsTools
         public const int UNITY_MAX_INSTANCE_COUNT = 1023;
 
         /// <summary>
-        /// TODO
+        /// The mesh to draw via Graphics.DrawMeshInstanced.
         /// </summary>
-        [Header("Visuals")]
-        [Tooltip("TODO")]
+        [Header("Visuals"), Tooltip("The mesh to draw via Graphics.DrawMeshInstanced.")]
         public Mesh InstanceMesh = null;
 
         /// <summary>
-        /// TODO
+        /// Which subset of the mesh to draw. This applies only to meshes that are composed of several materials.
         /// </summary>
-        [Tooltip("TODO")]
+        [Tooltip("Which subset of the mesh to draw. This applies only to meshes that are composed of several materials.")]
         public int InstanceSubMeshIndex = 0;
 
         /// <summary>
-        /// TODO
+        /// The material to use when drawing. The material must have "Enable GPU Instancing" checked on.
         /// </summary>
-        [Tooltip("TODO")]
+        [Tooltip("The material to use when drawing. The material must have \"Enable GPU Instancing\" checked on.")]
         public Material InstanceMaterial = null;
 
         /// <summary>
-        /// TODO
+        /// Determines whether the Meshes should cast shadows.
         /// </summary>
-        [Tooltip("TODO")]
+        [Tooltip("Determines whether the Meshes should cast shadows.")]
         public UnityEngine.Rendering.ShadowCastingMode ShadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
         /// <summary>
-        /// TODO
+        /// Determines whether the Meshes should receive shadows.
         /// </summary>
-        [Tooltip("TODO")]
+        [Tooltip("Determines whether the Meshes should receive shadows.")]
         public bool RecieveShadows = false;
 
         [Serializable]
@@ -60,7 +59,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             public float DefaultValue = 0.0f;
         }
 
-        [SerializeField, Tooltip("TODO")]
+        [SerializeField, Tooltip("Name and default value of instanced float material properties. These must be set in order to update them at runtime.")]
         private FloatMaterialProperty[] FloatMaterialProperties = new FloatMaterialProperty[0];
 
         [Serializable]
@@ -70,7 +69,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             public Vector4 DefaultValue = Vector3.zero;
         }
 
-        [SerializeField, Tooltip("TODO")]
+        [SerializeField, Tooltip("Name and default value of instanced vector material properties. These must be set in order to update them at runtime.")]
         private VectorMaterialProperty[] VectorMaterialProperties = new VectorMaterialProperty[0];
 
         [Serializable]
@@ -80,18 +79,17 @@ namespace Microsoft.MixedReality.GraphicsTools
             public Matrix4x4 DefaultValue = Matrix4x4.identity;
         }
 
-        [SerializeField, Tooltip("TODO")]
+        [SerializeField, Tooltip("Name and default value of instanced matrix material properties. These must be set in order to update them at runtime.")]
         private MatrixMaterialProperty[] MatrixMaterialProperties = new MatrixMaterialProperty[0];
 
         /// <summary>
-        /// TODO
+        /// If true, the RaycastHits list is filled out each frame with instances that intersect the RayCollider. Disable this if you don't need to query instances.
         /// </summary>
-        [Header("Physics")]
-        [Tooltip("TODO")]
+        [Header("Physics"), Tooltip("If true, the RaycastHits list is filled out each frame with instances that intersect the RayCollider. Disable this if you don't need to query instances.")]
         public bool RaycastInstances = false;
 
         /// <summary>
-        /// TODO
+        /// AABB of an instance.
         /// </summary>
         [Serializable]
         public struct Box
@@ -101,7 +99,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Raycast query results when RayCollider is true and the RayCollider intersects an instance.
         /// </summary>
         public struct RaycastHit
         {
@@ -111,9 +109,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             public Ray Ray;
 
             /// <summary>
-            /// TODO
+            /// Restores the hit to the default state.
             /// </summary>
-            public void Clear()
+            public void Reset()
             {
                 Instance = null;
                 Point = Vector3.zero;
@@ -123,60 +121,60 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// The AABB local space position and extents of every instance's collider.
         /// </summary>
         public Box BoxCollider = new Box() { Center = Vector3.zero, Size = Vector3.one };
 
         /// <summary>
-        /// TODO
+        /// The current ray to use in queries if RaycastInstances is true.
         /// </summary>
         public Ray RayCollider { get; set; }
 
         /// <summary>
-        /// TODO
+        /// The list of all hits that RayCollider intersects with when RaycastInstances is true.
         /// </summary>
         public List<RaycastHit> RaycastHits { get; private set; }
 
         /// <summary>
-        /// TODO
+        /// Signature of the multi-threaded update method for each instance.
         /// </summary>
         public delegate void ParallelUpdate(float deltaTime, Instance instance);
 
         /// <summary>
-        /// TODO
+        /// If true displays diagnostic GUI text in the bottom left of the screen displaying how long it took to update all instances.
         /// </summary>
-        [Header("Diagnostics")]
-        [Tooltip("TODO")]
+        [Header("Diagnostics"), Tooltip("If true displays diagnostic GUI text in the bottom left of the screen displaying how long it took to update all instances.")]
         public bool DisplayUpdateTime = false;
 
         /// <summary>
-        /// TODO
+        /// Forces all instance updating to happen on the main thread. Helpful when debugging multi-threaded issues. 
         /// </summary>
-        [Tooltip("TODO")]
+        [Tooltip("Forces all instance updating to happen on the main thread. Helpful when debugging multi-threaded issues. ")]
         public bool DisableParallelUpdate = false;
 
         /// <summary>
-        /// TODO
+        /// An object that represents a instance to be drawn. Akin to a Unity GameObject.
         /// </summary>
         public class Instance
         {
             /// <summary>
-            /// TODO
+            /// The unique instance id within a bucket.
             /// </summary>
             public int InstanceIndex { get; set; }
 
             /// <summary>
-            /// TODO
+            /// The id of the bucket the instances lives in. Instances live in buckets of UNITY_MAX_INSTANCE_COUNT.
             /// </summary>
             public int InstanceBucketIndex { get; private set; }
 
             /// <summary>
-            /// TODO
+            /// Pointer to any custom data the developer wishes to store on a per instance basis. 
+            /// NOTE: This data should be a value type to avoid allocations when boxing and unboxing.
             /// </summary>
             public System.Object UserData { get; set; }
 
             /// <summary>
-            /// TODO
+            /// The world space position of the instance.
             /// </summary>
             public Vector3 Position
             {
@@ -185,7 +183,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Position of the instance relative to the parent MeshInstancer.
             /// </summary>
             public Vector3 LocalPosition
             {
@@ -194,7 +192,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// A Quaternion that stores the rotation of the instance in world space.
             /// </summary>
             public Quaternion Rotation
             {
@@ -203,7 +201,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// The rotation of the instance relative to the instance rotation of the parent MeshInstancer.
             /// </summary>
             public Quaternion LocalRotation
             {
@@ -212,7 +210,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// The global scale of the instance (Read Only).
             /// </summary>
             public Vector3 LossyScale
             {
@@ -220,7 +218,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// The scale of the instance relative to the parent MeshInstancer.
             /// </summary>
             public Vector3 LocalScale
             {
@@ -229,7 +227,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Translation, rotation, and scale matrix in world space.
             /// </summary>
             public Matrix4x4 Transformation
             {
@@ -238,7 +236,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            ///  Translation, rotation, and scale matrix relative to the parent MeshInstancer.
             /// </summary>
             public Matrix4x4 LocalTransformation
             {
@@ -247,7 +245,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// True if this instance has been destoryed (removed) from the parent MeshInstancer.
             /// </summary>
             public bool Destroyed
             {
@@ -259,7 +257,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             private Instance() { }
 
             /// <summary>
-            /// TODO
+            /// Default constructor.
             /// </summary>
             public Instance(int instanceIndex, int instanceBucketIndex, MeshInstancer instancer)
             {
@@ -269,7 +267,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Call this method to destory an instance so it no longer renders or updates.
             /// </summary>
             public void Destroy()
             {
@@ -283,7 +281,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Sets an instanced material float property.
             /// </summary>
             public void SetFloat(string name, float value)
             {
@@ -291,7 +289,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Sets an instanced material float property.
             /// </summary>
             public void SetFloat(int nameID, float value)
             {
@@ -301,7 +299,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Gets an instanced material float property.
             /// </summary>
             public float GetFloat(string name)
             {
@@ -309,7 +307,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Gets an instanced material float property.
             /// </summary>
             public float GetFloat(int nameID)
             {
@@ -319,7 +317,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Sets an instanced material vector property.
             /// </summary>
             public void SetVector(string name, Vector4 value)
             {
@@ -327,7 +325,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Sets an instanced material vector property.
             /// </summary>
             public void SetVector(int nameID, Vector4 value)
             {
@@ -337,7 +335,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Gets an instanced material vector property.
             /// </summary>
             public Vector4 GetVector(string name)
             {
@@ -345,7 +343,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Gets an instanced material vector property.
             /// </summary>
             public Vector4 GetVector(int nameID)
             {
@@ -355,7 +353,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Sets an instanced material matrix property.
             /// </summary>
             public void SetMatrix(string name, Matrix4x4 value)
             {
@@ -363,7 +361,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Sets an instanced material matrix property.
             /// </summary>
             public void SetMatrix(int nameID, Matrix4x4 value)
             {
@@ -373,7 +371,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Gets an instanced material matrix property.
             /// </summary>
             public Matrix4x4 GetMatrix(string name)
             {
@@ -381,7 +379,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Gets an instanced material matrix property.
             /// </summary>
             public Matrix4x4 GetMatrix(int nameID)
             {
@@ -391,7 +389,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// TODO
+            /// Sets the delegate update method to call each frame. Make sure all function within this method are thread safe.
             /// </summary>
             public void SetParallelUpdate(ParallelUpdate parallelUpdate)
             {
@@ -779,7 +777,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Creates an instance at a position.
         /// </summary>
         public Instance Instantiate(Vector3 position, bool instantiateInWorldSpace = false)
         {
@@ -787,7 +785,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Creates an instance at a position and rotation.
         /// </summary>
         public Instance Instantiate(Vector3 position, Quaternion rotation, bool instantiateInWorldSpace = false)
         {
@@ -795,7 +793,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Creates an instance at a position, rotation, and scale.
         /// </summary>
         public Instance Instantiate(Vector3 position, Quaternion rotation, Vector3 scale, bool instantiateInWorldSpace = false)
         {
@@ -803,7 +801,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Creates an instance at TRS matrix.
         /// </summary>
         public Instance Instantiate(Matrix4x4 transformation, bool instantiateInWorldSpace = false)
         {
@@ -818,7 +816,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Removes all instances from the MeshInstancer.
         /// </summary>
         public void Clear()
         {
@@ -835,7 +833,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Registers a float material property that can be updated at runtime per instance.
         /// </summary>
         public bool RegisterMaterialProperty(string name, float defaultValue)
         {
@@ -843,7 +841,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Registers a float material property that can be updated at runtime per instance.
         /// </summary>
         public bool RegisterMaterialProperty(int nameID, float defaultValue)
         {
@@ -851,7 +849,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Registers a vector material property that can be updated at runtime per instance.
         /// </summary>
         public bool RegisterMaterialProperty(string name, Vector4 defaultValue)
         {
@@ -859,7 +857,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Registers a vector material property that can be updated at runtime per instance.
         /// </summary>
         public bool RegisterMaterialProperty(int nameID, Vector4 defaultValue)
         {
@@ -867,7 +865,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Registers a float matrix property that can be updated at runtime per instance.
         /// </summary>
         public bool RegisterMaterialProperty(string name, Matrix4x4 defaultValue)
         {
@@ -875,7 +873,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Registers a matrix material property that can be updated at runtime per instance.
         /// </summary>
         public bool RegisterMaterialProperty(int nameID, Matrix4x4 defaultValue)
         {
@@ -902,11 +900,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// TODO
+        /// Returns the hit thats the smallest distance away from the RayCollider origin.
         /// </summary>
         public bool GetClosestRaycastHit(ref RaycastHit hit)
         {
-            hit.Clear();
+            hit.Reset();
 
             foreach (RaycastHit h in RaycastHits)
             {
