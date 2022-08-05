@@ -120,6 +120,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent rimColor = new GUIContent("Color", "Rim Highlight Color");
             public static readonly GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
             public static readonly GUIContent vertexColors = new GUIContent("Vertex Colors", "Enable Vertex Color Tinting");
+            public static readonly GUIContent vertexAlphaIsAmbientOcclusion = new GUIContent("Vertex alpha is occlusion", "Multiply the ambient light by the vertex color's alpha value.");
             public static readonly GUIContent vertexExtrusion = new GUIContent("Vertex Extrusion", "Enable Vertex Extrusion Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionValue = new GUIContent("Extrusion Value", "How Far to Extrude the Vertex Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionSmoothNormals = new GUIContent("Use Smooth Normals", "Should Vertex Extrusion use the Smooth Normals in UV3, or Default Normals");
@@ -237,6 +238,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty rimColor;
         protected MaterialProperty rimPower;
         protected MaterialProperty vertexColors;
+        protected MaterialProperty vertexAlphaIsAmbientOcclusion;
         protected MaterialProperty vertexExtrusion;
         protected MaterialProperty vertexExtrusionValue;
         protected MaterialProperty vertexExtrusionSmoothNormals;
@@ -350,6 +352,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             rimColor = FindProperty("_RimColor", props);
             rimPower = FindProperty("_RimPower", props);
             vertexColors = FindProperty("_VertexColors", props);
+            vertexAlphaIsAmbientOcclusion = FindProperty("_VertexAlphaIsAmbientOcclusion", props);
             vertexExtrusion = FindProperty("_VertexExtrusion", props);
             vertexExtrusionValue = FindProperty("_VertexExtrusionValue", props);
             vertexExtrusionSmoothNormals = FindProperty("_VertexExtrusionSmoothNormals", props);
@@ -730,6 +733,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
 
             materialEditor.ShaderProperty(vertexColors, Styles.vertexColors);
+
+            materialEditor.ShaderProperty(vertexAlphaIsAmbientOcclusion, Styles.vertexAlphaIsAmbientOcclusion);
 
             materialEditor.ShaderProperty(vertexExtrusion, Styles.vertexExtrusion);
 
