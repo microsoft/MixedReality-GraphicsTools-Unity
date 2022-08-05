@@ -31,7 +31,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Which subset of the mesh to draw. This applies only to meshes that are composed of several materials.
         /// </summary>
-        [Tooltip("Which subset of the mesh to draw. This applies only to meshes that are composed of several materials.")]
+        [Min(0), Tooltip("Which subset of the mesh to draw. This applies only to meshes that are composed of several materials.")]
         public int InstanceSubMeshIndex = 0;
 
         /// <summary>

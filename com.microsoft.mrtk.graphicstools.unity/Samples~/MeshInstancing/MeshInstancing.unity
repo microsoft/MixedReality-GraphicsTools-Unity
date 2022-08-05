@@ -123,6 +123,80 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &13901306
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 13901309}
+  - component: {fileID: 13901308}
+  - component: {fileID: 13901307}
+  m_Layer: 0
+  m_Name: MeshInstancerPlaceOnMesh
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &13901307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13901306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a41e32d8e0fc51d4a9b9874785ec7719, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  instancer: {fileID: 0}
+  instanceCount: 20000
+--- !u!114 &13901308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13901306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1799f82e0b5368d469551845b28c12b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InstanceMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  InstanceSubMeshIndex: 0
+  InstanceMaterial: {fileID: 2100000, guid: ab9ad9bfe0bca904589ef0e15048979a, type: 2}
+  ShadowCastingMode: 0
+  RecieveShadows: 0
+  FloatMaterialProperties: []
+  VectorMaterialProperties:
+  - Name: _Color
+    DefaultValue: {x: 0.5, y: 0.5, z: 0.5, w: 1}
+  MatrixMaterialProperties: []
+  RaycastInstances: 0
+  BoxCollider:
+    Center: {x: 0, y: 0, z: 0}
+    Size: {x: 1, y: 1, z: 1}
+  DisplayUpdateTime: 0
+  DisableParallelUpdate: 0
+--- !u!4 &13901309
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13901306}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &310299793
 GameObject:
   m_ObjectHideFlags: 0
@@ -135,12 +209,12 @@ GameObject:
   - component: {fileID: 310299795}
   - component: {fileID: 310299796}
   m_Layer: 0
-  m_Name: MiningMeshInstancer
+  m_Name: MeshInstancerMining
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &310299794
 Transform:
   m_ObjectHideFlags: 0
@@ -196,7 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 0}
-  dimension: 20
+  dimension: 10
 --- !u!1 &551011278
 GameObject:
   m_ObjectHideFlags: 0
@@ -566,6 +640,80 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 18b157eabd8a11248b69eff72ff0b8bb, type: 3}
+--- !u!1 &1480214040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1480214041}
+  - component: {fileID: 1480214043}
+  - component: {fileID: 1480214042}
+  m_Layer: 0
+  m_Name: MeshInstancerRandom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1480214041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480214040}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1480214042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480214040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0200cd4e14c07314cb9e15f0c8ed1ff5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  instancer: {fileID: 0}
+  instanceCount: 20000
+--- !u!114 &1480214043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480214040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1799f82e0b5368d469551845b28c12b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InstanceMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  InstanceSubMeshIndex: 0
+  InstanceMaterial: {fileID: 2100000, guid: ab9ad9bfe0bca904589ef0e15048979a, type: 2}
+  ShadowCastingMode: 0
+  RecieveShadows: 0
+  FloatMaterialProperties: []
+  VectorMaterialProperties:
+  - Name: _Color
+    DefaultValue: {x: 0.5, y: 0.5, z: 0.5, w: 1}
+  MatrixMaterialProperties: []
+  RaycastInstances: 0
+  BoxCollider:
+    Center: {x: 0, y: 0, z: 0}
+    Size: {x: 1, y: 1, z: 1}
+  DisplayUpdateTime: 0
+  DisableParallelUpdate: 0
 --- !u!1 &2129533736
 GameObject:
   m_ObjectHideFlags: 0
@@ -578,7 +726,7 @@ GameObject:
   - component: {fileID: 2129533738}
   - component: {fileID: 2129533737}
   m_Layer: 0
-  m_Name: PointMassMeshInstancer
+  m_Name: MeshInstancerPointMass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
