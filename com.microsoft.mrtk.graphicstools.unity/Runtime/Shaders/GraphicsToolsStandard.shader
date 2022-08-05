@@ -43,6 +43,7 @@ Shader "Graphics Tools/Standard"
         _RimColor("Rim Color", Color) = (0.5, 0.5, 0.5, 1.0)
         _RimPower("Rim Power", Range(0.0, 8.0)) = 0.25
         [Toggle(_VERTEX_COLORS)] _VertexColors("Vertex Colors", Float) = 0.0
+        [Toggle(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)] _VertexAlphaIsAmbientOcclusion("Vertex alpha is ambient occlusion", Float) = 0.0
         [Toggle(_VERTEX_EXTRUSION)] _VertexExtrusion("Vertex Extrusion", Float) = 0.0
         _VertexExtrusionValue("Vertex Extrusion Value", Float) = 0.0
         [Toggle(_VERTEX_EXTRUSION_SMOOTH_NORMALS)] _VertexExtrusionSmoothNormals("Vertex Extrusion Smooth Normals", Float) = 0.0

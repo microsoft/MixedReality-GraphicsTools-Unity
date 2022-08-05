@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools
@@ -15,7 +16,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     public class AmbientOcclusion : MonoBehaviour
     {
         [Header("Configuration")]
-        public bool UseSharedMesh = true;
+        public bool UseSharedMesh = false;
 
         [Header("Batching")]
         public GatherBatchingMethod BatchingMethod;
@@ -63,15 +64,15 @@ namespace Microsoft.MixedReality.GraphicsTools
         //private JobHandle parallelJobHandle;
         //private JobHandle transformJobHandle;
 
+        private Color[] _colors;
         private Vector3[] _vertexes;
         private Vector3[] _normals;
         private Vector3[] _bentNormals;
         private List<Vector3> _referenceVertexSamples = new List<Vector3>();
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
-        private Queue<Vector3[]> _directionsToSample = new Queue<Vector3[]>();
 
         private Mesh _sourceMesh;
-        private Color[] _colors;
+        private Mesh _originalMesh;
 
         public Mesh SourceMesh
         {
@@ -99,6 +100,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             GatherSamples();
         }
 
+        private void Start()
+        {
+            _originalMesh = SourceMesh;
+        }
+
         private void OnEnable()
         {
             //if (ShouldGatherOnEnable)
@@ -122,6 +128,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             RayBatchSize = Mathf.Max(RayBatchSize, 1);
 
             //PerformGather();
+            if (!isActiveAndEnabled)
+            {
+                FloodVertexColor(Color.white);
+            }
         }
 
         void OnDrawGizmosSelected()
@@ -138,6 +148,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (_showOrigin)
             {
                 Gizmos.color = _originColor;
+                Handles.Label(_vertexes[ReferenceVertexIndex], $"{ReferenceVertexIndex}");
                 Gizmos.DrawSphere(_vertexes[ReferenceVertexIndex], _originRadius);
             }
 
@@ -188,7 +199,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Get a random uniform sample from a hemisphere around a reference normal
+        /// Get a random sample direction from the hemisphere around reference normal
         /// </summary>
         /// <param name="normalizedReferenceNormal">Must be noramlized</param>
         /// <returns></returns>
@@ -206,9 +217,20 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private (Vector3, RaycastHit?) RandomSceneSample(Vector3 vertex,
-                                                    Vector3 normal,
-                                                    float maxdist)
+        /// <summary>
+        /// Given a local space mesh VERTEX position
+        /// look into the scene in the direction of NORMAL
+        /// no futher than MAXDIST
+        /// Returns a random direction in the hemisphere above the origin
+        /// and maybe a RayCast object if we collided with something
+        /// </summary>
+        /// <param name="vertex">Origin assumed mesh local space</param>
+        /// <param name="normal">Direction to look assumed mesh local space</param>
+        /// <param name="maxdist">How far to look for colliders</param>
+        /// <returns></returns>
+        private (Vector3, RaycastHit?) SampleScene(Vector3 vertex,
+                                                   Vector3 normal,
+                                                   float maxdist)
         {
             vertex = transform.TransformPoint(vertex);
             normal = transform.TransformVector(normal);
@@ -225,13 +247,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        //[ContextMenu(nameof(Abort))]
-        //public void Abort()
-        //{
-        //    StopAllCoroutines();
-        //}
-
-        private IEnumerator RaysPerFrameBatch()
+        private IEnumerator ProcessRays()
         {
             var sampleHits = new List<RaycastHit>(SourceMesh.vertexCount);
 
@@ -249,9 +265,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     //UnityEngine.Debug.Log($"si={si}");
 
-                    (Vector3 sampleDir, RaycastHit? hit) = RandomSceneSample(SourceMesh.vertices[vi],
-                                                                             SourceMesh.normals[vi],
-                                                                             MaxSampleDistance);
+                    (Vector3 sampleDir, RaycastHit? hit) = SampleScene(SourceMesh.vertices[vi],
+                                                                       SourceMesh.normals[vi],
+                                                                       MaxSampleDistance);
                     if (hit.HasValue)
                     {
                         sampleHits.Add(hit.Value);
@@ -305,14 +321,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
             {
 #if !UNITY_EDITOR
-                StartCoroutine(RaysPerFrameBatch());
+                StartCoroutine(ProcessRays());
                 return;
 #else
                 UnityEngine.Debug.LogWarning($"{nameof(GatherBatchingMethod.RaysPerFrame)} only available at runtime!");
 #endif
             }
-            // Do the 
-            // the more vertexs, and the more rays the slower it is
 
             var watch = Stopwatch.StartNew();
 
@@ -378,18 +392,28 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Coverages[vi] = (float)sampleHits.Count / RaysPerVertex;
             }
 
-            ApplyVertexColor();
+            ApplyCoverage();
             UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={SourceMesh.vertexCount} rays-per-vertex={RaysPerVertex}.");
         }
 
-        public void ApplyVertexColor()
+        public void FloodVertexColor(Color color)
+        {
+            var colors = new Color[SourceMesh.vertexCount];
+            for (int i = 0; i < SourceMesh.vertexCount; i++)
+            {
+                colors[i] = color;
+            }
+            SourceMesh.colors = _colors;
+        }
+
+        public void ApplyCoverage()
         {
             _colors = new Color[SourceMesh.vertexCount];
 
             for (int i = 0; i < SourceMesh.vertexCount; i++)
             {
                 var ao = 1 - Coverages[i];
-                _colors[i] = new Color(ao, ao, ao);
+                _colors[i] = new Color(1, 1, 1, ao);
             }
             SourceMesh.colors = _colors;
         }

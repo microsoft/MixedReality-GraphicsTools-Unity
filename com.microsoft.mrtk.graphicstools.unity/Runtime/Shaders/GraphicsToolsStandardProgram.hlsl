@@ -32,6 +32,7 @@
 #pragma shader_feature_local _REFLECTIONS
 #pragma shader_feature_local _RIM_LIGHT
 #pragma shader_feature_local _VERTEX_COLORS
+#pragma shader_feature_local _VERTEX_ALPHA_IS_AMBIENT_OCCLUSION
 #pragma shader_feature_local _VERTEX_EXTRUSION
 #pragma shader_feature_local_vertex _VERTEX_EXTRUSION_SMOOTH_NORMALS
 #pragma shader_feature_local _NEAR_PLANE_FADE
@@ -301,10 +302,16 @@ Varyings VertexStage(Attributes input)
     coefficients[4] = unity_SHBg;
     coefficients[5] = unity_SHBb;
     coefficients[6] = unity_SHC;
+
     output.ambient = max(0.0, SampleSH9(coefficients, worldNormal));
 #else
     output.ambient = ShadeSH9(float4(worldNormal, 1.0));
 #endif
+
+#if defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
+    output.ambient *= input.color.a;
+#endif
+
 #endif
 
 #if defined(_IRIDESCENCE)
@@ -534,7 +541,14 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 #endif
 
+    albedo *= _Color;
+
+#if defined(_VERTEX_COLORS)
+#if defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
+    albedo.rgb = 1.0;
+#else
     albedo *= input.color;
+#endif
 #if defined(_ADDITIVE_ON)
     albedo.rgb *= input.color.a;
 #endif
@@ -769,7 +783,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #else
     half occlusion = 1.0h;
 #endif
+#if defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
+    occlusion = input.color.a;
 #endif
+#endif
+
 
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_NPR_Rendering)
     GTBRDFData brdfData;
