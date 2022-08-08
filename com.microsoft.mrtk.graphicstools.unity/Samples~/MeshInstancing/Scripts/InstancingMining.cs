@@ -15,8 +15,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
     {
         [SerializeField]
         private MeshInstancer instancer = null;
-
-        [Header("Simulation Properties")]
         [SerializeField, Min(1)]
         private int dimension = 10;
 

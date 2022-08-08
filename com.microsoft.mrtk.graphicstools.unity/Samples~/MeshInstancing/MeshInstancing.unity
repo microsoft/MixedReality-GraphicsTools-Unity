@@ -140,7 +140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &310299794
 Transform:
   m_ObjectHideFlags: 0
@@ -196,7 +196,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 0}
-  dimension: 10
+  dimension: 30
 --- !u!1 &551011278
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,8 +498,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 0}
-  instanceCount: 20000
-  instanceScale: 0.05
+  instanceCount: 5000
+  instanceScale: 25
 --- !u!114 &1128495939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -512,9 +512,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1799f82e0b5368d469551845b28c12b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InstanceMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  InstanceMesh: {fileID: 1988216149656743765, guid: 9e385a47ede6d2c4e9d1d8bbecfbcb27, type: 3}
   InstanceSubMeshIndex: 0
-  InstanceMaterial: {fileID: 2100000, guid: ab9ad9bfe0bca904589ef0e15048979a, type: 2}
+  InstanceMaterial: {fileID: 2100000, guid: aba573d11dffaf64087c300fd0015bde, type: 2}
   ShadowCastingMode: 0
   RecieveShadows: 0
   FloatMaterialProperties: []
@@ -547,7 +547,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 9d8a8b36b500bfe4c9273e4c3f2d9c55, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -576,7 +576,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1128495937}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -8334073581038260804, guid: 0916d0da17a68594bab3e116995cef4a, type: 3}
 --- !u!4 &1128495942
 Transform:
   m_ObjectHideFlags: 0
@@ -584,13 +584,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1128495937}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalRotation: {x: -0.076136105, y: 0.89914185, z: 0.39450753, w: -0.17352566}
+  m_LocalPosition: {x: 0, y: 0, z: -0.2}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: -43.08, y: 210.629, z: -22.018}
 --- !u!1001 &1302028634
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -598,6 +598,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6733848283173587094, guid: 18b157eabd8a11248b69eff72ff0b8bb, type: 3}
+      propertyPath: m_text
+      value: "\u2022 tooling for rendering and updating massive amounts of objects
+        (> ~1000)\n\u2022 instances may be updated across threads\n\u2022 ray casting
+        against instance oriented boxes is supported "
+      objectReference: {fileID: 0}
     - target: {fileID: 6733848283233855915, guid: 18b157eabd8a11248b69eff72ff0b8bb, type: 3}
       propertyPath: m_Name
       value: DescriptionPanel
@@ -709,7 +715,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1480214041
 Transform:
   m_ObjectHideFlags: 0
@@ -718,7 +724,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1480214040}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.6, y: 0, z: -0.2}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -738,6 +744,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instancer: {fileID: 0}
   instanceCount: 20000
+  instanceScale: 0.1
 --- !u!114 &1480214043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -783,7 +790,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2129533737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -837,9 +844,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2129533736}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.2}
+  m_LocalPosition: {x: 0.9, y: 0, z: -0.2}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

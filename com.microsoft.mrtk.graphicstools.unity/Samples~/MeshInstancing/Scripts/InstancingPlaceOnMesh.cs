@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 {
     /// <summary>
-    /// TODO
+    /// Places instances randomly on the triangles of a mesh.
     /// </summary>
     [RequireComponent(typeof(MeshFilter))]
     public class InstancingPlaceOnMesh : MonoBehaviour
@@ -17,10 +17,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [SerializeField, Min(1)]
         private int instanceCount = 20000;
         [SerializeField]
-        private float instanceScale = 0.05f;
+        private float instanceScale = 1.0f;
 
         private bool didStart = false;
         private static Quaternion rotate90 = Quaternion.AngleAxis(90.0f, Vector3.right);
+
+        private class RocketData
+        {
+            public float launchTime;
+            public Vector3 acceleration;
+            public Vector3 velocity;
+        }
 
         /// <summary>
         /// Re-spawn instances when a property changes.
@@ -43,7 +50,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         }
 
         /// <summary>
-        /// TODO
+        /// Queries a mesh for its triangles and weights them based on area.
         /// </summary>
         private void CreateInstances()
         {
@@ -116,9 +123,22 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 var instance = instancer.Instantiate(position, Quaternion.LookRotation(normals[index]) * rotate90, Vector3.one * instanceScale);
 
                 instance.SetVector(colorID, Random.ColorHSV());
+
+                // Set the data to use during update.
+                instance.UserData = new RocketData()
+                {
+                    launchTime = Random.Range(2.0f, 20.0f),
+                    acceleration = normals[index] * 0.001f,
+                    velocity = normals[index] * 0.01f
+                };
+
+                instance.SetParallelUpdate(ParallelUpdate);
             }
         }
 
+        /// <summary>
+        /// Picks a random triangle weighted by area.
+        /// </summary>
         private static Vector3[] PickRandomTriangle(Vector3[,] triangles, float[] areas, float meshArea, out int index)
         {
             var random = Random.Range(0.0f, meshArea);
@@ -137,6 +157,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             return new Vector3[] { triangles[index, 0], triangles[index, 1], triangles[index, 2] };
         }
 
+        /// <summary>
+        /// Picks a random 3D point on a triangle.
+        /// </summary>
         private static Vector3 PickRandomPointOnTriangle(Vector3[] triangle)
         {
             float r1 = Mathf.Sqrt(Random.Range(0.0f, 1.0f));
@@ -150,6 +173,32 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             Vector3 c = triangle[2];
 
             return (m1 * a) + (m2 * b) + (m3 * c);
+        }
+
+        /// <summary>
+        /// Method called potentially concurrently across many threads. Make sure all function calls are thread safe.
+        /// </summary>
+        private void ParallelUpdate(float deltaTime, MeshInstancer.Instance instance)
+        {
+            // Cast the user data to our data type.
+            RocketData data = (RocketData)instance.UserData;
+
+            data.launchTime -= deltaTime;
+
+            if (data.launchTime <= 0.0f)
+            {
+                // Euler integration.
+                data.velocity += data.acceleration * deltaTime;
+                instance.LocalPosition += data.velocity * deltaTime;
+
+                // Update the user data state.
+                instance.UserData = data;
+            }
+            else
+            {
+                // Update the user data state.
+                instance.UserData = data;
+            }
         }
     }
 }

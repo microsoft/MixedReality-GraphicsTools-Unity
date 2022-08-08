@@ -12,9 +12,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
     {
         [SerializeField]
         private MeshInstancer instancer = null;
-
         [SerializeField, Min(1)]
         private int instanceCount = 20000;
+        [SerializeField]
+        private float instanceScale = 0.1f;
 
         private bool didStart = false;
 
@@ -51,7 +52,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 
             for (int i = 0; i < instanceCount; ++i)
             {
-                var instance = instancer.Instantiate(Random.onUnitSphere, Random.rotation, Random.insideUnitSphere);
+                var instance = instancer.Instantiate(Random.onUnitSphere, Random.rotation, Random.insideUnitSphere * instanceScale);
                 instance.SetVector(colorID, Random.ColorHSV());
             }
         }

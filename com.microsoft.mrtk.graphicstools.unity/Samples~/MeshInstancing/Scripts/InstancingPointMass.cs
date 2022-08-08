@@ -20,9 +20,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [Header("Instance Properties")]
         [SerializeField, Min(1)]
         private int instanceCount = 20000;
-        [SerializeField, Range(0.01f, 1.0f)]
+        [SerializeField, Min(0.01f)]
         private float instanceSizeMin = 0.02f;
-        [SerializeField, Range(0.01f, 1.0f)]
+        [SerializeField, Min(0.01f)]
         private float instanceSizeMax = 0.08f;
 
         private bool didStart = false;
