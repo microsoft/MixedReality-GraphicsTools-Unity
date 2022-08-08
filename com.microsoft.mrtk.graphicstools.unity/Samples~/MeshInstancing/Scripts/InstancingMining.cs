@@ -18,7 +18,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [SerializeField, Min(1)]
         private int dimension = 10;
 
-        private bool didStart = false;
         private MeshInstancer.RaycastHit lastRaycastHit;
         private Color lastColor;
 
@@ -27,19 +26,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         /// </summary>
         private void OnValidate()
         {
-            if (didStart)
+            if (instancer != null && instancer.InstanceCount != 0)
             {
                 CreateInstances();
             }
         }
 
         /// <summary>
-        /// Create instances on start.
+        /// Create instances on enable.
         /// </summary>
-        private void Start()
+        private void OnEnable()
         {
             CreateInstances();
-            didStart = true;
         }
 
         private void Update()

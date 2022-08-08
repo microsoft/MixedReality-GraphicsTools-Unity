@@ -141,6 +141,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         public delegate void ParallelUpdate(float deltaTime, Instance instance);
 
         /// <summary>
+        /// The total number of instances across all buckets.
+        /// </summary>
+        public int InstanceCount { get; private set; }
+
+        /// <summary>
         /// If true displays diagnostic GUI text in the bottom left of the screen displaying how long it took to update all instances.
         /// </summary>
         [Header("Diagnostics"), Tooltip("If true displays diagnostic GUI text in the bottom left of the screen displaying how long it took to update all instances.")]
@@ -412,8 +417,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             private InstanceBucket() { }
 
-            public InstanceBucket(List<KeyValuePair<int, float>> floatMaterialProperties, 
-                                  List<KeyValuePair<int, Vector4>> vectorMaterialProperties, 
+            public InstanceBucket(List<KeyValuePair<int, float>> floatMaterialProperties,
+                                  List<KeyValuePair<int, Vector4>> vectorMaterialProperties,
                                   List<KeyValuePair<int, Matrix4x4>> matrixMaterialProperties)
             {
                 RegisterMaterialPropertiesFloat(floatMaterialProperties);
@@ -563,6 +568,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+        private bool isInitialized = false;
         private List<InstanceBucket> instanceBuckets = new List<InstanceBucket>();
         private List<KeyValuePair<int, float>> floatMaterialProperties = new List<KeyValuePair<int, float>>();
         private List<KeyValuePair<int, Vector4>> vectorMaterialProperties = new List<KeyValuePair<int, Vector4>>();
@@ -575,23 +581,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void Awake()
         {
-            // Register all properties specified in the component properties.
-            foreach (FloatMaterialProperty property in FloatMaterialProperties)
-            {
-                RegisterMaterialProperty(property.Name, property.DefaultValue);
-            }
-
-            foreach (VectorMaterialProperty property in VectorMaterialProperties)
-            {
-                RegisterMaterialProperty(property.Name, property.DefaultValue);
-            }
-
-            foreach (MatrixMaterialProperty property in MatrixMaterialProperties)
-            {
-                RegisterMaterialProperty(property.Name, property.DefaultValue);
-            }
-
-            RaycastHits = new List<RaycastHit>();
+            Initialize();
         }
 
         private void OnDestroy()
@@ -639,9 +629,37 @@ namespace Microsoft.MixedReality.GraphicsTools
                     ++stopwatchSampleIndex;
                 }
 
-                string label = string.Format("MeshInstancer Update: {0:f2} ms", averageElapsedMilliseconds);
+                string label = string.Format("MeshInstancer Update: {0} instances @ {1:f2} ms", InstanceCount, averageElapsedMilliseconds);
                 GUI.Label(new Rect(10.0f, Screen.height - 24.0f, Screen.height, 128.0f), label);
             }
+        }
+
+        private void Initialize()
+        {
+            if (isInitialized)
+            {
+                return;
+            }
+
+            // Register all properties specified in the component properties.
+            foreach (FloatMaterialProperty property in FloatMaterialProperties)
+            {
+                RegisterMaterialPropertyCommonFloat(Shader.PropertyToID(property.Name), property.DefaultValue, false);
+            }
+
+            foreach (VectorMaterialProperty property in VectorMaterialProperties)
+            {
+                RegisterMaterialPropertyCommonVector(Shader.PropertyToID(property.Name), property.DefaultValue, false);
+            }
+
+            foreach (MatrixMaterialProperty property in MatrixMaterialProperties)
+            {
+                RegisterMaterialPropertyCommonMatrix(Shader.PropertyToID(property.Name), property.DefaultValue, false);
+            }
+
+            RaycastHits = new List<RaycastHit>();
+
+            isInitialized = true;
         }
 
         private void UpdateBuckets()
@@ -805,12 +823,16 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public Instance Instantiate(Matrix4x4 transformation, bool instantiateInWorldSpace = false)
         {
+            Initialize();
+
             int instanceBucketIndex = AllocateInstanceBucketIndex();
             int instanceIndex = AllocateInstanceIndex(instanceBucketIndex);
 
             InstanceBucket bucket = instanceBuckets[instanceBucketIndex];
             bucket.Instances[instanceIndex] = new Instance(instanceIndex, instanceBucketIndex, this);
             bucket.Matricies[instanceIndex] = (instantiateInWorldSpace) ? transform.worldToLocalMatrix * transformation : transformation;
+
+            ++InstanceCount;
 
             return bucket.Instances[instanceIndex];
         }
@@ -880,8 +902,33 @@ namespace Microsoft.MixedReality.GraphicsTools
             return RegisterMaterialPropertyCommonMatrix(nameID, defaultValue);
         }
 
-        private bool RegisterMaterialPropertyCommonFloat(int nameID, float defaultValue)
+        /// <summary>
+        /// Returns the hit thats the smallest distance away from the RayCollider origin.
+        /// </summary>
+        public bool GetClosestRaycastHit(ref RaycastHit hit)
         {
+            Initialize();
+
+            hit.Reset();
+
+            foreach (RaycastHit h in RaycastHits)
+            {
+                if (h.Distance < hit.Distance)
+                {
+                    hit = h;
+                }
+            }
+
+            return (hit.Instance != null);
+        }
+
+        private bool RegisterMaterialPropertyCommonFloat(int nameID, float defaultValue, bool initilize = true)
+        {
+            if (initilize)
+            {
+                Initialize();
+            }
+
             if (floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
@@ -899,26 +946,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             return true;
         }
 
-        /// <summary>
-        /// Returns the hit thats the smallest distance away from the RayCollider origin.
-        /// </summary>
-        public bool GetClosestRaycastHit(ref RaycastHit hit)
+        private bool RegisterMaterialPropertyCommonVector(int nameID, Vector4 defaultValue, bool initilize = true)
         {
-            hit.Reset();
-
-            foreach (RaycastHit h in RaycastHits)
+            if (initilize)
             {
-                if (h.Distance < hit.Distance)
-                {
-                    hit = h;
-                }
+                Initialize();
             }
 
-            return (hit.Instance != null);
-        }
-
-    private bool RegisterMaterialPropertyCommonVector(int nameID, Vector4 defaultValue)
-        {
             if (vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
@@ -936,8 +970,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             return true;
         }
 
-        private bool RegisterMaterialPropertyCommonMatrix(int nameID, Matrix4x4 defaultValue)
+        private bool RegisterMaterialPropertyCommonMatrix(int nameID, Matrix4x4 defaultValue, bool initilize = true)
         {
+            if (initilize)
+            {
+                Initialize();
+            }
+
             if (matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
@@ -957,6 +996,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void SetFloat(Instance instance, int nameID, float value)
         {
+            Initialize();
+
             if (!floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("SetFloat failed because {0} is not a registered material property on the MeshInstancer.", nameID);
@@ -972,6 +1013,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private float GetFloat(Instance instance, int nameID)
         {
+            Initialize();
+
             if (!floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("GetFloat failed because {0} is not a registered material property on the MeshInstancer.", nameID);
@@ -986,6 +1029,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void SetVector(Instance instance, int nameID, Vector4 value)
         {
+            Initialize();
+
             if (!vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("SetVector failed because {0} is not a registered material property on the MeshInstancer.", nameID);
@@ -1001,6 +1046,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private Vector4 GetVector(Instance instance, int nameID)
         {
+            Initialize();
+
             if (!vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("GetVector failed because {0} is not a registered material property on the MeshInstancer.", nameID);
@@ -1015,6 +1062,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void SetMatrix(Instance instance, int nameID, Matrix4x4 value)
         {
+            Initialize();
+
             if (!matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("SetMatrix failed because {0} is not a registered material property on the MeshInstancer.", nameID);
@@ -1030,6 +1079,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private Matrix4x4 GetMatrix(Instance instance, int nameID)
         {
+            Initialize();
+
             if (!matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
                 Debug.LogWarningFormat("GetMatrix failed because {0} is not a registered material property on the MeshInstancer.", nameID);
@@ -1093,6 +1144,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             bucket.InstanceCount = newInstanceCount;
+
+            --InstanceCount;
         }
 
         private int AllocateInstanceBucketIndex()
@@ -1105,8 +1158,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            instanceBuckets.Add(new InstanceBucket(floatMaterialProperties, 
-                                                   vectorMaterialProperties, 
+            instanceBuckets.Add(new InstanceBucket(floatMaterialProperties,
+                                                   vectorMaterialProperties,
                                                    matrixMaterialProperties));
 
             return (instanceBuckets.Count - 1);

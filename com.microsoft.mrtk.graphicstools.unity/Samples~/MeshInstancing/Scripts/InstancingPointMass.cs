@@ -25,7 +25,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [SerializeField, Min(0.01f)]
         private float instanceSizeMax = 0.08f;
 
-        private bool didStart = false;
         private static Quaternion rotate90 = Quaternion.AngleAxis(90.0f, Vector3.right);
 
         private class PointMassData
@@ -39,19 +38,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         /// </summary>
         private void OnValidate()
         {
-            if (didStart)
+            if (instancer != null && instancer.InstanceCount != 0)
             {
                 CreateInstances();
             }
         }
 
         /// <summary>
-        /// Create instances on start.
+        /// Create instances on enable.
         /// </summary>
-        private void Start()
+        private void OnEnable()
         {
             CreateInstances();
-            didStart = true;
         }
 
         /// <summary>

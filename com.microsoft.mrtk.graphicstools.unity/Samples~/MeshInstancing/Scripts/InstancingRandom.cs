@@ -17,26 +17,23 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [SerializeField]
         private float instanceScale = 0.1f;
 
-        private bool didStart = false;
-
         /// <summary>
         /// Re-spawn instances when a property changes.
         /// </summary>
         private void OnValidate()
         {
-            if (didStart)
+            if (instancer != null && instancer.InstanceCount != 0)
             {
                 CreateInstances();
             }
         }
 
         /// <summary>
-        /// Create instances on start.
+        /// Create instances on enable.
         /// </summary>
-        private void Start()
+        private void OnEnable()
         {
             CreateInstances();
-            didStart = true;
         }
 
         /// <summary>

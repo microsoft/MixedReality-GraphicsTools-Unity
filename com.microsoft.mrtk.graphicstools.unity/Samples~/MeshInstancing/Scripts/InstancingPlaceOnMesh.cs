@@ -19,7 +19,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [SerializeField]
         private float instanceScale = 1.0f;
 
-        private bool didStart = false;
         private static Quaternion rotate90 = Quaternion.AngleAxis(90.0f, Vector3.right);
 
         private class RocketData
@@ -34,19 +33,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         /// </summary>
         private void OnValidate()
         {
-            if (didStart)
+            if (instancer != null && instancer.InstanceCount != 0)
             {
                 CreateInstances();
             }
         }
 
         /// <summary>
-        /// Create instances on start.
+        /// Create instances on enable.
         /// </summary>
-        private void Start()
+        private void OnEnable()
         {
             CreateInstances();
-            didStart = true;
         }
 
         /// <summary>
