@@ -19,9 +19,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [SerializeField]
         private float instanceScale = 1.0f;
 
-        private static Quaternion rotate90 = Quaternion.AngleAxis(90.0f, Vector3.right);
-
-        private class RocketData
+        private class StateData
         {
             public float launchTime;
             public Vector3 acceleration;
@@ -116,18 +114,20 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             {
                 int index;
                 Vector3[] triangle = PickRandomTriangle(triangles, areas, meshArea, out index);
-                Vector3 position = PickRandomPointOnTriangle(triangle);
+                Vector3 nomal = normals[index];
+                float bias = Random.Range(0.01f, 0.02f);
+                Vector3 position = PickRandomPointOnTriangle(triangle) + (nomal * bias);
 
-                var instance = instancer.Instantiate(position, Quaternion.LookRotation(normals[index]) * rotate90, Vector3.one * instanceScale);
+                var instance = instancer.Instantiate(position, Quaternion.LookRotation(nomal), Vector3.one * instanceScale);
 
                 instance.SetVector(colorID, Random.ColorHSV());
 
                 // Set the data to use during update.
-                instance.UserData = new RocketData()
+                instance.UserData = new StateData()
                 {
                     launchTime = Random.Range(2.0f, 20.0f),
-                    acceleration = normals[index] * 0.001f,
-                    velocity = normals[index] * 0.01f
+                    acceleration = nomal * 0.001f,
+                    velocity = nomal * 0.01f
                 };
 
                 instance.SetParallelUpdate(ParallelUpdate);
@@ -179,7 +179,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         private void ParallelUpdate(float deltaTime, MeshInstancer.Instance instance)
         {
             // Cast the user data to our data type.
-            RocketData data = (RocketData)instance.UserData;
+            StateData data = (StateData)instance.UserData;
 
             data.launchTime -= deltaTime;
 

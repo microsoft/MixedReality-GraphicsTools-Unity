@@ -868,8 +868,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 1128495939}
-  instanceCount: 5000
-  instanceScale: 25
+  instanceCount: 30000
+  instanceScale: 0.02
 --- !u!114 &1128495939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -882,7 +882,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1799f82e0b5368d469551845b28c12b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InstanceMesh: {fileID: 1988216149656743765, guid: 9e385a47ede6d2c4e9d1d8bbecfbcb27, type: 3}
+  InstanceMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   InstanceSubMeshIndex: 0
   InstanceMaterial: {fileID: 2100000, guid: aba573d11dffaf64087c300fd0015bde, type: 2}
   ShadowCastingMode: 0
@@ -1402,8 +1402,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 2129533738}
-  containmentRadius: 3
-  instanceCount: 20000
+  containmentRadius: 2
+  instanceCount: 2000
   instanceSizeMin: 0.02
   instanceSizeMax: 0.08
 --- !u!114 &2129533738
@@ -1457,7 +1457,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2787472544147114162, guid: ccd4dc59ca02a0441a03cde1b8a7f8db, type: 3}
       propertyPath: m_text
-      value: Rockets spawned on a mesh
+      value: Quads spawned on a mesh
       objectReference: {fileID: 0}
     - target: {fileID: 2787472545433254577, guid: ccd4dc59ca02a0441a03cde1b8a7f8db, type: 3}
       propertyPath: m_Name

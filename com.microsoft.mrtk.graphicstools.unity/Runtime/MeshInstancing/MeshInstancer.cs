@@ -1105,6 +1105,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 instanceBuckets.RemoveAt(instance.InstanceBucketIndex);
 
+                --InstanceCount;
+
                 return;
             }
 

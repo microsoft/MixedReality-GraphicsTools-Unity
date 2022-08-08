@@ -7,9 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: InstancedRocket
+  m_Name: InstancedQuad
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ShaderKeywords: _DIRECTIONAL_LIGHT _SPECULAR_HIGHLIGHTS _USE_WORLD_SCALE
+  m_ShaderKeywords: _DIRECTIONAL_LIGHT _DISABLE_ALBEDO_MAP _REFLECTIONS _SPECULAR_HIGHLIGHTS
+    _USE_WORLD_SCALE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -57,7 +58,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: b025d4a5c9661764fa50a1cbe655c79e, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -116,7 +117,7 @@ Material:
     - _ClippingBorderWidth: 0.025
     - _ColorWriteMask: 15
     - _Cull: 2
-    - _CullMode: 2
+    - _CullMode: 0
     - _CustomMode: 0
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
@@ -135,7 +136,7 @@ Material:
     - _EnableSSAA: 0
     - _EnableStencil: 0
     - _EnableTriplanarMapping: 0
-    - _EnvironmentColorIntensity: 0.5
+    - _EnvironmentColorIntensity: 0.186
     - _EnvironmentColorThreshold: 1.5
     - _EnvironmentColoring: 0
     - _EnvironmentReflections: 1
@@ -156,7 +157,7 @@ Material:
     - _IridescenceAngle: -0.78
     - _IridescenceIntensity: 0.5
     - _IridescenceThreshold: 0.05
-    - _Metallic: 0.2
+    - _Metallic: 1
     - _MipmapBias: -2
     - _Mode: 0
     - _NearLightFade: 0
@@ -169,17 +170,17 @@ Material:
     - _ProximityLightTwoSided: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Reflections: 0
+    - _Reflections: 1
     - _Refraction: 0
     - _RefractiveIndex: 0
     - _RenderQueueOverride: -1
     - _RimLight: 0
     - _RimPower: 0.25
-    - _RoundCornerMargin: 0.01
-    - _RoundCornerRadius: 0.25
+    - _RoundCornerMargin: -6.8
+    - _RoundCornerRadius: 22.92
     - _RoundCorners: 0
     - _RoundCornersHideInterior: 0
-    - _Smoothness: 0.6
+    - _Smoothness: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SphericalHarmonics: 0
