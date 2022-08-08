@@ -14,14 +14,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
     {
         [SerializeField]
         private MeshInstancer instancer = null;
-        //[SerializeField, Min(0)]
-        //private int PlacementMeshSubMeshIndex = 0;
         [SerializeField, Min(1)]
         private int instanceCount = 20000;
         [SerializeField]
         private float instanceScale = 0.05f;
 
         private bool didStart = false;
+        private static Quaternion rotate90 = Quaternion.AngleAxis(90.0f, Vector3.right);
 
         /// <summary>
         /// Re-spawn instances when a property changes.
@@ -74,7 +73,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             int triangleCount = indicies.Length / 3;
             Vector3[,] triangles = new Vector3[triangleCount, 3];
             float[] areas = new float[triangleCount];
-            //Vector3 normals = new float[triangleCount];
+            Vector3[] normals = new Vector3[triangleCount];
 
             for (int i = 0; i < indicies.Length; i += 3)
             {
@@ -85,8 +84,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 
                 // Area of a triangle is half of the cross product's magnitude.
                 Vector3 a = triangles[index, 1] - triangles[index, 0];
-                Vector3 b = triangles[index, 2] - triangles[index, 0];
-                areas[index] = Vector3.Cross(a, b).magnitude * 0.5f;
+                Vector3 b = triangles[index, 2] - triangles[index, 1];
+                Vector3 cross = Vector3.Cross(a, b);
+                areas[index] = cross.magnitude * 0.5f;
+
+                normals[index] = cross.normalized;
             }
 
             // Accumulate the area of the mesh.
@@ -107,15 +109,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 
             for (int i = 0; i < instanceCount; ++i)
             {
-                Vector3[] triangle = PickRandomTriangle(triangles, areas, meshArea);
+                int index;
+                Vector3[] triangle = PickRandomTriangle(triangles, areas, meshArea, out index);
                 Vector3 position = PickRandomPointOnTriangle(triangle);
 
-                var instance = instancer.Instantiate(position, Random.rotation, Vector3.one * instanceScale);
+                var instance = instancer.Instantiate(position, Quaternion.LookRotation(normals[index]) * rotate90, Vector3.one * instanceScale);
+
                 instance.SetVector(colorID, Random.ColorHSV());
             }
         }
 
-        private static Vector3[] PickRandomTriangle(Vector3[,] triangles, float[] areas, float meshArea)
+        private static Vector3[] PickRandomTriangle(Vector3[,] triangles, float[] areas, float meshArea, out int index)
         {
             var random = Random.Range(0.0f, meshArea);
 
@@ -123,13 +127,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             {
                 if (random < areas[i])
                 {
-                    return new Vector3[] { triangles[i, 0], triangles[i, 1], triangles[i, 2] };
+                    index = i;
+                    return new Vector3[] { triangles[index, 0], triangles[index, 1], triangles[index, 2] };
                 }
                 random -= areas[i];
             }
 
-            int last = triangles.Length - 1;
-            return new Vector3[] { triangles[last, 0], triangles[last, 1], triangles[last, 2] };
+            index = triangles.Length - 1;
+            return new Vector3[] { triangles[index, 0], triangles[index, 1], triangles[index, 2] };
         }
 
         private static Vector3 PickRandomPointOnTriangle(Vector3[] triangle)

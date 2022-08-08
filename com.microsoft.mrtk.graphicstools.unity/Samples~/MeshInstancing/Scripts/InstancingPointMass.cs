@@ -26,7 +26,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         private float instanceSizeMax = 0.08f;
 
         private bool didStart = false;
-        private Quaternion rotate90 = Quaternion.AngleAxis(90.0f, Vector3.right);
+        private static Quaternion rotate90 = Quaternion.AngleAxis(90.0f, Vector3.right);
 
         private class PointMassData
         {
