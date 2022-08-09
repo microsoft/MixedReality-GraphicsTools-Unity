@@ -164,22 +164,26 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             /// <summary>
             /// The unique instance id within a bucket.
+            /// NOTE: Thread safe.
             /// </summary>
-            public int InstanceIndex { get; set; }
+            public int InstanceIndex { get; private set; }
 
             /// <summary>
             /// The id of the bucket the instances lives in. Instances live in buckets of UNITY_MAX_INSTANCE_COUNT.
+            /// NOTE: Thread safe.
             /// </summary>
             public int InstanceBucketIndex { get; private set; }
 
             /// <summary>
-            /// Pointer to any custom data the developer wishes to store on a per instance basis. 
+            /// Pointer to any custom data the developer wishes to store on a per instance basis.
+            /// NOTE: Thread safe.
             /// NOTE: This data should be a value type to avoid allocations when boxing and unboxing.
             /// </summary>
             public System.Object UserData { get; set; }
 
             /// <summary>
             /// The world space position of the instance.
+            /// NOTE: Thread safe.
             /// </summary>
             public Vector3 Position
             {
@@ -189,6 +193,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Position of the instance relative to the parent MeshInstancer.
+            /// NOTE: Thread safe.
             /// </summary>
             public Vector3 LocalPosition
             {
@@ -198,6 +203,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// A Quaternion that stores the rotation of the instance in world space.
+            /// NOTE: Thread safe.
             /// </summary>
             public Quaternion Rotation
             {
@@ -207,6 +213,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// The rotation of the instance relative to the instance rotation of the parent MeshInstancer.
+            /// NOTE: Thread safe.
             /// </summary>
             public Quaternion LocalRotation
             {
@@ -216,6 +223,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// The global scale of the instance (Read Only).
+            /// NOTE: Thread safe.
             /// </summary>
             public Vector3 LossyScale
             {
@@ -224,6 +232,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// The scale of the instance relative to the parent MeshInstancer.
+            /// NOTE: Thread safe.
             /// </summary>
             public Vector3 LocalScale
             {
@@ -233,6 +242,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Translation, rotation, and scale matrix in world space.
+            /// NOTE: Thread safe.
             /// </summary>
             public Matrix4x4 Transformation
             {
@@ -242,6 +252,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             ///  Translation, rotation, and scale matrix relative to the parent MeshInstancer.
+            /// NOTE: Thread safe.
             /// </summary>
             public Matrix4x4 LocalTransformation
             {
@@ -251,6 +262,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// True if this instance has been destoryed (removed) from the parent MeshInstancer.
+            /// NOTE: Thread safe.
             /// </summary>
             public bool Destroyed
             {
@@ -263,16 +275,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Default constructor.
+            /// NOTE: Thread safe.
             /// </summary>
-            public Instance(int instanceIndex, int instanceBucketIndex, MeshInstancer instancer)
+            public Instance(int instanceIndex, int instanceBucketIndex, System.Object data, MeshInstancer instancer)
             {
                 InstanceIndex = instanceIndex;
                 InstanceBucketIndex = instanceBucketIndex;
+                UserData = data;
                 meshInstancer = instancer;
             }
 
             /// <summary>
             /// Call this method to destory an instance so it no longer renders or updates.
+            /// NOTE: Not thread safe.
             /// </summary>
             public void Destroy()
             {
@@ -287,6 +302,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Sets an instanced material float property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public void SetFloat(string name, float value)
             {
@@ -295,6 +311,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Sets an instanced material float property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public void SetFloat(int nameID, float value)
             {
@@ -305,6 +322,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Gets an instanced material float property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public float GetFloat(string name)
             {
@@ -313,6 +331,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Gets an instanced material float property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public float GetFloat(int nameID)
             {
@@ -323,6 +342,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Sets an instanced material vector property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public void SetVector(string name, Vector4 value)
             {
@@ -331,6 +351,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Sets an instanced material vector property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public void SetVector(int nameID, Vector4 value)
             {
@@ -341,6 +362,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Gets an instanced material vector property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public Vector4 GetVector(string name)
             {
@@ -349,6 +371,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Gets an instanced material vector property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public Vector4 GetVector(int nameID)
             {
@@ -359,6 +382,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Sets an instanced material matrix property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public void SetMatrix(string name, Matrix4x4 value)
             {
@@ -367,6 +391,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Sets an instanced material matrix property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public void SetMatrix(int nameID, Matrix4x4 value)
             {
@@ -377,6 +402,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Gets an instanced material matrix property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public Matrix4x4 GetMatrix(string name)
             {
@@ -385,6 +411,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Gets an instanced material matrix property.
+            /// NOTE: Not thread safe.
             /// </summary>
             public Matrix4x4 GetMatrix(int nameID)
             {
@@ -395,6 +422,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             /// <summary>
             /// Sets the delegate update method to call each frame. Make sure all function within this method are thread safe.
+            /// NOTE: Not thread safe.
             /// </summary>
             public void SetParallelUpdate(ParallelUpdate parallelUpdate)
             {
@@ -829,7 +857,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             int instanceIndex = AllocateInstanceIndex(instanceBucketIndex);
 
             InstanceBucket bucket = instanceBuckets[instanceBucketIndex];
-            bucket.Instances[instanceIndex] = new Instance(instanceIndex, instanceBucketIndex, this);
+            bucket.Instances[instanceIndex] = new Instance(instanceIndex, instanceBucketIndex, null, this);
             bucket.Matricies[instanceIndex] = (instantiateInWorldSpace) ? transform.worldToLocalMatrix * transformation : transformation;
 
             ++InstanceCount;
@@ -1115,8 +1143,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 // Update the transformation and instance reference.
                 bucket.Matricies[instance.InstanceIndex] = bucket.Matricies[newInstanceCount];
-                bucket.Instances[instance.InstanceIndex] = bucket.Instances[newInstanceCount];
-                bucket.Instances[instance.InstanceIndex].InstanceIndex = instance.InstanceIndex;
+                bucket.Instances[instance.InstanceIndex] = new Instance(instance.InstanceIndex, 
+                                                                        bucket.Instances[newInstanceCount].InstanceBucketIndex, 
+                                                                        bucket.Instances[newInstanceCount].UserData, 
+                                                                        this);
                 bucket.Instances[newInstanceCount] = null;
 
                 // Update material properties.

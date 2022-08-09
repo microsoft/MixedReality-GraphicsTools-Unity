@@ -140,8 +140,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         private static Vector3[] PickRandomTriangle(Vector3[,] triangles, float[] areas, float meshArea, out int index)
         {
             var random = Random.Range(0.0f, meshArea);
+            int triangleCount = triangles.GetLength(0);
 
-            for (int i = 0; i < triangles.Length; ++i)
+            for (int i = 0; i < triangleCount; ++i)
             {
                 if (random < areas[i])
                 {

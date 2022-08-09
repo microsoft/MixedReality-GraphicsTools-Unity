@@ -25,11 +25,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [SerializeField, Min(0.01f)]
         private float instanceSizeMax = 0.08f;
 
-        private static Quaternion rotate90 = Quaternion.AngleAxis(90.0f, Vector3.right);
-
         private class PointMassData
         {
             public Vector3 velocity;
+            public Quaternion targetRotation;
             public bool reflecting;
         }
 
@@ -81,17 +80,20 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 Vector3 scale = Vector3.one * Random.Range(instanceSizeMin, instanceSizeMax);
                 float normalizedMass = ((scale.x * scale.y * scale.z) - minMass) / maxMass;
                 Vector3 velocity = Random.onUnitSphere * ((1.0f - normalizedMass) * 0.2f);
+                Quaternion rotation = Quaternion.LookRotation(velocity);
 
                 // Create an instance object at a random position within the containment radius.
                 var instance = instancer.Instantiate(Random.insideUnitSphere * containmentRadius,
-                                                     Quaternion.LookRotation(velocity) * rotate90,
+                                                     rotation,
                                                      scale);
-                instance.SetVector(colorID, Color.HSVToRGB(Mathf.Lerp(1.0f, 0.6f, normalizedMass), 1.0f, 0.5f));
+                instance.SetVector(colorID, Random.ColorHSV(normalizedMass, normalizedMass, 1.0f, 1.0f, 1.0f, 1.0f));
 
                 // Set user data to use during update.
                 instance.UserData = new PointMassData()
                 {
-                    velocity = velocity
+                    velocity = velocity,
+                    targetRotation = rotation,
+                    reflecting = false
                 };
 
                 instance.SetParallelUpdate(ParallelUpdate);
@@ -108,6 +110,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 
             // Euler integration.
             instance.LocalPosition += data.velocity * deltaTime;
+            instance.LocalRotation = Quaternion.Slerp(instance.LocalRotation, data.targetRotation, deltaTime * data.velocity.sqrMagnitude * 40.0f);
 
             // Check if outside the containment radius.
             if (instance.LocalPosition.sqrMagnitude > (containmentRadius * containmentRadius))
@@ -117,7 +120,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                     // If outside the radius and not already reflecting then reflect off the containment sphere.
                     Vector3 sphereNormal = (Vector3.zero - instance.LocalPosition).normalized;
                     data.velocity = Vector3.Reflect(data.velocity, sphereNormal);
-                    instance.LocalRotation = Quaternion.LookRotation(data.velocity) * rotate90;
+                    data.targetRotation = Quaternion.LookRotation(data.velocity);
 
                     data.reflecting = true;
                 }
