@@ -100,7 +100,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent enableChannelMap = new GUIContent("Channel Map", "Enable Channel Map, a Channel Packing Texture That Follows Unity's Standard Channel Setup");
             public static readonly GUIContent channelMap = new GUIContent("Channel Map", "Metallic (Red), Occlusion (Green), Emission (Blue), Smoothness (Alpha)");
             public static readonly GUIContent enableNormalMap = new GUIContent("Normal Map", "Enable Normal Map");
-            public static readonly GUIContent normalMap = new GUIContent("Normal Map"); 
+            public static readonly GUIContent normalMap = new GUIContent("Normal Map");
             public static readonly GUIContent enableEmission = new GUIContent("Emission", "Enable Emission");
             public static readonly GUIContent emissiveColor = new GUIContent("Color");
             public static readonly GUIContent emissiveMap = new GUIContent("EmissionMap");
@@ -120,8 +120,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent rimLight = new GUIContent("Rim Light", "Enable Rim (Fresnel) Lighting");
             public static readonly GUIContent rimColor = new GUIContent("Color", "Rim Highlight Color");
             public static readonly GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
-            public static readonly GUIContent vertexColors = new GUIContent("Vertex Colors", "Enable Vertex Color Tinting");
-            public static readonly GUIContent vertexAlphaIsAmbientOcclusion = new GUIContent("Vertex alpha is occlusion", "Multiply the ambient light by the vertex color's alpha value.");
+            public static readonly GUIContent vertexColors = new GUIContent("Vertex Colors", "Enable to use the mesh's vertex color for albedo and transparency");
+            public static readonly GUIContent vertexAlphaIsAmbientOcclusion = new GUIContent("Vertex alpha is occlusion", "Multiply the ambient light by the vertex color's alpha value. Only works when Vertex Colors is enabled. Note this will overwrite any vertex alpha values being passed to the shader.");
             public static readonly GUIContent vertexExtrusion = new GUIContent("Vertex Extrusion", "Enable Vertex Extrusion Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionValue = new GUIContent("Extrusion Value", "How Far to Extrude the Vertex Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionSmoothNormals = new GUIContent("Use Smooth Normals", "Should Vertex Extrusion use the Smooth Normals in UV3, or Default Normals");
@@ -465,13 +465,67 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             float? smoothness = GetFloatProperty(material, "_Glossiness");
             float? diffuse = GetFloatProperty(material, "_UseDiffuse");
             float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
-            float? normalMap = null;
-            Texture normalMapTexture = material.HasProperty("_BumpMap") ? material.GetTexture("_BumpMap") : null;
-            float? normalMapScale = GetFloatProperty(material, "_BumpScale");
-            float? emission = null;
+
+            Color? albedoFactor = GetColorProperty(material, "_baseColorFactor");
+
+            Texture albedoMapTexture = null;
+            var albedoMapTextureNames = new string[] { "_baseColorTexture" };
+            foreach (var name in albedoMapTextureNames)
+            {
+                if (material.HasProperty(name))
+                {
+                    albedoMapTexture = material.GetTexture(name);
+                }
+            }
+
+            Texture channelMapTexture = null;
+            var channelMapTextureNames = new string[] { null };
+            foreach (var name in channelMapTextureNames)
+            {
+                if (material.HasProperty(name))
+                {
+                    channelMapTexture = material.GetTexture(name);
+                }
+            }
+
+            float? isNormalMapEnabled = null;
+            Texture normalMapTexture = null;
+            var normalMapTextureNames = new string[] { "_BumpMap", "_normalTexture" };
+            foreach (var name in normalMapTextureNames)
+            {
+                if (material.HasProperty(name))
+                {
+                    normalMapTexture = material.GetTexture(name);
+                    isNormalMapEnabled = 1;
+                }
+            }
+
+            float? isNormalMapScaleEnabled = GetFloatProperty(material, "_BumpScale");
+
+            float? isEmissionEnabled = null;
+
             Color? emissionColor = GetColorProperty(material, "_EmissionColor");
-            Texture emissionMapTexture = material.HasProperty("_EmissionMap") ? material.GetTexture("_EmissionMap") : null;
-            float? reflections = null;
+            var emissionColorNames = new string[] { "_emissiveFactor" };
+            foreach (var name in emissionColorNames)
+            {
+                if (material.HasProperty(name))
+                {
+                    emissionColor = material.GetColor(name);
+                    isEmissionEnabled = 1;
+                }
+            }
+
+            Texture emissionMapTexture = null;
+            var emissionMapTextureNames = new string[] { "_EmissionMap" };
+            foreach (var name in emissionMapTextureNames)
+            {
+                if (material.HasProperty(name))
+                {
+                    emissionMapTexture = material.GetTexture(name);
+                }
+            }
+
+            float? isReflectionsEnabled = null;
             float? rimLighting = null;
             Vector4? textureScaleOffset = null;
             float? cullMode = GetFloatProperty(material, "_Cull");
@@ -481,15 +535,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 if (oldShader.name.Contains("Standard"))
                 {
-                    normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
-                    emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
-                    reflections = GetFloatProperty(material, "_GlossyReflections");
+                    isNormalMapEnabled = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
+                    isEmissionEnabled = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
+                    isReflectionsEnabled = GetFloatProperty(material, "_GlossyReflections");
                 }
                 else if (oldShader.name.Contains("Fast Configurable"))
                 {
-                    normalMap = material.IsKeywordEnabled("_USEBUMPMAP_ON") ? 1.0f : 0.0f;
-                    emission = GetFloatProperty(material, "_UseEmissionColor");
-                    reflections = GetFloatProperty(material, "_UseReflections");
+                    isNormalMapEnabled = material.IsKeywordEnabled("_USEBUMPMAP_ON") ? 1.0f : 0.0f;
+                    isEmissionEnabled = GetFloatProperty(material, "_UseEmissionColor");
+                    isReflectionsEnabled = GetFloatProperty(material, "_UseReflections");
                     rimLighting = GetFloatProperty(material, "_UseRimLighting");
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                 }
@@ -506,26 +560,44 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 SetShaderFeatureActive(material, "_SPECULAR_HIGHLIGHTS", "_SpecularHighlights", specularHighlights);
             }
 
-            SetShaderFeatureActive(material, "_NORMAL_MAP", "_EnableNormalMap", normalMap);
+            if (albedoFactor.HasValue)
+            {
+                SetColorProperty(material, "_Color", albedoFactor);
+            }
+
+            if (albedoMapTexture)
+            {
+                material.SetTexture("_MainTex", albedoMapTexture);
+            }
+
+            if (channelMapTexture)
+            {
+                SetShaderFeatureActive(material, "_CHANNEL_MAP", "_EnableChannelMap", 1);
+                material.SetTexture("_ChannelMap", channelMapTexture);
+            }
 
             if (normalMapTexture)
             {
+                SetShaderFeatureActive(material, "_NORMAL_MAP", "_EnableNormalMap", isNormalMapEnabled);
                 material.SetTexture("_NormalMap", normalMapTexture);
             }
-            
-            SetShaderFeatureActive(material, null, "_NormalMapScale", normalMapScale);
+
+            SetShaderFeatureActive(material, null, "_NormalMapScale", isNormalMapScaleEnabled);
+
+            SetShaderFeatureActive(material, "_EMISSION", "_EnableEmission", isEmissionEnabled);
 
             if (emissionMapTexture)
             {
+                // XXX _EMISSION should probably be renamed _EMISSION_MAP to be consistent!
                 material.SetTexture("_EmissiveMap", emissionMapTexture);
             }
 
-            SetShaderFeatureActive(material, "_EMISSION", "_EnableEmission", emission);
             SetColorProperty(material, "_EmissiveColor", emissionColor);
+
 
             if (!newShaderIsStandardCanvas)
             {
-                SetShaderFeatureActive(material, "_REFLECTIONS", "_Reflections", reflections);
+                SetShaderFeatureActive(material, "_REFLECTIONS", "_Reflections", isReflectionsEnabled);
             }
 
             SetShaderFeatureActive(material, "_RIM_LIGHT", "_RimLight", rimLighting);

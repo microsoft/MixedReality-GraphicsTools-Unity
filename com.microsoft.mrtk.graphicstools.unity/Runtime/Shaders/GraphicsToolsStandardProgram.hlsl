@@ -293,6 +293,13 @@ Varyings VertexStage(Attributes input)
 #endif
 
 #if defined(_SPHERICAL_HARMONICS)
+
+#if defined(__VERTEX_COLORS) && defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
+    float3 envNormal = input.color.rgb; // "bent normal mode"
+#else
+    float3 envNormal = worldNormal;
+#endif
+
 #if defined(_URP)
     float4 coefficients[7];
     coefficients[0] = unity_SHAr;
@@ -303,16 +310,16 @@ Varyings VertexStage(Attributes input)
     coefficients[5] = unity_SHBb;
     coefficients[6] = unity_SHC;
 
-    output.ambient = max(0.0, SampleSH9(coefficients, worldNormal));
+    output.ambient = max(0.0, SampleSH9(coefficients, envNormal));
 #else
-    output.ambient = ShadeSH9(float4(worldNormal, 1.0));
-#endif
+    output.ambient = ShadeSH9(float4(envNormal, 1.0));
+#endif // _URP
 
-#if defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
+#if defined(__VERTEX_COLORS) && defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
     output.ambient *= input.color.a;
 #endif
 
-#endif
+#endif // _SPHERICAL_HARMONICS
 
 #if defined(_IRIDESCENCE)
     float3 rightTangent = normalize(mul((float3x3)UNITY_MATRIX_M, float3(1.0, 0.0, 0.0)));
@@ -544,9 +551,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     albedo *= _Color;
 
 #if defined(_VERTEX_COLORS)
-#if defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
-    albedo.rgb = 1.0;
-#else
+#if !defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
     albedo *= input.color;
 #endif
 #if defined(_ADDITIVE_ON)
@@ -783,7 +788,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #else
     half occlusion = 1.0h;
 #endif
-#if defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
+#if defined(_VERTEX_COLORS) && defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
     occlusion = input.color.a;
 #endif
 #endif
