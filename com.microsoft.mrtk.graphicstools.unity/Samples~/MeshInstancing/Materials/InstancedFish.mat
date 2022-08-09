@@ -201,6 +201,10 @@ Material:
     - _StencilReference: 0
     - _StencilWriteMask: 255
     - _Surface: 0
+    - _SwimAttenuation: 0.1
+    - _SwimMagnitude: 0.1
+    - _SwimOffset: 20
+    - _SwimSpeed: 200
     - _TriplanarMappingBlendSharpness: 4
     - _UVSec: 0
     - _UseWorldScale: 1

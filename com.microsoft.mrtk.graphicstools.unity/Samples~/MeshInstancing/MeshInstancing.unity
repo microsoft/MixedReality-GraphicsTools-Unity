@@ -1440,7 +1440,7 @@ GameObject:
   - component: {fileID: 2129533738}
   - component: {fileID: 2129533737}
   m_Layer: 0
-  m_Name: MeshInstancerPointMass
+  m_Name: MeshInstancerContainment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1459,8 +1459,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instancer: {fileID: 2129533738}
-  containmentRadius: 2.5
-  instanceCount: 2000
+  containmentRadius: 3
+  instanceCount: 1500
   instanceSizeMin: 0.2
   instanceSizeMax: 1
 --- !u!114 &2129533738
@@ -1480,7 +1480,9 @@ MonoBehaviour:
   InstanceMaterial: {fileID: 2100000, guid: 8b3dfc7e3a43deb41a381664e452c276, type: 2}
   ShadowCastingMode: 0
   RecieveShadows: 0
-  FloatMaterialProperties: []
+  FloatMaterialProperties:
+  - Name: _SwimSpeed
+    DefaultValue: 200
   VectorMaterialProperties:
   - Name: _Color
     DefaultValue: {x: 0.5, y: 0.5, z: 0.5, w: 1}

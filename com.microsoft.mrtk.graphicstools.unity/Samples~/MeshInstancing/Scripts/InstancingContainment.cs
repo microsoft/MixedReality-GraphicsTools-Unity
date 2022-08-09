@@ -6,9 +6,9 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 {
     /// <summary>
-    /// Simulates a bunch of point masses within a containment radius.
+    /// Simulates a bunch of swimming fish within a containment radius.
     /// </summary>
-    public class InstancingPointMass : MonoBehaviour
+    public class InstancingContainment : MonoBehaviour
     {
         [SerializeField]
         private MeshInstancer instancer = null;
@@ -25,7 +25,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         [SerializeField, Min(0.01f)]
         private float instanceSizeMax = 0.08f;
 
-        private class PointMassData
+        private class UserData
         {
             public Vector3 velocity;
             public Quaternion targetRotation;
@@ -62,7 +62,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         }
 
         /// <summary>
-        /// Create a bunch of random point masses.
+        /// Create a bunch of swimming fish.
         /// </summary>
         private void CreateInstances()
         {
@@ -73,6 +73,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             float minMass = instanceSizeMin * instanceSizeMin * instanceSizeMin;
             float maxMass = instanceSizeMax * instanceSizeMax * instanceSizeMax;
             int colorID = Shader.PropertyToID("_Color");
+            int swimSpeed = Shader.PropertyToID("_SwimSpeed");
 
             for (int i = 0; i < instanceCount; ++i)
             {
@@ -87,9 +88,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                                                      rotation,
                                                      scale);
                 instance.SetVector(colorID, Random.ColorHSV(normalizedMass, normalizedMass, 1.0f, 1.0f, 1.0f, 1.0f));
+                instance.SetFloat(swimSpeed, Mathf.Lerp(400.0f, 20.0f, normalizedMass));
 
                 // Set user data to use during update.
-                instance.UserData = new PointMassData()
+                instance.UserData = new UserData()
                 {
                     velocity = velocity,
                     targetRotation = rotation,
@@ -106,7 +108,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         private void ParallelUpdate(float deltaTime, MeshInstancer.Instance instance)
         {
             // Cast the user data to our data type.
-            PointMassData data = (PointMassData)instance.UserData;
+            UserData data = (UserData)instance.UserData;
 
             // Euler integration.
             instance.LocalPosition += data.velocity * deltaTime;
