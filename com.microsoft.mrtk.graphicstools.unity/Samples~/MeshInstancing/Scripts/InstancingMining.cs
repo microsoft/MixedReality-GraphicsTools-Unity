@@ -148,7 +148,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 #if ENABLE_INPUT_SYSTEM
             return Mouse.current.leftButton.wasPressedThisFrame && Keyboard.current.shiftKey.isPressed;
 #else
-            return Input.GetMouseButtonDown(0) && (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift));
+            return Input.GetMouseButtonDown(0) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
 #endif
         }
 
@@ -160,7 +160,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 #if ENABLE_INPUT_SYSTEM
             return Mouse.current.leftButton.isPressed && !Keyboard.current.shiftKey.isPressed;
 #else
-            return Input.GetMouseButtonDown(0) && !(Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift));
+            return Input.GetMouseButton(0) && !(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
 #endif
         }
     }
