@@ -3,18 +3,6 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
-    //public class AmbientOcclusionEditor : UnityEditor.Editor
-    //{
-    //    [MenuItem("Window/Graphics Tools/Add ambient occlusion")]
-    //    public static void AddAmbientOcclusion()
-    //    {
-    //        foreach (var go in Selection.gameObjects)
-    //        {
-    //            go.AddComponent<AmbientOcclusion>();
-    //        }
-    //    }
-    //}
-
     [CustomEditor(typeof(AmbientOcclusion)), CanEditMultipleObjects]
     public class AmbientOcclusionInspector : UnityEditor.Editor
     {
@@ -26,14 +14,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 component.GatherSamples();
             }
             DrawDefaultInspector();
-        }
-
-        public void OnDestroy()
-        {
-            if (target is AmbientOcclusion ao)
-            {
-                ao.RestoreOriginalColors();
-            }
         }
     }
 }
