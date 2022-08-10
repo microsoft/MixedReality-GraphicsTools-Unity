@@ -117,27 +117,23 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void Setup()
         {
             UnityEngine.Debug.Log("Setup");
-            //GatherSamples();
         }
 
         private void Reset()
         {
             UnityEngine.Debug.Log("Reset");
             SaveOriginalColors();
-            //Setup();
         }
 
-        //private void Awake()
-        //{
-        //    UnityEngine.Debug.Log("Awake");
-        //    Setup();
-        //}
+        private void Awake()
+        {
+            UnityEngine.Debug.Log("Awake");
+        }
 
         private void OnEnable()
         {
             UnityEngine.Debug.Log("OnEnable");
             SaveOriginalColors();
-            //Setup();
         }
 
         private void OnDisable()
@@ -274,13 +270,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <param name="normal">Direction to look assumed mesh local space</param>
         /// <param name="maxdist">How far to look for colliders</param>
         /// <returns></returns>
-        private (Vector3, RaycastHit?) SampleScene(Vector3 vertex,
-                                                   Vector3 normal,
-                                                   float maxdist)
+        private (Vector3, RaycastHit?) SampleHemisphere(Vector3 vertex,
+                                                        Vector3 normal,
+                                                        float maxdist)
         {
             var dir = RandomSampleAboveHemisphere(normal);
             var origin = vertex + normal * .00001f; // just a wee bit off the surface...
             RaycastHit hit;
+
             if (Physics.Raycast(origin, dir, out hit, maxdist))
             {
                 return (Vector3.zero, hit);
@@ -303,9 +300,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Vector3 avgDir = Vector3.zero;
                 for (int si = 0; si < SamplesPerVertex; si++)
                 {
-                    (Vector3 sampleDir, RaycastHit? hit) = SampleScene(transform.TransformPoint(SourceMesh.vertices[vi]),
-                                                                       transform.TransformVector(SourceMesh.normals[vi]),
-                                                                       MaxSampleDistance);
+                    (Vector3 sampleDir, RaycastHit? hit) = SampleHemisphere(transform.TransformPoint(SourceMesh.vertices[vi]),
+                                                                            transform.TransformVector(SourceMesh.normals[vi]),
+                                                                            MaxSampleDistance);
                     if (hit.HasValue)
                     {
                         SampleHits[si] = hit.Value;
@@ -416,12 +413,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (Physics.Raycast(origin, sampleDirection, out hit, MaxSampleDistance))
                     {
+                        hitsInHemisphere.Add(hit);
+
                         // Visualization: Save hits for gizmo
                         if (vi == ReferenceVertexIndex)
                         {
                             _referenceVertexHits.Add(hit);
                         }
-                        hitsInHemisphere.Add(hit);
                     }
                     else
                     {
@@ -433,6 +431,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             ApplyCoverage();
+
             UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={SourceMesh.vertexCount} rays-per-vertex={SamplesPerVertex}.");
         }
         public void ApplyCoverage()

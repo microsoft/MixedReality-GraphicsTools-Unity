@@ -20,10 +20,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: StandardAmbientOcclusion
+  m_Name: StandardAmbientOcclusionBentNormal
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ShaderKeywords: _DIRECTIONAL_LIGHT _DISABLE_ALBEDO_MAP _SPECULAR_HIGHLIGHTS _SPHERICAL_HARMONICS
-    _USE_WORLD_SCALE _VERTEX_ALPHA_IS_AMBIENT_OCCLUSION _VERTEX_COLORS
+    _USE_WORLD_SCALE _VERTEX_ALPHA_IS_AMBIENT_OCCLUSION _VERTEX_COLORS _VERTEX_COLOR_MODE_BENTNORMALAO
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -206,6 +206,7 @@ Material:
     - _TriplanarMappingBlendSharpness: 4
     - _UseWorldScale: 1
     - _VertexAlphaIsAmbientOcclusion: 1
+    - _VertexColorMode: 1
     - _VertexColors: 1
     - _VertexExtrusion: 0
     - _VertexExtrusionSmoothNormals: 0

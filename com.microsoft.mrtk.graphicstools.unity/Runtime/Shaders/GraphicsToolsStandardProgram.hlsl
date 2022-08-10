@@ -32,7 +32,7 @@
 #pragma shader_feature_local _REFLECTIONS
 #pragma shader_feature_local _RIM_LIGHT
 #pragma shader_feature_local _VERTEX_COLORS
-#pragma shader_feature_local _VERTEX_ALPHA_IS_AMBIENT_OCCLUSION
+#pragma shader_feature_local _ _VERTEX_COLOR_MODE_PASSTHROUGH _VERTEX_COLOR_MODE_BENTNORMALAO
 #pragma shader_feature_local _VERTEX_EXTRUSION
 #pragma shader_feature_local_vertex _VERTEX_EXTRUSION_SMOOTH_NORMALS
 #pragma shader_feature_local _NEAR_PLANE_FADE
@@ -294,11 +294,13 @@ Varyings VertexStage(Attributes input)
 
 #if defined(_SPHERICAL_HARMONICS)
 
-#if defined(__VERTEX_COLORS) && defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
-    float3 envNormal = input.color.rgb; // "bent normal mode"
-#else
+//#if defined(_VERTEX_COLORS)
+//#if defined(_VERTEX_COLOR_MODE_BENTNORMALAO)
+//    float3 envNormal = input.color.rgb; // "bent normal mode"
+//#endif
+//#else // _VERTEX_COLORS
     float3 envNormal = worldNormal;
-#endif
+//#endif // _VERTEX_COLORS
 
 #if defined(_URP)
     float4 coefficients[7];
@@ -315,11 +317,15 @@ Varyings VertexStage(Attributes input)
     output.ambient = ShadeSH9(float4(envNormal, 1.0));
 #endif // _URP
 
-#if defined(__VERTEX_COLORS) && defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
-    output.ambient *= input.color.a;
-#endif
-
 #endif // _SPHERICAL_HARMONICS
+
+//#if defined(_VERTEX_COLOR_MODE_BENTNORMALAO)
+//    output.ambient = 1; // XXXXXXXXXXXX why is this happening in passthrough?
+//#endif
+//
+//#if defined(_VERTEX_COLOR_MODE_PASSTHROUGH)
+//    output.ambient = 0; // XXXXXXXXXXXX why is this happening in passthrough?
+//#endif
 
 #if defined(_IRIDESCENCE)
     float3 rightTangent = normalize(mul((float3x3)UNITY_MATRIX_M, float3(1.0, 0.0, 0.0)));
@@ -469,7 +475,6 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     half4 channel = tex2D(_ChannelMap, input.uv);
 #endif
     _Metallic = channel.r;
-    // TODO - [Cameron-Micka] should occlusion be applied to albedo or just lighting?
     albedo.rgb *= channel.g;
     _Smoothness = channel.a;
 #else
@@ -551,12 +556,16 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     albedo *= _Color;
 
 #if defined(_VERTEX_COLORS)
-#if !defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
-    albedo *= input.color;
+
+#if defined(_VERTEX_COLOR_MODE_PASSTHROUGH)
+    albedo = input.color;
 #endif
+
 #if defined(_ADDITIVE_ON)
     albedo.rgb *= input.color.a;
 #endif
+
+#endif // _VERTEX_COLORS
 
 #if defined(_GRADIENT)
 #if defined(_IRIDESCENCE)
@@ -782,29 +791,35 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // Final lighting mix.
     half4 output = albedo;
 
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS)
+// XXX occlusion be independent of directional light?
+//#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS)
 #if defined(_CHANNEL_MAP)
     half occlusion = channel.g;
+#elif defined(_VERTEX_COLORS) && defined(_VERTEX_COLOR_MODE_BENTNORMALAO)
+    half occlusion = input.color.a;
 #else
     half occlusion = 1.0h;
 #endif
-#if defined(_VERTEX_COLORS) && defined(_VERTEX_ALPHA_IS_AMBIENT_OCCLUSION)
-    occlusion = input.color.a;
-#endif
-#endif
-
+//#endif
 
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_NPR_Rendering)
     GTBRDFData brdfData;
     GTInitializeBRDFData(albedo.rgb, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
 
  #if defined(_SPHERICAL_HARMONICS)
-    half3 bakedGI = input.ambient;
+    half3 bakedGI = input.ambient; // XXX this is weird cause we're getting ao from mesh??
 #else
     half3 bakedGI = GTDefaultAmbientGI;
 #endif
 
     // Indirect lighting.
+
+#if defined(_VERTEX_COLORS)
+#if defined(_VERTEX_COLOR_MODE_BENTNORMALAO)
+    occlusion = input.color.a;
+#endif
+#endif
+
     output.rgb = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
 
     // Direct lighting.
@@ -824,6 +839,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
     // Fresnel lighting.
 #if defined(_RIM_LIGHT)
+    // XXX can't we re-use fresnel term from illumination abouve ie #ifdef this or that, fresnel =...
     half fresnel = 1.0h - saturate(abs(dot(worldViewDir, worldNormal)));
     output.rgb += _RimColor * pow(fresnel, _RimPower);
 #endif
@@ -850,7 +866,9 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     output.rgb += lerp(half3(0.0h, 0.0h, 0.0h), _InnerGlowColor.rgb, uvGlow.x + uvGlow.y);
 #endif
 
-    // Environment coloring.
+    // Fake a gradient based environment reflection
+    // XXX why doesn't this obey occlusion like other reflections?
+
 #if defined(_ENVIRONMENT_COLORING)
     half3 environmentColor = incident.x * incident.x * _EnvironmentColorX +
                               incident.y * incident.y * _EnvironmentColorY +
