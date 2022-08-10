@@ -43,6 +43,9 @@ GTMainLight GTGetMainLight()
 // Standard dielectric reflectivity coef at incident angle (= 4%).
 #define GTDielectricSpec half4(0.04, 0.04, 0.04, 1.0 - 0.04)
 
+// A good ambient global illumination value when spherical harmonics are not available.
+#define GTDefaultAmbientGI (glstate_lightmodel_ambient.rgb + half3(0.25h, 0.25h, 0.25h))
+
 struct GTBRDFData
 {
     half3 albedo;
@@ -105,7 +108,7 @@ inline void GTInitializeBRDFDataDirect(half3 albedo, half3 diffuse, half3 specul
 inline void GTInitializeBRDFData(half3 albedo, half metallic, half3 specular, half smoothness, inout half alpha, out GTBRDFData outBRDFData)
 {
     half oneMinusReflectivity = GTOneMinusReflectivityMetallic(metallic);
-    half reflectivity = 1.0 - oneMinusReflectivity;
+    half reflectivity = 1.0h - oneMinusReflectivity;
     half3 brdfDiffuse = albedo * oneMinusReflectivity;
     half3 brdfSpecular = lerp(GTDielectricSpec.rgb, albedo, metallic);
 

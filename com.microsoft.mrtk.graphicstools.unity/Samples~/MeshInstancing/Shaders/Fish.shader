@@ -29,7 +29,12 @@ Shader "Graphics Tools/Samples/Fish"
 
             #pragma multi_compile_instancing
 
+            #define _SPECULAR_HIGHLIGHTS
+
             #include "UnityCG.cginc"
+            #include "UnityStandardConfig.cginc"
+            #include "Packages/com.microsoft.mrtk.graphicstools.unity/Runtime/Shaders/GraphicsToolsCommon.hlsl"
+            #include "Packages/com.microsoft.mrtk.graphicstools.unity/Runtime/Shaders/GraphicsToolsLighting.hlsl"
 
             /// <summary>
             /// Vertex attributes passed into the vertex shader from the app.
@@ -37,6 +42,7 @@ Shader "Graphics Tools/Samples/Fish"
             struct Attributes
             {
                 float4 vertex : POSITION;
+                float3 normal : NORMAL;
                 float2 texcoord : TEXCOORD0;
 
                 UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -48,6 +54,8 @@ Shader "Graphics Tools/Samples/Fish"
             struct Varyings
             {
                 float4 position : SV_POSITION;
+                float3 worldPosition : TEXCOORD1;
+                float3 worldNormal : NORMAL;
                 float2 texcoord : TEXCOORD0;
                 float4 color : COLOR0;
 
@@ -94,7 +102,10 @@ Shader "Graphics Tools/Samples/Fish"
                 float offset = input.vertex.z * _SwimOffset;
                 input.vertex.x += (sin(phase + offset) * _SwimMagnitude) * saturate(_SwimAttenuation - input.vertex.z);
 
+                // Apply varyings.
                 output.position = UnityObjectToClipPos(input.vertex);
+                output.worldPosition = mul(UNITY_MATRIX_M, input.vertex).xyz;
+                output.worldNormal = UnityObjectToWorldNormal(input.normal);
                 output.texcoord = input.texcoord;
                 output.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
 
@@ -106,8 +117,23 @@ Shader "Graphics Tools/Samples/Fish"
             /// </summary>
             half4 PixelStage(Varyings input) : SV_Target
             {
+                // Albedo color.
                 half4 albedo = tex2D(_MainTex, input.texcoord);
-                return half4(lerp(albedo.rgb, albedo.rgb * input.color.rgb, albedo.a), 1.0);
+                albedo = half4(lerp(albedo.rgb, albedo.rgb * input.color.rgb, albedo.a), 1.0);
+
+                // Surface properties.
+                half3 worldNormal = normalize(input.worldNormal);
+                half3 viewDirection = normalize(UnityWorldSpaceViewDir(input.worldPosition));
+                GTBRDFData brdfData;
+                GTInitializeBRDFData(albedo.rgb, 0.0h, half3(1.0h, 1.0h, 1.0h), 0.7h, albedo.a, brdfData);
+
+                // Indirect lighting.
+                half3 output = GTGlobalIllumination(brdfData, GTDefaultAmbientGI, 0.8h, worldNormal, viewDirection);
+
+                // Direct lighting.
+                output += GTLightingPhysicallyBased(brdfData, half3(1.0h, 1.0h, 1.0h), half3(-0.3h, 0.8h, -0.6h), worldNormal, viewDirection);
+
+                return half4(output, albedo.a);
             }
 
             ENDHLSL

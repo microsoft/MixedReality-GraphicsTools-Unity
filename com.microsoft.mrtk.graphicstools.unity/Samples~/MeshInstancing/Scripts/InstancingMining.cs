@@ -60,15 +60,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 // Get the closest hit and color it red.
                 if (instancer.GetClosestRaycastHit(ref lastRaycastHit))
                 {
+                    Debug.DrawLine(lastRaycastHit.Point, lastRaycastHit.Point + lastRaycastHit.Normal, Color.green);
+
                     lastColor = lastRaycastHit.Instance.GetVector(colorID);
                     lastRaycastHit.Instance.SetVector(colorID, Color.red);
 
-                    // Destroy the instance if the mouse is pressed.
-#if ENABLE_INPUT_SYSTEM
-                    if (Mouse.current.leftButton.isPressed)
-#else
-                    if (Input.GetMouseButtonDown(0))
-#endif
+                    if (AddCubeInput())
+                    {
+                        Vector3 offset = Vector3.Scale(lastRaycastHit.Normal, transform.localScale) * 0.5f;
+                        var instance = instancer.Instantiate(lastRaycastHit.Point + offset, transform.rotation, transform.localScale, true);
+                        instance.SetVector("_Color", lastColor);
+                    }
+                    else if (RemoveCubeInput())
                     {
                         lastRaycastHit.Instance.Destroy();
                         lastRaycastHit.Instance = null;
@@ -125,18 +128,40 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             {
                 Vector2 mousePosition2D = Mouse.current.position.ReadValue();
                 Vector3 mousePosition = new Vector3(mousePosition2D.x, mousePosition2D.y, Camera.main.nearClipPlane);
-                ray.origin = Camera.main.ScreenToWorldPoint(mousePosition);
                 ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
             }
 #else
             if (Input.mousePresent)
             {
                 Vector3 mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
-                ray.origin = Camera.main.ScreenToWorldPoint(mousePosition);
                 ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
             }
 #endif
             return ray;
+        }
+
+        /// <summary>
+        /// Returns true if input to add a cube is active.
+        /// </summary>
+        private bool AddCubeInput()
+        {
+#if ENABLE_INPUT_SYSTEM
+            return Mouse.current.leftButton.wasPressedThisFrame && Keyboard.current.shiftKey.isPressed;
+#else
+            return Input.GetMouseButtonDown(0) && (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift));
+#endif
+        }
+
+        /// <summary>
+        /// Returns true if input to remove a cube is active.
+        /// </summary>
+        private bool RemoveCubeInput()
+        {
+#if ENABLE_INPUT_SYSTEM
+            return Mouse.current.leftButton.isPressed && !Keyboard.current.shiftKey.isPressed;
+#else
+            return Input.GetMouseButtonDown(0) && !(Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift));
+#endif
         }
     }
 }

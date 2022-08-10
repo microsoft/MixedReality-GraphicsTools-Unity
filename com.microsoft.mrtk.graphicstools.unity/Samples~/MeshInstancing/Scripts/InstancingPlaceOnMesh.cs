@@ -152,7 +152,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 random -= areas[i];
             }
 
-            index = triangles.Length - 1;
+            index = triangleCount - 1;
             return new Vector3[] { triangles[index, 0], triangles[index, 1], triangles[index, 2] };
         }
 

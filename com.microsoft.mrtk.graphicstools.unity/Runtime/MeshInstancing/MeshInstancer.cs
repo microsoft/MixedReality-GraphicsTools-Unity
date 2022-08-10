@@ -103,9 +103,29 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public struct RaycastHit
         {
+            /// <summary>
+            /// The instance hit with the raycast query.
+            /// </summary>
             public Instance Instance;
+
+            /// <summary>
+            /// The raycast intersection point in world space.
+            /// </summary>
             public Vector3 Point;
+
+            /// <summary>
+            /// The raycast intersection normal in world space. 
+            /// </summary>
+            public Vector3 Normal;
+
+            /// <summary>
+            /// The distance along the ray the intersection point lies at in world space.
+            /// </summary>
             public float Distance;
+
+            /// <summary>
+            /// The ray used during the query.
+            /// </summary>
             public Ray Ray;
 
             /// <summary>
@@ -115,6 +135,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 Instance = null;
                 Point = Vector3.zero;
+                Normal = Vector3.zero;
                 Distance = float.MaxValue;
                 Ray = new Ray();
             }
@@ -560,7 +581,12 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (RacastAABB(localRay, boxMin, boxMax, out hitInfo))
                 {
                     // Transform back to world space.
-                    hitInfo.Point = localToWorld.MultiplyPoint3x4(localRay.origin + (localRay.direction * hitInfo.Distance));
+                    Vector3 localPoint = localRay.origin + (localRay.direction * hitInfo.Distance);
+                    hitInfo.Point = localToWorld.MultiplyPoint3x4(localPoint);
+                    hitInfo.Normal = new Vector3(Mathf.Approximately(Mathf.Abs(localPoint.x), 0.5f) ? localPoint.x * 2.0f : 0.0f,
+                                                 Mathf.Approximately(Mathf.Abs(localPoint.y), 0.5f) ? localPoint.y * 2.0f : 0.0f,
+                                                 Mathf.Approximately(Mathf.Abs(localPoint.z), 0.5f) ? localPoint.z * 2.0f : 0.0f);
+                    hitInfo.Normal = localToWorld.MultiplyVector(hitInfo.Normal).normalized;
                     hitInfo.Distance = (hitInfo.Point - ray.origin).magnitude;
                     hitInfo.Ray = ray;
 

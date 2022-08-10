@@ -37,6 +37,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         }
 
         /// <summary>
+        /// Spin the MeshIntancer around at 10 degrees/second.
+        /// </summary>
+        private void Update()
+        {
+            transform.Rotate(Vector3.up, 10.0f * Time.deltaTime);
+        }
+
+        /// <summary>
         /// Create a bunch of random instances within a unity sphere.
         /// </summary>
         private void CreateInstances()

@@ -775,7 +775,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
  #if defined(_SPHERICAL_HARMONICS)
     half3 bakedGI = input.ambient;
 #else
-    half3 bakedGI = glstate_lightmodel_ambient.rgb + half3(0.25h, 0.25h, 0.25h);
+    half3 bakedGI = GTDefaultAmbientGI;
 #endif
 
     // Indirect lighting.
