@@ -528,8 +528,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     // Perform a ray cast against the current instance. First do a coarse test against a sphere then a fine test against the OOBB.
                     // TODO - [Cameron-Micka] accelerate this with spatial partitioning?
-                    Vector3 boxHalfSizeScaled = Vector3.Scale(boxHalfSize, matrixScratchBuffer[i].lossyScale);
-                    float radius = Mathf.Max(Mathf.Max(boxHalfSizeScaled.x, boxHalfSizeScaled.y), boxHalfSizeScaled.z);
+                    float radius = Vector3.Scale(boxHalfSize, matrixScratchBuffer[i].lossyScale).magnitude;
 
                     if (RaycastSphere(ray, matrixScratchBuffer[i].GetColumn(3), radius))
                     {
@@ -548,7 +547,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, recieveShadows);
             }
 
-            private bool RaycastSphere(Ray ray, Vector3 center, float radius)
+            private static bool RaycastSphere(Ray ray, Vector3 center, float radius)
             {
                 // 5.3.2 Intersecting Ray or Segment Against Sphere
                 // http://realtimecollisiondetection.net/
@@ -569,23 +568,25 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return (discriminant >= 0.0f);
             }
 
-            private bool RaycastOOBB(Ray ray, Matrix4x4 localToWorld, Vector3 boxMin, Vector3 boxMax, out RaycastHit hitInfo)
+            private static bool Approximately(float a, float b, float epsilon = 0.0001f)
+            {
+                return (Mathf.Abs(a - b) < epsilon);
+            }
+
+            private static bool RaycastOOBB(Ray ray, Matrix4x4 localToWorld, Vector3 boxMin, Vector3 boxMax, out RaycastHit hitInfo)
             {
                 // Transform the ray into the instance's local space.
                 Matrix4x4 localToWorldInverse = localToWorld.inverse;
-
-                Ray localRay = new Ray();
-                localRay.origin = localToWorldInverse.MultiplyPoint3x4(ray.origin);
-                localRay.direction = localToWorldInverse.MultiplyVector(ray.direction);
+                Ray localRay = new Ray(localToWorldInverse.MultiplyPoint3x4(ray.origin), localToWorldInverse.MultiplyVector(ray.direction));
 
                 if (RacastAABB(localRay, boxMin, boxMax, out hitInfo))
                 {
                     // Transform back to world space.
                     Vector3 localPoint = localRay.origin + (localRay.direction * hitInfo.Distance);
                     hitInfo.Point = localToWorld.MultiplyPoint3x4(localPoint);
-                    hitInfo.Normal = new Vector3(Mathf.Approximately(Mathf.Abs(localPoint.x), 0.5f) ? localPoint.x * 2.0f : 0.0f,
-                                                 Mathf.Approximately(Mathf.Abs(localPoint.y), 0.5f) ? localPoint.y * 2.0f : 0.0f,
-                                                 Mathf.Approximately(Mathf.Abs(localPoint.z), 0.5f) ? localPoint.z * 2.0f : 0.0f);
+                    hitInfo.Normal = new Vector3(Approximately(Mathf.Abs(localPoint.x), 0.5f) ? localPoint.x * 2.0f : 0.0f,
+                                                 Approximately(Mathf.Abs(localPoint.y), 0.5f) ? localPoint.y * 2.0f : 0.0f,
+                                                 Approximately(Mathf.Abs(localPoint.z), 0.5f) ? localPoint.z * 2.0f : 0.0f);
                     hitInfo.Normal = localToWorld.MultiplyVector(hitInfo.Normal).normalized;
                     hitInfo.Distance = (hitInfo.Point - ray.origin).magnitude;
                     hitInfo.Ray = ray;
@@ -596,7 +597,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return false;
             }
 
-            private bool RacastAABB(Ray ray, Vector3 boxMin, Vector3 boxMax, out RaycastHit hitInfo)
+            private static bool RacastAABB(Ray ray, Vector3 boxMin, Vector3 boxMax, out RaycastHit hitInfo)
             {
                 // Fast and Robust Ray/OBB Intersection Using the Lorentz Transformation
                 // https://www.realtimerendering.com/raytracinggems/rtg2/index.html
