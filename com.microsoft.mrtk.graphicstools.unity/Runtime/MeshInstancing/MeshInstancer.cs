@@ -83,9 +83,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         private MatrixMaterialProperty[] MatrixMaterialProperties = new MatrixMaterialProperty[0];
 
         /// <summary>
-        /// If true, the RaycastHits list is filled out each frame with instances that intersect the RayCollider. Disable this if you don't need to query instances.
+        /// If true, the RaycastHits list is filled out each frame with instances that intersect the DeferredRayQuery. Disable this if you don't need to query instances.
         /// </summary>
-        [Header("Physics"), Tooltip("If true, the RaycastHits list is filled out each frame with instances that intersect the RayCollider. Disable this if you don't need to query instances.")]
+        [Header("Physics"), Tooltip("If true, the RaycastHits list is filled out each frame with instances that intersect the DeferredRayQuery. Disable this if you don't need to query instances.")]
         public bool RaycastInstances = false;
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Raycast query results when RayCollider is true and the RayCollider intersects an instance.
+        /// Raycast query results when RaycastInstances is true and the DeferredRayQuery intersects an instance.
         /// </summary>
         public struct RaycastHit
         {
@@ -147,14 +147,15 @@ namespace Microsoft.MixedReality.GraphicsTools
         public Box BoxCollider = new Box() { Center = Vector3.zero, Size = Vector3.one };
 
         /// <summary>
-        /// The current ray to use in queries if RaycastInstances is true.
+        /// The ray to use in queries if RaycastInstances is true.
         /// </summary>
-        public Ray RayCollider { get; set; }
+        public Ray DeferredRayQuery { get; set; }
 
         /// <summary>
-        /// The list of all hits that RayCollider intersects with when RaycastInstances is true.
+        /// The list of all hits that DeferredRayQuery intersects with when RaycastInstances is true. 
+        /// Results are from the previous frame's LateUpdate query.
         /// </summary>
-        public List<RaycastHit> RaycastHits { get; private set; }
+        public List<RaycastHit> DeferredRaycastHits { get; private set; }
 
         /// <summary>
         /// Signature of the multi-threaded update method for each instance.
@@ -646,7 +647,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void LateUpdate()
         {
-            RaycastHits.Clear();
+            DeferredRaycastHits.Clear();
 
             UpdateBuckets();
 
@@ -658,7 +659,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // Collect the aggregate raycast hits.
                 if (RaycastInstances)
                 {
-                    RaycastHits.AddRange(bucket.RaycastHits);
+                    DeferredRaycastHits.AddRange(bucket.RaycastHits);
                 }
             }
         }
@@ -712,7 +713,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 RegisterMaterialPropertyCommonMatrix(Shader.PropertyToID(property.Name), property.DefaultValue, false);
             }
 
-            RaycastHits = new List<RaycastHit>();
+            DeferredRaycastHits = new List<RaycastHit>();
 
             isInitialized = true;
         }
@@ -746,7 +747,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (RaycastInstances)
                     {
                         bucket.RaycastHits = new ConcurrentBag<RaycastHit>();
-                        bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider, 0, bucket.InstanceCount);
+                        bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, DeferredRayQuery, 0, bucket.InstanceCount);
                     }
                     else
                     {
@@ -788,7 +789,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                         if (RaycastInstances)
                         {
-                            bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider, firstIndex, lastIndex);
+                            bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, DeferredRayQuery, firstIndex, lastIndex);
                         }
                         else
                         {
@@ -805,7 +806,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (RaycastInstances)
                     {
                         bucket.RaycastHits = new ConcurrentBag<RaycastHit>();
-                        bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, RayCollider, 0, bucket.InstanceCount);
+                        bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, DeferredRayQuery, 0, bucket.InstanceCount);
                     }
                     else
                     {
@@ -958,7 +959,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Returns the hit thats the smallest distance away from the RayCollider origin.
+        /// Returns the hit thats the smallest distance away from the DeferredRayQuery origin.
         /// </summary>
         public bool GetClosestRaycastHit(ref RaycastHit hit)
         {
@@ -966,7 +967,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             hit.Reset();
 
-            foreach (RaycastHit h in RaycastHits)
+            foreach (RaycastHit h in DeferredRaycastHits)
             {
                 if (h.Distance < hit.Distance)
                 {

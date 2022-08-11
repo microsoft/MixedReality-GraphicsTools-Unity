@@ -44,11 +44,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         {
             if (instancer.RaycastInstances)
             {
-                // Update the ray each frame.
-                instancer.RayCollider = GetRay();
-
                 // Visualize the ray and hits.
-                Debug.DrawLine(instancer.RayCollider.origin, instancer.RayCollider.origin + instancer.RayCollider.direction * 100.0f, Color.red);
+                Debug.DrawLine(instancer.DeferredRayQuery.origin, instancer.DeferredRayQuery.origin + instancer.DeferredRayQuery.direction * 100.0f, Color.red);
                 int colorID = Shader.PropertyToID("_Color");
 
                 // Clear the color on the last raycast hit,
@@ -77,6 +74,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                         lastRaycastHit.Instance = null;
                     }
                 }
+
+                // Update the ray for the next frame.
+                instancer.DeferredRayQuery = GetRay();
             }
         }
 

@@ -28,8 +28,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         private class UserData
         {
             public Vector3 velocity;
+            public Vector3 targetVelocity;
             public Quaternion targetRotation;
-            public bool reflecting;
+            public float changeTargetTime;
         }
 
         /// <summary>
@@ -80,11 +81,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 // Create some random initial properties.
                 Vector3 scale = Vector3.one * Random.Range(instanceSizeMin, instanceSizeMax);
                 float normalizedMass = ((scale.x * scale.y * scale.z) - minMass) / maxMass;
-                Vector3 velocity = Random.onUnitSphere * ((1.0f - normalizedMass) * 0.2f);
+                Vector3 velocity = Random.onUnitSphere * ((1.2f - normalizedMass) * 0.2f);
                 Quaternion rotation = Quaternion.LookRotation(velocity);
 
                 // Create an instance object at a random position within the containment radius.
-                var instance = instancer.Instantiate(Random.insideUnitSphere * containmentRadius,
+                var instance = instancer.Instantiate(Random.onUnitSphere * containmentRadius,
                                                      rotation,
                                                      scale);
                 instance.SetVector(colorID, Random.ColorHSV(normalizedMass, normalizedMass, 1.0f, 1.0f, 1.0f, 1.0f));
@@ -93,9 +94,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 // Set user data to use during update.
                 instance.UserData = new UserData()
                 {
-                    velocity = velocity,
+                    velocity = Vector3.zero,
+                    targetVelocity = velocity,
                     targetRotation = rotation,
-                    reflecting = false
+                    changeTargetTime = Random.Range(4.0f, 20.0f)
                 };
 
                 instance.SetParallelUpdate(ParallelUpdate);
@@ -111,25 +113,21 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             UserData data = (UserData)instance.UserData;
 
             // Euler integration.
+            data.velocity = Vector3.Lerp(data.velocity, data.targetVelocity, deltaTime);
             instance.LocalPosition += data.velocity * deltaTime;
-            instance.LocalRotation = Quaternion.Slerp(instance.LocalRotation, data.targetRotation, deltaTime * data.velocity.sqrMagnitude * 40.0f);
+            instance.LocalRotation = Quaternion.Slerp(instance.LocalRotation, data.targetRotation, deltaTime * data.targetVelocity.sqrMagnitude * 40.0f);
 
-            // Check if outside the containment radius.
-            if (instance.LocalPosition.sqrMagnitude > (containmentRadius * containmentRadius))
-            {
-                if (!data.reflecting)
-                {
-                    // If outside the radius and not already reflecting then reflect off the containment sphere.
-                    Vector3 sphereNormal = (Vector3.zero - instance.LocalPosition).normalized;
-                    data.velocity = Vector3.Reflect(data.velocity, sphereNormal);
-                    data.targetRotation = Quaternion.LookRotation(data.velocity);
+            data.changeTargetTime -= deltaTime;
 
-                    data.reflecting = true;
-                }
-            }
-            else
+            // Time to pick a new target.
+            if (data.changeTargetTime <= 0.0f)
             {
-                data.reflecting = false;
+                Vector3 randomTarget = ThreadSafeRandom.onUnitSphere * containmentRadius;
+                Vector3 direction = (randomTarget - instance.LocalPosition).normalized;
+                data.targetVelocity = direction * data.targetVelocity.magnitude;
+                data.targetRotation = Quaternion.LookRotation(data.targetVelocity);
+
+                data.changeTargetTime = ThreadSafeRandom.Range(4.0f, 20.0f);
             }
 
             // Update the user data state.
