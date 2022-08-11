@@ -21,7 +21,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             get
             {
-                Initilize();
+                Initialize();
                 return (float)(local.NextDouble());
             }
         }
@@ -31,7 +31,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public static int Range(int min, int max)
         {
-            Initilize();
+            Initialize();
             return local.Next(min, max);
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private static void Initilize()
+        private static void Initialize()
         {
             if (local == null)
             {
