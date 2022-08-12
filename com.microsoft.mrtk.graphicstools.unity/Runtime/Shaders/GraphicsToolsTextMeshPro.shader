@@ -65,7 +65,7 @@ Properties {
     _CullMode             ("Cull Mode", Float) = 0
     _ColorMask            ("Color Mask", Float) = 15
 
-    [Enum(DepthWrite)] _ZWrite                          ("Depth Write", Float) = 0     // Off
+    [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite                          ("Depth Write", Float) = 0     // Off
     [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4      // "LessEqual"
 
     [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                 // "One"

@@ -10,72 +10,72 @@ using UnityEngine.Rendering;
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
+    /// How to treat the alpha channel of the albedo texture.
+    /// </summary>
+    public enum AlbedoAlphaMode
+    {
+        Transparency = 0,
+        Metallic = 1,
+        Smoothness = 2
+    }
+
+    /// <summary>
+    /// What type of direct light affects the surface.
+    /// </summary>
+    public enum LightMode
+    {
+        Unlit = 0,
+        LitDirectional = 1,
+        LitDistant = 2
+    }
+
+    /// <summary>
+    /// What type of gradient to generate.
+    /// </summary>
+    public enum GradientMode
+    {
+        None = 0,
+        Iridescence = 1,
+        FourPoint = 2,
+        Linear = 3
+    }
+
+    /// <summary>
+    /// How the border color should be calculated.
+    /// </summary>
+    public enum BorderColorMode
+    {
+        Brightness = 0,
+        HoverColor = 1,
+        Color = 2,
+        Gradient = 3
+    }
+
+    /// <summary>
+    /// Is edge smoothing controlled by a user defined value or programmatically.
+    /// </summary>
+    public enum EdgeSmoothingMode
+    {
+        Manual = 0,
+        Automatic = 1
+    }
+
+    /// <summary>
+    /// How to sample the blur texture.
+    /// </summary>
+    public enum BlurMode
+    {
+        None = 0,
+        Layer1 = 1,
+        Layer2 = 2,
+        PrebakedBackground = 3
+    }
+
+    /// <summary>
     /// A custom shader inspector for the "Graphics Tools/Standard" and "Graphics Tools/Standard Canvas" shaders.
     /// </summary>
     public class StandardShaderGUI : BaseShaderGUI
     {
-        /// <summary>
-        /// How to treat the alpha channel of the albedo texture.
-        /// </summary>
-        protected enum AlbedoAlphaMode
-        {
-            Transparency = 0,
-            Metallic = 1,
-            Smoothness = 2
-        }
-
-        /// <summary>
-        /// What type of direct light affects the surface.
-        /// </summary>
-        protected enum LightMode
-        {
-            Unlit = 0,
-            LitDirectional = 1,
-            LitDistant = 2
-        }
-
-        /// <summary>
-        /// What type of gradient to generate.
-        /// </summary>
-        protected enum GradientMode
-        {
-            None = 0,
-            Iridescence = 1,
-            FourPoint = 2,
-            Linear = 3
-        }
-
-        /// <summary>
-        /// How the border color should be calculated.
-        /// </summary>
-        protected enum BorderColorMode
-        {
-            Brightness = 0,
-            HoverColor = 1,
-            Color = 2,
-            Gradient = 3
-        }
-
-        /// <summary>
-        /// Is edge smoothing controlled by a user defined value or programmatically.
-        /// </summary>
-        protected enum EdgeSmoothingMode
-        {
-            Manual = 0,
-            Automatic = 1
-        }
-
-        /// <summary>
-        /// How to sample the blur texture.
-        /// </summary>
-        protected enum BlurMode
-        {
-            None = 0,
-            Layer1 = 1,
-            Layer2 = 2,
-            PrebakedBackground = 3
-        }
-
         /// <summary>
         /// Common names, keywords, and tooltips.
         /// </summary>

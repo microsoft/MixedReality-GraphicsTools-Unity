@@ -50,7 +50,7 @@ Properties {
      
     [Header(Depth)]
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4 // "LessEqual"
-        [Enum(DepthWrite)] _ZWrite("Depth Write", Float) = 1 // "On"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 1 // "On"
 
     [Header(Stencil)]
         _StencilReference("Stencil Reference", Range(0, 255)) = 0
