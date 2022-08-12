@@ -12,7 +12,7 @@ Shader "Graphics Tools/Standard Canvas"
         // Main maps.
         _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
         [PerRendererData] _MainTex("Albedo", 2D) = "white" {}
-        [Enum(AlbedoAlphaMode)] _AlbedoAlphaMode("Albedo Alpha Mode", Float) = 0 // "Transparency"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.AlbedoAlphaMode)] _AlbedoAlphaMode("Albedo Alpha Mode", Float) = 0 // "Transparency"
         [Toggle] _AlbedoAssignedAtRuntime("Albedo Assigned at Runtime", Float) = 0.0
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
         _Fade("Alpha Fade", Range(0.0, 1.0)) = 1.0
@@ -33,7 +33,7 @@ Shader "Graphics Tools/Standard Canvas"
         _MipmapBias("Mipmap Bias", Range(-5.0, 0.0)) = -2.0
 
         // Rendering options.
-        [Enum(LightMode)] _DirectionalLight("Light Mode", Float) = 0.0 // "Unlit"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.LightMode)] _DirectionalLight("Light Mode", Float) = 0.0 // "Unlit"
         [Toggle(_SPECULAR_HIGHLIGHTS)] _SpecularHighlights("Specular Highlights", Float) = 1.0
         [Toggle(_SPHERICAL_HARMONICS)] _SphericalHarmonics("Spherical Harmonics", Float) = 0.0
         [Toggle(_REFLECTIONS)] _Reflections("Reflections", Float) = 0.0
@@ -76,16 +76,16 @@ Shader "Graphics Tools/Standard Canvas"
         [Toggle(_BORDER_LIGHT_REPLACES_ALBEDO)] _BorderLightReplacesAlbedo("Border Light Replaces Albedo", Float) = 0.0
         [Toggle(_BORDER_LIGHT_OPAQUE)] _BorderLightOpaque("Border Light Opaque", Float) = 0.0
         _BorderWidth("Border Width", Range(0.0, 1.0)) = 0.1
-        [Enum(BorderColorMode)] _BorderColorMode("Border Color Mode", Float) = 0 // "Brightness"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.BorderColorMode)] _BorderColorMode("Border Color Mode", Float) = 0 // "Brightness"
         _BorderMinValue("Border Min Value", Range(0.0, 1.0)) = 0.1
         _BorderColor("Border Color", Color) = (1.0, 1.0, 1.0, 0.0)
-        [Enum(EdgeSmoothingMode)] _EdgeSmoothingMode("Edge Smoothing Mode", Float) = 0 // "Manual"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.EdgeSmoothingMode)] _EdgeSmoothingMode("Edge Smoothing Mode", Float) = 0 // "Manual"
         _EdgeSmoothingValue("Edge Smoothing Value", Float) = 0.002
         _BorderLightOpaqueAlpha("Border Light Opaque Alpha", Range(0.0, 1.0)) = 1.0
         [Toggle(_INNER_GLOW)] _InnerGlow("Inner Glow", Float) = 0.0
         _InnerGlowColor("Inner Glow Color (RGB) and Intensity (A)", Color) = (1.0, 1.0, 1.0, 0.75)
         _InnerGlowPower("Inner Glow Power", Range(2.0, 32.0)) = 4.0
-        [Enum(GradientMode)] _GradientMode("Gradient Mode", Float) = 0 // "None"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.GradientMode)] _GradientMode("Gradient Mode", Float) = 0 // "None"
         [NoScaleOffset] _IridescentSpectrumMap("Iridescent Spectrum Map", 2D) = "white" {}
         _IridescenceIntensity("Iridescence Intensity", Range(0.0, 1.0)) = 0.5
         _IridescenceThreshold("Iridescence Threshold", Range(0.0, 1.0)) = 0.05
@@ -104,25 +104,25 @@ Shader "Graphics Tools/Standard Canvas"
         _EnvironmentColorX("Environment Color X (RGB)", Color) = (1.0, 0.0, 0.0, 1.0)
         _EnvironmentColorY("Environment Color Y (RGB)", Color) = (0.0, 1.0, 0.0, 1.0)
         _EnvironmentColorZ("Environment Color Z (RGB)", Color) = (0.0, 0.0, 1.0, 1.0)
-        [Enum(BlurMode)] _BlurMode("Blur Mode", Float) = 0 // "None"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.BlurMode)] _BlurMode("Blur Mode", Float) = 0 // "None"
         _BlurTextureIntensity("Blur Texture Intensity", Range(0.0, 1.0)) = 1.0
         _BlurBorderIntensity("Blur Border Intensity", Range(0.0, 1.0)) = 0.0
         _BlurBackgroundRect("Blur Background Rect", Vector) = (0.0, 0.0, 1.0, 1.0)
 
         // Advanced options.
-        [Enum(RenderingMode)] _Mode("Rendering Mode", Float) = 3                                  // "Transparent"
-        [Enum(RenderingMode)] _CustomMode("Mode", Float) = 2                                      // "Fade"
-        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1              // "One"
-        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 10        // "OneMinusSrcAlpha"
-        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1      // "One"
-        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1 // "One"
-        [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Float) = 0              // "Add"
-        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4             // "LessEqual"
-        [Enum(DepthWrite)] _ZWrite("Depth Write", Float) = 0                                      // "Off"
-        _ZOffsetFactor("Depth Offset Factor", Float) = 0                                          // "Zero"
-        _ZOffsetUnits("Depth Offset Units", Float) = 0                                            // "Zero"
-        [Enum(UnityEngine.Rendering.ColorWriteMask)] _ColorMask("Color Write Mask", Float) = 15   // "All"
-        [Enum(UnityEngine.Rendering.CullMode)] _CullMode("Cull Mode", Float) = 0                  // "Off"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.RenderingMode)] _Mode("Rendering Mode", Float) = 3 // "Transparent"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.RenderingMode)] _CustomMode("Mode", Float) = 2     // "Fade"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                         // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 10                   // "OneMinusSrcAlpha"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1              // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1         // "One"
+        [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Float) = 0                         // "Add"
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4                        // "LessEqual"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 0     // "Off"
+        _ZOffsetFactor("Depth Offset Factor", Float) = 0                                                     // "Zero"
+        _ZOffsetUnits("Depth Offset Units", Float) = 0                                                       // "Zero"
+        [Enum(UnityEngine.Rendering.ColorWriteMask)] _ColorMask("Color Write Mask", Float) = 15              // "All"
+        [Enum(UnityEngine.Rendering.CullMode)] _CullMode("Cull Mode", Float) = 0                             // "Off"
         _RenderQueueOverride("Render Queue Override", Range(-1.0, 5000)) = -1
         [Toggle(_USE_WORLD_SCALE)] _UseWorldScale("Absolute Size", Float) = 1.0
         [Toggle(_STENCIL)] _EnableStencil("Enable Stencil Testing", Float) = 0.0
