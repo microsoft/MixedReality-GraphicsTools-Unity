@@ -580,7 +580,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Matrix4x4 localToWorldInverse = localToWorld.inverse;
                 Ray localRay = new Ray(localToWorldInverse.MultiplyPoint3x4(ray.origin), localToWorldInverse.MultiplyVector(ray.direction));
 
-                if (RacastAABB(localRay, boxMin, boxMax, out hitInfo))
+                if (RaycastAABB(localRay, boxMin, boxMax, out hitInfo))
                 {
                     // Transform back to world space.
                     Vector3 localPoint = localRay.origin + (localRay.direction * hitInfo.Distance);
@@ -598,7 +598,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return false;
             }
 
-            private static bool RacastAABB(Ray ray, Vector3 boxMin, Vector3 boxMax, out RaycastHit hitInfo)
+            private static bool RaycastAABB(Ray ray, Vector3 boxMin, Vector3 boxMax, out RaycastHit hitInfo)
             {
                 // Fast and Robust Ray/OBB Intersection Using the Lorentz Transformation
                 // https://www.realtimerendering.com/raytracinggems/rtg2/index.html
@@ -978,9 +978,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             return (hit.Instance != null);
         }
 
-        private bool RegisterMaterialPropertyCommonFloat(int nameID, float defaultValue, bool initilize = true)
+        private bool RegisterMaterialPropertyCommonFloat(int nameID, float defaultValue, bool initialize = true)
         {
-            if (initilize)
+            if (initialize)
             {
                 Initialize();
             }
@@ -1002,9 +1002,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             return true;
         }
 
-        private bool RegisterMaterialPropertyCommonVector(int nameID, Vector4 defaultValue, bool initilize = true)
+        private bool RegisterMaterialPropertyCommonVector(int nameID, Vector4 defaultValue, bool initialize = true)
         {
-            if (initilize)
+            if (initialize)
             {
                 Initialize();
             }
@@ -1026,9 +1026,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             return true;
         }
 
-        private bool RegisterMaterialPropertyCommonMatrix(int nameID, Matrix4x4 defaultValue, bool initilize = true)
+        private bool RegisterMaterialPropertyCommonMatrix(int nameID, Matrix4x4 defaultValue, bool initialize = true)
         {
-            if (initilize)
+            if (initialize)
             {
                 Initialize();
             }
