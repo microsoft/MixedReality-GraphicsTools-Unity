@@ -29,8 +29,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.Acrylic
 
         public float tiltVary = 0.1f;
 
-        public Color color = Color.white;
-
         public class Orbiter
         {
             GameObject goParent;
@@ -38,7 +36,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.Acrylic
             private float angle;
             private float speed;
             private float tiltY, tiltX;
-            public Orbiter(PrimitiveType primitiveType, Material material, Transform parent, int index, float size, float radius, float startSpeed, float startAngle, float tiltx, float tilty, Color color)
+            public Orbiter(PrimitiveType primitiveType, Material material, Transform parent, int index, float size, float radius, float startSpeed, float startAngle, float tiltx, float tilty)
             {
                 GameObject go = GameObject.CreatePrimitive(primitiveType);
                 goParent = new GameObject("Orb " + index);
@@ -79,7 +77,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.Acrylic
                 float tangle = 360.0f * t;
                 float tiltx = tiltVary * (0.5f - Random.value) * 180.0f;
                 float tilty = tiltVary * (0.5f - Random.value) * 180.0f;
-                orbiters.Add(new Orbiter(primitiveType, orbitalMaterial, transform, i, tsize, tradius, tspeed, tangle, tiltx, tilty, color));
+                orbiters.Add(new Orbiter(primitiveType, orbitalMaterial, transform, i, tsize, tradius, tspeed, tangle, tiltx, tilty));
             }
         }
 
