@@ -135,6 +135,14 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// <summary>
            /// Shader property.
            /// </summary>;
+           public Texture2D _EmissiveMap = null;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _EmissiveMapID = Shader.PropertyToID("_EmissiveMap");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
            public float _EnableTriplanarMapping = 0f;
            /// <summary>
            /// Shader property ID.
@@ -204,22 +212,6 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// Shader property ID.
            /// </summary>
            public static int _ReflectionsID = Shader.PropertyToID("_Reflections");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Refraction = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _RefractionID = Shader.PropertyToID("_Refraction");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 3f)] public float _RefractiveIndex = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _RefractiveIndexID = Shader.PropertyToID("_RefractiveIndex");
            /// <summary>
            /// Shader property.
            /// </summary>;
@@ -351,7 +343,7 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// <summary>
            /// Shader property.
            /// </summary>;
-           public float _HoverLight = 1f;
+           public float _HoverLight = 0f;
            /// <summary>
            /// Shader property ID.
            /// </summary>
@@ -807,6 +799,22 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// <summary>
            /// Shader property.
            /// </summary>;
+           public float _SrcBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _SrcBlendAlphaID = Shader.PropertyToID("_SrcBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
+           public float _DstBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _DstBlendAlphaID = Shader.PropertyToID("_DstBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
            public float _BlendOp = 0f;
            /// <summary>
            /// Shader property ID.
@@ -943,6 +951,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             _NormalMapScale = material.GetFloat(_NormalMapScaleID);
             _EnableEmission = material.GetFloat(_EnableEmissionID);
             _EmissiveColor = material.GetColor(_EmissiveColorID);
+            _EmissiveMap = (Texture2D)material.GetTexture(_EmissiveMapID);
             _EnableTriplanarMapping = material.GetFloat(_EnableTriplanarMappingID);
             _EnableLocalSpaceTriplanarMapping = material.GetFloat(_EnableLocalSpaceTriplanarMappingID);
             _TriplanarMappingBlendSharpness = material.GetFloat(_TriplanarMappingBlendSharpnessID);
@@ -952,8 +961,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             _SpecularHighlights = material.GetFloat(_SpecularHighlightsID);
             _SphericalHarmonics = material.GetFloat(_SphericalHarmonicsID);
             _Reflections = material.GetFloat(_ReflectionsID);
-            _Refraction = material.GetFloat(_RefractionID);
-            _RefractiveIndex = material.GetFloat(_RefractiveIndexID);
             _RimLight = material.GetFloat(_RimLightID);
             _RimColor = material.GetColor(_RimColorID);
             _RimPower = material.GetFloat(_RimPowerID);
@@ -1027,6 +1034,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             _CustomMode = material.GetFloat(_CustomModeID);
             _SrcBlend = material.GetFloat(_SrcBlendID);
             _DstBlend = material.GetFloat(_DstBlendID);
+            _SrcBlendAlpha = material.GetFloat(_SrcBlendAlphaID);
+            _DstBlendAlpha = material.GetFloat(_DstBlendAlphaID);
             _BlendOp = material.GetFloat(_BlendOpID);
             _ZTest = material.GetFloat(_ZTestID);
             _ZWrite = material.GetFloat(_ZWriteID);
@@ -1062,6 +1071,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_NormalMapScaleID, _NormalMapScale);
             material.SetFloat(_EnableEmissionID, _EnableEmission);
             material.SetColor(_EmissiveColorID, _EmissiveColor);
+            material.SetTexture(_EmissiveMapID, (Texture2D)_EmissiveMap);
             material.SetFloat(_EnableTriplanarMappingID, _EnableTriplanarMapping);
             material.SetFloat(_EnableLocalSpaceTriplanarMappingID, _EnableLocalSpaceTriplanarMapping);
             material.SetFloat(_TriplanarMappingBlendSharpnessID, _TriplanarMappingBlendSharpness);
@@ -1071,8 +1081,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_SpecularHighlightsID, _SpecularHighlights);
             material.SetFloat(_SphericalHarmonicsID, _SphericalHarmonics);
             material.SetFloat(_ReflectionsID, _Reflections);
-            material.SetFloat(_RefractionID, _Refraction);
-            material.SetFloat(_RefractiveIndexID, _RefractiveIndex);
             material.SetFloat(_RimLightID, _RimLight);
             material.SetColor(_RimColorID, _RimColor);
             material.SetFloat(_RimPowerID, _RimPower);
@@ -1146,6 +1154,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_CustomModeID, _CustomMode);
             material.SetFloat(_SrcBlendID, _SrcBlend);
             material.SetFloat(_DstBlendID, _DstBlend);
+            material.SetFloat(_SrcBlendAlphaID, _SrcBlendAlpha);
+            material.SetFloat(_DstBlendAlphaID, _DstBlendAlpha);
             material.SetFloat(_BlendOpID, _BlendOp);
             material.SetFloat(_ZTestID, _ZTest);
             material.SetFloat(_ZWriteID, _ZWrite);
