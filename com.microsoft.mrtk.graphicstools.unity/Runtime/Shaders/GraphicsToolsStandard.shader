@@ -55,7 +55,7 @@ Shader "Graphics Tools/Standard"
         _FadeMinValue("Fade Min Value", Range(0.0, 1.0)) = 0.0
 
         // Fluent options.
-        [Toggle(_HOVER_LIGHT)] _HoverLight("Hover Light", Float) = 1.0
+        [Toggle(_HOVER_LIGHT)] _HoverLight("Hover Light", Float) = 0.0
         [Toggle(_HOVER_COLOR_OVERRIDE)] _EnableHoverColorOverride("Hover Color Override", Float) = 0.0
         _HoverColorOverride("Hover Color Override", Color) = (1.0, 1.0, 1.0, 1.0)
         [Toggle(_PROXIMITY_LIGHT)] _ProximityLight("Proximity Light", Float) = 0.0
