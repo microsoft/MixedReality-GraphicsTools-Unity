@@ -32,7 +32,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private SerializedProperty radii;
         private SerializedProperty padding;
 
-        [MenuItem("GameObject/UI/Rounded Rect Mask - Graphics Tools")]
+        [MenuItem("GameObject/UI/Graphics Tools/Rounded Rect Mask")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
             InspectorUtilities.CreateGameObjectFromMenu<RoundedRectMask2D>(menuCommand);

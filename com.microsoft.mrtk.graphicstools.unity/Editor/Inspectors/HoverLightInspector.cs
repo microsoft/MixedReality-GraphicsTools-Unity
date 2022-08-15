@@ -47,7 +47,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return new Bounds(light.transform.position, Vector3.one * light.Radius);
         }
 
-        [MenuItem("GameObject/Light/Hover Light")]
+       [MenuItem("GameObject/Light/Graphics Tools/Hover Light")]
         private static void CreateHoverLight(MenuCommand menuCommand)
         {
             InspectorUtilities.CreateGameObjectFromMenu<HoverLight>(menuCommand);

@@ -72,7 +72,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return new Bounds(light.transform.position, Vector3.one);
         }
 
-        [MenuItem("GameObject/Light/Distant Light")]
+       [MenuItem("GameObject/Light/Graphics Tools/Distant Light")]
         private static void CreateDistantLight(MenuCommand menuCommand)
         {
             GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<DistantLight>(menuCommand);

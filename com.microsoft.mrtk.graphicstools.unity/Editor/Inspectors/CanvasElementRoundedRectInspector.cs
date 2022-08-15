@@ -12,7 +12,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     [CustomEditor(typeof(CanvasElementRoundedRect))]
     public class CanvasElementRoundedRectInspector : UnityEditor.Editor
     {
-        [MenuItem("GameObject/UI/Rounded Rect - Graphics Tools")]
+        [MenuItem("GameObject/UI/Graphics Tools/Rounded Rect")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
             GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementRoundedRect>(menuCommand);
