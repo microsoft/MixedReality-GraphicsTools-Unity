@@ -47,9 +47,7 @@ struct Varyings
 #if defined(LIGHTMAP_ON)
     float2 lightMapUV : TEXCOORD1;
 #endif
-#if defined(_VERTEX_COLORS)
     half4 color : COLOR0;
-#endif
 #if defined(_SPHERICAL_HARMONICS)
     half3 ambient : COLOR1;
 #endif
@@ -193,7 +191,12 @@ float4x4 _ClipBoxInverseTransform;
 
 CBUFFER_START(UnityPerMaterial)
 
+#if defined(UNITY_INSTANCING_ENABLED)
+    half4 _ColorUnused; // Color is defined in the PerMaterialInstanced constant buffer.
+#else
     half4 _Color;
+#endif
+
     half4 _MainTex_ST;
     half _Metallic;
     half _Smoothness;
@@ -300,5 +303,13 @@ CBUFFER_START(UnityPerMaterial)
     float4 _BlurBackgroundRect;
 
 CBUFFER_END
+
+#if defined(UNITY_INSTANCING_ENABLED)
+UNITY_INSTANCING_BUFFER_START(PerMaterialInstanced)
+
+    UNITY_DEFINE_INSTANCED_PROP(half4, _Color)
+
+UNITY_INSTANCING_BUFFER_END(PerMaterialInstanced)
+#endif
 
 #endif // GT_STANDARD_INPUT

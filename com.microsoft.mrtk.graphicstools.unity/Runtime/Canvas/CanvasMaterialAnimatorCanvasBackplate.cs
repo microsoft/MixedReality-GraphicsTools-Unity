@@ -151,6 +151,14 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// <summary>
            /// Shader property.
            /// </summary>;
+           public float _Orthographic_Distance_ = 400f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _Orthographic_Distance_ID = Shader.PropertyToID("_Orthographic_Distance_");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
            public float _Gradient_Disabled_ = 0f;
            /// <summary>
            /// Shader property ID.
@@ -279,6 +287,22 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// <summary>
            /// Shader property.
            /// </summary>;
+           public float _SrcBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _SrcBlendAlphaID = Shader.PropertyToID("_SrcBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
+           public float _DstBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _DstBlendAlphaID = Shader.PropertyToID("_DstBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
            [Range(0f, 255f)] public float _StencilReference = 0f;
            /// <summary>
            /// Shader property ID.
@@ -361,6 +385,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             _Iridescent_Map_ = (Texture2D)material.GetTexture(_Iridescent_Map_ID);
             _Frequency_ = material.GetFloat(_Frequency_ID);
             _Vertical_Offset_ = material.GetFloat(_Vertical_Offset_ID);
+            _Orthographic_Distance_ = material.GetFloat(_Orthographic_Distance_ID);
             _Gradient_Disabled_ = material.GetFloat(_Gradient_Disabled_ID);
             _Gradient_Color_ = material.GetColor(_Gradient_Color_ID);
             _Top_Left_ = material.GetColor(_Top_Left_ID);
@@ -377,6 +402,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             _GridScale = material.GetFloat(_GridScaleID);
             _SrcBlend = material.GetFloat(_SrcBlendID);
             _DstBlend = material.GetFloat(_DstBlendID);
+            _SrcBlendAlpha = material.GetFloat(_SrcBlendAlphaID);
+            _DstBlendAlpha = material.GetFloat(_DstBlendAlphaID);
             _StencilReference = material.GetFloat(_StencilReferenceID);
             _StencilComparison = material.GetFloat(_StencilComparisonID);
             _StencilOperation = material.GetFloat(_StencilOperationID);
@@ -407,6 +434,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetTexture(_Iridescent_Map_ID, (Texture2D)_Iridescent_Map_);
             material.SetFloat(_Frequency_ID, _Frequency_);
             material.SetFloat(_Vertical_Offset_ID, _Vertical_Offset_);
+            material.SetFloat(_Orthographic_Distance_ID, _Orthographic_Distance_);
             material.SetFloat(_Gradient_Disabled_ID, _Gradient_Disabled_);
             material.SetColor(_Gradient_Color_ID, _Gradient_Color_);
             material.SetColor(_Top_Left_ID, _Top_Left_);
@@ -423,6 +451,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_GridScaleID, _GridScale);
             material.SetFloat(_SrcBlendID, _SrcBlend);
             material.SetFloat(_DstBlendID, _DstBlend);
+            material.SetFloat(_SrcBlendAlphaID, _SrcBlendAlpha);
+            material.SetFloat(_DstBlendAlphaID, _DstBlendAlpha);
             material.SetFloat(_StencilReferenceID, _StencilReference);
             material.SetFloat(_StencilComparisonID, _StencilComparison);
             material.SetFloat(_StencilOperationID, _StencilOperation);
