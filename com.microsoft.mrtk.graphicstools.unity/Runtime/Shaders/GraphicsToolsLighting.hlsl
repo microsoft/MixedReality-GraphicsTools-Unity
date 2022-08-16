@@ -176,7 +176,7 @@ half3 GTGlobalIllumination(GTBRDFData brdfData, half3 bakedGI, half occlusion, h
     half NoV = saturate(dot(normalWS, viewDirectionWS));
     half fresnelTerm = GTPow4(1.0 - NoV);
 
-    half3 indirectDiffuse = bakedGI * occlusion; // XXX pull occlusion "up" out of this function
+    half3 indirectDiffuse = bakedGI * occlusion;
     half3 indirectSpecular = GTGlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, occlusion);
 
     return GTEnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);;

@@ -20,15 +20,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     }
 
         /// <summary>
-        /// How we interpret vertex colors (RGBA) on the mesh
-        /// </summary>
-        protected enum VertexColorMode
-        {
-            Passthrough = 0,
-            BentNormalAo = 1
-        }
-
-        /// <summary>
         /// What type of direct light affects the surface.
         /// </summary>
         public enum LightMode
@@ -129,11 +120,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent rimLight = new GUIContent("Rim Light", "Enable Rim (Fresnel) Lighting");
             public static readonly GUIContent rimColor = new GUIContent("Color", "Rim Highlight Color");
             public static readonly GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
-            public static readonly GUIContent vertexColors = new GUIContent("Vertex Colors", "Enable to use the mesh's vertex color for albedo and transparency");
-            public static readonly GUIContent vertexColorMode = new GUIContent("Vertex color", "Controls how vertex colors are used. Passthrough will tint RGBA with the albedo color. BentNormalAO will use RGB for the bent normal and A for ambient occlusion");
-            public static readonly string[] vertexColorModeNames = new string[] { "Passthrough", "Bent normal (RGB) Ambient occlusion (A)" };
-            public static readonly string vertexColortModePassthrough = "_VERTEX_COLOR_MODE_PASSTHROUGH";
-            public static readonly string vertexColorModeBentNormalAo = "_VERTEX_COLOR_MODE_BENTNORMALAO";
+            public static readonly GUIContent vertexColors = new GUIContent("Vertex color", "Enable to use the mesh's vertex color for albedo and transparency");
+            public static readonly GUIContent vertexBentNormalAo = new GUIContent("Vertex ambient occlusion", "Enable to use ambient occlusion and bent normal information embedded mesh");
             public static readonly GUIContent vertexExtrusion = new GUIContent("Vertex Extrusion", "Enable Vertex Extrusion Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionValue = new GUIContent("Extrusion Value", "How Far to Extrude the Vertex Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionSmoothNormals = new GUIContent("Use Smooth Normals", "Should Vertex Extrusion use the Smooth Normals in UV3, or Default Normals");
@@ -253,7 +241,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty rimColor;
         protected MaterialProperty rimPower;
         protected MaterialProperty vertexColors;
-        protected MaterialProperty vertexColorMode;
+        protected MaterialProperty vertexBentNormalAo;
         protected MaterialProperty vertexExtrusion;
         protected MaterialProperty vertexExtrusionValue;
         protected MaterialProperty vertexExtrusionSmoothNormals;
@@ -369,7 +357,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             rimColor = FindProperty("_RimColor", props);
             rimPower = FindProperty("_RimPower", props);
             vertexColors = FindProperty("_VertexColors", props);
-            vertexColorMode = FindProperty("_VertexColorMode", props);
+            vertexBentNormalAo = FindProperty("_VertexBentNormalAo", props);
             vertexExtrusion = FindProperty("_VertexExtrusion", props);
             vertexExtrusionValue = FindProperty("_VertexExtrusionValue", props);
             vertexExtrusionSmoothNormals = FindProperty("_VertexExtrusionSmoothNormals", props);
@@ -838,23 +826,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
 
             materialEditor.ShaderProperty(vertexColors, Styles.vertexColors);
-
-            vertexColorMode.floatValue = EditorGUILayout.Popup(Styles.vertexColorMode, (int)vertexColorMode.floatValue, Styles.vertexColorModeNames);
-
-            switch ((VertexColorMode)vertexColorMode.floatValue)
-            {
-                case VertexColorMode.Passthrough:
-                    material.EnableKeyword(Styles.vertexColortModePassthrough);
-                    material.DisableKeyword(Styles.vertexColorModeBentNormalAo);
-                    break;
-                case VertexColorMode.BentNormalAo:
-                    material.EnableKeyword(Styles.vertexColorModeBentNormalAo);
-                    material.DisableKeyword(Styles.vertexColortModePassthrough);
-                    break;
-                default:
-                    break;
-            }
-
+            materialEditor.ShaderProperty(vertexBentNormalAo, Styles.vertexBentNormalAo);
             materialEditor.ShaderProperty(vertexExtrusion, Styles.vertexExtrusion);
 
             if (PropertyEnabled(vertexExtrusion))
