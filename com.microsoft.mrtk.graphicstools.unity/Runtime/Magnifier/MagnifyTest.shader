@@ -40,9 +40,10 @@ Shader "Unlit/MagnifyTest"
             
             half _Magnification;
             float2 Center;
-            TEXTURE2D_X(_CameraOpaqueTexture);
-            SAMPLER(sampler_CameraOpaqueTexture);
-
+           // TEXTURE2D_X(_CameraOpaqueTexture);
+            TEXTURE2D_X(_GrabPassTransparent);
+           // SAMPLER(sampler_CameraOpaqueTexture);
+            SAMPLER(sampler_GrabPassTransparent);
             float2 zoomIn(float2 uv, float zoomAmount, float2 zoomCenter)
             {
                 return ((uv - zoomCenter) * zoomAmount) + zoomCenter;
@@ -79,9 +80,9 @@ Shader "Unlit/MagnifyTest"
 
                 float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, zoomAmount, zoomCenter);
 
-                // thmicka: Sample the _CameraOpaqueTexture like we were.
+                // thmicka: Sample the _CameraOpaqueTexture like we were. Chuks: swapped _CameraOpaqueTexture for the _GrabPassTransparent texture array
                 // TODO: Sample a custom camera texture where we can control when it gets generated.
-              float4 output = SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, zoomedUv);
+                float4 output = SAMPLE_TEXTURE2D_X(_GrabPassTransparent, sampler_GrabPassTransparent, zoomedUv);
                
                 // thmicka: Just tinting the output "red" so that I can see what is rendered. Else, it's hard to see the quad. 
                 // In the future this won't be an issue because we will be zooming in/out. TODO: just return "output"
