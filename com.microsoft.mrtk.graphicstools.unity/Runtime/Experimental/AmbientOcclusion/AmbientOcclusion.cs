@@ -16,8 +16,6 @@ namespace Microsoft.MixedReality.GraphicsTools
     [RequireComponent(typeof(MeshFilter), typeof(MeshCollider))]
     public class AmbientOcclusion : MonoBehaviour
     {
-        [SerializeField] private bool _aoReplacesColor = true;
-
         [Header("Batching")]
         public GatherBatchingMethod BatchingMethod;
         public int RayBatchSize = 1;
@@ -53,36 +51,24 @@ namespace Microsoft.MixedReality.GraphicsTools
         [SerializeField] private bool _showCoverage;
         [SerializeField] private float _coverageRadius = .03f;
 
-        private const float OriginNormalOffset = .0001f;
+        private const float kOriginNormalOffset = .0001f;
+        private const int kUvChannel = 5;
 
-        private Color[] _tempColors;
+        private Vector4[] _tempVector4;
         private Vector3[] _vertexes;
         private Vector3[] _normals;
-        private Vector3[] _bentNormals;
-        private float[] _coverages;
+        private Vector4[] _bentNormalsAo;
 
         private List<Vector3> _referenceVertexSamples = new List<Vector3>();
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
 
-        private RaycastHit[] _sampleHits;
-        private RaycastHit[] SampleHits
-        {
-            get
-            {
-                if (_sampleHits == null || _sampleHits.Length != SourceMesh.vertexCount)
-                {
-                    _sampleHits = new RaycastHit[SourceMesh.vertexCount];
-                }
-                return _sampleHits;
-            }
-            set { _sampleHits = value; }
-        }
-
         private Mesh _sourceMesh = null;
         private bool _originalHasColors = false;
         private Color[] _originalColors;
+        private List<Vector4> _originalUv4 = new List<Vector4>();
 
         private MeshFilter _meshFilter;
+        private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
 
         private MeshFilter MyMeshFilter
         {
@@ -205,9 +191,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (_showBentNormal)
             {
                 Gizmos.color = _bentNormalColor;
-                Gizmos.DrawLine(
-                    _vertexes[ReferenceVertexIndex],
-                    _vertexes[ReferenceVertexIndex] + _bentNormals[ReferenceVertexIndex] * _bentNormalScale);
+                var bn = _bentNormalsAo[ReferenceVertexIndex];
+                var bn3 = new Vector3(bn.x, bn.y, bn.z);
+                Gizmos.DrawLine(_vertexes[ReferenceVertexIndex],
+                                _vertexes[ReferenceVertexIndex] + bn3 * _bentNormalScale);
             }
 
             if (_showSamples)
@@ -225,8 +212,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 for (int i = 0; i < _vertexes.Length; i++)
                 {
-                    Gizmos.color = new Color(_coverages[i], _coverages[i], _coverages[i], 1);
-                    Gizmos.DrawSphere(_vertexes[i], _coverageRadius);
+                    Gizmos.color = new Color(_bentNormalsAo[i].x,
+                                             _bentNormalsAo[i].y,
+                                             _bentNormalsAo[i].z,
+                                             1);
+                    var coverage = 1 - _bentNormalsAo[i].w;
+                    Gizmos.color = new Color(coverage, coverage, coverage, 1);
+                    Gizmos.DrawSphere(_vertexes[i], _coverageRadius * coverage);
                 }
             }
 
@@ -234,7 +226,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 for (int i = 0; i < _referenceVertexHits.Count; i++)
                 {
-                    Gizmos.color = _hitColor;
+                    Gizmos.color = new Color(_bentNormalsAo[i].x,
+                                             _bentNormalsAo[i].y,
+                                             _bentNormalsAo[i].z,
+                                             1);
                     Gizmos.DrawSphere(_referenceVertexHits[i].point, _hitRadius);
                 }
             }
@@ -288,86 +283,84 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private IEnumerator ExperimentalBatching()
-        {
-            _referenceVertexHits.Clear();
+        //private IEnumerator ExperimentalBatching()
+        //{
+        //    _referenceVertexHits.Clear();
 
-            var rayBatchCount = 0;
-            var watch = Stopwatch.StartNew();
+        //    var rayBatchCount = 0;
+        //    var watch = Stopwatch.StartNew();
 
-            for (int vi = 0; vi < SourceMesh.vertexCount; vi++)
-            {
-                Vector3 avgDir = Vector3.zero;
-                for (int si = 0; si < SamplesPerVertex; si++)
-                {
-                    (Vector3 sampleDir, RaycastHit? hit) = SampleHemisphere(transform.TransformPoint(SourceMesh.vertices[vi]),
-                                                                            transform.TransformVector(SourceMesh.normals[vi]),
-                                                                            MaxSampleDistance);
-                    if (hit.HasValue)
-                    {
-                        SampleHits[si] = hit.Value;
+        //    for (int vi = 0; vi < SourceMesh.vertexCount; vi++)
+        //    {
+        //        Vector3 avgDir = Vector3.zero;
+        //        for (int si = 0; si < SamplesPerVertex; si++)
+        //        {
+        //            (Vector3 sampleDir, RaycastHit? hit) = SampleHemisphere(transform.TransformPoint(SourceMesh.vertices[vi]),
+        //                                                                    transform.TransformVector(SourceMesh.normals[vi]),
+        //                                                                    MaxSampleDistance);
+        //            if (hit.HasValue)
+        //            {
+        //                SampleHits[si] = hit.Value;
 
-                        // Stash result for visualization
-                        if (ReferenceVertexIndex == vi && _showHits)
-                        {
-                            _referenceVertexHits.Add(hit.Value);
-                        }
-                    }
-                    else
-                    {
-                        avgDir += sampleDir;
-                    }
+        //                // Stash result for visualization
+        //                if (ReferenceVertexIndex == vi && _showHits)
+        //                {
+        //                    _referenceVertexHits.Add(hit.Value);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                avgDir += sampleDir;
+        //            }
 
-                    // Stash result for visualization
-                    if (ReferenceVertexIndex == vi && _showSamples)
-                    {
-                        _referenceVertexSamples.Add(sampleDir);
-                    }
+        //            // Stash result for visualization
+        //            if (ReferenceVertexIndex == vi && _showSamples)
+        //            {
+        //                _referenceVertexSamples.Add(sampleDir);
+        //            }
 
-                    if (rayBatchCount == RayBatchSize - 1)
-                    {
-                        rayBatchCount = 0;
-                        yield return null;
-                    }
-                    else
-                    {
-                        rayBatchCount++;
-                        continue;
-                    }
-                }
+        //            if (rayBatchCount == RayBatchSize - 1)
+        //            {
+        //                rayBatchCount = 0;
+        //                yield return null;
+        //            }
+        //            else
+        //            {
+        //                rayBatchCount++;
+        //                continue;
+        //            }
+        //        }
 
-                _coverages[vi] = (float)SampleHits.Length / SamplesPerVertex;
-                _bentNormals[vi] = avgDir.normalized;
-            }
+        //        var avgN = avgDir.normalized;
+        //        _bentNormalsAo[vi] = new Vector4(avgN.x,
+        //                                         avgN.y,
+        //                                         avgN.z,
+        //                                         (float)SampleHits.Length / SamplesPerVertex);
+        //    }
 
-            if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
-            {
-            }
-            UnityEngine.Debug.LogFormat($"Batch elapsed-ms={watch.ElapsedMilliseconds} batch-size={RayBatchSize}");
-        }
+        //    if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
+        //    {
+        //    }
+        //    UnityEngine.Debug.LogFormat($"Batch elapsed-ms={watch.ElapsedMilliseconds} batch-size={RayBatchSize}");
+        //}
 
         [ContextMenu(nameof(GatherSamples))]
         public void GatherSamples()
         {
-            if (_bentNormals == null || _bentNormals.Length != SourceMesh.vertexCount)
+            if (_bentNormalsAo == null || _bentNormalsAo.Length != SourceMesh.vertexCount)
             {
-                _bentNormals = new Vector3[SourceMesh.vertexCount];
+                _bentNormalsAo = new Vector4[SourceMesh.vertexCount];
             }
 
-            if (_coverages == null || _coverages.Length != SourceMesh.vertexCount)
-            {
-                _coverages = new float[SourceMesh.vertexCount];
-            }
-
-            if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
-            {
-#if !UNITY_EDITOR
-                StartCoroutine(ExperimentalBatching());
-                return;
-#else
-                UnityEngine.Debug.LogWarning($"{nameof(GatherBatchingMethod.RaysPerFrame)} only available at runtime!");
-#endif
-            }
+//            if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
+//            {
+//#if !UNITY_EDITOR
+//                StartCoroutine(ExperimentalBatching());
+//                return;
+//#else
+//                UnityEngine.Debug.LogWarning($"{nameof(GatherBatchingMethod.RaysPerFrame)} only available at runtime!");
+//#endif
+//            }
 
             // Do it all in one-shot
 
@@ -386,8 +379,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             _referenceVertexSamples.Clear();
             _referenceVertexHits.Clear();
 
-            var hitsInHemisphere = new List<RaycastHit>(SourceMesh.vertexCount);
-
             // For each vertex
             for (int vi = 0; vi < SourceMesh.vertexCount; vi++)
             {
@@ -395,11 +386,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 _vertexes[vi] = transform.TransformPoint(_vertexes[vi]);
                 _normals[vi] = transform.TransformVector(_normals[vi]);
 
-                hitsInHemisphere.Clear();
+                _hitsInHemisphere.Clear();
 
                 Vector3 averageDir = Vector3.zero;
 
-                var origin = _vertexes[vi] + _normals[vi].normalized * OriginNormalOffset;
+                var origin = _vertexes[vi] + _normals[vi].normalized * kOriginNormalOffset;
 
                 for (int ni = 0; ni < SamplesPerVertex; ni++)
                 {
@@ -413,7 +404,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (Physics.Raycast(origin, sampleDirection, out hit, MaxSampleDistance))
                     {
-                        hitsInHemisphere.Add(hit);
+                        _hitsInHemisphere.Add(hit);
 
                         // Visualization: Save hits for gizmo
                         if (vi == ReferenceVertexIndex)
@@ -426,38 +417,18 @@ namespace Microsoft.MixedReality.GraphicsTools
                         averageDir += sampleDirection;
                     }
                 }
-                _bentNormals[vi] = averageDir.normalized;
-                _coverages[vi] = (float)hitsInHemisphere.Count / SamplesPerVertex;
+                var avgN = averageDir.normalized;
+                _bentNormalsAo[vi] = new Vector4(avgN.x,
+                                                 avgN.y,
+                                                 avgN.z,
+                                                 1 - ((float)_hitsInHemisphere.Count / SamplesPerVertex));
             }
 
-            ApplyCoverage();
+            SourceMesh.SetUVs(kUvChannel, _bentNormalsAo);
+
+            //ApplyCoverage();
 
             UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={SourceMesh.vertexCount} rays-per-vertex={SamplesPerVertex}.");
-        }
-        public void ApplyCoverage()
-        {
-            if (_tempColors == null || _tempColors.Length != SourceMesh.vertexCount)
-            {
-                _tempColors = new Color[SourceMesh.vertexCount];
-            }
-
-            if (_aoReplacesColor)
-            {
-                for (int i = 0; i < SourceMesh.vertexCount; i++)
-                {
-                    var ao = 1 - _coverages[i];
-                    _tempColors[i] = new Color(ao, ao, ao, 1);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < SourceMesh.vertexCount; i++)
-                {
-                    var ao = 1 - _coverages[i];
-                    _tempColors[i] = new Color(_bentNormals[i].x, _bentNormals[i].y, _bentNormals[i].z, ao);
-                }
-            }
-            SourceMesh.colors = _tempColors;
         }
 
         private void SaveOriginalColors()
@@ -468,28 +439,38 @@ namespace Microsoft.MixedReality.GraphicsTools
                 _originalHasColors = true;
                 _originalColors = new Color[SourceMesh.vertexCount];
                 Array.Copy(SourceMesh.colors, _originalColors, SourceMesh.vertexCount);
+                SourceMesh.GetUVs(kUvChannel, _originalUv4);
             }
         }
 
         private void RestoreColors()
         {
+            // XXX see if we can reuse old data without re-sample
             UnityEngine.Debug.Log(nameof(RestoreColors));
         }
 
         public void RestoreOriginalColors()
         {
+            if (_originalColors == null)
+            {
+                SaveOriginalColors();
+            }
+
+            var colors = new Color[_originalColors.Length];
+
             if (_originalHasColors)
             {
                 for (int i = 0; i < _originalColors.Length; i++)
                 {
-                    _tempColors[i] = _originalColors[i];
+                    colors[i] = _originalColors[i];
                 }
-                SourceMesh.colors = _tempColors;
+                SourceMesh.colors = colors;
             }
             else
             {
                 SourceMesh.colors = null;
             }
+            SourceMesh.SetUVs(kUvChannel, _originalUv4);
         }
     }
 }

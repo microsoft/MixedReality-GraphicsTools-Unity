@@ -22,10 +22,11 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: StandardAmbientOcclusionBentNormal
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ShaderKeywords: _DIRECTIONAL_LIGHT _DISABLE_ALBEDO_MAP _SPECULAR_HIGHLIGHTS _SPHERICAL_HARMONICS
-    _USE_WORLD_SCALE _VERTEX_ALPHA_IS_AMBIENT_OCCLUSION _VERTEX_COLORS _VERTEX_COLOR_MODE_BENTNORMALAO
+  m_ShaderKeywords: _BLUR_TEXTURE _DIRECTIONAL_LIGHT _DISABLE_ALBEDO_MAP _EMISSION
+    _REFLECTIONS _SPECULAR_HIGHLIGHTS _SPHERICAL_HARMONICS _USE_WORLD_SCALE _VERTEX_ALPHA_IS_AMBIENT_OCCLUSION
+    _VERTEX_BENTNORMALAO
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2000
   stringTagMap:
@@ -114,7 +115,7 @@ Material:
     - _BlendOp: 0
     - _BlendedClippingWidth: 0
     - _BlurBorderIntensity: 0
-    - _BlurMode: 0
+    - _BlurMode: 1
     - _BlurTextureIntensity: 1
     - _BorderColorMode: 0
     - _BorderLight: 0
@@ -141,7 +142,7 @@ Material:
     - _EdgeSmoothingMode: 0
     - _EdgeSmoothingValue: 0.002
     - _EnableChannelMap: 0
-    - _EnableEmission: 0
+    - _EnableEmission: 1
     - _EnableHoverColorOverride: 0
     - _EnableLocalSpaceTriplanarMapping: 0
     - _EnableNormalMap: 0
@@ -150,7 +151,7 @@ Material:
     - _EnableStencil: 0
     - _EnableTriplanarMapping: 0
     - _EnvironmentColorIntensity: 0.5
-    - _EnvironmentColorThreshold: 1.5
+    - _EnvironmentColorThreshold: 1.51
     - _EnvironmentColoring: 0
     - _EnvironmentReflections: 1
     - _Fade: 1
@@ -170,7 +171,7 @@ Material:
     - _IridescenceAngle: -0.78
     - _IridescenceIntensity: 0.5
     - _IridescenceThreshold: 0.05
-    - _Metallic: 0
+    - _Metallic: 0.53
     - _MipmapBias: -2
     - _Mode: 0
     - _NearLightFade: 0
@@ -183,15 +184,15 @@ Material:
     - _ProximityLightTwoSided: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Reflections: 0
+    - _Reflections: 1
     - _RenderQueueOverride: -1
     - _RimLight: 0
-    - _RimPower: 0.25
+    - _RimPower: 5.08
     - _RoundCornerMargin: 0.01
     - _RoundCornerRadius: 0.25
     - _RoundCorners: 0
     - _RoundCornersHideInterior: 0
-    - _Smoothness: 0
+    - _Smoothness: 0.79
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SphericalHarmonics: 1
@@ -206,8 +207,9 @@ Material:
     - _TriplanarMappingBlendSharpness: 4
     - _UseWorldScale: 1
     - _VertexAlphaIsAmbientOcclusion: 1
+    - _VertexBentNormalAo: 1
     - _VertexColorMode: 1
-    - _VertexColors: 1
+    - _VertexColors: 0
     - _VertexExtrusion: 0
     - _VertexExtrusionSmoothNormals: 0
     - _VertexExtrusionValue: 0
@@ -221,7 +223,7 @@ Material:
     - _BlurBackgroundRect: {r: 0, g: 0, b: 1, a: 1}
     - _BorderColor: {r: 1, g: 1, b: 1, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.19999996, b: 0, a: 1}
-    - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _Color: {r: 0.7264151, g: 0.40204102, b: 0.40204102, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}

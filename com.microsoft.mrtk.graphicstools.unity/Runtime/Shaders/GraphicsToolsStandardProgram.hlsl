@@ -8,7 +8,7 @@
 #pragma fragment PixelStage
 
 // Comment in to help with RenderDoc debugging.
-//#pragma enable_d3d11_debug_symbols
+#pragma enable_d3d11_debug_symbols
 
 /// <summary>
 /// Features.
@@ -29,7 +29,7 @@
 #pragma shader_feature_local _REFLECTIONS
 #pragma shader_feature_local _RIM_LIGHT
 #pragma shader_feature_local _VERTEX_COLORS
-#pragma shader_feature_local _ _VERTEX_COLOR_MODE_PASSTHROUGH _VERTEX_COLOR_MODE_BENTNORMALAO
+#pragma shader_feature_local _VERTEX_BENTNORMALAO
 #pragma shader_feature_local _VERTEX_EXTRUSION
 #pragma shader_feature_local_vertex _VERTEX_EXTRUSION_SMOOTH_NORMALS
 #pragma shader_feature_local _NEAR_PLANE_FADE
@@ -143,10 +143,10 @@
 /// </summary>
 Varyings VertexStage(Attributes input)
 {
-    Varyings output = (Varyings)0;
+    Varyings v2f = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    UNITY_TRANSFER_INSTANCE_ID(input, output);
-    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+    UNITY_TRANSFER_INSTANCE_ID(input, v2f);
+    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(v2f);
 
     float4 vertexPosition = input.vertex;
 
@@ -155,16 +155,20 @@ Varyings VertexStage(Attributes input)
 #endif
 
 #if defined(_SCALE)
-    output.scale = GTGetWorldScale();
+    v2f.scale = GTGetWorldScale();
     float canvasScale = 1.0;
 #if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
 #if defined(_CANVAS_RENDERED)
-    canvasScale = min(min(output.scale.x, output.scale.y), output.scale.z);
-    output.scale.x *= input.uv2.x;
-    output.scale.y *= input.uv2.y;
-    output.scale.z *= input.uv3.x;
+    canvasScale = min(min(v2f.scale.x, v2f.scale.y), v2f.scale.z);
+    v2f.scale.x *= input.uv2.x;
+    v2f.scale.y *= input.uv2.y;
+    v2f.scale.z *= input.uv3.x;
 #endif
 #endif
+#endif
+
+#if defined(_VERTEX_BENTNORMALAO)
+    v2f.bentNormalAo = input.uv5;
 #endif
 
     half3 localNormal = input.normal;
@@ -180,9 +184,9 @@ Varyings VertexStage(Attributes input)
 #if defined(_VERTEX_EXTRUSION)
 #if defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
 #if defined(_URP)
-    worldVertexPosition += TransformObjectToWorldNormal(input.uv2.xyz * output.scale) * _VertexExtrusionValue;
+    worldVertexPosition += TransformObjectToWorldNormal(input.uv2.xyz * v2f.scale) * _VertexExtrusionValue;
 #else
-    worldVertexPosition += UnityObjectToWorldNormal(input.uv2.xyz * output.scale) * _VertexExtrusionValue;
+    worldVertexPosition += UnityObjectToWorldNormal(input.uv2.xyz * v2f.scale) * _VertexExtrusionValue;
 #endif
 #else
     worldVertexPosition += worldNormal * _VertexExtrusionValue;
@@ -195,17 +199,17 @@ Varyings VertexStage(Attributes input)
 #endif
 
 #if defined(_URP)
-    output.position = TransformObjectToHClip(vertexPosition.xyz);
+    v2f.position = TransformObjectToHClip(vertexPosition.xyz);
 #else
-    output.position = UnityObjectToClipPos(vertexPosition);
+    v2f.position = UnityObjectToClipPos(vertexPosition);
 #endif
 
 #if defined(_WORLD_POSITION)
-    output.worldPosition.xyz = worldVertexPosition;
+    v2f.worldPosition.xyz = worldVertexPosition;
 #endif
 
 #if defined(UNITY_UI_CLIP_RECT)
-    output.localPosition.xyz = vertexPosition.xyz;
+    v2f.localPosition.xyz = vertexPosition.xyz;
 #endif
 
 #if defined(_NEAR_PLANE_FADE)
@@ -217,14 +221,14 @@ Varyings VertexStage(Attributes input)
     for (int hoverLightIndex = 0; hoverLightIndex < HOVER_LIGHT_COUNT; ++hoverLightIndex)
     {
         int dataIndex = hoverLightIndex * HOVER_LIGHT_DATA_SIZE;
-        fadeDistance = min(fadeDistance, GTNearLightDistance(_HoverLightData[dataIndex], output.worldPosition.xyz));
+        fadeDistance = min(fadeDistance, GTNearLightDistance(_HoverLightData[dataIndex], v2f.worldPosition.xyz));
     }
 
     [unroll]
     for (int proximityLightIndex = 0; proximityLightIndex < PROXIMITY_LIGHT_COUNT; ++proximityLightIndex)
     {
         int dataIndex = proximityLightIndex * PROXIMITY_LIGHT_DATA_SIZE;
-        fadeDistance = min(fadeDistance, GTNearLightDistance(_ProximityLightData[dataIndex], output.worldPosition.xyz));
+        fadeDistance = min(fadeDistance, GTNearLightDistance(_ProximityLightData[dataIndex], v2f.worldPosition.xyz));
     }
 #else
     
@@ -234,70 +238,67 @@ Varyings VertexStage(Attributes input)
     float fadeDistance = -UnityObjectToViewPos(vertexPosition).z;
 #endif
 #endif
-    output.worldPosition.w = max(saturate(mad(fadeDistance, rangeInverse, -_FadeCompleteDistance * rangeInverse)), _FadeMinValue);
+    v2f.worldPosition.w = max(saturate(mad(fadeDistance, rangeInverse, -_FadeCompleteDistance * rangeInverse)), _FadeMinValue);
 #endif
 
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
-    output.uv = input.uv;
+    v2f.uv = input.uv;
 
 #if defined(_USE_WORLD_SCALE)
-    output.scale.z = canvasScale;
+    v2f.scale.z = canvasScale;
  #else
-    float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
+    float minScale = min(min(v2f.scale.x, v2f.scale.y), v2f.scale.z);
 #endif
 
     if (abs(localNormal.x) == 1.0) // Y,Z plane.
     {
-        output.scale.x = output.scale.z;
-        output.scale.y = output.scale.y;
+        v2f.scale.x = v2f.scale.z;
+        v2f.scale.y = v2f.scale.y;
     }
     else if (abs(localNormal.y) == 1.0) // X,Z plane.
     {
-        output.scale.x = output.scale.x;
-        output.scale.y = output.scale.z;
+        v2f.scale.x = v2f.scale.x;
+        v2f.scale.y = v2f.scale.z;
     }
     // Else X,Y plane.
 
 #if !defined(_USE_WORLD_SCALE)
-    output.scale.z = minScale;
+    v2f.scale.z = minScale;
 #endif
 
 #elif defined(_UV)
-    output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+    v2f.uv = TRANSFORM_TEX(input.uv, _MainTex);
 #endif
 
 #if defined(_UV_SCREEN)
-    output.uvScreen = ComputeScreenPos(output.position);
+    v2f.uvScreen = ComputeScreenPos(v2f.position);
     // Flip vertical UV for orthographic projections (if not already flipped) to ensure the image is not upside down.
 #if defined(UNITY_UV_STARTS_AT_TOP)
-    output.uvScreen.y = unity_OrthoParams.w ? (1.0 - output.uvScreen.y) : output.uvScreen.y;
+    v2f.uvScreen.y = unity_OrthoParams.w ? (1.0 - v2f.uvScreen.y) : v2f.uvScreen.y;
 #else
-    output.uvScreen.y = unity_OrthoParams.w ? output.uvScreen.y : (1.0 - output.uvScreen.y);
+    v2f.uvScreen.y = unity_OrthoParams.w ? v2f.uvScreen.y : (1.0 - v2f.uvScreen.y);
 #endif
 #elif (_BLUR_TEXTURE_PREBAKED_BACKGROUND)
-    output.uvBackgroundRect = float2((vertexPosition.x - _BlurBackgroundRect.x) / (_BlurBackgroundRect.z - _BlurBackgroundRect.x), 
+    v2f.uvBackgroundRect = float2((vertexPosition.x - _BlurBackgroundRect.x) / (_BlurBackgroundRect.z - _BlurBackgroundRect.x), 
                                      (vertexPosition.y - _BlurBackgroundRect.y) / (_BlurBackgroundRect.w - _BlurBackgroundRect.y));
 #endif 
 
 #if defined(LIGHTMAP_ON)
-    output.lightMapUV.xy = input.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+    v2f.lightMapUV.xy = input.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 #endif
 
     output.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
 
 #if defined(_VERTEX_COLORS)
-    output.color *= input.color;
+    v2f.color = input.color;
 #endif
 
 #if defined(_SPHERICAL_HARMONICS)
-
-//#if defined(_VERTEX_COLORS)
-//#if defined(_VERTEX_COLOR_MODE_BENTNORMALAO)
-//    float3 envNormal = input.color.rgb; // "bent normal mode"
-//#endif
-//#else // _VERTEX_COLORS
+#if defined(_VERTEX_BENTNORMALAO)
+    float3 envNormal = input.uv5.rgb;
+#else
     float3 envNormal = worldNormal;
-//#endif // _VERTEX_COLORS
+#endif
 
 #if defined(_URP)
     float4 coefficients[7];
@@ -309,34 +310,26 @@ Varyings VertexStage(Attributes input)
     coefficients[5] = unity_SHBb;
     coefficients[6] = unity_SHC;
 
-    output.ambient = max(0.0, SampleSH9(coefficients, envNormal));
+    v2f.ambient = max(0.0, SampleSH9(coefficients, envNormal));
 #else
-    output.ambient = ShadeSH9(float4(envNormal, 1.0));
-#endif // _URP
+    v2f.ambient = ShadeSH9(float4(envNormal, 1.0));
+#endif
 
-#endif // _SPHERICAL_HARMONICS
-
-//#if defined(_VERTEX_COLOR_MODE_BENTNORMALAO)
-//    output.ambient = 1; // XXXXXXXXXXXX why is this happening in passthrough?
-//#endif
-//
-//#if defined(_VERTEX_COLOR_MODE_PASSTHROUGH)
-//    output.ambient = 0; // XXXXXXXXXXXX why is this happening in passthrough?
-//#endif
+#endif
 
 #if defined(_IRIDESCENCE)
     float3 rightTangent = normalize(mul((float3x3)UNITY_MATRIX_M, float3(1.0, 0.0, 0.0)));
     float3 incidentWithCenter = normalize(mul(UNITY_MATRIX_M, float4(0.0, 0.0, 0.0, 1.0)).xyz - _WorldSpaceCameraPos);
     float tangentDotIncident = dot(rightTangent, incidentWithCenter);
 #if defined(_URP)
-    output.gradient = GTIridescence(tangentDotIncident, 
+    v2f.gradient = GTIridescence(tangentDotIncident, 
                                   TEXTURE2D_ARGS(_IridescentSpectrumMap, sampler_IridescentSpectrumMap), 
                                   _IridescenceThreshold, 
                                   input.uv, 
                                   _IridescenceAngle, 
                                   _IridescenceIntensity);
 #else
-    output.gradient = GTIridescence(tangentDotIncident, 
+    v2f.gradient = GTIridescence(tangentDotIncident, 
                                   _IridescentSpectrumMap, 
                                   _IridescenceThreshold, 
                                   input.uv, 
@@ -354,8 +347,8 @@ Varyings VertexStage(Attributes input)
     float2 direction = mul(float2(0.0, 1.0), float2x2(cosA, -sinA, sinA, cosA));
 
     // Calculate the length of the gradient line for this rect.
-    float width = output.scale.x;
-    float height = output.scale.y;
+    float width = v2f.scale.x;
+    float height = v2f.scale.y;
     float length = abs(width * sinA) + abs(height * cosA);
 
     // Calculate start point of the gradient (which can lie outside of the rect).
@@ -364,20 +357,20 @@ Varyings VertexStage(Attributes input)
 
     // Project the vector from the start point to the current texel onto the gradient direction. This will 
     // tell us how far this texel is along the gradient.
-    float2 texel = float2(output.uv.x * width, output.uv.y * height);
+    float2 texel = float2(v2f.uv.x * width, v2f.uv.y * height);
     float t = dot(texel - start, direction / length);
-    output.gradient = t;
+    v2f.gradient = t;
 #endif
 
 #if defined(_NORMAL)
 #if defined(_TRIPLANAR_MAPPING)
-    output.worldNormal = worldNormal;
+    v2f.worldNormal = worldNormal;
 #if defined(_LOCAL_SPACE_TRIPLANAR_MAPPING)
-    output.triplanarNormal = localNormal;
-    output.triplanarPosition = vertexPosition.xyz;
+    v2f.triplanarNormal = localNormal;
+    v2f.triplanarPosition = vertexPosition.xyz;
 #else
-    output.triplanarNormal = worldNormal;
-    output.triplanarPosition = output.worldPosition;
+    v2f.triplanarNormal = worldNormal;
+    v2f.triplanarPosition = v2f.worldPosition;
 #endif
 #elif defined(_NORMAL_MAP)
 #if defined(_URP)
@@ -387,15 +380,15 @@ Varyings VertexStage(Attributes input)
 #endif
     half tangentSign = input.tangent.w * unity_WorldTransformParams.w;
     half3 worldBitangent = cross(worldNormal, worldTangent) * tangentSign;
-    output.tangentX = half3(worldTangent.x, worldBitangent.x, worldNormal.x);
-    output.tangentY = half3(worldTangent.y, worldBitangent.y, worldNormal.y);
-    output.tangentZ = half3(worldTangent.z, worldBitangent.z, worldNormal.z);
+    v2f.tangentX = half3(worldTangent.x, worldBitangent.x, worldNormal.x);
+    v2f.tangentY = half3(worldTangent.y, worldBitangent.y, worldNormal.y);
+    v2f.tangentZ = half3(worldTangent.z, worldBitangent.z, worldNormal.z);
 #else
-    output.worldNormal = worldNormal;
+    v2f.worldNormal = worldNormal;
 #endif
 #endif
 
-    return output;
+    return v2f;
 }
 
 /// <summary>
@@ -553,16 +546,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     albedo *= _Color;
 
 #if defined(_VERTEX_COLORS)
-
-#if defined(_VERTEX_COLOR_MODE_PASSTHROUGH)
-    albedo = input.color;
-#endif
-
+    albedo *= input.color;
 #if defined(_ADDITIVE_ON)
     albedo.rgb *= input.color.a;
 #endif
-
-#endif // _VERTEX_COLORS
+#endif
 
 #if defined(_GRADIENT)
 #if defined(_IRIDESCENCE)
@@ -788,36 +776,35 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // Final lighting mix.
     half4 output = albedo;
 
-// XXX occlusion be independent of directional light?
-//#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS)
 #if defined(_CHANNEL_MAP)
     half occlusion = channel.g;
-#elif defined(_VERTEX_COLORS) && defined(_VERTEX_COLOR_MODE_BENTNORMALAO)
-    half occlusion = input.color.a;
 #else
-    half occlusion = 1.0h;
+    half occlusion = 1;
 #endif
-//#endif
+
+#if defined(_VERTEX_BENTNORMALAO)
+    occlusion = input.bentNormalAo.a;
+#endif
 
 #if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
     GTBRDFData brdfData;
     GTInitializeBRDFData(albedo.rgb, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
 
- #if defined(_SPHERICAL_HARMONICS)
-    half3 bakedGI = input.ambient; // XXX this is weird cause we're getting ao from mesh??
+#if defined(_SPHERICAL_HARMONICS)
+    half3 bakedGI = input.ambient;
 #else
-    half3 bakedGI = GTDefaultAmbientGI;
+    half3 bakedGI = GTDefaultAmbientGI * occlusion;
 #endif
 
     // Indirect lighting.
 
-#if defined(_VERTEX_COLORS)
-#if defined(_VERTEX_COLOR_MODE_BENTNORMALAO)
-    occlusion = input.color.a;
-#endif
+#if defined(_VERTEX_BENTNORMALAO)
+    half3 indirect = GTGlobalIllumination(brdfData, bakedGI, occlusion, normalize(input.bentNormalAo.rgb), worldViewDir);
+#else
+    half3 indirect = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
 #endif
 
-    output.rgb = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
+    output.rgb = indirect;
 
     // Direct lighting.
     GTMainLight light = GTGetMainLight();
@@ -827,12 +814,12 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #elif defined(_REFLECTIONS) 
     half3 reflectVector = reflect(-worldViewDir, worldNormal);
     half3 reflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
-    output.rgb = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h);
+    //reflection = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h) * occlusion;
+    output.rgb += reflection;
 #endif
 
     // Fresnel lighting.
 #if defined(_RIM_LIGHT)
-    // XXX can't we re-use fresnel term from illumination abouve ie #ifdef this or that, fresnel =...
     half fresnel = 1.0h - saturate(abs(dot(worldViewDir, worldNormal)));
     output.rgb += _RimColor * pow(fresnel, _RimPower);
 #endif
@@ -859,15 +846,13 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     output.rgb += lerp(half3(0.0h, 0.0h, 0.0h), _InnerGlowColor.rgb, uvGlow.x + uvGlow.y);
 #endif
 
-    // Fake a gradient based environment reflection
-    // XXX why doesn't this obey occlusion like other reflections?
+    // Gradient based coloring
 
 #if defined(_ENVIRONMENT_COLORING)
     half3 environmentColor = incident.x * incident.x * _EnvironmentColorX +
-                              incident.y * incident.y * _EnvironmentColorY +
-                              incident.z * incident.z * _EnvironmentColorZ;
+                             incident.y * incident.y * _EnvironmentColorY +
+                             incident.z * incident.z * _EnvironmentColorZ;
     output.rgb += environmentColor * max(0.0, dot(incident, worldNormal) + _EnvironmentColorThreshold) * _EnvironmentColorIntensity;
-
 #endif
 
 #if defined(_NEAR_PLANE_FADE)
