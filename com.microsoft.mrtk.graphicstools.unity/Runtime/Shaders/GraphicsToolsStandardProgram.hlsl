@@ -297,12 +297,6 @@ Varyings VertexStage(Attributes input)
 #endif
 
 #if defined(_SPHERICAL_HARMONICS)
-#if defined(_VERTEX_BENTNORMALAO)
-    float3 envNormal = input.uv5.rgb;
-#else
-    float3 envNormal = worldNormal;
-#endif
-
 #if defined(_URP)
     float4 coefficients[7];
     coefficients[0] = unity_SHAr;
@@ -313,9 +307,9 @@ Varyings VertexStage(Attributes input)
     coefficients[5] = unity_SHBb;
     coefficients[6] = unity_SHC;
 
-    v2f.ambient = max(0.0, SampleSH9(coefficients, envNormal));
+    v2f.ambient = max(0.0, SampleSH9(coefficients, worldNormal));
 #else
-    v2f.ambient = ShadeSH9(float4(envNormal, 1.0));
+    v2f.ambient = ShadeSH9(float4(worldNormal, 1.0));
 #endif
 
 #endif
@@ -801,11 +795,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
     // Indirect lighting.
 
-#if defined(_VERTEX_BENTNORMALAO)
-    half3 indirect = GTGlobalIllumination(brdfData, bakedGI, occlusion, normalize(input.bentNormalAo.rgb), worldViewDir);
-#else
     half3 indirect = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
-#endif
 
     output.rgb = indirect;
 
