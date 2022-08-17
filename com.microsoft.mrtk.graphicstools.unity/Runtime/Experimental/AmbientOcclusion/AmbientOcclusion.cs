@@ -9,18 +9,11 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
-    public enum GatherBatchingMethod
-    {
-        None,
-        RaysPerFrame
-    }
-
     [RequireComponent(typeof(MeshFilter), typeof(MeshCollider))]
     public class AmbientOcclusion : MonoBehaviour
     {
-        [Header("Batching")]
-        public GatherBatchingMethod BatchingMethod = GatherBatchingMethod.None;
-        public int RayBatchSize = 1;
+        [Tooltip("When enabled, this will gather samples as you change parameters.")]
+        [SerializeField] private bool _updateWhenValidating = false;
 
         [Header("Ray tracing")]
         public int SamplesPerVertex = 100;
@@ -146,13 +139,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                 ReferenceVertexIndex = Mathf.Clamp(ReferenceVertexIndex, 0, _vertexes.Length);
             }
 
-            RayBatchSize = Mathf.Max(RayBatchSize, 1);
-
             if (enabled)
             {
                 UnityEngine.Debug.Log("this.enabled");
                 RestoreColors();
-                GatherSamples();
+                if (_updateWhenValidating)
+                {
+                    GatherSamples();
+                }
             }
             else
             {
@@ -235,7 +229,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Get a random sample direction from the hemisphere around reference normal
+        /// Get a random sample direction from a hemisphere who's
+        /// base is perpendicular to the reference normal
         /// </summary>
         /// <param name="normalizedReferenceNormal">Must be noramlized</param>
         /// <returns></returns>
@@ -282,67 +277,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        //private IEnumerator ExperimentalBatching()
-        //{
-        //    _referenceVertexHits.Clear();
-
-        //    var rayBatchCount = 0;
-        //    var watch = Stopwatch.StartNew();
-
-        //    for (int vi = 0; vi < SourceMesh.vertexCount; vi++)
-        //    {
-        //        Vector3 avgDir = Vector3.zero;
-        //        for (int si = 0; si < SamplesPerVertex; si++)
-        //        {
-        //            (Vector3 sampleDir, RaycastHit? hit) = SampleHemisphere(transform.TransformPoint(SourceMesh.vertices[vi]),
-        //                                                                    transform.TransformVector(SourceMesh.normals[vi]),
-        //                                                                    MaxSampleDistance);
-        //            if (hit.HasValue)
-        //            {
-        //                SampleHits[si] = hit.Value;
-
-        //                // Stash result for visualization
-        //                if (ReferenceVertexIndex == vi && _showHits)
-        //                {
-        //                    _referenceVertexHits.Add(hit.Value);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                avgDir += sampleDir;
-        //            }
-
-        //            // Stash result for visualization
-        //            if (ReferenceVertexIndex == vi && _showSamples)
-        //            {
-        //                _referenceVertexSamples.Add(sampleDir);
-        //            }
-
-        //            if (rayBatchCount == RayBatchSize - 1)
-        //            {
-        //                rayBatchCount = 0;
-        //                yield return null;
-        //            }
-        //            else
-        //            {
-        //                rayBatchCount++;
-        //                continue;
-        //            }
-        //        }
-
-        //        var avgN = avgDir.normalized;
-        //        _bentNormalsAo[vi] = new Vector4(avgN.x,
-        //                                         avgN.y,
-        //                                         avgN.z,
-        //                                         (float)SampleHits.Length / SamplesPerVertex);
-        //    }
-
-        //    if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
-        //    {
-        //    }
-        //    UnityEngine.Debug.LogFormat($"Batch elapsed-ms={watch.ElapsedMilliseconds} batch-size={RayBatchSize}");
-        //}
-
         [ContextMenu(nameof(GatherSamples))]
         public void GatherSamples()
         {
@@ -350,18 +284,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 _bentNormalsAo = new Vector4[SourceMesh.vertexCount];
             }
-
-            //            if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
-            //            {
-            //#if !UNITY_EDITOR
-            //                StartCoroutine(ExperimentalBatching());
-            //                return;
-            //#else
-            //                UnityEngine.Debug.LogWarning($"{nameof(GatherBatchingMethod.RaysPerFrame)} only available at runtime!");
-            //#endif
-            //            }
-
-            // Do it all in one-shot
 
             var watch = Stopwatch.StartNew();
 
@@ -378,7 +300,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             _referenceVertexSamples.Clear();
             _referenceVertexHits.Clear();
 
-            // For each vertex
             for (int vi = 0; vi < SourceMesh.vertexCount; vi++)
             {
                 // Do the work in world space
@@ -424,8 +345,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             SourceMesh.SetUVs(kUvChannel, _bentNormalsAo);
-
-            //ApplyCoverage();
 
             UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={SourceMesh.vertexCount} rays-per-vertex={SamplesPerVertex}.");
         }
