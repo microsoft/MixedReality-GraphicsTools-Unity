@@ -811,7 +811,8 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #elif defined(_REFLECTIONS) 
     half3 reflectVector = reflect(-worldViewDir, worldNormal);
     half3 reflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
-    //reflection = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h) * occlusion;
+    reflection = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h);
+    reflection *= occlusion;
     output.rgb += reflection;
 #endif
 

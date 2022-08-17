@@ -12,12 +12,10 @@ struct Attributes
     float4 vertex : POSITION;
     // The default UV channel used for texturing.
     float2 uv : TEXCOORD0;
-
 #if defined(LIGHTMAP_ON)
     // Reserved for Unity's light map UVs.
     float2 uv1 : TEXCOORD1;
 #endif
-
     // Used for smooth normal data (or UGUI scaling data).
     float4 uv2 : TEXCOORD2;
     // Used for UGUI scaling data.
@@ -30,9 +28,7 @@ struct Attributes
 #if defined(_VERTEX_COLORS)
     half4 color : COLOR0;
 #endif
-
     half3 normal : NORMAL;
-
 #if defined(_NORMAL_MAP)
     half4 tangent : TANGENT;
 #endif
