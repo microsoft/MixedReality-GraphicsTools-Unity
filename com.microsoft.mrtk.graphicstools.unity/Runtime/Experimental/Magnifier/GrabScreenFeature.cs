@@ -52,8 +52,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 cmd.Clear();
                 
              //Chuks: old blit method 
-            // Blit(cmd, cameraTarget, tempColorTarget.Identifier());
-                LocalBlit(cmd, cameraTarget, tempColorTarget.Identifier(), settings.shaderM);
+             Blit(cmd, cameraTarget, tempColorTarget.Identifier());
+               // LocalBlit(cmd, cameraTarget, tempColorTarget.Identifier(), settings.shaderM);
                 context.ExecuteCommandBuffer(cmd);
                 CommandBufferPool.Release(cmd);
             }
