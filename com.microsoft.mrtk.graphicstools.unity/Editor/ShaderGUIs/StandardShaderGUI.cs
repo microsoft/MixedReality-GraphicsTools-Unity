@@ -588,7 +588,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (emissionMapTexture)
             {
-                // XXX _EMISSION should probably be renamed _EMISSION_MAP to be consistent!
                 material.SetTexture("_EmissiveMap", emissionMapTexture);
             }
 

@@ -32,7 +32,6 @@ struct Attributes
 #if defined(_NORMAL_MAP)
     half4 tangent : TANGENT;
 #endif
-
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
