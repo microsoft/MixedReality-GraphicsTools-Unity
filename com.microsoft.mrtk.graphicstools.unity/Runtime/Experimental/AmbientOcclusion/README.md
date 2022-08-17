@@ -1,23 +1,22 @@
 # Ambient occlusion
 
-Calculates [ambient occlusion](https://en.wikipedia.org/wiki/Ambient_occlusion) (AO) and writes it to vertex color for use with the [standard shader]()
+Calculates [ambient occlusion](https://en.wikipedia.org/wiki/Ambient_occlusion) using ray-casts (AO) and stores it per-vertex for use with the [standard shader]()
 
-## Components
+## Usage
 
-Name | Description
----- | ---
-AmbientOcclusion | Writes AO to vertex color 
-MeshGizmo | Visualizes mesh normals and point numbers for technical analysis in editor scene view
+1) Add `AmbientOcclusion` to a GameObject that contains a `MeshFilter` and press `Gather samples` in the inspector.
+2) Create a new material and choose `Graphics tools/Standard` as the shader
+3) Check the `Vertex ambient occlusion` is enabled for the material the inspector
+4) Assign new material to GameObject's `MeshRenderer`
 
-# FAQ
+## FAQ
 
 *My samples aren't generating hits!*
 
-- Is there a collider on the object you're trying to hit?
+- Is there a [mesh] collider on the object you're trying to hit?
 - Are the normals facing the right way? 
-- What is the `MaxSampleDistance` in the `Sampler`?
+- Check that `MaxSampleDistance` is reaching the objects you expect to be occluded by.
 
-*The vertex has the wrong color!*
+*The AO is noisy!*
 
-- Check the geometry normals using the `ShowMeshNormals` component. It may be it's pointing in a unexpected direction.
-- Is your collider appropriate - ie a Mesh vs a Box?
+- Increase your `vertex samples`
