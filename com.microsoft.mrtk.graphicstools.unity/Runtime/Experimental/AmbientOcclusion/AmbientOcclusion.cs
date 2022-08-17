@@ -1,5 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEditor;
@@ -17,7 +19,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     public class AmbientOcclusion : MonoBehaviour
     {
         [Header("Batching")]
-        public GatherBatchingMethod BatchingMethod;
+        public GatherBatchingMethod BatchingMethod = GatherBatchingMethod.None;
         public int RayBatchSize = 1;
 
         [Header("Ray tracing")]
@@ -27,7 +29,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         [Header("Visualization")]
         [Tooltip("The index of vertex to visualize")]
-        public int ReferenceVertexIndex;
+        public int ReferenceVertexIndex = 0;
 
         [SerializeField] private bool _showOrigin = true;
         [SerializeField] private Color _originColor = Color.cyan;
@@ -58,15 +60,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Vector3[] _vertexes;
         private Vector3[] _normals;
         private Vector4[] _bentNormalsAo;
-
         private List<Vector3> _referenceVertexSamples = new List<Vector3>();
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
-
+        private List<Vector4> _originalUv4 = new List<Vector4>();
         private Mesh _sourceMesh = null;
         private bool _originalHasColors = false;
-        private Color[] _originalColors;
-        private List<Vector4> _originalUv4 = new List<Vector4>();
-
+        private Color[] _originalColors = null;
         private MeshFilter _meshFilter;
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
 
@@ -352,15 +351,15 @@ namespace Microsoft.MixedReality.GraphicsTools
                 _bentNormalsAo = new Vector4[SourceMesh.vertexCount];
             }
 
-//            if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
-//            {
-//#if !UNITY_EDITOR
-//                StartCoroutine(ExperimentalBatching());
-//                return;
-//#else
-//                UnityEngine.Debug.LogWarning($"{nameof(GatherBatchingMethod.RaysPerFrame)} only available at runtime!");
-//#endif
-//            }
+            //            if (BatchingMethod == GatherBatchingMethod.RaysPerFrame)
+            //            {
+            //#if !UNITY_EDITOR
+            //                StartCoroutine(ExperimentalBatching());
+            //                return;
+            //#else
+            //                UnityEngine.Debug.LogWarning($"{nameof(GatherBatchingMethod.RaysPerFrame)} only available at runtime!");
+            //#endif
+            //            }
 
             // Do it all in one-shot
 
