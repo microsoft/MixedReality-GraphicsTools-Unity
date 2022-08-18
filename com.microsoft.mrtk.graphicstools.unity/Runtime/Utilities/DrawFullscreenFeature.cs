@@ -39,6 +39,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public override void Create()
         {
             blitPass = new DrawFullscreenPass(name);
+            blitPass.filterMode = FilterMode.Bilinear;
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
