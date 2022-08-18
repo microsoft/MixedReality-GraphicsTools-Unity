@@ -80,15 +80,17 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
 
-            // Can't read and write to same color target, create a temp render target to blit. 
+            bool isXR = renderingData.cameraData.xrRendering;
+
+            // Can't read and write to same color target, create a temp render target to blit.
             if (isSourceAndDestinationSameTarget)
             {
-                LocalBlit(cmd, source, destination, settings.blitMaterial, settings.blitMaterialPassIndex);
-                LocalBlit(cmd, destination, source, settings.blitMaterial, 0);
+                Blit(cmd, source, destination, settings.blitMaterial, settings.blitMaterialPassIndex, isXR);
+                Blit(cmd, destination, source, settings.blitMaterial, 0, isXR);
             }
             else
             {
-                LocalBlit(cmd, source, destination, settings.blitMaterial, settings.blitMaterialPassIndex);
+                Blit(cmd, source, destination, settings.blitMaterial, settings.blitMaterialPassIndex, isXR);
             }
 
             if (settings.restoreCameraColorTarget)
@@ -111,11 +113,22 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         // URP Blit() doesn't currently work with multiview.
-        private void LocalBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material material, int pass)
+        private void Blit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material material, int pass, bool isXR)
         {
-            cmd.SetRenderTarget(target);
-            cmd.SetGlobalTexture(settings.blitSourceTextureName, source);
-            cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, pass);
+            if (isXR)
+            {
+                Vector4 scaleBias = new Vector4(1, 1, 0, 0);
+                Vector4 scaleBiasRt = new Vector4(1, 1, 0, 0);
+                cmd.SetGlobalVector("_ScaleBias", scaleBias);
+                cmd.SetGlobalVector("_ScaleBiasRt", scaleBiasRt);
+                cmd.SetRenderTarget(target);
+                cmd.DrawProcedural(Matrix4x4.identity, material, pass, MeshTopology.Quads, 4, 1, null);
+            }
+            else
+            {
+                cmd.SetRenderTarget(target);
+                cmd.Blit(source, BuiltinRenderTextureType.CurrentActive, material, pass);
+            }
         }
     }
 }

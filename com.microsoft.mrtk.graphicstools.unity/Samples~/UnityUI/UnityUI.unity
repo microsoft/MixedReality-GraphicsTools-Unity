@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 3640891}
   - component: {fileID: 3640890}
   m_Layer: 8
-  m_Name: Quad (1)
+  m_Name: MagnifierFrame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1549,7 +1549,7 @@ GameObject:
   - component: {fileID: 833446007}
   - component: {fileID: 833446006}
   m_Layer: 8
-  m_Name: Quad
+  m_Name: Magnifier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1670,7 +1670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5755fb0ef21fb8348943f74d6ba5e504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Animator: {fileID: 866028619}
+  Animator: {fileID: 0}
 --- !u!114 &866028619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1911,7 +1911,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 675341f4748bd3f4792ea36785ecf7a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProximityLight: {fileID: 928581999}
+  ProximityLight: {fileID: 0}
 --- !u!1001 &957372958
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -18,9 +18,9 @@ Shader "Graphics Tools/Magnifier"
 
         Pass
         {
-            //ZTest Always
-            //Cull Off
-            //ZWrite Off
+            ZTest Always
+            Cull Off
+            ZWrite Off
 
             HLSLPROGRAM
             #pragma vertex vert
