@@ -16,9 +16,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         [SerializeField] private bool _updateWhenValidating = false;
 
         [Header("Ray tracing")]
-        public int SamplesPerVertex = 100;
-        public float MaxSampleDistance = 1;
-        public int Seed = 42;
+
+        [Tooltip("The number of rays to send into the hemisphere above the surface, per vertex. Bigger numbers will be slower.")]
+        [SerializeField] private int SamplesPerVertex = 100;
+
+        [Tooltip("How far to search for nearby colliders in the scene.")]
+        [SerializeField] private float MaxSampleDistance = 1;
 
         [Header("Visualization")]
         [Tooltip("The index of vertex to visualize")]
@@ -49,6 +52,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private const float kOriginNormalOffset = .0001f;
         private const int kUvChannel = 5;
 
+        private int _seed = 42;
         private Vector4[] _tempVector4;
         private Vector3[] _vertexes;
         private Vector3[] _normals;
@@ -287,7 +291,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             var watch = Stopwatch.StartNew();
 
-            UnityEngine.Random.InitState(Seed);
+            UnityEngine.Random.InitState(_seed);
 
             _vertexes = new Vector3[SourceMesh.vertexCount];
             Array.Copy(SourceMesh.vertices, _vertexes, SourceMesh.vertexCount);
