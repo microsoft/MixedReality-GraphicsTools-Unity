@@ -26,7 +26,7 @@ Properties {
 
     [Header(Blend)]
     [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4
-    [Enum(DepthWrite)] _ZWrite("Depth Write", Float) = 0
+    [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 0
 }
 
 SubShader {

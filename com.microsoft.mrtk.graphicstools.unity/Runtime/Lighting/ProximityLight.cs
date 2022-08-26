@@ -9,12 +9,12 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Utility component to animate and visualize a light that can be used with 
-    /// the GraphicsTools/Standard and GraphicsTools/Standard Canvas shaders "_ProximityLight" feature.
+    /// Utility component to animate and visualize a light that can be used with the GraphicsTools/Standard and 
+    /// GraphicsTools/Standard Canvas shaders that have the "_PROXIMITY_LIGHT" keyword enabled.
     /// </summary>
     [ExecuteInEditMode]
     [AddComponentMenu("Scripts/GraphicsTools/ProximityLight")]
-    public class ProximityLight : MonoBehaviour
+    public class ProximityLight : BaseLight
     {
         // Two proximity lights are supported at this time.
         private const int proximityLightCount = 2;
@@ -64,8 +64,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             [Header("Proximity Settings")]
             [Tooltip("Specifies the radius of the ProximityLight effect when near to a surface.")]
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
+            [SerializeField, Min(0.0f)]
             private float nearRadius = 0.05f;
 
             /// <summary>
@@ -78,8 +77,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             [Tooltip("Specifies the radius of the ProximityLight effect when far from a surface.")]
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
+            [SerializeField, Min(0.0f)]
             private float farRadius = 0.2f;
 
             /// <summary>
@@ -92,8 +90,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             [Tooltip("Specifies the distance a ProximityLight must be from a surface to be considered near.")]
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
+            [SerializeField, Min(0.0f)]
             private float nearDistance = 0.02f;
 
             /// <summary>
@@ -106,8 +103,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             [Tooltip("When a ProximityLight is near, the smallest size percentage from the far size it can shrink to.")]
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
+            [SerializeField, Min(0.0f)]
             private float minNearSizePercentage = 0.35f;
 
             /// <summary>
@@ -183,86 +179,47 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private void OnEnable()
-        {
-            AddProximityLight(this);
-        }
+        #region MonoBehaviour Implementation
 
-        private void OnDisable()
+        /// <inheritdoc/>
+        protected override void OnDisable()
         {
-            RemoveProximityLight(this);
-            UpdateProximityLights(true);
+            base.OnDisable();
             pulseTime = 0.0f;
             pulseFade = 0.0f;
         }
 
-#if UNITY_EDITOR
-        private void Update()
-        {
-            if (Application.isPlaying)
-            {
-                return;
-            }
+        #endregion MonoBehaviour Implementation
 
-            Initialize();
-            UpdateProximityLights();
-        }
-#endif // UNITY_EDITOR
+        #region BaseLight Implementation
 
-        private void LateUpdate()
-        {
-            UpdateProximityLights();
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (!enabled)
-            {
-                return;
-            }
-
-            Vector3[] directions = new Vector3[] { Vector3.right, Vector3.left, Vector3.up, Vector3.down, Vector3.forward, Vector3.back };
-
-            Gizmos.color = new Color(Settings.CenterColor.r, Settings.CenterColor.g, Settings.CenterColor.b);
-            Gizmos.DrawWireSphere(transform.position, Settings.NearRadius);
-
-            foreach (Vector3 direction in directions)
-            {
-                Gizmos.DrawIcon(transform.position + direction * Settings.NearRadius, string.Empty, false);
-            }
-
-            Gizmos.color = new Color(Settings.OuterColor.r, Settings.OuterColor.g, Settings.OuterColor.b);
-            Gizmos.DrawWireSphere(transform.position, Settings.FarRadius);
-
-            foreach (Vector3 direction in directions)
-            {
-                Gizmos.DrawIcon(transform.position + direction * Settings.FarRadius, string.Empty, false);
-            }
-        }
-
-        private static void AddProximityLight(ProximityLight light)
-        {
-            if (activeProximityLights.Count >= proximityLightCount)
-            {
-                Debug.LogWarningFormat("Max proximity light count ({0}) exceeded.", proximityLightCount);
-            }
-
-            activeProximityLights.Add(light);
-        }
-
-        private static void RemoveProximityLight(ProximityLight light)
-        {
-            activeProximityLights.Remove(light);
-        }
-
-        private static void Initialize()
+        /// <inheritdoc/>
+        protected override void Initialize()
         {
             proximityLightDataID = Shader.PropertyToID("_ProximityLightData");
             globalPositionLeftID = Shader.PropertyToID("Global_Left_Index_Tip_Position");
             globalPositionRightID = Shader.PropertyToID("Global_Right_Index_Tip_Position");
         }
 
-        private static void UpdateProximityLights(bool forceUpdate = false)
+        /// <inheritdoc/>
+        protected override void AddLight()
+        {
+            if (activeProximityLights.Count == proximityLightCount)
+            {
+                Debug.LogWarningFormat("Max proximity light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", proximityLightCount, gameObject.name);
+            }
+
+            activeProximityLights.Add(this);
+        }
+
+        /// <inheritdoc/>
+        protected override void RemoveLight()
+        {
+            activeProximityLights.Remove(this);
+        }
+
+        /// <inheritdoc/>
+        protected override void UpdateLights(bool forceUpdate = false)
         {
             if (lastProximityLightUpdate == -1)
             {
@@ -276,7 +233,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // Initially disable the light for the Graphics Tools front plate shaders by moving them "far away." If enabled, they will be
             // moved to the correct location in the below loop.
-            // TODO - [thmicka] add a better way to disable these lights?
+            // TODO - [Cameron-Micka] add a better way to disable these lights?
             Vector3 farAwayPosition = Vector3.one * float.MaxValue;
             Shader.SetGlobalVector(globalPositionLeftID, farAwayPosition);
             Shader.SetGlobalVector(globalPositionRightID, farAwayPosition);
@@ -332,6 +289,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             lastProximityLightUpdate = Time.frameCount;
         }
+
+        #endregion BaseLight Implementation
 
         private IEnumerator PulseRoutine(float pulseDuration, float fadeBegin, float fadeSpeed)
         {

@@ -305,6 +305,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             layer.ApplyBlur(ref source, ref destination);
 
+            layer.Dispose();
+
             InstanceGraphicComponents();
             UpdateMaterialsProperties();
 

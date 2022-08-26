@@ -24,6 +24,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool smoothNormalsOnAwake = false;
 
         private MeshFilter meshFilter = null;
+        private UnityEngine.Mesh originalMesh;
 
         /// <summary>
         /// Helper class to track mesh references.
@@ -113,7 +114,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (smoothNormalsOnAwake)
             {
+                // WebGL doesn't support threaded operations.
+#if UNITY_WEBGL
+                SmoothNormals();
+#else
                 SmoothNormalsAsync();
+#endif
             }
         }
 
@@ -122,6 +128,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnDestroy()
         {
+            meshFilter.sharedMesh = originalMesh;
+
             MeshReference meshReference;
             var sharedMesh = meshFilter.sharedMesh;
 
@@ -165,6 +173,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 return true;
             }
+
+            originalMesh = meshFilter.sharedMesh;
 
             // Clone the mesh, and create a mesh reference which can be keyed off either the original mesh or cloned mesh.
             mesh = meshFilter.mesh;

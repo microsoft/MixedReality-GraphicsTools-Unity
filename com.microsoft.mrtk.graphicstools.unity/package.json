@@ -1,6 +1,6 @@
 {
   "name": "com.microsoft.mrtk.graphicstools.unity",
-  "version": "0.4.0",
+  "version": "0.4.9",
   "displayName": "MRTK Graphics Tools",
   "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
   "msftFeatureCategory": "MRTK3",
@@ -40,6 +40,11 @@
       "displayName": "Mesh Outlines",
       "description": "Samples of different mesh outlining techniques that don't use post processing.",
       "path": "Samples~/MeshOutlines"
+    },
+    {
+      "displayName": "Mesh Instancing",
+      "description": "Samples of different mesh instancing techniques that use the MeshInstancer.",
+      "path": "Samples~/MeshInstancing"
     },
     {
       "displayName": "Acrylic (Experimental)",

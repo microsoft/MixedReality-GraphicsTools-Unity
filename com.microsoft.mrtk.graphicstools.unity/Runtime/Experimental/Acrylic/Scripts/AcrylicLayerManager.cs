@@ -203,10 +203,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                         return;
                     }
 #endif
-                    for (int i = 0; i < layerData.Count; i++)
-                    {
-                        layerData[i].DestroyRendererFeatures();
-                    }
                     break;
 
                 case AcrylicMethod.RenderToTexture:
@@ -219,6 +215,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                 default:
                     break;
             }
+
+            for (int i = 0; i < layerData.Count; ++i)
+            {
+                layerData[i].Dispose();
+            }
+
+            layerData.Clear();
         }
 
         private void Awake()

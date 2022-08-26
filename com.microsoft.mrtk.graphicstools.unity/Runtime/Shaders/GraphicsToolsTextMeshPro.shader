@@ -65,11 +65,13 @@ Properties {
     _CullMode             ("Cull Mode", Float) = 0
     _ColorMask            ("Color Mask", Float) = 15
 
-    [Enum(DepthWrite)] _ZWrite                          ("Depth Write", Float) = 0     // Off
+    [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite                          ("Depth Write", Float) = 0     // Off
     [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4      // "LessEqual"
 
-    [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1       // "One"
-    [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 10 // "OneMinusSrcAlpha"
+    [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                 // "One"
+    [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 10           // "OneMinusSrcAlpha"
+    [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1      // "One"
+    [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1 // "One"
 }
 
 SubShader {
@@ -95,7 +97,7 @@ SubShader {
     Lighting Off
     Fog { Mode Off }
     ZTest [_ZTest]
-    Blend[_SrcBlend][_DstBlend]
+    Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
     ColorMask [_ColorMask]
 
     Pass {

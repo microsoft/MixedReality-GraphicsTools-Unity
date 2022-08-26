@@ -2,24 +2,14 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 8
+  serializedVersion: 6
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: StencilPortalFrame
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ValidKeywords:
-  - _ALPHABLEND_ON
-  - _BORDER_LIGHT
-  - _BORDER_LIGHT_OPAQUE
-  - _DIRECTIONAL_LIGHT
-  - _DISABLE_ALBEDO_MAP
-  - _GRADIENT_LINEAR
-  - _HOVER_LIGHT
-  - _REFLECTIONS
-  - _ROUND_CORNERS
-  - _SPECULAR_HIGHLIGHTS
+  m_ShaderKeywords: _ALPHABLEND_ON _BORDER_LIGHT _BORDER_LIGHT_OPAQUE _DIRECTIONAL_LIGHT _DISABLE_ALBEDO_MAP _GRADIENT_LINEAR _HOVER_LIGHT _REFLECTIONS _ROUND_CORNERS _SPECULAR_HIGHLIGHTS
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1

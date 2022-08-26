@@ -70,6 +70,8 @@ Properties {
     [Header(Blending)]
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1       // "One"
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 0  // "Zero"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1      // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1 // "One"
 
     [Header(Stencil)]
         _StencilReference("Stencil Reference", Range(0, 255)) = 0
@@ -78,7 +80,7 @@ Properties {
 
     [Header(Depth)]
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4 // "LessEqual"
-        [Enum(DepthWrite)] _ZWrite("Depth Write", Float) = 1 // "On"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 1 // "On"
 
     [HideInInspector] _MainTex("Texture", 2D) = "white" {} // Added to avoid UnityUI warnings.
     [HideInInspector] _ClipRect("Clip Rect", Vector) = (-32767.0, -32767.0, 32767.0, 32767.0) // Added to avoid SRP warnings.
@@ -87,7 +89,7 @@ Properties {
 
 SubShader {
     Tags{ "RenderType" = "Opaque" }
-    Blend[_SrcBlend][_DstBlend]
+    Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
     Tags {"DisableBatching" = "True"}
     Stencil
     {

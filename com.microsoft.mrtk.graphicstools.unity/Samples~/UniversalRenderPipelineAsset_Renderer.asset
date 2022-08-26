@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: UniversalRenderPipelineAsset_Renderer
   m_EditorClassIdentifier: 
   m_RendererFeatures:
-  - {fileID: 3145492819235586570}
-  m_RendererFeatureMap: 0a4214b60d09a72b
+  - {fileID: 6396981657844184204}
+  - {fileID: 5992186792593954557}
+  m_RendererFeatureMap: 8cf47dd6eca4c658fd9659d023862853
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
   shaders:
@@ -43,7 +44,7 @@ MonoBehaviour:
   m_ShadowTransparentReceive: 0
   m_RenderingMode: 0
   m_AccurateGbufferNormals: 0
---- !u!114 &3145492819235586570
+--- !u!114 &5992186792593954557
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -52,13 +53,56 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01891b40ccb73c8429bf07af07fd5f26, type: 3}
-  m_Name: GrabScreenFeature
+  m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
+  m_Name: RenderMagnifier
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    shaderM: {fileID: 2100000, guid: ee83acea9bfa1d44a85f90d6139a2b0d, type: 2}
-    TextureName: _GrabPassTransparent
-    LayerMask:
-      serializedVersion: 2
-      m_Bits: 256
+    passTag: RenderMagnifier
+    Event: 500
+    filterSettings:
+      RenderQueueType: 1
+      LayerMask:
+        serializedVersion: 2
+        m_Bits: 256
+      PassNames: []
+    overrideMaterial: {fileID: 0}
+    overrideMaterialPassIndex: 0
+    overrideDepthState: 0
+    depthCompareFunction: 4
+    enableWrite: 1
+    stencilSettings:
+      overrideStencilState: 0
+      stencilReference: 0
+      stencilCompareFunction: 8
+      passOperation: 0
+      failOperation: 0
+      zFailOperation: 0
+    cameraSettings:
+      overrideCamera: 0
+      restoreCamera: 1
+      offset: {x: 0, y: 0, z: 0, w: 0}
+      cameraFieldOfView: 60
+--- !u!114 &6396981657844184204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b98dff904263ff443a19e1a940d78f24, type: 3}
+  m_Name: BlitCameraToMagnifier
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    renderPassEvent: 500
+    blitMaterial: {fileID: 2100000, guid: aee43c1cf28a72e48ae850053692e23e, type: 2}
+    blitSourceTextureName: _SourceTex
+    blitMaterialPassIndex: -1
+    sourceType: 0
+    destinationType: 1
+    sourceTextureId: 
+    destinationTextureId: _MagnifierTexture
+    restoreCameraColorTarget: 1

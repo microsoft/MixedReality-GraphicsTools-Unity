@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #if GT_USE_URP
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -13,7 +14,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// <summary>
     /// Methods to perform dual filter bluring.
     /// </summary>
-    public class AcrylicFilterDual
+    public class AcrylicFilterDual : IDisposable
     {   
         private int lastWidth;
         private int lastHeight;
@@ -30,6 +31,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             lastHeight = 0;
             lastIterations = 0;
             buffers = new List<RenderTexture>();
+        }
+
+        public void Dispose()
+        {
+            FreeBuffers();
         }
 
         public void QueueBlur(CommandBuffer cmd, RenderTexture image, int iterations)
@@ -74,14 +80,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             Graphics.ExecuteCommandBuffer(cmd);
             Profiler.EndSample();
         }
-        public void FreeBuffers()
-        {
-            for (int i = 0; i < buffers.Count; i++)
-            {
-                Object.Destroy(buffers[i]);
-            }
-            buffers.Clear();
-        }
 
         private void InitBuffers(int width, int height, int iterations)
         {
@@ -93,6 +91,15 @@ namespace Microsoft.MixedReality.GraphicsTools
                 nextWidth = (nextWidth + 1) / 2;
                 nextHeight = (nextHeight + 1) / 2;
             }
+        }
+
+        private void FreeBuffers()
+        {
+            for (int i = 0; i < buffers.Count; i++)
+            {
+                UnityEngine.Object.Destroy(buffers[i]);
+            }
+            buffers.Clear();
         }
 
         private void LocalBlit(CommandBuffer cmd, RenderTexture source, RenderTexture target, Material material, int pass)

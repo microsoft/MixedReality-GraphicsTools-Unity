@@ -340,6 +340,22 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// Shader property ID.
            /// </summary>
            public static int _DstBlendID = Shader.PropertyToID("_DstBlend");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
+           public float _SrcBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _SrcBlendAlphaID = Shader.PropertyToID("_SrcBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
+           public float _DstBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _DstBlendAlphaID = Shader.PropertyToID("_DstBlendAlpha");
 
         /// <inheritdoc/>
         public override void InitializeFromMaterial(Material material)
@@ -385,6 +401,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             _ZTest = material.GetFloat(_ZTestID);
             _SrcBlend = material.GetFloat(_SrcBlendID);
             _DstBlend = material.GetFloat(_DstBlendID);
+            _SrcBlendAlpha = material.GetFloat(_SrcBlendAlphaID);
+            _DstBlendAlpha = material.GetFloat(_DstBlendAlphaID);
         }
 
         /// <inheritdoc/>
@@ -431,6 +449,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_ZTestID, _ZTest);
             material.SetFloat(_SrcBlendID, _SrcBlend);
             material.SetFloat(_DstBlendID, _DstBlend);
+            material.SetFloat(_SrcBlendAlphaID, _SrcBlendAlpha);
+            material.SetFloat(_DstBlendAlphaID, _DstBlendAlpha);
         }
 
         /// <inheritdoc/>

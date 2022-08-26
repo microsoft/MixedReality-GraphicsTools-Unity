@@ -12,6 +12,32 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     [CustomEditor(typeof(HoverLight))]
     public class HoverLightInspector : UnityEditor.Editor
     {
+        private void OnSceneGUI()
+        {
+            HoverLight light = target as HoverLight;
+
+            if (light == null)
+            {
+                return;
+            }
+
+            if (light.enabled)
+            {
+                Handles.color = light.Color;
+            }
+            else
+            {
+                Handles.color = Color.gray;
+            }
+
+            float radius = Handles.RadiusHandle(Quaternion.identity, light.transform.position, light.Radius);
+            if (GUI.changed)
+            {
+                Undo.RecordObject(light, "Adjust Hover Light");
+                light.Radius = radius;
+            }
+        }
+
         private bool HasFrameBounds() { return true; }
 
         private Bounds OnGetFrameBounds()
@@ -21,7 +47,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return new Bounds(light.transform.position, Vector3.one * light.Radius);
         }
 
-        [MenuItem("GameObject/Light/Hover Light")]
+       [MenuItem("GameObject/Light/Graphics Tools/Hover Light")]
         private static void CreateHoverLight(MenuCommand menuCommand)
         {
             InspectorUtilities.CreateGameObjectFromMenu<HoverLight>(menuCommand);
