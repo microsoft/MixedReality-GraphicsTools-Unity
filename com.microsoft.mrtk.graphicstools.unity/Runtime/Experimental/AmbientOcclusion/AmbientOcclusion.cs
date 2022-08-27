@@ -9,23 +9,28 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
-    [RequireComponent(typeof(MeshFilter), typeof(MeshCollider))]
+    /// <summary>
+    /// Computes coverage in the hemisphere above a surface mesh
+    /// and the information in the mesh for use by shaders
+    /// </summary>
+    [RequireComponent(typeof(MeshCollider))]
+    [ExecuteAlways]
     public class AmbientOcclusion : MonoBehaviour
     {
-        [Tooltip("When enabled, this will gather samples as you change parameters.")]
-        [SerializeField] private bool _updateWhenValidating = false;
+        [Tooltip("When enabled, this will gather samples as you change parameters in the inspector.")]
+        [SerializeField] private bool _updateOnParameterChange = false;
 
         [Header("Ray tracing")]
 
         [Tooltip("The number of rays to send into the hemisphere above the surface, per vertex. Bigger numbers will be slower.")]
-        [SerializeField] private int SamplesPerVertex = 100;
+        [SerializeField, Min(1)] private int SamplesPerVertex = 100;
 
         [Tooltip("How far to search for nearby colliders in the scene.")]
         [SerializeField] private float MaxSampleDistance = 1;
 
         [Header("Visualization")]
         [Tooltip("The index of vertex to visualize")]
-        public int ReferenceVertexIndex = 0;
+        [SerializeField, Min(0)] private int ReferenceVertexIndex = 0;
 
         [SerializeField] private bool _showOrigin = true;
         [SerializeField] private Color _originColor = Color.cyan;
@@ -52,20 +57,17 @@ namespace Microsoft.MixedReality.GraphicsTools
         private const float kOriginNormalOffset = .0001f;
         private const int kUvChannel = 5;
 
-        private int _seed = 42;
-        private Vector4[] _tempVector4;
-        private Vector3[] _vertexes;
+        private Vector3[] _vertexs;
         private Vector3[] _normals;
         private Vector4[] _bentNormalsAo;
         private List<Vector3> _referenceVertexSamples = new List<Vector3>();
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
-        private List<Vector4> _originalUv4 = new List<Vector4>();
-        private Mesh _sourceMesh = null;
-        private bool _originalHasColors = false;
-        private Color[] _originalColors = null;
-        private MeshFilter _meshFilter;
+        public Mesh _originalMesh;
+        public Mesh _modifiedMesh;
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
+        private bool _hasSavedOriginalMesh = false;
 
+        private MeshFilter _meshFilter;
         private MeshFilter MyMeshFilter
         {
             get
@@ -77,94 +79,70 @@ namespace Microsoft.MixedReality.GraphicsTools
                         _meshFilter = mf;
                     }
                 }
+
+                if (_meshFilter == null)
+                {
+                    UnityEngine.Debug.LogWarning($"{nameof(AmbientOcclusion)} requires a MeshFilter, disabling.");
+                    enabled = false;
+                }
                 return _meshFilter;
             }
             set { _meshFilter = value; }
         }
 
-        private Mesh SourceMesh
-        {
-            get
-            {
-#if UNITY_EDITOR
-                _sourceMesh = MyMeshFilter.sharedMesh;
-#else
-                _sourceMesh = MyMeshFilter.mesh;
-#endif
-                return _sourceMesh;
-            }
-            set { _sourceMesh = value; }
-        }
-
-        private void Setup()
-        {
-            UnityEngine.Debug.Log("Setup");
-        }
-
-        private void Reset()
-        {
-            UnityEngine.Debug.Log("Reset");
-            SaveOriginalColors();
-        }
-
-        private void Awake()
-        {
-            UnityEngine.Debug.Log("Awake");
-        }
-
         private void OnEnable()
         {
             UnityEngine.Debug.Log("OnEnable");
-            SaveOriginalColors();
+            if (_hasSavedOriginalMesh)
+            {
+                _meshFilter.sharedMesh = _modifiedMesh;
+            }
         }
 
         private void OnDisable()
         {
-            UnityEngine.Debug.Log("OnDisable");
+            if (_hasSavedOriginalMesh)
+            {
+                _modifiedMesh = _meshFilter.sharedMesh;
+                _meshFilter.sharedMesh = _originalMesh;
+            }
         }
 
         private void Start()
         {
-            UnityEngine.Debug.Log("Start");
+            if (GetComponent<MeshFilter>() is MeshFilter mf)
+            {
+                _meshFilter = mf;
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning($"{nameof(AmbientOcclusion)} requires a MeshFilter, disabling.");
+                enabled = false;
+                return;
+            }
+            _originalMesh = DeepCopyMesh(_meshFilter.sharedMesh);
+            _hasSavedOriginalMesh = true;
         }
 
         private void OnValidate()
         {
-            UnityEngine.Debug.Log("OnValidate");
+            if (_updateOnParameterChange)
+            {
+                GatherSamples();
+            }
+        }
 
-            SamplesPerVertex = Mathf.Max(1, SamplesPerVertex);
-
-            if (_vertexes == null)
-            {
-                ReferenceVertexIndex = 0;
-            }
-            else
-            {
-                ReferenceVertexIndex = Mathf.Clamp(ReferenceVertexIndex, 0, _vertexes.Length);
-            }
-
-            if (enabled)
-            {
-                UnityEngine.Debug.Log("this.enabled");
-                RestoreColors();
-                if (_updateWhenValidating)
-                {
-                    GatherSamples();
-                }
-            }
-            else
-            {
-                UnityEngine.Debug.Log("disabled (!this.enabled)");
-                RestoreOriginalColors();
-            }
+        private void OnDestroy()
+        {
+            UnityEngine.Debug.Log($"OnDestroy");
         }
 
         void OnDrawGizmosSelected()
         {
-            if (_vertexes == null
-                || _vertexes.Length == 0
+            if (_vertexs == null
+                || _vertexs.Length == 0
                 || !isActiveAndEnabled
-                || ReferenceVertexIndex >= _vertexes.Length
+                || ReferenceVertexIndex >= _vertexs.Length
                 || ReferenceVertexIndex >= _normals.Length)
             {
                 return;
@@ -173,16 +151,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (_showOrigin)
             {
                 Gizmos.color = _originColor;
-                Handles.Label(_vertexes[ReferenceVertexIndex], $"{ReferenceVertexIndex}");
-                Gizmos.DrawSphere(_vertexes[ReferenceVertexIndex], _originRadius);
+                Handles.Label(_vertexs[ReferenceVertexIndex], $"{ReferenceVertexIndex}");
+                Gizmos.DrawSphere(_vertexs[ReferenceVertexIndex], _originRadius);
             }
 
             if (_showNormal)
             {
                 Gizmos.color = _normalColor;
                 Gizmos.DrawLine(
-                    _vertexes[ReferenceVertexIndex],
-                    _vertexes[ReferenceVertexIndex] + _normals[ReferenceVertexIndex] * _normalScale);
+                    _vertexs[ReferenceVertexIndex],
+                    _vertexs[ReferenceVertexIndex] + _normals[ReferenceVertexIndex] * _normalScale);
             }
 
             if (_showBentNormal)
@@ -190,8 +168,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Gizmos.color = _bentNormalColor;
                 var bn = _bentNormalsAo[ReferenceVertexIndex];
                 var bn3 = new Vector3(bn.x, bn.y, bn.z);
-                Gizmos.DrawLine(_vertexes[ReferenceVertexIndex],
-                                _vertexes[ReferenceVertexIndex] + bn3 * _bentNormalScale);
+                Gizmos.DrawLine(_vertexs[ReferenceVertexIndex],
+                                _vertexs[ReferenceVertexIndex] + bn3 * _bentNormalScale);
             }
 
             if (_showSamples)
@@ -200,14 +178,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     Gizmos.color = _sampleColor;
                     Gizmos.DrawLine(
-                        _vertexes[ReferenceVertexIndex],
-                        _vertexes[ReferenceVertexIndex] + _referenceVertexSamples[i] * MaxSampleDistance);
+                        _vertexs[ReferenceVertexIndex],
+                        _vertexs[ReferenceVertexIndex] + _referenceVertexSamples[i] * MaxSampleDistance);
                 }
             }
 
             if (_showCoverage)
             {
-                for (int i = 0; i < _vertexes.Length; i++)
+                for (int i = 0; i < _vertexs.Length; i++)
                 {
                     Gizmos.color = new Color(_bentNormalsAo[i].x,
                                              _bentNormalsAo[i].y,
@@ -215,7 +193,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                                              1);
                     var coverage = 1 - _bentNormalsAo[i].w;
                     Gizmos.color = new Color(coverage, coverage, coverage, 1);
-                    Gizmos.DrawSphere(_vertexes[i], _coverageRadius * coverage);
+                    Gizmos.DrawSphere(_vertexs[i], _coverageRadius * coverage);
                 }
             }
 
@@ -233,8 +211,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Get a random sample direction from a hemisphere who's
-        /// base is perpendicular to the reference normal
+        /// Get a random sample direction from a hemisphere who's base is 
+        /// perpendicular to the reference normal.
         /// </summary>
         /// <param name="normalizedReferenceNormal">Must be noramlized</param>
         /// <returns></returns>
@@ -244,6 +222,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             Vector3 randomAxis;
             while (true)
             {
+                // This method is appears to be more uniform than Random.onUnitSphere in testing...
                 UnityEngine.Random.rotationUniform.ToAngleAxis(out angle, out randomAxis);
                 if (Vector3.Dot(randomAxis, normalizedReferenceNormal) > 0)
                 {
@@ -253,68 +232,47 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Eats local space mesh.VERTEX and mesh.NORMAL
-        /// Converts them to world space...
-        /// Looks randomly in that general direction for ray hits
-        /// Returns the random direction looked at, in the hemisphere above the origin
-        /// and maybe a RayCast object if we collided with something
+        /// Peform the ambient occlusion calculation
         /// </summary>
-        /// <param name="vertex">Origin assumed mesh local space</param>
-        /// <param name="normal">Direction to look assumed mesh local space</param>
-        /// <param name="maxdist">How far to look for colliders</param>
-        /// <returns></returns>
-        private (Vector3, RaycastHit?) SampleHemisphere(Vector3 vertex,
-                                                        Vector3 normal,
-                                                        float maxdist)
-        {
-            var dir = RandomSampleAboveHemisphere(normal);
-            var origin = vertex + normal * .00001f; // just a wee bit off the surface...
-            RaycastHit hit;
-
-            if (Physics.Raycast(origin, dir, out hit, maxdist))
-            {
-                return (Vector3.zero, hit);
-            }
-            else
-            {
-                return (dir, null);
-            }
-        }
-
         [ContextMenu(nameof(GatherSamples))]
         public void GatherSamples()
         {
-            if (_bentNormalsAo == null || _bentNormalsAo.Length != SourceMesh.vertexCount)
+            if (!enabled)
             {
-                _bentNormalsAo = new Vector4[SourceMesh.vertexCount];
+                UnityEngine.Debug.LogWarning($"{nameof(AmbientOcclusion)} can't gather samples while component is disabled.");
+                return;
+            }
+
+            var mesh = _meshFilter.sharedMesh;
+
+            if (_bentNormalsAo == null || _bentNormalsAo.Length != mesh.vertexCount)
+            {
+                _bentNormalsAo = new Vector4[mesh.vertexCount];
             }
 
             var watch = Stopwatch.StartNew();
 
-            UnityEngine.Random.InitState(_seed);
-
-            _vertexes = new Vector3[SourceMesh.vertexCount];
-            Array.Copy(SourceMesh.vertices, _vertexes, SourceMesh.vertexCount);
-
-            _normals = new Vector3[SourceMesh.vertexCount];
-            Array.Copy(SourceMesh.normals, _normals, SourceMesh.vertexCount);
+            _vertexs = mesh.vertices;
+            _normals = mesh.normals;
 
             RaycastHit hit;
 
             _referenceVertexSamples.Clear();
             _referenceVertexHits.Clear();
 
-            for (int vi = 0; vi < SourceMesh.vertexCount; vi++)
+            for (int vi = 0; vi < mesh.vertexCount; vi++)
             {
                 // Do the work in world space
-                _vertexes[vi] = transform.TransformPoint(_vertexes[vi]);
+                _vertexs[vi] = transform.TransformPoint(_vertexs[vi]);
                 _normals[vi] = transform.TransformVector(_normals[vi]);
 
                 _hitsInHemisphere.Clear();
 
                 Vector3 averageDir = Vector3.zero;
 
-                var origin = _vertexes[vi] + _normals[vi].normalized * kOriginNormalOffset;
+                var origin = _vertexs[vi] + _normals[vi].normalized * kOriginNormalOffset;
+
+                Physics.queriesHitBackfaces = true;
 
                 for (int ni = 0; ni < SamplesPerVertex; ni++)
                 {
@@ -341,6 +299,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                         averageDir += sampleDirection;
                     }
                 }
+
+                Physics.queriesHitBackfaces = false;
+
                 var avgN = averageDir.normalized;
                 _bentNormalsAo[vi] = new Vector4(avgN.x,
                                                  avgN.y,
@@ -348,51 +309,28 @@ namespace Microsoft.MixedReality.GraphicsTools
                                                  1 - ((float)_hitsInHemisphere.Count / SamplesPerVertex));
             }
 
-            SourceMesh.SetUVs(kUvChannel, _bentNormalsAo);
+            mesh.SetUVs(kUvChannel, _bentNormalsAo);
 
-            UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={SourceMesh.vertexCount} rays-per-vertex={SamplesPerVertex}.");
+            UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={mesh.vertexCount} rays-per-vertex={SamplesPerVertex}.");
         }
 
-        private void SaveOriginalColors()
+        private Mesh DeepCopyMesh(Mesh source)
         {
-            UnityEngine.Debug.Log(nameof(SaveOriginalColors));
-            if (SourceMesh.colors.Length == SourceMesh.vertexCount)
-            {
-                _originalHasColors = true;
-                _originalColors = new Color[SourceMesh.vertexCount];
-                Array.Copy(SourceMesh.colors, _originalColors, SourceMesh.vertexCount);
-                SourceMesh.GetUVs(kUvChannel, _originalUv4);
-            }
-        }
-
-        private void RestoreColors()
-        {
-            // XXX see if we can reuse old data without re-sample
-            UnityEngine.Debug.Log(nameof(RestoreColors));
-        }
-
-        public void RestoreOriginalColors()
-        {
-            if (_originalColors == null)
-            {
-                SaveOriginalColors();
-            }
-
-            var colors = new Color[_originalColors.Length];
-
-            if (_originalHasColors)
-            {
-                for (int i = 0; i < _originalColors.Length; i++)
-                {
-                    colors[i] = _originalColors[i];
-                }
-                SourceMesh.colors = colors;
-            }
-            else
-            {
-                SourceMesh.colors = null;
-            }
-            SourceMesh.SetUVs(kUvChannel, _originalUv4);
+            var result = new Mesh();
+            result.name = source.name;
+            result.vertices = source.vertices;
+            result.normals = source.normals;
+            result.uv = source.uv;
+            result.uv2 = source.uv2;
+            result.uv3 = source.uv3;
+            result.uv4 = source.uv4;
+            result.uv5 = source.uv5;
+            result.uv6 = source.uv6;
+            result.uv7 = source.uv7;
+            result.uv8 = source.uv8;
+            result.triangles = source.triangles;
+            result.tangents = source.tangents;
+            return result;
         }
     }
 }
