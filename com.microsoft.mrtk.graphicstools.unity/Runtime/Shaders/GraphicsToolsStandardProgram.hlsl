@@ -794,7 +794,6 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 
     // Indirect lighting.
-
     half3 indirect = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
 
     output.rgb = indirect;
