@@ -76,3 +76,4 @@ crashlytics-build.properties
 # Project specific assets
 Assets/TextMesh Pro*
 Assets/Samples.meta
+/mtest_BackUpThisFolder_ButDontShipItWithYourGame
