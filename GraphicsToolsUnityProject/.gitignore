@@ -9,6 +9,7 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/mtest_BackUpThisFolder_ButDontShipItWithYourGame/
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
@@ -76,4 +77,3 @@ crashlytics-build.properties
 # Project specific assets
 Assets/TextMesh Pro*
 Assets/Samples.meta
-/mtest_BackUpThisFolder_ButDontShipItWithYourGame
