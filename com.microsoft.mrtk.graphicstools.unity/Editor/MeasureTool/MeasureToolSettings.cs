@@ -80,8 +80,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var settings = AssetDatabase.LoadAssetAtPath<MeasureToolSettings>(MeasureToolSettingsPath);
             if (settings == null)
             {
-                settings = ScriptableObject.CreateInstance<MeasureToolSettings>();
-                if (!AssetDatabase.IsValidFolder("Assets/Editor/"))
+                settings = CreateInstance<MeasureToolSettings>();
+                if (!AssetDatabase.IsValidFolder("Assets/Editor"))
                 {
                     AssetDatabase.CreateFolder("Assets", "Editor");
                     AssetDatabase.Refresh();
