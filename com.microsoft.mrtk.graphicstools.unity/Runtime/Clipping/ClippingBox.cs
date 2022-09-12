@@ -65,5 +65,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             materialPropertyBlock.SetMatrix(clipBoxInverseTransformID, clipBoxInverseTransform);
         }
+
+        /// <inheritdoc />
+        protected override void UpdateShaderProperties(Material material)
+        {
+            material.SetMatrix(clipBoxInverseTransformID, clipBoxInverseTransform);
+        }
     }
 }
