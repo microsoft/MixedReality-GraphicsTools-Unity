@@ -172,6 +172,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Displays the camera controls via a user interface.
         /// </summary>
+#if UNITY_EDITOR
         private void OnGUI()
         {
             if (!XRDeviceIsPresent() && showControlsText)
@@ -192,6 +193,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
         }
+#endif
 
         /// <summary>
         /// Returns true if an XR device is connected and running. For example a VR headset.

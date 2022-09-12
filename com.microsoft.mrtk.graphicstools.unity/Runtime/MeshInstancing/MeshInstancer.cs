@@ -664,6 +664,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+#if UNITY_EDITOR
         private void OnGUI()
         {
             if (DisplayUpdateTime)
@@ -689,6 +690,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 GUI.Label(new Rect(10.0f, Screen.height - 24.0f, Screen.height, 128.0f), label);
             }
         }
+#endif
 
         private void Initialize()
         {
