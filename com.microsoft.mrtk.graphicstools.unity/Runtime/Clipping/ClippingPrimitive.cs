@@ -15,7 +15,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     public abstract class ClippingPrimitive : MonoBehaviour, IMaterialInstanceOwner
     {
         [Header("Renders to Clip")]
-        [Tooltip("The renderer(s) that should be affected by the primitive.")]
+        [Tooltip("The renderer(s) that should be affected by the primitive. Renderers with materials in the materials list do not need to be added to this list.")]
         [SerializeField]
         protected List<Renderer> renderers = new List<Renderer>();
 
@@ -45,7 +45,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         [Header("Materials to Clip")]
-        [Tooltip("The materials(s) that should be affected by the primitive.")]
+        [Tooltip("The materials(s) that should be affected by the primitive. Materials on renderers within the renderers list do not need to be added to this list.")]
         [SerializeField]
         protected List<Material> materials = new List<Material>();
 
