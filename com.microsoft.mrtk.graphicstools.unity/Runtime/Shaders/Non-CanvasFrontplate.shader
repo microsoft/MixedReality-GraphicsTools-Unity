@@ -101,12 +101,6 @@ SubShader {
     #pragma target 4.0
     #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
-    #if defined(_CLIPPING_PLANE) || defined(_CLIPPING_SPHERE) || defined(_CLIPPING_BOX)
-        #define _CLIPPING_PRIMITIVE
-    #else
-        #undef _CLIPPING_PRIMITIVE
-    #endif
-
     #include "UnityCG.cginc"
     #include "GraphicsToolsCommon.hlsl"
 
@@ -157,19 +151,6 @@ CBUFFER_END
 
     float4 Global_Left_Index_Tip_Position;
     float4 Global_Right_Index_Tip_Position;
-
-#if defined (_CLIPPING_PLANE)
-    half _ClipPlaneSide;
-    float4 _ClipPlane;
-#endif
-#if defined(_CLIPPING_SPHERE)
-    half _ClipSphereSide;
-    float4x4 _ClipSphereInverseTransform;
-#endif
-#if defined (_CLIPPING_BOX)
-    half _ClipBoxSide;
-    float4x4 _ClipBoxInverseTransform;
-#endif
 
     struct VertexInput {
         float4 vertex : POSITION;
@@ -724,19 +705,8 @@ CBUFFER_END
 
     half4 frag(VertexOutput fragInput) : SV_Target
     {
-#if defined(_CLIPPING_PRIMITIVE)
-        float primitiveDistance = 1.0;
-#if defined(_CLIPPING_PLANE)
-        primitiveDistance = min(primitiveDistance, GTPointVsPlane(fragInput.posWorld.xyz, _ClipPlane) * _ClipPlaneSide);
-#endif
-#if defined(_CLIPPING_SPHERE)
-        primitiveDistance = min(primitiveDistance, GTPointVsSphere(fragInput.posWorld.xyz, _ClipSphereInverseTransform) * _ClipSphereSide);
-#endif
-#if defined(_CLIPPING_BOX)
-        primitiveDistance = min(primitiveDistance, GTPointVsBox(fragInput.posWorld.xyz, _ClipBoxInverseTransform) * _ClipBoxSide);
-#endif
-        clip(primitiveDistance);
-#endif
+        ClipAgainstPrimitive(fragInput.posWorld);
+
         half4 result;
 
         // Is_Quad (#1252)
