@@ -165,6 +165,26 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+        /// <summary>
+        /// Resets the state of the renderer to before being added to the primitive.
+        /// </summary>
+        public void ResetRenderer(Renderer _renderer, bool autoDestroyMaterial = true)
+        {
+            if (_renderer != null)
+            {
+                // There is no need to acquire new instances if ones do not already exist since we are 
+                // in the process of removing.
+                ToggleClippingFeature(AcquireMaterials(_renderer, instance: false), false);
+
+                var materialInstance = _renderer.GetComponent<MaterialInstance>();
+
+                if (materialInstance != null)
+                {
+                    materialInstance.ReleaseMaterial(this, autoDestroyMaterial);
+                }
+            }
+        }
+
         private void RemoveRenderer(int index, bool autoDestroyMaterial = true)
         {
             Renderer _renderer = renderers[index];
@@ -177,18 +197,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             renderers.RemoveAt(lastIndex);
 
-            if (_renderer != null)
-            {
-                // There is no need to acquire new instances if ones do not already exist since we are 
-                // in the process of removing.
-                ToggleClippingFeature(AcquireMaterials(_renderer, instance: false), false);
-
-                var materialInstance = _renderer.GetComponent<MaterialInstance>();
-                if (materialInstance != null)
-                {
-                    materialInstance.ReleaseMaterial(this, autoDestroyMaterial);
-                }
-            }
+            ResetRenderer(_renderer, autoDestroyMaterial);
         }
 
         /// <summary>
@@ -234,6 +243,17 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+        /// <summary>
+        /// Resets the state of the material to before being added to the primitive.
+        /// </summary>
+        public void ResetMaterial(Material material)
+        {
+            if (material != null)
+            {
+                ToggleClippingFeature(material, false);
+            }
+        }
+
         private void RemoveMaterial(int index)
         {
             Material material = materials[index];
@@ -246,12 +266,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             materials.RemoveAt(lastIndex);
 
-            if (material != null)
-            {
-                // There is no need to acquire new instances if ones do not already exist since we are 
-                // in the process of removing.
-                ToggleClippingFeature(material, false);
-            }
+            ResetMaterial(material);
         }
 
         /// <summary>
