@@ -59,8 +59,10 @@ SubShader {
     #pragma multi_compile_instancing
     #pragma target 4.0
     #pragma multi_compile_local _ _ROUNDED_
+    #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
     #include "UnityCG.cginc"
+    #include "GraphicsToolsCommon.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
     //bool _Rounded_;
@@ -100,6 +102,7 @@ CBUFFER_END
 
     struct VertexOutput {
         float4 pos : SV_POSITION;
+        float3 posWorld : TEXCOORD7;
         half4 normalWorld : TEXCOORD5;
         float2 uv : TEXCOORD0;
         float4 extra1 : TEXCOORD4;
@@ -290,6 +293,7 @@ CBUFFER_END
         float4 Extra1 = Clip_Info_Q985;
 
         o.pos = mul(UNITY_MATRIX_VP, float4(Position,1));
+        o.posWorld = Position;
         o.normalWorld.xyz = Normal; o.normalWorld.w=1.0;
         o.uv = UV;
         o.extra1=Extra1;
@@ -327,6 +331,8 @@ CBUFFER_END
 
     half4 frag(VertexOutput fragInput) : SV_Target
     {
+        ClipAgainstPrimitive(fragInput.posWorld);
+
         half4 result;
 
         half Result_Q984;
