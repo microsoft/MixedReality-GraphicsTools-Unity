@@ -81,7 +81,7 @@ inline half4 GTsRGBToLinear(half4 sRGB)
 }
 
 /// <summary>
-/// SDF methods.
+/// Clipping methods.
 /// </summary>
 
 inline float GTPointVsPlane(float3 worldPosition, float4 plane)
@@ -100,6 +100,40 @@ inline float GTPointVsBox(float3 worldPosition, float4x4 boxInverseTransform)
     float3 distance = abs(mul(boxInverseTransform, float4(worldPosition, 1.0)).xyz) - 0.5;
     return length(max(distance, 0.0)) + min(max(distance.x, max(distance.y, distance.z)), 0.0);
 }
+
+#if defined (_CLIPPING_PLANE)
+    half _ClipPlaneSide;
+    float4 _ClipPlane;
+#endif
+#if defined(_CLIPPING_SPHERE)
+    half _ClipSphereSide;
+    float4x4 _ClipSphereInverseTransform;
+#endif
+#if defined (_CLIPPING_BOX)
+    half _ClipBoxSide;
+    float4x4 _ClipBoxInverseTransform;
+#endif
+
+inline void ClipAgainstPrimitive(float3 worldPosition)
+{
+#if defined(_CLIPPING_PLANE) || defined(_CLIPPING_SPHERE) || defined(_CLIPPING_BOX)
+    float primitiveDistance = 1.0;
+#if defined(_CLIPPING_PLANE)
+    primitiveDistance = min(primitiveDistance, GTPointVsPlane(worldPosition, _ClipPlane) * _ClipPlaneSide);
+#endif
+#if defined(_CLIPPING_SPHERE)
+    primitiveDistance = min(primitiveDistance, GTPointVsSphere(worldPosition, _ClipSphereInverseTransform) * _ClipSphereSide);
+#endif
+#if defined(_CLIPPING_BOX)
+    primitiveDistance = min(primitiveDistance, GTPointVsBox(worldPosition, _ClipBoxInverseTransform) * _ClipBoxSide);
+#endif
+    clip(primitiveDistance);
+#endif
+}
+
+/// <summary>
+/// SDF methods.
+/// </summary>
 
 inline float GTPointVsRoundedBox(in float2 position, in float2 cornerCircleDistance, in float cornerCircleRadius)
 {

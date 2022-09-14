@@ -170,21 +170,6 @@ float4 _HoverLightData[HOVER_LIGHT_COUNT * HOVER_LIGHT_DATA_SIZE];
 float4 _ProximityLightData[PROXIMITY_LIGHT_COUNT * PROXIMITY_LIGHT_DATA_SIZE];
 #endif
 
-#if defined(_CLIPPING_PLANE)
-half _ClipPlaneSide;
-float4 _ClipPlane;
-#endif
-
-#if defined(_CLIPPING_SPHERE)
-half _ClipSphereSide;
-float4x4 _ClipSphereInverseTransform;
-#endif
-
-#if defined(_CLIPPING_BOX)
-half _ClipBoxSide;
-float4x4 _ClipBoxInverseTransform;
-#endif
-
 /// <summary>
 /// Per material properties.
 /// </summary>

@@ -178,7 +178,6 @@ Shader "Graphics Tools/Standard"
 
             #pragma multi_compile_instancing
             #pragma multi_compile _ LIGHTMAP_ON
-            #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
             #pragma shader_feature_local_fragment _CLIPPING_BORDER
 
@@ -241,7 +240,6 @@ Shader "Graphics Tools/Standard"
 
             #pragma multi_compile_instancing
             #pragma multi_compile _ LIGHTMAP_ON
-            #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
             #pragma shader_feature_local_fragment _CLIPPING_BORDER
 

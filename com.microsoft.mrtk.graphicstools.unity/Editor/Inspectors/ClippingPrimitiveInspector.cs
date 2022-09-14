@@ -34,11 +34,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
 
         /// <summary>
-        /// Looks for changes to the list of renderers and gracefully adds and removes them.
+        /// Looks for changes to the list of renderers and materials and gracefully adds and removes them.
         /// </summary>
         public override void OnInspectorGUI()
         {
             var previousRenderers = clippingPrimitive.GetRenderersCopy();
+            var previousMaterials = clippingPrimitive.GetMaterialsCopy();
 
             using (var check = new EditorGUI.ChangeCheckScope())
             {
@@ -51,17 +52,32 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
             }
 
+            // Add or remove and renderers that were added or removed via the inspector.
             var currentRenderers = clippingPrimitive.GetRenderersCopy();
 
-            // Add or remove and renderers that were added or removed via the inspector.
             foreach (var renderer in previousRenderers.Except(currentRenderers))
             {
-                clippingPrimitive.RemoveRenderer(renderer);
+                // ResetRenderer rather than RemoveRenderer since the renderer has already been removed from the list.
+                clippingPrimitive.ResetRenderer(renderer);
             }
 
             foreach (var renderer in currentRenderers.Except(previousRenderers))
             {
                 clippingPrimitive.AddRenderer(renderer);
+            }
+
+            // Add or remove and materials that were added or removed via the inspector.
+            var currentMaterials = clippingPrimitive.GetMaterialsCopy();
+
+            foreach (var material in previousMaterials.Except(currentMaterials))
+            {
+                // ResetMaterial rather than RemoveMaterial since the material has already been removed from the list.
+                clippingPrimitive.ResetMaterial(material);
+            }
+
+            foreach (var material in currentMaterials.Except(previousMaterials))
+            {
+                clippingPrimitive.AddMaterial(material);
             }
         }
     }
