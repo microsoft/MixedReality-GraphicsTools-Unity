@@ -15,10 +15,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 
     /// <summary>
     /// Forked from: https://github.com/Unity-Technologies/UniversalRenderingExamples/tree/master/Assets/Scripts/Runtime/RenderPasses
+    /// Performs fullscreen blit via a custom Render Pass
     /// </summary>
     public class DrawFullscreenFeature : ScriptableRendererFeature
     {
         [System.Serializable]
+        /// <summary>
+        /// Class <c>Settings</c> outlines controls for the Render Feature
+        /// </summary>
         public class Settings
         {
             public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
@@ -35,13 +39,17 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public Settings settings = new Settings();
         private DrawFullscreenPass blitPass;
-
+        /// <summary>
+        /// Method <c>Create</c> creates the render pass.
+        /// </summary>
         public override void Create()
         {
             blitPass = new DrawFullscreenPass(name);
             blitPass.filterMode = FilterMode.Bilinear;
         }
-
+        /// <summary>
+        /// Method <c>AddRenderPasses</c> calls the custom render pass.
+        /// </summary>
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             if (settings.blitMaterial == null)
