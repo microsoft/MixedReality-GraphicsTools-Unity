@@ -1,0 +1,25 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# [Template] Pack and optionally publish UPM packages.
+
+parameters:
+  projectRoot: $(Build.SourcesDirectory)/MixedReality-GraphicsTools-Unity
+  outputDirectory: $(Build.ArtifactStagingDirectory)/build/upm/output
+  buildNumber: $(Build.BuildNumber)
+  previewTag: $(MRTKGraphicsToolsReleaseTag)
+  publishToArtifacts: false
+  publishToFeed: false
+
+steps:
+- task: PowerShell@2
+  displayName: 'Pack preview UPM packages'
+  inputs:
+    pwsh: true
+    targetType: filePath
+    filePath: ${{ parameters.projectRoot }}/pipelines/scripts/package-upm.ps1
+    arguments: >
+      -ProjectRoot: ${{ parameters.projectRoot }}
+      -OutputDirectory: ${{ parameters.outputDirectory }}
+      -BuildNumber: ${{ parameters.buildNumber }}
+      -PreviewTag: ${{ parameters.previewTag }}
