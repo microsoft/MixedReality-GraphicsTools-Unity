@@ -209,19 +209,6 @@ SubShader {
         uniform float        _ScaleY;
         uniform float        _PerspectiveFilter;
         uniform float        _Sharpness;
-
-        // #if defined(_CLIPPING_PLANE)
-        fixed _ClipPlaneSide;
-        float4 _ClipPlane;
-
-        // #if defined(_CLIPPING_SPHERE)
-        fixed _ClipSphereSide;
-        float4x4 _ClipSphereInverseTransform;
-
-        // #if defined(_CLIPPING_BOX)
-        fixed _ClipBoxSide;
-        float4x4 _ClipBoxInverseTransform;
-
 CBUFFER_END
 
         struct vertex_t {

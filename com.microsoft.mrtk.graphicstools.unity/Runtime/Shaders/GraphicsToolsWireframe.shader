@@ -68,19 +68,6 @@ Shader "Graphics Tools/Wireframe"
             float _WireThickness;
             CBUFFER_END
 
-#if defined (_CLIPPING_PLANE)
-            half _ClipPlaneSide;
-            float4 _ClipPlane;
-#endif
-#if defined(_CLIPPING_SPHERE)
-            half _ClipSphereSide;
-            float4x4 _ClipSphereInverseTransform;
-#endif
-#if defined (_CLIPPING_BOX)
-            half _ClipBoxSide;
-            float4x4 _ClipBoxInverseTransform;
-#endif
-
             struct v2g
             {
                 float4 viewPos : SV_POSITION;
@@ -158,17 +145,7 @@ Shader "Graphics Tools/Wireframe"
             float4 frag(g2f i) : COLOR
             {
 #if defined(_CLIPPING_PRIMITIVE)
-                float primitiveDistance = 1.0;
-#if defined(_CLIPPING_PLANE)
-                primitiveDistance = min(primitiveDistance, GTPointVsPlane(i.worldPos.xyz, _ClipPlane) * _ClipPlaneSide);
-#endif
-#if defined(_CLIPPING_SPHERE)
-                primitiveDistance = min(primitiveDistance, GTPointVsSphere(i.worldPos.xyz, _ClipSphereInverseTransform) * _ClipSphereSide);
-#endif
-#if defined(_CLIPPING_BOX)
-                primitiveDistance = min(primitiveDistance, GTPointVsBox(i.worldPos.xyz, _ClipBoxInverseTransform) * _ClipBoxSide);
-#endif
-                clip(primitiveDistance);
+                ClipAgainstPrimitive(i.worldPos);
 #endif
 
                 // Calculate  minimum distance to one of the triangle lines, making sure to correct
