@@ -5,53 +5,43 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
+using System.Linq;
 
-namespace Microsoft.MixedReality.GraphicsTools
+namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
-    /// <summary>
-    /// Computes coverage in the hemisphere above a surface mesh
-    /// and the information in the mesh for use by shaders
-    /// </summary>
-    [RequireComponent(typeof(MeshCollider))]
-    [ExecuteAlways]
-    public class AmbientOcclusion : MonoBehaviour
+    public class AmbientOcclusionToolWindow : EditorWindow
     {
-        [Tooltip("When enabled, this will gather samples as you change parameters in the inspector.")]
-        [SerializeField] private bool _updateOnParameterChange = false;
-
         [Header("Ray tracing")]
 
         [Tooltip("The number of rays to send into the hemisphere above the surface, per vertex. Bigger numbers will be slower.")]
-        [SerializeField, Min(1)] private int SamplesPerVertex = 100;
+        private int _samplesPerVertex = 100;
 
         [Tooltip("How far to search for nearby colliders in the scene.")]
-        [SerializeField] private float MaxSampleDistance = 1;
+        private float MaxSampleDistance = 1;
 
         [Header("Visualization")]
         [Tooltip("The index of vertex to visualize")]
-        [SerializeField, Min(0)] private int ReferenceVertexIndex = 0;
+        private int ReferenceVertexIndex = 0;
 
-        [SerializeField] private bool _showOrigin = true;
-        [SerializeField] private Color _originColor = Color.cyan;
-        [SerializeField] private float _originRadius = .03f;
+        private bool _showOrigin = true;
+        private Color _originColor = Color.cyan;
+        private float _originRadius = .03f;
 
-        [SerializeField] private bool _showNormal = true;
-        [SerializeField] private Color _normalColor = Color.cyan;
-        [SerializeField] private float _normalScale = 1;
+        private bool _showNormal = true;
+        private Color _normalColor = Color.cyan;
+        private float _normalScale = 1;
 
-        [SerializeField] private bool _showBentNormal = true;
-        [SerializeField] private Color _bentNormalColor = Color.magenta;
-        [SerializeField] private float _bentNormalScale = 1;
+        private bool _showBentNormal = true;
+        private Color _bentNormalColor = Color.magenta;
+        private float _bentNormalScale = 1;
 
-        [SerializeField] private bool _showSamples;
-        [SerializeField] private Color _sampleColor = Color.yellow;
-
-        [SerializeField] private bool _showHits;
-        [SerializeField] private Color _hitColor = Color.black;
-        [SerializeField] private float _hitRadius = .03f;
-
-        [SerializeField] private bool _showCoverage;
-        [SerializeField] private float _coverageRadius = .03f;
+        private bool _showSamples;
+        private Color _sampleColor = Color.yellow;
+        private bool _showHits;
+        private Color _hitColor = Color.black;
+        private float _hitRadius = .03f;
+        private bool _showCoverage;
+        private float _coverageRadius = .03f;
 
         private const float kOriginNormalOffset = .0001f;
         private const int kUvChannel = 5;
@@ -61,107 +51,55 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Vector4[] _bentNormalsAo;
         private List<Vector3> _referenceVertexSamples = new List<Vector3>();
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
-        public Mesh _originalMesh;
-        public Mesh _modifiedMesh;
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
-        private bool _hasSavedOriginalMesh = false;
-
+        private bool _upgradeMaterials = false;
         private MeshFilter _meshFilter;
-        private MeshFilter MyMeshFilter
-        {
-            get
-            {
-                if (_meshFilter == null)
-                {
-                    if (GetComponent<MeshFilter>() is MeshFilter mf)
-                    {
-                        _meshFilter = mf;
-                    }
-                }
+        private int _samplesIndex = 2;
 
-                if (_meshFilter == null)
-                {
-                    UnityEngine.Debug.LogWarning($"{nameof(AmbientOcclusion)} requires a MeshFilter, disabling.");
-                    enabled = false;
-                }
-                return _meshFilter;
+        //private Shader _standardShader;
+        private int _magicPropId = Shader.PropertyToID("_VertexBentNormalAo");
+        private string upgradePrefsKey = $"{nameof(AmbientOcclusionToolWindow)}{nameof(_upgradeMaterials)}";
+        private static string _standardShaderPath = "Graphics Tools/Standard";
+
+        [MenuItem("Window/Graphics Tools/Ambient occclusion")]
+        private static void ShowWindow()
+        {
+            if (Shader.Find(_standardShaderPath) == null)
+            {
+                UnityEngine.Debug.LogError($"Unable to locate {_standardShaderPath}!");
             }
-            set { _meshFilter = value; }
+            AmbientOcclusionToolWindow window = GetWindow<AmbientOcclusionToolWindow>();
+            window.titleContent = new GUIContent("Ambient occlusion");
+            window.Show();
         }
 
-        private void OnEnable()
+        /// <summary>
+        /// Custom inspector that exposes additional user controls for the AmbientOcclusion component
+        /// </summary>
+        [CustomEditor(typeof(AmbientOcclusion)), CanEditMultipleObjects]
+        private void OnGUI()
         {
-            if (_hasSavedOriginalMesh)
+            EditorGUILayout.LabelField("Ray tracing");
+            var _samplesPerVertexLabels = new string[] { "1", "10", "100", "1000", "10000" };
+            _samplesIndex = EditorGUILayout.Popup("Samples per vertex", _samplesIndex, _samplesPerVertexLabels);
+            _samplesPerVertex = (int)Mathf.Pow(10, _samplesIndex);
+
+            MaxSampleDistance = EditorGUILayout.FloatField("Max sample distance", MaxSampleDistance);
+            _upgradeMaterials = EditorGUILayout.Toggle("Update materials", PlayerPrefs.GetInt(upgradePrefsKey) > 0);
+            PlayerPrefs.SetInt(upgradePrefsKey, _upgradeMaterials == false ? 0 : 1);
+
+            if (GUILayout.Button("Gather selection samples"))
             {
-                _meshFilter.sharedMesh = _modifiedMesh;
+                GatherSelectionSamples();
             }
+
+            _showSamples = EditorGUILayout.Toggle("Show samples", _showSamples);
         }
 
-        private void OnDisable()
-        {
-            if (_hasSavedOriginalMesh)
-            {
-                _modifiedMesh = _meshFilter.sharedMesh;
-                _meshFilter.sharedMesh = _originalMesh;
-            }
-        }
-
-        private void Start()
-        {
-            if (GetComponent<MeshFilter>() is MeshFilter mf)
-            {
-                _meshFilter = mf;
-            }
-            else
-            {
-                UnityEngine.Debug.LogWarning($"{nameof(AmbientOcclusion)} requires a MeshFilter, disabling.");
-                enabled = false;
-                return;
-            }
-
-            // Warn the user that to see the results of this component they
-            // need to have the Graphics Tools Standard shader applied and
-            // toggled on.
-
-            if (GetComponent<MeshRenderer>() is MeshRenderer meshRenderer)
-            {
-                var likelyStandardShader = false;
-                var propId = Shader.PropertyToID("_VertexBentNormalAo");
-                foreach (var material in meshRenderer.sharedMaterials)
-                {
-                    if (material.HasProperty(propId))
-                    {
-                        if (material.GetFloat(propId) == 1f)
-                        {
-                            likelyStandardShader = true;
-                        }
-                    }
-                    break;
-                }
-
-                if (!likelyStandardShader)
-                {
-                    UnityEngine.Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {gameObject.name}.");
-                }
-            }
-
-            _originalMesh = DeepCopyMesh(_meshFilter.sharedMesh);
-            _hasSavedOriginalMesh = true;
-        }
-
-        private void OnValidate()
-        {
-            if (_updateOnParameterChange)
-            {
-                GatherSamples();
-            }
-        }
-
-        void OnDrawGizmosSelected()
+        void OnDrawGizmos()
         {
             if (_vertexs == null
                 || _vertexs.Length == 0
-                || !isActiveAndEnabled
                 || ReferenceVertexIndex >= _vertexs.Length
                 || ReferenceVertexIndex >= _normals.Length)
             {
@@ -254,16 +192,27 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Peform the ambient occlusion calculation
         /// </summary>
-        [ContextMenu(nameof(GatherSamples))]
-        public void GatherSamples()
+        private void GatherSelectionSamples()
         {
-            if (!enabled)
+            Selection.gameObjects.ToList().ForEach(i => GatherSamples(i));
+        }
+
+        /// <summary>
+        /// Peform the ambient occlusion calculation
+        /// </summary>
+        [ContextMenu(nameof(GatherSamples))]
+        public void GatherSamples(GameObject go)
+        {
+            var meshFilter = go.GetComponent<MeshFilter>();
+            if (meshFilter == null)
             {
-                UnityEngine.Debug.LogWarning($"{nameof(AmbientOcclusion)} can't gather samples while component is disabled.");
+                UnityEngine.Debug.LogWarning($"No mesh filter found for {go.name}! - skipping.", go);
                 return;
             }
 
-            var mesh = _meshFilter.sharedMesh;
+            var mesh = DeepCopyMesh(meshFilter.sharedMesh);
+            mesh.name = $"A.O. {go.name}";
+            meshFilter.mesh = mesh;
 
             if (_bentNormalsAo == null || _bentNormalsAo.Length != mesh.vertexCount)
             {
@@ -283,8 +232,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             for (int vi = 0; vi < mesh.vertexCount; vi++)
             {
                 // Do the work in world space
-                _vertexs[vi] = transform.TransformPoint(_vertexs[vi]);
-                _normals[vi] = transform.TransformVector(_normals[vi]);
+                _vertexs[vi] = go.transform.TransformPoint(_vertexs[vi]);
+                _normals[vi] = go.transform.TransformVector(_normals[vi]);
 
                 _hitsInHemisphere.Clear();
 
@@ -294,7 +243,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 Physics.queriesHitBackfaces = true;
 
-                for (int ni = 0; ni < SamplesPerVertex; ni++)
+                for (int ni = 0; ni < _samplesPerVertex; ni++)
                 {
                     var sampleDirection = RandomSampleAboveHemisphere(_normals[vi]);
 
@@ -326,12 +275,54 @@ namespace Microsoft.MixedReality.GraphicsTools
                 _bentNormalsAo[vi] = new Vector4(avgN.x,
                                                  avgN.y,
                                                  avgN.z,
-                                                 1 - ((float)_hitsInHemisphere.Count / SamplesPerVertex));
+                                                 1 - ((float)_hitsInHemisphere.Count / _samplesPerVertex));
             }
 
             mesh.SetUVs(kUvChannel, _bentNormalsAo);
 
-            UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={mesh.vertexCount} rays-per-vertex={SamplesPerVertex}");
+            // For the results to be visible to the user
+            // we need to be using the graphics tools standard shader
+            // and the appropriate parameter must be turned on
+
+            if (go.GetComponent<MeshRenderer>() is MeshRenderer meshRenderer)
+            {
+                foreach (var material in meshRenderer.sharedMaterials)
+                {
+                    if (!IsStandardShader(material))
+                    {
+                        UnityEngine.Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {go.name}.");
+                        if (_upgradeMaterials)
+                        {
+                            if (material.name == "Default-Material")
+                            {
+                                Material newMaterial = new Material(Shader.Find(_standardShaderPath));
+                                AssetDatabase.CreateAsset(newMaterial, $"Assets/{material.name}-AO.mat");
+                                UnityEngine.Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
+                                newMaterial.SetFloat(_magicPropId, 1);
+                                meshRenderer.material = newMaterial;
+                            }
+                            else
+                            {
+                                UnityEngine.Debug.Log($"Upgrading material {material.shader.name} to Graphics Tools Standard.");
+                            }
+                        }
+                    }
+                }
+            }
+
+            UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={mesh.vertexCount} rays-per-vertex={_samplesPerVertex}");
+        }
+
+        private bool IsStandardShader(Material material)
+        {
+            if (material.HasProperty(_magicPropId))
+            {
+                if (material.GetFloat(_magicPropId) == 1f)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private Mesh DeepCopyMesh(Mesh source)

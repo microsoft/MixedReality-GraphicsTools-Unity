@@ -290,10 +290,8 @@ Varyings VertexStage(Attributes input)
     v2f.lightMapUV.xy = input.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 #endif
 
-    output.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
-
 #if defined(_VERTEX_COLORS)
-    v2f.color = input.color;
+    v2f.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
 #endif
 
 #if defined(_SPHERICAL_HARMONICS)
@@ -539,8 +537,6 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 #endif
 #endif
-
-    albedo *= _Color;
 
 #if defined(_VERTEX_COLORS)
     albedo *= input.color;
