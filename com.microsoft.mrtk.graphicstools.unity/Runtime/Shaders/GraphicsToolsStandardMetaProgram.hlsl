@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#ifndef GRAPHICS_TOOLS_STANDARD_META_PROGRAM
-#define GRAPHICS_TOOLS_STANDARD_META_PROGRAM
+#ifndef GT_STANDARD_META_PROGRAM
+#define GT_STANDARD_META_PROGRAM
 
 #pragma vertex VertexStage
 #pragma fragment PixelStage
@@ -100,4 +100,4 @@ half4 PixelStage(MetaVaryings input) : SV_Target
 #endif
 }
 
-#endif // GRAPHICS_TOOLS_STANDARD_META_PROGRAM
+#endif // GT_STANDARD_META_PROGRAM

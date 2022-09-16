@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#ifndef GRAPHICS_TOOLS_STANDARD_INPUT
-#define GRAPHICS_TOOLS_STANDARD_INPUT
+#ifndef GT_STANDARD_INPUT
+#define GT_STANDARD_INPUT
 
 /// <summary>
 /// Vertex attributes passed into the vertex shader from the app.
@@ -47,9 +47,7 @@ struct Varyings
 #if defined(LIGHTMAP_ON)
     float2 lightMapUV : TEXCOORD1;
 #endif
-#if defined(_VERTEX_COLORS)
     half4 color : COLOR0;
-#endif
 #if defined(_SPHERICAL_HARMONICS)
     half3 ambient : COLOR1;
 #endif
@@ -172,32 +170,23 @@ float4 _HoverLightData[HOVER_LIGHT_COUNT * HOVER_LIGHT_DATA_SIZE];
 float4 _ProximityLightData[PROXIMITY_LIGHT_COUNT * PROXIMITY_LIGHT_DATA_SIZE];
 #endif
 
-#if defined(_CLIPPING_PLANE)
-half _ClipPlaneSide;
-float4 _ClipPlane;
-#endif
-
-#if defined(_CLIPPING_SPHERE)
-half _ClipSphereSide;
-float4x4 _ClipSphereInverseTransform;
-#endif
-
-#if defined(_CLIPPING_BOX)
-half _ClipBoxSide;
-float4x4 _ClipBoxInverseTransform;
-#endif
-
 /// <summary>
 /// Per material properties.
 /// </summary>
 
 CBUFFER_START(UnityPerMaterial)
 
+#if defined(UNITY_INSTANCING_ENABLED)
+    half4 _ColorUnused; // Color is defined in the PerMaterialInstanced constant buffer.
+#else
     half4 _Color;
+#endif
+
     half4 _MainTex_ST;
     half _Metallic;
     half _Smoothness;
 
+    half _NormalMapScale;
     // #if defined(_ALPHA_CLIP)
     half _Cutoff;
 
@@ -218,9 +207,6 @@ CBUFFER_START(UnityPerMaterial)
 
     // #if defined(_TRIPLANAR_MAPPING)
     float _TriplanarMappingBlendSharpness;
-
-    // #if defined(_REFRACTION)
-    half _RefractiveIndex;
 
     // #if defined(_RIM_LIGHT)
     half3 _RimColor;
@@ -303,21 +289,12 @@ CBUFFER_START(UnityPerMaterial)
 
 CBUFFER_END
 
-/// <summary>
-/// Constant properties.
-/// </summary>
+#if defined(UNITY_INSTANCING_ENABLED)
+UNITY_INSTANCING_BUFFER_START(PerMaterialInstanced)
 
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
-static const half _MinMetallicLightContribution = 0.7;
-static const half _IblContribution = 0.1;
+    UNITY_DEFINE_INSTANCED_PROP(half4, _Color)
+
+UNITY_INSTANCING_BUFFER_END(PerMaterialInstanced)
 #endif
 
-#if defined(_SPECULAR_HIGHLIGHTS)
-static const float _Shininess = 800.0;
-#endif
-
-#if defined(_FRESNEL)
-static const float _FresnelPower = 8.0;
-#endif
-
-#endif // GRAPHICS_TOOLS_STANDARD_INPUT
+#endif // GT_STANDARD_INPUT

@@ -11,7 +11,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     [CustomEditor(typeof(CanvasElementMesh))]
     public class CanvasElementMeshInspector : UnityEditor.Editor
     {
-        [MenuItem("GameObject/UI/Mesh - Graphics Tools")]
+        [MenuItem("GameObject/UI/Graphics Tools/Mesh")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
             InspectorUtilities.CreateGameObjectFromMenu<CanvasElementMesh>(menuCommand);

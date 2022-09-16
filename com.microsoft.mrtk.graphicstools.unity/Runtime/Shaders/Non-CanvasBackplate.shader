@@ -56,16 +56,27 @@ Properties {
     [Header(Antialiasing)]
         [Toggle(_SMOOTH_EDGES_)] _Smooth_Edges_("Smooth Edges", Float) = 0
      
+    [Header(Blending)]
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1       // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 0  // "Zero"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1      // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1 // "One"
 
     [Header(Stencil)]
         _StencilReference("Stencil Reference", Range(0, 255)) = 0
         [Enum(UnityEngine.Rendering.CompareFunction)]_StencilComparison("Stencil Comparison", Int) = 0
         [Enum(UnityEngine.Rendering.StencilOp)]_StencilOperation("Stencil Operation", Int) = 0
+
+    [Header(Depth)]
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4 // "LessEqual"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 1 // "On"
 }
 
 SubShader {
     Tags{ "RenderType" = "Opaque" }
-    Blend Off
+    Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
+    ZWrite[_ZWrite]
+    ZTest[_ZTest]
     Tags {"DisableBatching" = "True"}
     Stencil
     {
@@ -97,12 +108,6 @@ SubShader {
     #pragma shader_feature_local _ _EDGE_ONLY_
 
     #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
-
-    #if defined(_CLIPPING_PLANE) || defined(_CLIPPING_SPHERE) || defined(_CLIPPING_BOX)
-        #define _CLIPPING_PRIMITIVE
-    #else
-        #undef _CLIPPING_PRIMITIVE
-    #endif
 
     #include "UnityCG.cginc"
     #include "GraphicsToolsCommon.hlsl"
@@ -147,19 +152,6 @@ CBUFFER_START(UnityPerMaterial)
     //bool _Smooth_Edges_;
 
 CBUFFER_END
-
-#if defined (_CLIPPING_PLANE)
-    half _ClipPlaneSide;
-    float4 _ClipPlane;
-#endif
-#if defined(_CLIPPING_SPHERE)
-    half _ClipSphereSide;
-    float4x4 _ClipSphereInverseTransform;
-#endif
-#if defined (_CLIPPING_BOX)
-    half _ClipBoxSide;
-    float4x4 _ClipBoxInverseTransform;
-#endif
 
     struct VertexInput {
         float4 vertex : POSITION;
@@ -590,19 +582,8 @@ CBUFFER_END
 
     half4 frag(VertexOutput fragInput) : SV_Target
     {
-#if defined(_CLIPPING_PRIMITIVE)
-        float primitiveDistance = 1.0;
-#if defined(_CLIPPING_PLANE)
-        primitiveDistance = min(primitiveDistance, GTPointVsPlane(fragInput.posWorld.xyz, _ClipPlane) * _ClipPlaneSide);
-#endif
-#if defined(_CLIPPING_SPHERE)
-        primitiveDistance = min(primitiveDistance, GTPointVsSphere(fragInput.posWorld.xyz, _ClipSphereInverseTransform) * _ClipSphereSide);
-#endif
-#if defined(_CLIPPING_BOX)
-        primitiveDistance = min(primitiveDistance, GTPointVsBox(fragInput.posWorld.xyz, _ClipBoxInverseTransform) * _ClipBoxSide);
-#endif
-        clip(primitiveDistance);
-#endif
+        ClipAgainstPrimitive(fragInput.posWorld);
+
         half4 result;
 
         half Inside_Rect_Q1162;

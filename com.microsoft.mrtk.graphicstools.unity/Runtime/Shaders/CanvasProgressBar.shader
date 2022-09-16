@@ -38,7 +38,7 @@ Properties {
 
     [Header(Depth)]
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4 // "LessEqual"
-        [Enum(DepthWrite)] _ZWrite("Depth Write", Float) = 1 // "On"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 1 // "On"
 
     [HideInInspector] _MainTex("Texture", 2D) = "white" {} // Added to avoid UnityUI warnings.
     [HideInInspector] _ClipRect("Clip Rect", Vector) = (-32767.0, -32767.0, 32767.0, 32767.0) // Added to avoid SRP warnings.
@@ -74,6 +74,7 @@ SubShader {
     #pragma shader_feature_local _ _CYCLE_
     #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
     #pragma multi_compile_local _ _UI_CLIP_RECT_ROUNDED _UI_CLIP_RECT_ROUNDED_INDEPENDENT
+    #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
     #include "UnityCG.cginc"
     #include "GraphicsToolsCommon.hlsl"
@@ -111,6 +112,7 @@ CBUFFER_END
 
     struct VertexOutput {
         float4 pos : SV_POSITION;
+        float3 posWorld : TEXCOORD7;
 #ifdef UNITY_UI_CLIP_RECT
         float3 posLocal : TEXCOORD8;
 #endif
@@ -194,6 +196,7 @@ CBUFFER_END
         float4 Extra1 = Vec4_Q79;
 
         o.pos = mul(UNITY_MATRIX_VP, float4(Position,1));
+        o.posWorld = Position;
 #ifdef UNITY_UI_CLIP_RECT
         o.posLocal = vertInput.vertex.xyz;
 #endif
@@ -278,6 +281,8 @@ CBUFFER_END
 
     half4 frag(VertexOutput fragInput) : SV_Target
     {
+        ClipAgainstPrimitive(fragInput.posWorld);
+
     #ifdef UNITY_UI_CLIP_RECT
         clip(GTUnityUIClipRect(fragInput.posLocal.xy, _ClipRect, _ClipRectRadii) - 0.5);
     #endif

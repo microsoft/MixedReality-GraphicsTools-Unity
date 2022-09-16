@@ -71,6 +71,22 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// <summary>
            /// Shader property.
            /// </summary>;
+           public float _SrcBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _SrcBlendAlphaID = Shader.PropertyToID("_SrcBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
+           public float _DstBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _DstBlendAlphaID = Shader.PropertyToID("_DstBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
            public float _BlendOp = 0f;
            /// <summary>
            /// Shader property ID.
@@ -143,6 +159,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             _CustomMode = material.GetFloat(_CustomModeID);
             _SrcBlend = material.GetFloat(_SrcBlendID);
             _DstBlend = material.GetFloat(_DstBlendID);
+            _SrcBlendAlpha = material.GetFloat(_SrcBlendAlphaID);
+            _DstBlendAlpha = material.GetFloat(_DstBlendAlphaID);
             _BlendOp = material.GetFloat(_BlendOpID);
             _ZTest = material.GetFloat(_ZTestID);
             _ZWrite = material.GetFloat(_ZWriteID);
@@ -163,6 +181,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_CustomModeID, _CustomMode);
             material.SetFloat(_SrcBlendID, _SrcBlend);
             material.SetFloat(_DstBlendID, _DstBlend);
+            material.SetFloat(_SrcBlendAlphaID, _SrcBlendAlpha);
+            material.SetFloat(_DstBlendAlphaID, _DstBlendAlpha);
             material.SetFloat(_BlendOpID, _BlendOp);
             material.SetFloat(_ZTestID, _ZTest);
             material.SetFloat(_ZWriteID, _ZWrite);

@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     [CanEditMultipleObjects]
     public class RectMask2DFastInspector : RectMask2DEditor
     {
-        [MenuItem("GameObject/UI/Rect Mask Fast - Graphics Tools")]
+        [MenuItem("GameObject/UI/Graphics Tools/Fast Rect Mask")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
             InspectorUtilities.CreateGameObjectFromMenu<RectMask2DFast>(menuCommand);

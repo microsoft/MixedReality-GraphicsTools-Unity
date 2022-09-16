@@ -15,19 +15,19 @@ Shader "Graphics Tools/Wireframe"
         _WireThickness("Wire thickness", Range(0, 800)) = 100
 
         // Advanced options.
-        [Enum(RenderingMode)] _Mode("Rendering Mode", Float) = 0                                     // "Opaque"
-        [Enum(RenderingMode)] _CustomMode("Mode", Float) = 0                                         // "Opaque"
-        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                 // "One"
-        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 0            // "Zero"
-        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1      // "One"
-        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1 // "One"
-        [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Float) = 0                 // "Add"
-        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4                // "LessEqual"
-        [Enum(DepthWrite)] _ZWrite("Depth Write", Float) = 1                                         // "On"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.RenderingMode)] _Mode("Rendering Mode", Float) = 0 // "Opaque"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.RenderingMode)] _CustomMode("Mode", Float) = 0     // "Opaque"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                         // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 0                    // "Zero"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1              // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1         // "One"
+        [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Float) = 0                         // "Add"
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4                        // "LessEqual"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 1     // "On"
         _ZOffsetFactor("Depth Offset Factor", Float) = 50
         _ZOffsetUnits("Depth Offset Units", Float) = 100
-        [Enum(UnityEngine.Rendering.ColorWriteMask)] _ColorWriteMask("Color Write Mask", Float) = 15 // "All"
-        [Enum(UnityEngine.Rendering.CullMode)] _CullMode("Cull Mode", Float) = 2                     // "Back"
+        [Enum(UnityEngine.Rendering.ColorWriteMask)] _ColorWriteMask("Color Write Mask", Float) = 15         // "All"
+        [Enum(UnityEngine.Rendering.CullMode)] _CullMode("Cull Mode", Float) = 2                             // "Back"
         _RenderQueueOverride("Render Queue Override", Range(-1.0, 5000)) = -1
     }
     SubShader
@@ -67,19 +67,6 @@ Shader "Graphics Tools/Wireframe"
             float4 _WireColor;
             float _WireThickness;
             CBUFFER_END
-
-#if defined (_CLIPPING_PLANE)
-            half _ClipPlaneSide;
-            float4 _ClipPlane;
-#endif
-#if defined(_CLIPPING_SPHERE)
-            half _ClipSphereSide;
-            float4x4 _ClipSphereInverseTransform;
-#endif
-#if defined (_CLIPPING_BOX)
-            half _ClipBoxSide;
-            float4x4 _ClipBoxInverseTransform;
-#endif
 
             struct v2g
             {
@@ -158,17 +145,7 @@ Shader "Graphics Tools/Wireframe"
             float4 frag(g2f i) : COLOR
             {
 #if defined(_CLIPPING_PRIMITIVE)
-                float primitiveDistance = 1.0;
-#if defined(_CLIPPING_PLANE)
-                primitiveDistance = min(primitiveDistance, GTPointVsPlane(i.worldPos.xyz, _ClipPlane) * _ClipPlaneSide);
-#endif
-#if defined(_CLIPPING_SPHERE)
-                primitiveDistance = min(primitiveDistance, GTPointVsSphere(i.worldPos.xyz, _ClipSphereInverseTransform) * _ClipSphereSide);
-#endif
-#if defined(_CLIPPING_BOX)
-                primitiveDistance = min(primitiveDistance, GTPointVsBox(i.worldPos.xyz, _ClipBoxInverseTransform) * _ClipBoxSide);
-#endif
-                clip(primitiveDistance);
+                ClipAgainstPrimitive(i.worldPos);
 #endif
 
                 // Calculate  minimum distance to one of the triangle lines, making sure to correct

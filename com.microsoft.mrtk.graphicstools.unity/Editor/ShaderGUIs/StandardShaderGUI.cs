@@ -10,72 +10,72 @@ using UnityEngine.Rendering;
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
+    /// How to treat the alpha channel of the albedo texture.
+    /// </summary>
+    public enum AlbedoAlphaMode
+    {
+        Transparency = 0,
+        Metallic = 1,
+        Smoothness = 2
+    }
+
+    /// <summary>
+    /// What type of direct light affects the surface.
+    /// </summary>
+    public enum LightMode
+    {
+        Unlit = 0,
+        LitDirectional = 1,
+        LitDistant = 2
+    }
+
+    /// <summary>
+    /// What type of gradient to generate.
+    /// </summary>
+    public enum GradientMode
+    {
+        None = 0,
+        Iridescence = 1,
+        FourPoint = 2,
+        Linear = 3
+    }
+
+    /// <summary>
+    /// How the border color should be calculated.
+    /// </summary>
+    public enum BorderColorMode
+    {
+        Brightness = 0,
+        HoverColor = 1,
+        Color = 2,
+        Gradient = 3
+    }
+
+    /// <summary>
+    /// Is edge smoothing controlled by a user defined value or programmatically.
+    /// </summary>
+    public enum EdgeSmoothingMode
+    {
+        Manual = 0,
+        Automatic = 1
+    }
+
+    /// <summary>
+    /// How to sample the blur texture.
+    /// </summary>
+    public enum BlurMode
+    {
+        None = 0,
+        Layer1 = 1,
+        Layer2 = 2,
+        PrebakedBackground = 3
+    }
+
+    /// <summary>
     /// A custom shader inspector for the "Graphics Tools/Standard" and "Graphics Tools/Standard Canvas" shaders.
     /// </summary>
     public class StandardShaderGUI : BaseShaderGUI
     {
-        /// <summary>
-        /// How to treat the alpha channel of the albedo texture.
-        /// </summary>
-        protected enum AlbedoAlphaMode
-        {
-            Transparency = 0,
-            Metallic = 1,
-            Smoothness = 2
-        }
-
-        /// <summary>
-        /// What type of direct light affects the surface.
-        /// </summary>
-        protected enum LightMode
-        {
-            Unlit = 0,
-            LitDirectional = 1,
-            LitDistant = 2
-        }
-
-        /// <summary>
-        /// What type of gradient to generate.
-        /// </summary>
-        protected enum GradientMode
-        {
-            None = 0,
-            Iridescence = 1,
-            FourPoint = 2,
-            Linear = 3
-        }
-
-        /// <summary>
-        /// How the border color should be calculated.
-        /// </summary>
-        protected enum BorderColorMode
-        {
-            Brightness = 0,
-            HoverColor = 1,
-            Color = 2,
-            Gradient = 3
-        }
-
-        /// <summary>
-        /// Is edge smoothing controlled by a user defined value or programmatically.
-        /// </summary>
-        protected enum EdgeSmoothingMode
-        {
-            Manual = 0,
-            Automatic = 1
-        }
-
-        /// <summary>
-        /// How to sample the blur texture.
-        /// </summary>
-        protected enum BlurMode
-        {
-            None = 0,
-            Layer1 = 1,
-            Layer2 = 2,
-            PrebakedBackground = 3
-        }
-
         /// <summary>
         /// Common names, keywords, and tooltips.
         /// </summary>
@@ -100,7 +100,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent enableChannelMap = new GUIContent("Channel Map", "Enable Channel Map, a Channel Packing Texture That Follows Unity's Standard Channel Setup");
             public static readonly GUIContent channelMap = new GUIContent("Channel Map", "Metallic (Red), Occlusion (Green), Emission (Blue), Smoothness (Alpha)");
             public static readonly GUIContent enableNormalMap = new GUIContent("Normal Map", "Enable Normal Map");
-            public static readonly GUIContent normalMap = new GUIContent("Normal Map");
+            public static readonly GUIContent normalMap = new GUIContent("Normal Map"); 
             public static readonly GUIContent enableEmission = new GUIContent("Emission", "Enable Emission");
             public static readonly GUIContent emissiveColor = new GUIContent("Color");
             public static readonly GUIContent emissiveMap = new GUIContent("EmissionMap");
@@ -116,8 +116,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent specularHighlights = new GUIContent("Specular Highlights", "Calculate Specular Highlights");
             public static readonly GUIContent sphericalHarmonics = new GUIContent("Spherical Harmonics", "Read From Spherical Harmonics Data for Ambient Light");
             public static readonly GUIContent reflections = new GUIContent("Reflections", "Calculate Glossy Reflections");
-            public static readonly GUIContent refraction = new GUIContent("Refraction", "Calculate Refraction");
-            public static readonly GUIContent refractiveIndex = new GUIContent("Refractive Index", "Ratio of Indices of Refraction at the Surface Interface");
             public static readonly GUIContent rimLight = new GUIContent("Rim Light", "Enable Rim (Fresnel) Lighting");
             public static readonly GUIContent rimColor = new GUIContent("Color", "Rim Highlight Color");
             public static readonly GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
@@ -220,6 +218,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty channelMap;
         protected MaterialProperty enableNormalMap;
         protected MaterialProperty normalMap;
+        protected MaterialProperty normalMapScale;
         protected MaterialProperty enableEmission;
         protected MaterialProperty emissiveColor;
         protected MaterialProperty emissiveMap;
@@ -234,8 +233,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty specularHighlights;
         protected MaterialProperty sphericalHarmonics;
         protected MaterialProperty reflections;
-        protected MaterialProperty refraction;
-        protected MaterialProperty refractiveIndex;
         protected MaterialProperty rimLight;
         protected MaterialProperty rimColor;
         protected MaterialProperty rimPower;
@@ -336,6 +333,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             channelMap = FindProperty("_ChannelMap", props);
             enableNormalMap = FindProperty("_EnableNormalMap", props);
             normalMap = FindProperty("_NormalMap", props);
+            normalMapScale = FindProperty("_NormalMapScale", props);
             enableEmission = FindProperty("_EnableEmission", props);
             emissiveMap = FindProperty("_EmissiveMap", props);
             emissiveColor = FindProperty("_EmissiveColor", props);
@@ -348,8 +346,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             specularHighlights = FindProperty("_SpecularHighlights", props);
             sphericalHarmonics = FindProperty("_SphericalHarmonics", props);
             reflections = FindProperty("_Reflections", props);
-            refraction = FindProperty("_Refraction", props);
-            refractiveIndex = FindProperty("_RefractiveIndex", props);
             rimLight = FindProperty("_RimLight", props);
             rimColor = FindProperty("_RimColor", props);
             rimPower = FindProperty("_RimPower", props);
@@ -463,6 +459,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
             float? normalMap = null;
             Texture normalMapTexture = material.HasProperty("_BumpMap") ? material.GetTexture("_BumpMap") : null;
+            float? normalMapScale = GetFloatProperty(material, "_BumpScale");
             float? emission = null;
             Color? emissionColor = GetColorProperty(material, "_EmissionColor");
             Texture emissionMapTexture = material.HasProperty("_EmissionMap") ? material.GetTexture("_EmissionMap") : null;
@@ -507,6 +504,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 material.SetTexture("_NormalMap", normalMapTexture);
             }
+            
+            SetShaderFeatureActive(material, null, "_NormalMapScale", normalMapScale);
 
             if (emissionMapTexture)
             {
@@ -639,7 +638,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 if (PropertyEnabled(enableNormalMap))
                 {
                     EditorGUI.indentLevel += 2;
-                    materialEditor.TexturePropertySingleLine(Styles.normalMap, normalMap);
+                    materialEditor.TexturePropertySingleLine(Styles.normalMap, normalMap, normalMapScale);
                     EditorGUI.indentLevel -= 2;
                 }
             }
@@ -717,21 +716,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             if ((LightMode)lightMode.floatValue != LightMode.Unlit)
             {
                 materialEditor.ShaderProperty(specularHighlights, Styles.specularHighlights, 2);
+                materialEditor.ShaderProperty(sphericalHarmonics, Styles.sphericalHarmonics, 2);
             }
-
-            materialEditor.ShaderProperty(sphericalHarmonics, Styles.sphericalHarmonics);
 
             materialEditor.ShaderProperty(reflections, Styles.reflections);
-
-            if (PropertyEnabled(reflections))
-            {
-                materialEditor.ShaderProperty(refraction, Styles.refraction, 2);
-
-                if (PropertyEnabled(refraction))
-                {
-                    materialEditor.ShaderProperty(refractiveIndex, Styles.refractiveIndex, 4);
-                }
-            }
 
             materialEditor.ShaderProperty(rimLight, Styles.rimLight);
 

@@ -10,32 +10,32 @@ using Object = UnityEngine.Object;
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
+    /// Groups render state into a handful of common surface configurations.
+    /// </summary>
+    public enum RenderingMode
+    {
+        Opaque = 0,
+        Cutout = 1,
+        Fade = 2,
+        Transparent = 3,
+        Additive = 4,
+        Custom = 5
+    }
+
+    /// <summary>
+    /// Toggle for depth writing.
+    /// </summary>
+    public enum DepthWrite
+    {
+        Off = 0,
+        On = 1
+    }
+
+    /// <summary>
     /// A custom base shader inspector for Graphics Tools shaders.
     /// </summary>
     public abstract class BaseShaderGUI : ShaderGUI
     {
-        /// <summary>
-        /// Groups render state into a handful of common surface configurations.
-        /// </summary>
-        public enum RenderingMode
-        {
-            Opaque = 0,
-            Cutout = 1,
-            Fade = 2,
-            Transparent = 3,
-            Additive = 4,
-            Custom = 5
-        }
-
-        /// <summary>
-        /// Toggle for depth writing.
-        /// </summary>
-        public enum DepthWrite
-        {
-            Off = 0,
-            On = 1
-        }
-
         /// <summary>
         /// Common names, keywords, and tooltips.
         /// </summary>

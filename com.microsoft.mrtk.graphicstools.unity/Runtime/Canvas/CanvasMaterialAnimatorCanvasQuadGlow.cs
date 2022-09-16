@@ -95,6 +95,22 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// <summary>
            /// Shader property.
            /// </summary>;
+           public float _SrcBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _SrcBlendAlphaID = Shader.PropertyToID("_SrcBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
+           public float _DstBlendAlpha = 1f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _DstBlendAlphaID = Shader.PropertyToID("_DstBlendAlpha");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
            [Range(0f, 255f)] public float _StencilReference = 0f;
            /// <summary>
            /// Shader property ID.
@@ -170,6 +186,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             _Glow_Falloff_ = material.GetFloat(_Glow_Falloff_ID);
             _SrcBlend = material.GetFloat(_SrcBlendID);
             _DstBlend = material.GetFloat(_DstBlendID);
+            _SrcBlendAlpha = material.GetFloat(_SrcBlendAlphaID);
+            _DstBlendAlpha = material.GetFloat(_DstBlendAlphaID);
             _StencilReference = material.GetFloat(_StencilReferenceID);
             _StencilComparison = material.GetFloat(_StencilComparisonID);
             _StencilOperation = material.GetFloat(_StencilOperationID);
@@ -193,6 +211,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_Glow_Falloff_ID, _Glow_Falloff_);
             material.SetFloat(_SrcBlendID, _SrcBlend);
             material.SetFloat(_DstBlendID, _DstBlend);
+            material.SetFloat(_SrcBlendAlphaID, _SrcBlendAlpha);
+            material.SetFloat(_DstBlendAlphaID, _DstBlendAlpha);
             material.SetFloat(_StencilReferenceID, _StencilReference);
             material.SetFloat(_StencilComparisonID, _StencilComparison);
             material.SetFloat(_StencilOperationID, _StencilOperation);

@@ -66,5 +66,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             materialPropertyBlock.SetVector(clipPlaneID, clipPlane);
         }
+
+        /// <inheritdoc />
+        protected override void UpdateShaderProperties(Material material)
+        {
+            material.SetVector(clipPlaneID, clipPlane);
+        }
     }
 }

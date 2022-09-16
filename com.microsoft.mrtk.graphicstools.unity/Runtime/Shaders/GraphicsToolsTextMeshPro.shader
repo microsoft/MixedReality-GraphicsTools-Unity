@@ -65,7 +65,7 @@ Properties {
     _CullMode             ("Cull Mode", Float) = 0
     _ColorMask            ("Color Mask", Float) = 15
 
-    [Enum(DepthWrite)] _ZWrite                          ("Depth Write", Float) = 0     // Off
+    [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite                          ("Depth Write", Float) = 0     // Off
     [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4      // "LessEqual"
 
     [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                 // "One"
@@ -209,19 +209,6 @@ SubShader {
         uniform float        _ScaleY;
         uniform float        _PerspectiveFilter;
         uniform float        _Sharpness;
-
-        // #if defined(_CLIPPING_PLANE)
-        fixed _ClipPlaneSide;
-        float4 _ClipPlane;
-
-        // #if defined(_CLIPPING_SPHERE)
-        fixed _ClipSphereSide;
-        float4x4 _ClipSphereInverseTransform;
-
-        // #if defined(_CLIPPING_BOX)
-        fixed _ClipBoxSide;
-        float4x4 _ClipBoxInverseTransform;
-
 CBUFFER_END
 
         struct vertex_t {
