@@ -3,19 +3,20 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using System.Linq;
-using UnityEditor.EditorTools;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
-    /// General purpose tool for vizualizing ambient occlusion
+    /// Probes the scene to compute coverage above the surface
+    /// Metadata is added to the mesh 
+    /// Shader references metadata later in pipeline
     /// </summary>
     public class AmbientOcclusionTool
     {
-        private AmbientOcclusionSettings settings;
+        internal AmbientOcclusionSettings settings;
         private List<GameObject> selectedObjects;
 
         public AmbientOcclusionTool(AmbientOcclusionSettings toolSettings)
@@ -33,12 +34,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private MeshFilter _meshFilter;
 
         //private Shader _standardShader;
-        private static string _standardShaderPath = "Graphics Tools/Standard";
-
-        private void OnEnable()
-        {
-            
-        }
+        //private static string _standardShaderPath = "Graphics Tools/Standard";
 
         //public override void OnToolGUI(EditorWindow window)
         //{
@@ -78,7 +74,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         //    _showSamples = EditorGUILayout.Toggle("Show samples", _showSamples);
         //}
 
-        void OnDrawGizmos()
+        private void DrawVisualization()
         {
             if (_vertexs == null
                 || _vertexs.Length == 0
@@ -174,7 +170,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Peform the ambient occlusion calculation
         /// </summary>
-        private void GatherSelectionSamples()
+        internal void GatherSelectionSamples()
         {
             Selection.gameObjects.ToList().ForEach(i => GatherSamples(i));
         }
@@ -277,7 +273,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         {
                             if (material.name == "Default-Material")
                             {
-                                Material newMaterial = new Material(Shader.Find(_standardShaderPath));
+                                Material newMaterial = new Material(Shader.Find(settings.StandardShaderPath));
                                 AssetDatabase.CreateAsset(newMaterial, $"Assets/{material.name}-AO.mat");
                                 UnityEngine.Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
                                 // Todo: change SetFloat signature to use int version Shader.PropToId...
@@ -293,7 +289,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
             }
 
-            UnityEngine.Debug.Log($"{nameof(GatherSamples)} elapsed-ms={watch.ElapsedMilliseconds} vertex-count={mesh.vertexCount} rays-per-vertex={settings.SamplesPerVertex}");
+            UnityEngine.Debug.Log($"{nameof(GatherSamples)} vertex-count={mesh.vertexCount} rays-per-vertex={settings.SamplesPerVertex} elapsed-ms={watch.ElapsedMilliseconds}");
         }
 
         private bool IsStandardShader(Material material)
@@ -306,6 +302,47 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
             }
             return false;
+        }
+
+        public void OnSelectionChanged()
+        {
+            //throw new System.NotImplementedException();
+
+            //if (Selection.count == 0)
+            //{
+            //    selectedObjects.Clear();
+            //    return;
+            //}
+
+            //if (Selection.count == 1)
+            //{
+            //    selectedObjects.Clear();
+            //    selectedObjects.Add(Selection.activeGameObject);
+            //    return;
+            //}
+
+            //foreach (var item in Selection.gameObjects)
+            //{
+            //    if (!selectedObjects.Contains(item))
+            //    {
+            //        selectedObjects.Add(item);
+            //    }
+            //}
+
+            ////check for removed items
+            //List<GameObject> objectsToRemove = new List<GameObject>();
+            //foreach (var item in selectedObjects)
+            //{
+            //    if (!Selection.Contains(item))
+            //    {
+            //        objectsToRemove.Add(item);
+            //    }
+            //}
+
+            //foreach (var item in objectsToRemove)
+            //{
+            //    selectedObjects.Remove(item);
+            //}
         }
 
         private Mesh DeepCopyMesh(Mesh source)

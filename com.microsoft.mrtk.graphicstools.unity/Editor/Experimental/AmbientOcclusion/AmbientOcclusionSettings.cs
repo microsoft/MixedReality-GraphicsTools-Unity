@@ -15,7 +15,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     /// </summary>
     public class AmbientOcclusionSettings : ScriptableObject
     {
-        [SerializeField] private int _samplesPerVertex;
+        SerializedProperty _samplesPerVertex;
         [SerializeField] private float _maxSampleDistance;
         [SerializeField] private int _referenceVertexIndex;
         [SerializeField] private bool _showOrigin;
@@ -23,7 +23,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [SerializeField] private float _originRadius;
         [SerializeField] private bool _showNormal;
         [SerializeField] private Color _normalColor;
-        [SerializeField] private float _normalScale ;
+        [SerializeField] private float _normalScale;
         [SerializeField] private bool _showBentNormal;
         [SerializeField] private Color _bentNormalColor;
         [SerializeField] private float _bentNormalScale;
@@ -39,9 +39,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [SerializeField] private bool _upgradeMaterials;
         [SerializeField] private int _samplesIndex;
         [SerializeField] private string _shaderPropertyName = "_VertexBentNormalAo";
+        [SerializeField] private string _standardShaderPath = "Graphics Tools/Standard";
 
         /// <summary>How far to search for nearby colliders in the scene.</summary>
-        public int SamplesPerVertex { get => _samplesPerVertex; }
+        public int SamplesPerVertex { get => _samplesPerVertex.intValue; }
         public float MaxSampleDistance { get => _maxSampleDistance; }
         /// <summary>The index of vertex to visualize</summary>
         public int ReferenceVertexIndex { get => _referenceVertexIndex; }
@@ -66,33 +67,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         public bool UpgradeMaterials { get => _upgradeMaterials; }
         public int SamplesIndex { get => _samplesIndex; }
         public string ShaderPropertyName { get => _shaderPropertyName; }
+        public string StandardShaderPath { get => _standardShaderPath; }
 
         public const string AmbientOcclusionSettingsPath = "Assets/Editor/AmbientOcclusionSettings.asset";
 
-        /// <summary>
-        /// Handles getting the settings from a .asset file or creating a new one.
-        /// </summary>
-        /// <returns>Returns the current settings for the Measure Tool</returns>
-        internal static AmbientOcclusionSettings GetOrCreateSettings()
-        {
-            var settings = AssetDatabase.LoadAssetAtPath<AmbientOcclusionSettings>(AmbientOcclusionSettingsPath);
-            if (settings == null)
-            {
-                settings = CreateInstance<AmbientOcclusionSettings>();
-                if (!AssetDatabase.IsValidFolder("Assets/Editor/"))
-                {
-                    AssetDatabase.CreateFolder("Assets", "Editor");
-                    AssetDatabase.Refresh();
-                }
-                AssetDatabase.CreateAsset(settings, AmbientOcclusionSettingsPath);
-                AssetDatabase.SaveAssets();
-            }
-            return settings;
-        }
-
         private void Reset()
         {
-            _samplesPerVertex = 100;
+            //_samplesPerVertex = 100;
             _maxSampleDistance = 1;
             _referenceVertexIndex = 0;
             _showOrigin = true;
@@ -116,6 +97,28 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _upgradeMaterials = false;
             _samplesIndex = 2;
             _shaderPropertyName = "_VertexBentNormalAo";
+            _standardShaderPath = "Graphics Tools/Standard";
+        }
+
+        /// <summary>
+        /// Handles getting the settings from a .asset file or creating a new one.
+        /// </summary>
+        /// <returns>Returns the current settings for the Ambient Occlusion Tool</returns>
+        internal static AmbientOcclusionSettings GetOrCreateSettings()
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<AmbientOcclusionSettings>(AmbientOcclusionSettingsPath);
+            if (settings == null)
+            {
+                settings = CreateInstance<AmbientOcclusionSettings>();
+                if (!AssetDatabase.IsValidFolder("Assets/Editor/"))
+                {
+                    AssetDatabase.CreateFolder("Assets", "Editor");
+                    AssetDatabase.Refresh();
+                }
+                AssetDatabase.CreateAsset(settings, AmbientOcclusionSettingsPath);
+                AssetDatabase.SaveAssets();
+            }
+            return settings;
         }
 
         internal static SerializedObject GetSerializedSettings()
@@ -129,20 +132,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// </summary>
         /// <returns></returns>
         [SettingsProvider]
-        private static SettingsProvider CreateMeasureToolSettingsProvider()
+        private static SettingsProvider CreateAmbientOcclusionToolSettingsProvider()
         {
             var provider = new SettingsProvider("Project/Ambient occlusion tool settings", SettingsScope.Project)
             {
                 activateHandler = (searchContext, rootElement) =>
                 {
-                    var settings = MeasureToolSettings.GetSerializedSettings();
-
-                    rootElement.Add(SettingsUI());
-                    rootElement.Bind(settings);
+                    //rootElement.Add(SettingsUI());
+                    rootElement.Bind(GetSerializedSettings());
                 },
                 keywords = new HashSet<string>(new[] { "Ambient", "Occlusion", "Tool" })
             };
-
             return provider;
         }
 
@@ -154,49 +154,31 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         public static VisualElement SettingsUI()
         {
             ScrollView scrollView = new ScrollView();
-            EnumField modeField = new EnumField("Mode");
-            modeField.bindingPath = "mode";
-            scrollView.Add(modeField);
-
-            Foldout settingsFoldout = new Foldout();
-            settingsFoldout.text = "Settings";
-            settingsFoldout.value = false;
-            scrollView.Add(settingsFoldout);
-
-            EnumField unitField = new EnumField("Units");
-            unitField.name = "unitField";
-            unitField.bindingPath = "unit";
-            settingsFoldout.Add(unitField);
-
-            EnumField scaleField = new EnumField("Scale");
-            scaleField.name = "scaleField";
-            scaleField.bindingPath = "scale";
-            settingsFoldout.Add(scaleField);
-
-            ColorField textColorField = new ColorField("Text Color");
-            textColorField.name = "textColorField";
-            textColorField.bindingPath = "textColor";
-            settingsFoldout.Add(textColorField);
-
-            Slider textSizeField = new Slider("Text Size", 10f, 28f);
-            textSizeField.name = "textSizeField";
-            textSizeField.bindingPath = "textSize";
-            settingsFoldout.Add(textSizeField);
-
-            ColorField lineColorField = new ColorField("Line Color");
-            lineColorField.name = "lineColorField";
-            lineColorField.bindingPath = "lineColor";
-            settingsFoldout.Add(lineColorField);
-
-            Slider offsetField = new Slider("Lines Offset", 0f, 0.1f);
-            offsetField.name = "offsetField";
-            offsetField.bindingPath = "offset";
-            settingsFoldout.Add(offsetField);
-
-            Slider lineThicknessField = new Slider("Line Thickness", 1f, 12f);
-            lineThicknessField.bindingPath = "lineThickness";
-            settingsFoldout.Add(lineThicknessField);
-
+            scrollView.Add(new IntegerField("Samples per vertex") { bindingPath = nameof(_samplesPerVertex) });
+            scrollView.Add(new FloatField("Max sample distance") { bindingPath = nameof(_maxSampleDistance) });
+            scrollView.Add(new IntegerField("Reference vertex index") { bindingPath = nameof(_referenceVertexIndex) });
+            scrollView.Add(new Toggle("Show origin") { bindingPath = nameof(_showOrigin) });
+            scrollView.Add(new ColorField("Origin color") { bindingPath = nameof(_originColor) });
+            scrollView.Add(new FloatField("Origin radius") { bindingPath = nameof(_originRadius) });
+            scrollView.Add(new Toggle("Show normal") { bindingPath = nameof(_showNormal) });
+            scrollView.Add(new ColorField("Normal color") { bindingPath = nameof(_normalColor) });
+            scrollView.Add(new FloatField("Normal scale") { bindingPath = nameof(_normalScale) });
+            scrollView.Add(new Toggle("Show bent normal") { bindingPath = nameof(_showBentNormal) });
+            scrollView.Add(new ColorField("Bent normal color") { bindingPath = nameof(_bentNormalColor) });
+            scrollView.Add(new FloatField("Bent normal scale") { bindingPath = nameof(_bentNormalScale) });
+            scrollView.Add(new Toggle("Show samples") { bindingPath = nameof(_showSamples) });
+            scrollView.Add(new ColorField("Sample color") { bindingPath = nameof(_sampleColor) });
+            scrollView.Add(new Toggle("Show hits") { bindingPath = nameof(_showHits) });
+            scrollView.Add(new ColorField("Hit color") { bindingPath = nameof(_hitColor) });
+            scrollView.Add(new FloatField("Hit radius") { bindingPath = nameof(_hitRadius) });
+            scrollView.Add(new Toggle("Show coverage") { bindingPath = nameof(_showCoverage) });
+            scrollView.Add(new FloatField("Coverage radius") { bindingPath = nameof(_coverageRadius) });
+            scrollView.Add(new FloatField("Origin normal offset") { bindingPath = nameof(_originNormalOffset) });
+            scrollView.Add(new IntegerField("UV channel") { bindingPath = nameof(_uvChannel) });
+            scrollView.Add(new Toggle("Upgrade materials") { bindingPath = nameof(_upgradeMaterials) });
+            scrollView.Add(new IntegerField("Samples index") { bindingPath = nameof(_samplesIndex) });
+            scrollView.Add(new TextField("Shader property name") { bindingPath = nameof(_shaderPropertyName) });
+            scrollView.Add(new TextField("Standard shader path") { bindingPath = nameof(_standardShaderPath) });
             return scrollView;
         }
     }
