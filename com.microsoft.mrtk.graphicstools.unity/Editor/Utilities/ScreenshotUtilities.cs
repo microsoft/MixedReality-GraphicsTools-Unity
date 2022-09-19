@@ -31,6 +31,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             CaptureScreenshot(GetScreenshotPath(), 1, true);
             EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
+
         [Shortcut("Graphics Tools/Take Screenshot 2x", KeyCode.Alpha2, ShortcutModifiers.Alt)]
         [MenuItem("Window/Graphics Tools/Take Screenshot/2x Resolution")]
         private static void CaptureScreenshot2x()
@@ -46,6 +47,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             CaptureScreenshot(GetScreenshotPath(), 2, true);
             EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
+
         [Shortcut("Graphics Tools/Take Screenshot 4x", KeyCode.Alpha4, ShortcutModifiers.Alt)]
         [MenuItem("Window/Graphics Tools/Take Screenshot/4x Resolution")]
         private static void CaptureScreenshot4x()
