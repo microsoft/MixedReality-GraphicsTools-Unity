@@ -33,25 +33,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
         private MeshFilter _meshFilter;
 
-        //private Shader _standardShader;
-        //private static string _standardShaderPath = "Graphics Tools/Standard";
-
-        //public override void OnToolGUI(EditorWindow window)
-        //{
-
-        //}
-
-        //[MenuItem("Window/Graphics Tools/Ambient occclusion")]
-        //private static void ShowWindow()
-        //{
-        //    if (Shader.Find(_standardShaderPath) == null)
-        //    {
-        //        UnityEngine.Debug.LogError($"Unable to locate {_standardShaderPath}!");
-        //    }
-        //    var window = GetWindow<AmbientOcclusionToolWindow>();
-        //    window.titleContent = new GUIContent("Ambient occlusion");
-        //    window.Show();
-        //}
 
         /// <summary>
         /// Custom inspector that exposes additional user controls for the AmbientOcclusion component
@@ -74,7 +55,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         //    _showSamples = EditorGUILayout.Toggle("Show samples", _showSamples);
         //}
 
-        private void DrawVisualization()
+        internal void DrawVisualization()
         {
             if (_vertexs == null
                 || _vertexs.Length == 0
@@ -84,27 +65,31 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 return;
             }
 
+            Handles.RadiusHandle(new Quaternion(),
+                                 _vertexs[settings.ReferenceVertexIndex],
+                                 settings.MaxSampleDistance);
+
             if (settings.ShowOrigin)
             {
-                Gizmos.color = settings.OriginColor;
+                Handles.color = settings.OriginColor;
                 Handles.Label(_vertexs[settings.ReferenceVertexIndex], $"{settings.ReferenceVertexIndex}");
-                Gizmos.DrawSphere(_vertexs[settings.ReferenceVertexIndex], settings.OriginRadius);
+                //Handles.DrawSphere(_vertexs[settings.ReferenceVertexIndex], settings.OriginRadius);
             }
 
             if (settings.ShowNormal)
             {
-                Gizmos.color = settings.NormalColor;
-                Gizmos.DrawLine(
+                Handles.color = settings.NormalColor;
+                Handles.DrawLine(
                     _vertexs[settings.ReferenceVertexIndex],
                     _vertexs[settings.ReferenceVertexIndex] + _normals[settings.ReferenceVertexIndex] * settings.NormalScale);
             }
 
             if (settings.ShowBentNormal)
             {
-                Gizmos.color = settings.BentNormalColor;
+                Handles.color = settings.BentNormalColor;
                 var bn = _bentNormalsAo[settings.ReferenceVertexIndex];
                 var bn3 = new Vector3(bn.x, bn.y, bn.z);
-                Gizmos.DrawLine(_vertexs[settings.ReferenceVertexIndex],
+                Handles.DrawLine(_vertexs[settings.ReferenceVertexIndex],
                                 _vertexs[settings.ReferenceVertexIndex] + bn3 * settings.BentNormalScale);
             }
 
@@ -112,8 +97,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 for (int i = 0; i < _referenceVertexSamples.Count; i++)
                 {
-                    Gizmos.color = settings.SampleColor;
-                    Gizmos.DrawLine(
+                    Handles.color = settings.SampleColor;
+                    Handles.DrawLine(
                         _vertexs[settings.ReferenceVertexIndex],
                         _vertexs[settings.ReferenceVertexIndex] + _referenceVertexSamples[i] * settings.MaxSampleDistance);
                 }
@@ -123,13 +108,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 for (int i = 0; i < _vertexs.Length; i++)
                 {
-                    Gizmos.color = new Color(_bentNormalsAo[i].x,
+                    Handles.color = new Color(_bentNormalsAo[i].x,
                                              _bentNormalsAo[i].y,
                                              _bentNormalsAo[i].z,
                                              1);
                     var coverage = 1 - _bentNormalsAo[i].w;
-                    Gizmos.color = new Color(coverage, coverage, coverage, 1);
-                    Gizmos.DrawSphere(_vertexs[i], settings.CoverageRadius * coverage);
+                    Handles.color = new Color(coverage, coverage, coverage, 1);
+                    //Handles.DrawSphere(_vertexs[i], settings.CoverageRadius * coverage);
                 }
             }
 
@@ -137,11 +122,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 for (int i = 0; i < _referenceVertexHits.Count; i++)
                 {
-                    Gizmos.color = new Color(_bentNormalsAo[i].x,
+                    Handles.color = new Color(_bentNormalsAo[i].x,
                                              _bentNormalsAo[i].y,
                                              _bentNormalsAo[i].z,
                                              1);
-                    Gizmos.DrawSphere(_referenceVertexHits[i].point, settings.HitRadius);
+                    //Handles.DrawSphere(_referenceVertexHits[i].point, settings.HitRadius);
                 }
             }
         }
@@ -273,7 +258,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         {
                             if (material.name == "Default-Material")
                             {
-                                Material newMaterial = new Material(Shader.Find(settings.StandardShaderPath));
+                                Material newMaterial = new Material(settings.StandardShader);
                                 AssetDatabase.CreateAsset(newMaterial, $"Assets/{material.name}-AO.mat");
                                 UnityEngine.Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
                                 // Todo: change SetFloat signature to use int version Shader.PropToId...
@@ -306,43 +291,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         public void OnSelectionChanged()
         {
-            //throw new System.NotImplementedException();
-
-            //if (Selection.count == 0)
-            //{
-            //    selectedObjects.Clear();
-            //    return;
-            //}
-
-            //if (Selection.count == 1)
-            //{
-            //    selectedObjects.Clear();
-            //    selectedObjects.Add(Selection.activeGameObject);
-            //    return;
-            //}
-
-            //foreach (var item in Selection.gameObjects)
-            //{
-            //    if (!selectedObjects.Contains(item))
-            //    {
-            //        selectedObjects.Add(item);
-            //    }
-            //}
-
-            ////check for removed items
-            //List<GameObject> objectsToRemove = new List<GameObject>();
-            //foreach (var item in selectedObjects)
-            //{
-            //    if (!Selection.Contains(item))
-            //    {
-            //        objectsToRemove.Add(item);
-            //    }
-            //}
-
-            //foreach (var item in objectsToRemove)
-            //{
-            //    selectedObjects.Remove(item);
-            //}
+            //DrawVisualization();
         }
 
         private Mesh DeepCopyMesh(Mesh source)

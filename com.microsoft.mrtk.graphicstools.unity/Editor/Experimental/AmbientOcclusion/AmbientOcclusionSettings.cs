@@ -1,21 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
-
     /// <summary>
-    /// A ScriptableObject that holds and persists the settings for the Ambient Occlusion Tool
+    /// Persists tool options for Ambient Occlusion
     /// </summary>
     public class AmbientOcclusionSettings : ScriptableObject
     {
-        SerializedProperty _samplesPerVertex;
+        [Tooltip("The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower.")]
+        [SerializeField] private int _samplesPerVertex;
         [SerializeField] private float _maxSampleDistance;
         [SerializeField] private int _referenceVertexIndex;
         [SerializeField] private bool _showOrigin;
@@ -30,7 +28,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [SerializeField] private bool _showSamples;
         [SerializeField] private Color _sampleColor;
         [SerializeField] private bool _showHits;
-        [SerializeField] private Color _hitColor;
         [SerializeField] private float _hitRadius;
         [SerializeField] private bool _showCoverage;
         [SerializeField] private float _coverageRadius;
@@ -39,10 +36,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [SerializeField] private bool _upgradeMaterials;
         [SerializeField] private int _samplesIndex;
         [SerializeField] private string _shaderPropertyName = "_VertexBentNormalAo";
-        [SerializeField] private string _standardShaderPath = "Graphics Tools/Standard";
+        [Tooltip("The shader is used when 'Upgrade materials' is true. It's expected to support the ambient occlusion metadata.")]
+        [SerializeField] private Shader _standardShader;
 
         /// <summary>How far to search for nearby colliders in the scene.</summary>
-        public int SamplesPerVertex { get => _samplesPerVertex.intValue; }
+        public int SamplesPerVertex { get => _samplesPerVertex; }
         public float MaxSampleDistance { get => _maxSampleDistance; }
         /// <summary>The index of vertex to visualize</summary>
         public int ReferenceVertexIndex { get => _referenceVertexIndex; }
@@ -58,7 +56,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         public bool ShowSamples { get => _showSamples; }
         public Color SampleColor { get => _sampleColor; }
         public bool ShowHits { get => _showHits; }
-        public Color HitColor { get => _hitColor; }
         public float HitRadius { get => _hitRadius; }
         public bool ShowCoverage { get => _showCoverage; }
         public float CoverageRadius { get => _coverageRadius; }
@@ -67,13 +64,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         public bool UpgradeMaterials { get => _upgradeMaterials; }
         public int SamplesIndex { get => _samplesIndex; }
         public string ShaderPropertyName { get => _shaderPropertyName; }
-        public string StandardShaderPath { get => _standardShaderPath; }
+        public Shader StandardShader { get => _standardShader; }
 
         public const string AmbientOcclusionSettingsPath = "Assets/Editor/AmbientOcclusionSettings.asset";
 
         private void Reset()
         {
-            //_samplesPerVertex = 100;
+            _samplesPerVertex = 100;
             _maxSampleDistance = 1;
             _referenceVertexIndex = 0;
             _showOrigin = true;
@@ -88,7 +85,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _showSamples = false;
             _sampleColor = Color.yellow;
             _showHits = false;
-            _hitColor = Color.black;
             _hitRadius = .03f;
             _showCoverage = false;
             _coverageRadius = .03f;
@@ -97,7 +93,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _upgradeMaterials = false;
             _samplesIndex = 2;
             _shaderPropertyName = "_VertexBentNormalAo";
-            _standardShaderPath = "Graphics Tools/Standard";
+            _standardShader = Shader.Find("Graphics Tools/Standard");
         }
 
         /// <summary>
@@ -127,59 +123,25 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
 
         /// <summary>
-        /// Integrates the settings into the Unity Editor
-        /// Edit/Project Settings/Ambient occlusion tool settings
-        /// </summary>
-        /// <returns></returns>
-        [SettingsProvider]
-        private static SettingsProvider CreateAmbientOcclusionToolSettingsProvider()
-        {
-            var provider = new SettingsProvider("Project/Ambient occlusion tool settings", SettingsScope.Project)
-            {
-                activateHandler = (searchContext, rootElement) =>
-                {
-                    //rootElement.Add(SettingsUI());
-                    rootElement.Bind(GetSerializedSettings());
-                },
-                keywords = new HashSet<string>(new[] { "Ambient", "Occlusion", "Tool" })
-            };
-            return provider;
-        }
-
-        /// <summary>
         /// Returns a Visual Element to draw the Settings UI.
         /// This ensures that the settings are drawn consistently everywhere.
         /// </summary>
         /// <returns></returns>
         public static VisualElement SettingsUI()
         {
-            ScrollView scrollView = new ScrollView();
-            scrollView.Add(new IntegerField("Samples per vertex") { bindingPath = nameof(_samplesPerVertex) });
-            scrollView.Add(new FloatField("Max sample distance") { bindingPath = nameof(_maxSampleDistance) });
-            scrollView.Add(new IntegerField("Reference vertex index") { bindingPath = nameof(_referenceVertexIndex) });
-            scrollView.Add(new Toggle("Show origin") { bindingPath = nameof(_showOrigin) });
-            scrollView.Add(new ColorField("Origin color") { bindingPath = nameof(_originColor) });
-            scrollView.Add(new FloatField("Origin radius") { bindingPath = nameof(_originRadius) });
-            scrollView.Add(new Toggle("Show normal") { bindingPath = nameof(_showNormal) });
-            scrollView.Add(new ColorField("Normal color") { bindingPath = nameof(_normalColor) });
-            scrollView.Add(new FloatField("Normal scale") { bindingPath = nameof(_normalScale) });
-            scrollView.Add(new Toggle("Show bent normal") { bindingPath = nameof(_showBentNormal) });
-            scrollView.Add(new ColorField("Bent normal color") { bindingPath = nameof(_bentNormalColor) });
-            scrollView.Add(new FloatField("Bent normal scale") { bindingPath = nameof(_bentNormalScale) });
-            scrollView.Add(new Toggle("Show samples") { bindingPath = nameof(_showSamples) });
-            scrollView.Add(new ColorField("Sample color") { bindingPath = nameof(_sampleColor) });
-            scrollView.Add(new Toggle("Show hits") { bindingPath = nameof(_showHits) });
-            scrollView.Add(new ColorField("Hit color") { bindingPath = nameof(_hitColor) });
-            scrollView.Add(new FloatField("Hit radius") { bindingPath = nameof(_hitRadius) });
-            scrollView.Add(new Toggle("Show coverage") { bindingPath = nameof(_showCoverage) });
-            scrollView.Add(new FloatField("Coverage radius") { bindingPath = nameof(_coverageRadius) });
-            scrollView.Add(new FloatField("Origin normal offset") { bindingPath = nameof(_originNormalOffset) });
-            scrollView.Add(new IntegerField("UV channel") { bindingPath = nameof(_uvChannel) });
-            scrollView.Add(new Toggle("Upgrade materials") { bindingPath = nameof(_upgradeMaterials) });
-            scrollView.Add(new IntegerField("Samples index") { bindingPath = nameof(_samplesIndex) });
-            scrollView.Add(new TextField("Shader property name") { bindingPath = nameof(_shaderPropertyName) });
-            scrollView.Add(new TextField("Standard shader path") { bindingPath = nameof(_standardShaderPath) });
-            return scrollView;
+            VisualElement result = null;
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.microsoft.mrtk.graphicstools.unity/Editor/Experimental/AmbientOcclusion/AmbientOcclusion.uxml");
+            if (visualTree)
+            {
+                result = visualTree.CloneTree();
+            }
+
+            return result;
+        }
+
+        private void OnMouseDown(MouseDownEvent evt)
+        {
+            Debug.Log(nameof(OnMouseDown));
         }
     }
 }

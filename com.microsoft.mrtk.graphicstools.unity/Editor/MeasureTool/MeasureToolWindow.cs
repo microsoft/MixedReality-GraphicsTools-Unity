@@ -52,7 +52,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             root.Add(MeasureToolSettings.SettingsUI());
             root.Bind(MeasureToolSettings.GetSerializedSettings());
             OnSelectionChange();
-            
         }
 
         private void OnValidate()

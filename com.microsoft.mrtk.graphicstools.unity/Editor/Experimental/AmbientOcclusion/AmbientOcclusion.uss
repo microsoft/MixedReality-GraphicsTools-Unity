@@ -1,0 +1,12 @@
+:root {
+    --figure: #ebebeb;
+    --figure-yellow: #f7eb88;
+    --figure-blue: #a0b5e8;
+    --ground: #101010;
+    --gray30: #4c4c4c;
+    font-size:18px;
+}
+
+FoldOut {
+    font-size: 16px;
+}

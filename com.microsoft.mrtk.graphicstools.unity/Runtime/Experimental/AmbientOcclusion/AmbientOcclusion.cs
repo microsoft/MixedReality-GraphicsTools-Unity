@@ -21,7 +21,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         [Header("Ray tracing")]
 
-        [Tooltip("The number of rays to send into the hemisphere above the surface, per vertex. Bigger numbers will be slower.")]
+        [Tooltip("The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower.")]
         [SerializeField, Min(1)] private int SamplesPerVertex = 100;
 
         [Tooltip("How far to search for nearby colliders in the scene.")]

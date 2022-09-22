@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="UnityEngine.UIElements"
+	xmlns:ed="UnityEditor.UIElements"
+	xsi:noNamespaceSchemaLocation="../../../../GraphicsToolsUnityProject/UIElementsSchema/UIElements.xsd">
+	<Style src="AmbientOcclusion.uss" />
+	<Box>
+		<Toggle label="Upgrade materials" binding-path="_upgradeMaterials" value="false" />
+		<Button name="apply" text="Apply" />
+	</Box>
+	<Foldout text="Ray tracing">
+		<ed:IntegerField label="Samples per vertex" binding-path="_samplesPerVertex" tooltip="The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower." />
+		<ed:FloatField label="Max sample distance" binding-path="_maxSampleDistance" />
+	</Foldout>
+	<Foldout text="Visualization">
+		<ed:IntegerField label="Reference vertex index" binding-path="_referenceVertexIndex" />
+		<Box>
+			<Toggle label="Origin" binding-path="_showOrigin" value="false" />
+			<ed:ColorField label="Origin color" binding-path="_originColor" />
+			<ed:FloatField label="Origin radius" binding-path="_originRadius" />
+		</Box>
+		<Toggle label="Normal" binding-path="_showNormal" value="false" />
+		<ed:ColorField label="Normal color" binding-path="_normalColor" />
+		<ed:FloatField label="Normal scale" binding-path="_normalScale" />
+		<Box>
+			<Toggle label="Bent normal" binding-path="show-bent-normal" value="false" />
+			<ed:ColorField label="Bent normal color" binding-path="_bentNormalColor" />
+			<ed:FloatField label="Bent normal scale" binding-path="_bentNormalScale" />
+		</Box>
+		<Toggle label="Samples" binding-path="show-samples" value="false" />
+		<ed:ColorField label="Sample color" binding-path="_sampleColor" />
+		<Box>
+			<Toggle label="Hits" binding-path="show-hits" value="false" />
+			<ed:FloatField label="Hit radius" binding-path="_hitRadius" />
+		</Box>
+		<Toggle label="Coverage" binding-path="show-coverage" value="false" />
+		<ed:FloatField label="Coverage radius" binding-path="_coverageRadius" />
+	</Foldout>
+	<Foldout text="Advanced" value="false">
+		<ed:FloatField label="Origin normal offset" binding-path="_originNormalOffset" />
+		<ed:IntegerField label="UV channel" binding-path="_uvChannel" />
+		<ed:IntegerField label="Samples index" binding-path="_samplesIndex" />
+		<TextField label="Shader property name" binding-path="_shaderPropertyName" />
+		<!-- Evaluate this C# expression (without the backquotes) to get a valid type attribute value: `typeof(Shader).AssemblyQualifiedName` -->
+		<!-- https://answers.unity.com/questions/1625662/in-objectfield-created-in-uxml-uielements.html -->
+		<ed:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_standardShader" tooltip="The shader is used when 'Upgrade materials' is true. It's expected to support the ambient occlusion metadata." allow-scene-objects="false" />
+	</Foldout>
+</UXML>
