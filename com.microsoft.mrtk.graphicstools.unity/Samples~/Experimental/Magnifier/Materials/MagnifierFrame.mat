@@ -188,7 +188,7 @@ Material:
     - _RimLight: 0
     - _RimPower: 0.25
     - _RoundCornerMargin: 0.01
-    - _RoundCornerRadius: 0.03
+    - _RoundCornerRadius: 0.02
     - _RoundCorners: 1
     - _RoundCornersHideInterior: 0
     - _Smoothness: 0

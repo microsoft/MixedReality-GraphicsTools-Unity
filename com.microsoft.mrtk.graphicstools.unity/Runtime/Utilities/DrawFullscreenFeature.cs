@@ -39,6 +39,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public Settings settings = new Settings();
         private DrawFullscreenPass blitPass;
+
         /// <summary>
         /// Method <c>Create</c> creates the render pass.
         /// </summary>
