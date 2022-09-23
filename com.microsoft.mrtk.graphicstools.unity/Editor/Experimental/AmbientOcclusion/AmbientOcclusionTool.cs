@@ -33,36 +33,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
         private MeshFilter _meshFilter;
 
-
-        /// <summary>
-        /// Custom inspector that exposes additional user controls for the AmbientOcclusion component
-        /// </summary>
-        //[CustomEditor(typeof(AmbientOcclusion)), CanEditMultipleObjects]
-        //private void OnGUI()
-        //{
-        //    EditorGUILayout.LabelField("Ray tracing");
-        //    var _samplesPerVertexLabels = new string[] { "1", "10", "100", "1000", "10000" };
-        //    _samplesIndex = EditorGUILayout.Popup("Samples per vertex", _samplesIndex, _samplesPerVertexLabels);
-        //    _samplesPerVertex = (int)Mathf.Pow(10, _samplesIndex);
-
-        //    MaxSampleDistance = EditorGUILayout.FloatField("Max sample distance", MaxSampleDistance);
-
-        //    if (GUILayout.Button("Gather selection samples"))
-        //    {
-        //        GatherSelectionSamples();
-        //    }
-
-        //    _showSamples = EditorGUILayout.Toggle("Show samples", _showSamples);
-        //}
-
-        internal void DrawVisualization()
+        internal bool DrawVisualization()
         {
             if (_vertexs == null
                 || _vertexs.Length == 0
                 || settings.ReferenceVertexIndex >= _vertexs.Length
                 || settings.ReferenceVertexIndex >= _normals.Length)
             {
-                return;
+                return false;
             }
 
             Handles.RadiusHandle(new Quaternion(),
@@ -73,7 +51,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 Handles.color = settings.OriginColor;
                 Handles.Label(_vertexs[settings.ReferenceVertexIndex], $"{settings.ReferenceVertexIndex}");
-                //Handles.DrawSphere(_vertexs[settings.ReferenceVertexIndex], settings.OriginRadius);
+                Handles.RadiusHandle(new Quaternion(), _vertexs[settings.ReferenceVertexIndex], settings.OriginRadius);
             }
 
             if (settings.ShowNormal)
@@ -114,7 +92,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                              1);
                     var coverage = 1 - _bentNormalsAo[i].w;
                     Handles.color = new Color(coverage, coverage, coverage, 1);
-                    //Handles.DrawSphere(_vertexs[i], settings.CoverageRadius * coverage);
+                    Handles.RadiusHandle(new Quaternion(), _vertexs[i], settings.CoverageRadius * coverage);
                 }
             }
 
@@ -126,9 +104,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                              _bentNormalsAo[i].y,
                                              _bentNormalsAo[i].z,
                                              1);
-                    //Handles.DrawSphere(_referenceVertexHits[i].point, settings.HitRadius);
+                    Handles.RadiusHandle(new Quaternion(), _referenceVertexHits[i].point, settings.HitRadius);
                 }
             }
+
+            return true;
         }
 
         /// <summary>
@@ -291,7 +271,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         public void OnSelectionChanged()
         {
-            //DrawVisualization();
+            DrawVisualization();
         }
 
         private Mesh DeepCopyMesh(Mesh source)

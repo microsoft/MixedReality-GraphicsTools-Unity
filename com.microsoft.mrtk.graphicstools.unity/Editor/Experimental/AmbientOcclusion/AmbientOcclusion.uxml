@@ -24,17 +24,17 @@
 		<ed:ColorField label="Normal color" binding-path="_normalColor" />
 		<ed:FloatField label="Normal scale" binding-path="_normalScale" />
 		<Box>
-			<Toggle label="Bent normal" binding-path="show-bent-normal" value="false" />
+			<Toggle label="Bent normal" binding-path="_showBentNormal" value="false" />
 			<ed:ColorField label="Bent normal color" binding-path="_bentNormalColor" />
 			<ed:FloatField label="Bent normal scale" binding-path="_bentNormalScale" />
 		</Box>
-		<Toggle label="Samples" binding-path="show-samples" value="false" />
+		<Toggle label="Samples" binding-path="_showSamples" value="false" />
 		<ed:ColorField label="Sample color" binding-path="_sampleColor" />
 		<Box>
-			<Toggle label="Hits" binding-path="show-hits" value="false" />
+			<Toggle label="Hits" binding-path="_showHits" value="false" />
 			<ed:FloatField label="Hit radius" binding-path="_hitRadius" />
 		</Box>
-		<Toggle label="Coverage" binding-path="show-coverage" value="false" />
+		<Toggle label="Coverage" binding-path="_showCoverage" value="false" />
 		<ed:FloatField label="Coverage radius" binding-path="_coverageRadius" />
 	</Foldout>
 	<Foldout text="Advanced" value="false">

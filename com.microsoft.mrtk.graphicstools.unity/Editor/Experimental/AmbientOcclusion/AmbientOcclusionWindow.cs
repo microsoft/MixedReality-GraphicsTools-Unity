@@ -12,7 +12,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     public class AmbientOcclusionToolWindow : EditorWindow
     {
         private AmbientOcclusionTool _ambientOcclusionTool;
-        private bool _needsRepaint = false;
         private static AmbientOcclusionToolWindow window;
         private HelpBox _helpBox;
 
@@ -35,11 +34,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
             rootVisualElement.Add(toolUI);
             rootVisualElement.Bind(AmbientOcclusionSettings.GetSerializedSettings());
-        }
-
-        private void OnValidate()
-        {
-            _needsRepaint = true;
         }
 
         private void OnSelectionChange()
@@ -107,16 +101,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// </summary>
         private void OnSceneGUI(SceneView sceneView)
         {
-            Handles.RadiusHandle(new Quaternion(), Vector3.zero, _ambientOcclusionTool.settings.MaxSampleDistance);
-            if (_needsRepaint)
+            if (_ambientOcclusionTool != null)
             {
-                if (_ambientOcclusionTool != null)
+                if (!_ambientOcclusionTool.DrawVisualization())
                 {
-                    _ambientOcclusionTool.DrawVisualization();
+                    _helpBox.text = "Try Apply to visualize results.";
                 }
-                HandleUtility.Repaint();
-                _needsRepaint = false;
             }
+            HandleUtility.Repaint();
         }
     }
 }
