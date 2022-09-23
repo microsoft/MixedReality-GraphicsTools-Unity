@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
@@ -33,14 +34,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
         private MeshFilter _meshFilter;
 
-        internal bool DrawVisualization()
+        internal void DrawVisualization()
         {
             if (_vertexs == null
                 || _vertexs.Length == 0
                 || settings.ReferenceVertexIndex >= _vertexs.Length
                 || settings.ReferenceVertexIndex >= _normals.Length)
             {
-                return false;
+                return;
             }
 
             Handles.RadiusHandle(new Quaternion(),
@@ -108,7 +109,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
             }
 
-            return true;
+            return;
         }
 
         /// <summary>
@@ -271,7 +272,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         public void OnSelectionChanged()
         {
-            DrawVisualization();
+            _vertexs = null;
         }
 
         private Mesh DeepCopyMesh(Mesh source)

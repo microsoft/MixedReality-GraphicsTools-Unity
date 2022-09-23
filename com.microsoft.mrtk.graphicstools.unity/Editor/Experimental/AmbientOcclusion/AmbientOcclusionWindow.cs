@@ -19,7 +19,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             SceneView.duringSceneGui += OnSceneGUI;
             _ambientOcclusionTool = new AmbientOcclusionTool(AmbientOcclusionSettings.GetOrCreateSettings());
-            OnSelectionChange();
+            UpdateHelp();
         }
 
         public void CreateGUI()
@@ -38,6 +38,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void OnSelectionChange()
         {
+            UpdateHelp();
+
+            if (_ambientOcclusionTool != null)
+            {
+                _ambientOcclusionTool.OnSelectionChanged();
+            }
+        }
+
+        private void UpdateHelp()
+        {
             if (_helpBox != null)
             {
                 if (Selection.gameObjects.Length < 1)
@@ -46,13 +56,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
                 else
                 {
-                    _helpBox.text = "Press the 'Apply' button to calculate occlusion.";
+                    _helpBox.text = "Press 'Apply' to calculate occlusion and show visualization.";
                 }
-            }
-
-            if (_ambientOcclusionTool != null)
-            {
-                _ambientOcclusionTool.OnSelectionChanged();
             }
         }
 
@@ -103,10 +108,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             if (_ambientOcclusionTool != null)
             {
-                if (!_ambientOcclusionTool.DrawVisualization())
-                {
-                    _helpBox.text = "Try Apply to visualize results.";
-                }
+                _ambientOcclusionTool.DrawVisualization();
             }
             HandleUtility.Repaint();
         }
