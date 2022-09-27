@@ -46,7 +46,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         public void OnEnable()
         {
             measureTool = new MeasureTool(MeasureToolSettings.GetOrCreateSettings());
-            var root = this.rootVisualElement;
+            var root = rootVisualElement;
             HelpBox helpBox = new HelpBox("Measurements of selected items will display while this window is open",HelpBoxMessageType.Info);
             root.Add(helpBox);
             root.Add(MeasureToolSettings.SettingsUI());

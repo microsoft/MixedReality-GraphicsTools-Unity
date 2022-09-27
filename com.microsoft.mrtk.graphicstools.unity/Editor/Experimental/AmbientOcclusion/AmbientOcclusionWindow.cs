@@ -14,60 +14,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private AmbientOcclusionTool _ambientOcclusionTool;
         private static AmbientOcclusionToolWindow window;
         private HelpBox _helpBox;
-
-        public void OnEnable()
-        {
-            SceneView.duringSceneGui += OnSceneGUI;
-            _ambientOcclusionTool = new AmbientOcclusionTool(AmbientOcclusionSettings.GetOrCreateSettings());
-            UpdateHelp();
-        }
-
-        public void CreateGUI()
-        {
-            _helpBox = new HelpBox("Select some objects to modify, the press 'Apply'.", HelpBoxMessageType.Info);
-            rootVisualElement.Add(_helpBox);
-
-            var toolUI = AmbientOcclusionSettings.SettingsUI();
-            if (toolUI.Query<Button>("apply").First() is Button button)
-            {
-                button.clicked += OnApplyButtonClicked;
-            }
-            rootVisualElement.Add(toolUI);
-            rootVisualElement.Bind(AmbientOcclusionSettings.GetSerializedSettings());
-        }
-
-        private void OnSelectionChange()
-        {
-            UpdateHelp();
-
-            if (_ambientOcclusionTool != null)
-            {
-                _ambientOcclusionTool.OnSelectionChanged();
-            }
-        }
-
-        private void UpdateHelp()
-        {
-            if (_helpBox != null)
-            {
-                if (Selection.gameObjects.Length < 1)
-                {
-                    _helpBox.text = "Select game objects to modify, then press 'Apply'.";
-                }
-                else
-                {
-                    _helpBox.text = "Press 'Apply' to calculate occlusion and show visualization.";
-                }
-            }
-        }
-
-        private void OnDestroy()
-        {
-            // When the window is destroyed, remove the delegate
-            // so that it will no longer do any drawing.
-            SceneView.duringSceneGui -= OnSceneGUI;
-            ToolManager.RestorePreviousPersistentTool();
-        }
+        private Button _fixMeshCollider;
 
         [MenuItem("Window/Graphics Tools/Ambient occclusion")]
         private static void ShowWindow()
@@ -82,6 +29,101 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 window.Repaint();
             }
+        }
+
+        public void OnEnable()
+        {
+            SceneView.duringSceneGui += OnSceneGUI;
+            _ambientOcclusionTool = new AmbientOcclusionTool(AmbientOcclusionSettings.GetOrCreateSettings());
+        }
+
+        public void CreateGUI()
+        {
+            /// To get a valid type attribute value for ObjectFields...
+            /// For example, a Shader would evaluate: `typeof(Shader).AssemblyQualifiedName`
+            
+            var toolUI = AmbientOcclusionSettings.SettingsUI();
+            if (toolUI.Query<Button>("apply").First() is Button button)
+            {
+                button.clicked += OnApplyButtonClicked;
+            }
+            if (toolUI.Query<HelpBox>("help").First() is HelpBox help)
+            {
+                _helpBox = help;
+            }
+            if (toolUI.Query<Button>("fixMeshCollider").First() is Button fixMeshCollider)
+            {
+                _fixMeshCollider = fixMeshCollider;
+                _fixMeshCollider.clicked += FixMeshColliderClicked;
+            }
+            rootVisualElement.Add(toolUI);
+            rootVisualElement.Bind(AmbientOcclusionSettings.GetSerializedSettings());
+            UpdateHelp();
+        }
+
+        private void FixMeshColliderClicked()
+        {
+            foreach (var item in Selection.gameObjects)
+            {
+                if (item.GetComponent<MeshCollider>() == null)
+                {
+                    item.AddComponent<MeshCollider>();
+                }
+            }
+            UpdateHelp();
+        }
+
+        private void OnSelectionChange()
+        {
+            UpdateHelp();
+
+            if (_ambientOcclusionTool != null)
+            {
+                _ambientOcclusionTool.OnSelectionChanged();
+            }
+        }
+
+        private void UpdateHelp()
+        {
+            if (_fixMeshCollider != null)
+            {
+                _fixMeshCollider.style.display = DisplayStyle.None;
+            }
+
+            if (_helpBox != null)
+            {
+                if (Selection.gameObjects.Length < 1)
+                {
+                    _helpBox.text = "Select game objects to modify, then press 'Apply'.";
+                }
+                else
+                {
+                    _helpBox.text = "Press 'Apply' to calculate occlusion and show visualization.";
+                }
+
+                foreach (var selected in Selection.gameObjects)
+                {
+                    if (selected.GetComponent<MeshCollider>() == null)
+                    {
+                        _helpBox.text = $"{selected.name} has no mesh collider! (You should probably add one)\n";
+                        _helpBox.text += "Press 'Apply' to calculate occlusion and show visualization.";
+                        if (_fixMeshCollider != null)
+                        {
+                            _fixMeshCollider.style.display = DisplayStyle.Flex;
+                            break;
+                        }
+                    }
+                }
+                rootVisualElement.MarkDirtyRepaint();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // When the window is destroyed, remove the delegate
+            // so that it will no longer do any drawing.
+            SceneView.duringSceneGui -= OnSceneGUI;
+            ToolManager.RestorePreviousPersistentTool();
         }
 
         //private void OnFocus()

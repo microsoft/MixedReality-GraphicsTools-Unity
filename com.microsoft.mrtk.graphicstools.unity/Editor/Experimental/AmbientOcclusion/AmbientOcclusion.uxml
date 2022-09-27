@@ -1,49 +1,59 @@
-<?xml version="1.0" encoding="utf-8"?>
-<UXML
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="UnityEngine.UIElements"
-	xmlns:ed="UnityEditor.UIElements"
-	xsi:noNamespaceSchemaLocation="../../../../GraphicsToolsUnityProject/UIElementsSchema/UIElements.xsd">
-	<Style src="AmbientOcclusion.uss" />
-	<Box>
-		<Toggle label="Upgrade materials" binding-path="_upgradeMaterials" value="false" />
-		<Button name="apply" text="Apply" />
-	</Box>
-	<Foldout text="Ray tracing">
-		<ed:IntegerField label="Samples per vertex" binding-path="_samplesPerVertex" tooltip="The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower." />
-		<ed:FloatField label="Max sample distance" binding-path="_maxSampleDistance" />
-	</Foldout>
-	<Foldout text="Visualization">
-		<ed:IntegerField label="Reference vertex index" binding-path="_referenceVertexIndex" />
-		<Box>
-			<Toggle label="Origin" binding-path="_showOrigin" value="false" />
-			<ed:ColorField label="Origin color" binding-path="_originColor" />
-			<ed:FloatField label="Origin radius" binding-path="_originRadius" />
-		</Box>
-		<Toggle label="Normal" binding-path="_showNormal" value="false" />
-		<ed:ColorField label="Normal color" binding-path="_normalColor" />
-		<ed:FloatField label="Normal scale" binding-path="_normalScale" />
-		<Box>
-			<Toggle label="Bent normal" binding-path="_showBentNormal" value="false" />
-			<ed:ColorField label="Bent normal color" binding-path="_bentNormalColor" />
-			<ed:FloatField label="Bent normal scale" binding-path="_bentNormalScale" />
-		</Box>
-		<Toggle label="Samples" binding-path="_showSamples" value="false" />
-		<ed:ColorField label="Sample color" binding-path="_sampleColor" />
-		<Box>
-			<Toggle label="Hits" binding-path="_showHits" value="false" />
-			<ed:FloatField label="Hit radius" binding-path="_hitRadius" />
-		</Box>
-		<Toggle label="Coverage" binding-path="_showCoverage" value="false" />
-		<ed:FloatField label="Coverage radius" binding-path="_coverageRadius" />
-	</Foldout>
-	<Foldout text="Advanced" value="false">
-		<ed:FloatField label="Origin normal offset" binding-path="_originNormalOffset" />
-		<ed:IntegerField label="UV channel" binding-path="_uvChannel" />
-		<ed:IntegerField label="Samples index" binding-path="_samplesIndex" />
-		<TextField label="Shader property name" binding-path="_shaderPropertyName" />
-		<!-- Evaluate this C# expression (without the backquotes) to get a valid type attribute value: `typeof(Shader).AssemblyQualifiedName` -->
-		<!-- https://answers.unity.com/questions/1625662/in-objectfield-created-in-uxml-uielements.html -->
-		<ed:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_standardShader" tooltip="The shader is used when 'Upgrade materials' is true. It's expected to support the ambient occlusion metadata." allow-scene-objects="false" />
-	</Foldout>
-</UXML>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="UnityEngine.UIElements" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../GraphicsToolsUnityProject/UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="AmbientOcclusion.uss" />
+    <ui:VisualElement class="Ground">
+        <ui:HelpBox name="help" text="Select some objects to modify, then press &apos;Apply&apos;." message-type="Info" class="Section" style="border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
+        <ui:Button text="Add missing mesh colliders" name="fixMeshCollider" />
+        <ui:VisualElement class="Section" style="flex-direction: row; align-items: center; justify-content: space-around; flex-shrink: 0;">
+            <ui:Button name="apply" text="Apply" />
+            <ui:Toggle label="Upgrade materials" binding-path="_upgradeMaterials" value="false" />
+        </ui:VisualElement>
+        <ui:ScrollView>
+            <ui:VisualElement class="Section">
+                <ui:Label text="Ray tracing" display-tooltip-when-elided="true" class="H1" />
+                <ui:VisualElement class="Subsection">
+                    <uie:FloatField label="Max sample distance" binding-path="_maxSampleDistance" />
+                    <uie:IntegerField label="Samples per vertex" binding-path="_samplesPerVertex" tooltip="The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower." />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="Section">
+                <ui:Label text="Visualization" display-tooltip-when-elided="true" class="H1" />
+                <ui:VisualElement class="Subsection">
+                    <uie:IntegerField label="Reference vertex index" binding-path="_referenceVertexIndex" />
+                </ui:VisualElement>
+                <ui:VisualElement class="Subsection">
+                    <ui:Toggle label="Origin" binding-path="_showOrigin" value="false" />
+                    <uie:ColorField label="Origin color" binding-path="_originColor" />
+                    <uie:FloatField label="Origin radius" binding-path="_originRadius" />
+                </ui:VisualElement>
+                <ui:VisualElement class="Subsection">
+                    <ui:Toggle label="Normal" binding-path="_showNormal" value="false" />
+                    <uie:ColorField label="Normal color" binding-path="_normalColor" />
+                    <uie:FloatField label="Normal scale" binding-path="_normalScale" />
+                </ui:VisualElement>
+                <ui:VisualElement class="Subsection">
+                    <ui:Toggle label="Samples" binding-path="_showSamples" value="false" />
+                    <uie:ColorField label="Sample color" binding-path="_sampleColor" />
+                </ui:VisualElement>
+                <ui:VisualElement class="Subsection">
+                    <ui:Toggle label="Bent normal" binding-path="_showBentNormal" value="false" />
+                    <uie:ColorField label="Bent normal color" binding-path="_bentNormalColor" />
+                    <uie:FloatField label="Bent normal scale" binding-path="_bentNormalScale" />
+                </ui:VisualElement>
+                <ui:VisualElement class="Subsection">
+                    <ui:Toggle label="Hits" binding-path="_showHits" value="false" />
+                    <uie:FloatField label="Hit radius" binding-path="_hitRadius" />
+                </ui:VisualElement>
+                <ui:VisualElement class="Subsection">
+                    <ui:Toggle label="Coverage" binding-path="_showCoverage" value="false" />
+                    <uie:FloatField label="Coverage radius" binding-path="_coverageRadius" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Foldout text="Advanced" value="false" class="Section">
+                <uie:FloatField label="Origin normal offset" binding-path="_originNormalOffset" />
+                <uie:IntegerField label="UV channel" binding-path="_uvChannel" />
+                <ui:TextField label="Shader property name" binding-path="_shaderPropertyName" />
+                <uie:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_standardShader" tooltip="The shader is used when &apos;Upgrade materials&apos; is true. It&apos;s expected to support the ambient occlusion metadata." allow-scene-objects="false" />
+            </ui:Foldout>
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

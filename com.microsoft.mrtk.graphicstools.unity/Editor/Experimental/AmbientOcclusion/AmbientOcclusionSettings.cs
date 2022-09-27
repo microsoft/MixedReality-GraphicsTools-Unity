@@ -96,6 +96,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _standardShader = Shader.Find("Graphics Tools/Standard");
         }
 
+        private void OnValidate()
+        {
+            Debug.Log("OnValidate");
+        }
+
         /// <summary>
         /// Handles getting the settings from a .asset file or creating a new one.
         /// </summary>
@@ -133,7 +138,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.microsoft.mrtk.graphicstools.unity/Editor/Experimental/AmbientOcclusion/AmbientOcclusion.uxml");
             if (visualTree)
             {
-                result = visualTree.CloneTree();
+                result = visualTree.Instantiate();
             }
 
             return result;

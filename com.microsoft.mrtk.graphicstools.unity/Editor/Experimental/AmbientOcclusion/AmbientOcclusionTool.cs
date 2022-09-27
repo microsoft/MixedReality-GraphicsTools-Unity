@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
@@ -105,7 +104,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                              _bentNormalsAo[i].y,
                                              _bentNormalsAo[i].z,
                                              1);
-                    Handles.RadiusHandle(new Quaternion(), _referenceVertexHits[i].point, settings.HitRadius);
+                    //Handles.RadiusHandle(new Quaternion(), _referenceVertexHits[i].point, settings.HitRadius);
+                    Handles.SphereHandleCap(0, _referenceVertexHits[i].point, Quaternion.identity, settings.HitRadius, EventType.Repaint);
                 }
             }
 
