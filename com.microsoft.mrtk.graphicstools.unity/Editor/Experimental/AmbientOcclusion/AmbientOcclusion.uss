@@ -15,16 +15,38 @@
     background-color: rgb(77, 77, 77);
 }
 
+Toggle:checked .unity-toggle__checkmark {
+    background-image: none;
+    background-color: rgba(235, 235, 235, 255);
+    border-left-color: rgba(16, 16, 16, 255);
+    border-right-color: rgba(16, 16, 16, 255);
+    border-top-color: rgba(16, 16, 16, 255);
+    border-bottom-color: rgba(16, 16, 16, 255);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
 .unity-toggle__checkmark {
     background-color: rgb(16, 16, 16);
-    border-left-color: rgba(91, 91, 91, 255);
-    border-right-color: rgba(91, 91, 91, 255);
-    border-top-color: rgba(91, 91, 91, 255);
-    border-bottom-color: rgba(91, 91, 91, 255);
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
+    border-left-color: rgb(106, 106, 106);
+    border-right-color: rgb(106, 106, 106);
+    border-top-color: rgb(106, 106, 106);
+    border-bottom-color: rgb(106, 106, 106);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    background-image: none;
 }
 
 .unity-help-box {
@@ -53,7 +75,7 @@
 }
 
 .H1 {
-    font-size: 14px;
+    font-size: 11px;
     -unity-font-style: bold;
     margin-left: 4px;
     margin-right: 4px;
@@ -92,9 +114,4 @@
     padding-right: 4px;
     padding-top: 4px;
     padding-bottom: 4px;
-}
-
-.Ground {
-    background-color: rgb(16, 16, 16);
-    flex-grow: 1;
 }

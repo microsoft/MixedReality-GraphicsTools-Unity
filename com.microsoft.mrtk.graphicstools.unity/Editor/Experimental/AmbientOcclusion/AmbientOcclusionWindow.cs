@@ -39,9 +39,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         public void CreateGUI()
         {
-            /// To get a valid type attribute value for ObjectFields...
-            /// For example, a Shader would evaluate: `typeof(Shader).AssemblyQualifiedName`
-            
             var toolUI = AmbientOcclusionSettings.SettingsUI();
             if (toolUI.Query<Button>("apply").First() is Button button)
             {
@@ -56,11 +53,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 _fixMeshCollider = fixMeshCollider;
                 _fixMeshCollider.clicked += FixMeshColliderClicked;
             }
+            if (toolUI.Query<IntegerField>("samplesPerVertex").First() is IntegerField integerField)
+            {
+                integerField.RegisterCallback<ChangeEvent<int>>(e => Mathf.Clamp(e.newValue, 1, 100000));
+            }
             rootVisualElement.Add(toolUI);
             rootVisualElement.Bind(AmbientOcclusionSettings.GetSerializedSettings());
+
             UpdateHelp();
         }
-
         private void FixMeshColliderClicked()
         {
             foreach (var item in Selection.gameObjects)

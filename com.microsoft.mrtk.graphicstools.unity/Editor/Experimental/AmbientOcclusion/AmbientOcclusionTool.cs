@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// Radius handles don't work
+// Shader doesn't update
+// Check we're using bent normals.
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -32,57 +36,72 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
         private MeshFilter _meshFilter;
+        private bool _selectionChanged = false;
+        private GameObject _newVisualized;
+        private const string _magicPrefix = "A.O.";
 
         internal void DrawVisualization()
         {
             if (_vertexs == null
                 || _vertexs.Length == 0
-                || settings.ReferenceVertexIndex >= _vertexs.Length
-                || settings.ReferenceVertexIndex >= _normals.Length)
+                || settings._referenceVertexIndex >= _vertexs.Length
+                || settings._referenceVertexIndex >= _normals.Length)
             {
                 return;
             }
 
+            if (_selectionChanged)
+            {
+                //if (Selection.gameObjects[0].GetComponent<MeshFilter>() is MeshFilter meshFilter)
+                //{
+                //    _vertexs = meshFilter.mesh.vertices;
+                //    _normals = meshFilter.mesh.normals;
+                //    _referenceVertexSamples.Clear();
+                //    _referenceVertexHits.Clear();
+                //}
+                //_selectionChanged = false;
+            }
+
             Handles.RadiusHandle(new Quaternion(),
-                                 _vertexs[settings.ReferenceVertexIndex],
-                                 settings.MaxSampleDistance);
+                                 _vertexs[settings._referenceVertexIndex],
+                                 settings._maxSampleDistance);
 
-            if (settings.ShowOrigin)
+            if (settings._showOrigin)
             {
-                Handles.color = settings.OriginColor;
-                Handles.Label(_vertexs[settings.ReferenceVertexIndex], $"{settings.ReferenceVertexIndex}");
-                Handles.RadiusHandle(new Quaternion(), _vertexs[settings.ReferenceVertexIndex], settings.OriginRadius);
+                Handles.color = settings._originColor;
+                Handles.Label(_vertexs[settings._referenceVertexIndex], $"{settings._referenceVertexIndex}");
+                Handles.RadiusHandle(new Quaternion(), _vertexs[settings._referenceVertexIndex], settings._originRadius);
             }
 
-            if (settings.ShowNormal)
+            if (settings._showNormal)
             {
-                Handles.color = settings.NormalColor;
+                Handles.color = settings._normalColor;
                 Handles.DrawLine(
-                    _vertexs[settings.ReferenceVertexIndex],
-                    _vertexs[settings.ReferenceVertexIndex] + _normals[settings.ReferenceVertexIndex] * settings.NormalScale);
+                    _vertexs[settings._referenceVertexIndex],
+                    _vertexs[settings._referenceVertexIndex] + _normals[settings._referenceVertexIndex] * settings._normalScale);
             }
 
-            if (settings.ShowBentNormal)
+            if (settings._showBentNormal)
             {
-                Handles.color = settings.BentNormalColor;
-                var bn = _bentNormalsAo[settings.ReferenceVertexIndex];
+                Handles.color = settings._bentNormalColor;
+                var bn = _bentNormalsAo[settings._referenceVertexIndex];
                 var bn3 = new Vector3(bn.x, bn.y, bn.z);
-                Handles.DrawLine(_vertexs[settings.ReferenceVertexIndex],
-                                _vertexs[settings.ReferenceVertexIndex] + bn3 * settings.BentNormalScale);
+                Handles.DrawLine(_vertexs[settings._referenceVertexIndex],
+                                _vertexs[settings._referenceVertexIndex] + bn3 * settings._bentNormalScale);
             }
 
-            if (settings.ShowSamples)
+            if (settings._showSamples)
             {
                 for (int i = 0; i < _referenceVertexSamples.Count; i++)
                 {
-                    Handles.color = settings.SampleColor;
+                    Handles.color = settings._sampleColor;
                     Handles.DrawLine(
-                        _vertexs[settings.ReferenceVertexIndex],
-                        _vertexs[settings.ReferenceVertexIndex] + _referenceVertexSamples[i] * settings.MaxSampleDistance);
+                        _vertexs[settings._referenceVertexIndex],
+                        _vertexs[settings._referenceVertexIndex] + _referenceVertexSamples[i] * settings._maxSampleDistance);
                 }
             }
 
-            if (settings.ShowCoverage)
+            if (settings._showCoverage)
             {
                 for (int i = 0; i < _vertexs.Length; i++)
                 {
@@ -92,11 +111,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                              1);
                     var coverage = 1 - _bentNormalsAo[i].w;
                     Handles.color = new Color(coverage, coverage, coverage, 1);
-                    Handles.RadiusHandle(new Quaternion(), _vertexs[i], settings.CoverageRadius * coverage);
+                    Handles.RadiusHandle(new Quaternion(), _vertexs[i], settings._coverageRadius * coverage);
                 }
             }
 
-            if (settings.ShowHits)
+            if (settings._showHits)
             {
                 for (int i = 0; i < _referenceVertexHits.Count; i++)
                 {
@@ -104,8 +123,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                              _bentNormalsAo[i].y,
                                              _bentNormalsAo[i].z,
                                              1);
-                    //Handles.RadiusHandle(new Quaternion(), _referenceVertexHits[i].point, settings.HitRadius);
-                    Handles.SphereHandleCap(0, _referenceVertexHits[i].point, Quaternion.identity, settings.HitRadius, EventType.Repaint);
+                    //Handles.RadiusHandle(new Quaternion(), _referenceVertexHits[i].point, settings._hitRadius);
+                    Handles.SphereHandleCap(0, _referenceVertexHits[i].point, Quaternion.identity, settings._hitRadius, EventType.Repaint);
                 }
             }
 
@@ -155,7 +174,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
 
             var mesh = DeepCopyMesh(meshFilter.sharedMesh);
-            mesh.name = $"A.O. {go.name}";
+            mesh.name = $"{_magicPrefix} {go.name}";
             meshFilter.mesh = mesh;
 
             if (_bentNormalsAo == null || _bentNormalsAo.Length != mesh.vertexCount)
@@ -164,12 +183,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
 
             var watch = Stopwatch.StartNew();
+            RaycastHit hit;
 
             _vertexs = mesh.vertices;
             _normals = mesh.normals;
-
-            RaycastHit hit;
-
             _referenceVertexSamples.Clear();
             _referenceVertexHits.Clear();
 
@@ -183,26 +200,26 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 Vector3 averageDir = Vector3.zero;
 
-                var origin = _vertexs[vi] + _normals[vi].normalized * settings.OriginNormalOffset;
+                var origin = _vertexs[vi] + _normals[vi].normalized * settings._originNormalOffset;
 
                 Physics.queriesHitBackfaces = true;
 
-                for (int ni = 0; ni < settings.SamplesPerVertex; ni++)
+                for (int ni = 0; ni < settings._samplesPerVertex; ni++)
                 {
                     var sampleDirection = RandomSampleAboveHemisphere(_normals[vi]);
 
                     // Visualization: Save samples for gizmo
-                    if (vi == settings.ReferenceVertexIndex && settings.ShowSamples)
+                    if (vi == settings._referenceVertexIndex && settings._showSamples)
                     {
                         _referenceVertexSamples.Add(sampleDirection);
                     }
 
-                    if (Physics.Raycast(origin, sampleDirection, out hit, settings.MaxSampleDistance))
+                    if (Physics.Raycast(origin, sampleDirection, out hit, settings._maxSampleDistance))
                     {
                         _hitsInHemisphere.Add(hit);
 
                         // Visualization: Save hits for gizmo
-                        if (vi == settings.ReferenceVertexIndex)
+                        if (vi == settings._referenceVertexIndex)
                         {
                             _referenceVertexHits.Add(hit);
                         }
@@ -219,10 +236,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 _bentNormalsAo[vi] = new Vector4(avgN.x,
                                                  avgN.y,
                                                  avgN.z,
-                                                 1 - ((float)_hitsInHemisphere.Count / settings.SamplesPerVertex));
+                                                 1 - ((float)_hitsInHemisphere.Count / settings._samplesPerVertex));
             }
 
-            mesh.SetUVs(settings.UvChannel, _bentNormalsAo);
+            mesh.SetUVs(settings._uvChannel, _bentNormalsAo);
 
             // For the results to be visible to the user
             // we need to be using the graphics tools standard shader
@@ -235,15 +252,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     if (!IsStandardShader(material))
                     {
                         UnityEngine.Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {go.name}.");
-                        if (settings.UpgradeMaterials)
+                        if (settings._upgradeMaterials)
                         {
                             if (material.name == "Default-Material")
                             {
-                                Material newMaterial = new Material(settings.StandardShader);
+                                Material newMaterial = new Material(settings._standardShader);
                                 AssetDatabase.CreateAsset(newMaterial, $"Assets/{material.name}-AO.mat");
                                 UnityEngine.Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
                                 // Todo: change SetFloat signature to use int version Shader.PropToId...
-                                newMaterial.SetFloat(settings.ShaderPropertyName, 1);
+                                newMaterial.SetFloat(settings._shaderPropertyName, 1);
                                 meshRenderer.material = newMaterial;
                             }
                             else
@@ -255,14 +272,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
             }
 
-            UnityEngine.Debug.Log($"{nameof(GatherSamples)} vertex-count={mesh.vertexCount} rays-per-vertex={settings.SamplesPerVertex} elapsed-ms={watch.ElapsedMilliseconds}");
+            UnityEngine.Debug.Log($"{nameof(GatherSamples)} vertex-count={mesh.vertexCount} rays-per-vertex={settings._samplesPerVertex} elapsed-ms={watch.ElapsedMilliseconds}");
         }
 
         private bool IsStandardShader(Material material)
         {
-            if (material.HasProperty(settings.ShaderPropertyName))
+            if (material.HasProperty(settings._shaderPropertyName))
             {
-                if (material.GetFloat(settings.ShaderPropertyName) == 1f)
+                if (material.GetFloat(settings._shaderPropertyName) == 1f)
                 {
                     return true;
                 }
@@ -272,7 +289,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         public void OnSelectionChanged()
         {
-            _vertexs = null;
+            if (Selection.gameObjects.Length > 0)
+            {
+                _newVisualized = Selection.gameObjects[0];
+            }
+            _selectionChanged = true;
         }
 
         private Mesh DeepCopyMesh(Mesh source)

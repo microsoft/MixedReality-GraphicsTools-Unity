@@ -12,7 +12,7 @@
                 <ui:Label text="Ray tracing" display-tooltip-when-elided="true" class="H1" />
                 <ui:VisualElement class="Subsection">
                     <uie:FloatField label="Max sample distance" binding-path="_maxSampleDistance" />
-                    <uie:IntegerField label="Samples per vertex" binding-path="_samplesPerVertex" tooltip="The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower." />
+                    <uie:IntegerField label="Samples per vertex" binding-path="_samplesPerVertex" tooltip="The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower." name="samplesPerVertex" />
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement class="Section">
