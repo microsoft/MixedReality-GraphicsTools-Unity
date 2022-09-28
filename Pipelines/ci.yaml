@@ -10,6 +10,14 @@ variables:
 - name: Version.PreReleaseRevision
   value: $[counter(variables['MRTKGraphicsToolsReleaseTag'], 1)]
 
+resources:
+  repositories:
+  - repository: PipelineTools
+    type: git
+    endpoint: PipelineToolsConnection
+    name: tools.internal
+    ref: 78ecf591964ecf511b4c7a0cd84d98ce11e8be16
+
 pr: none # disable PR validation
 
 jobs:
@@ -17,6 +25,8 @@ jobs:
   pool: Unity_2021.3.3f1_Pool
   steps:
   - checkout: self
+  
+  - checkout: PipelineTools
 
   - pwsh: Write-Host "##vso[build.updatebuildnumber]$(MRTKGraphicsToolsVersion)-$(MRTKGraphicsToolsReleaseTag).$(Version.PreReleaseRevision)"
     displayName: 'Set Build Number'
