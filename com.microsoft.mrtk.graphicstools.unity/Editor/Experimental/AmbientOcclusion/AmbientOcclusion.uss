@@ -17,11 +17,11 @@
 
 Toggle:checked .unity-toggle__checkmark {
     background-image: none;
-    background-color: rgba(235, 235, 235, 255);
-    border-left-color: rgba(16, 16, 16, 255);
-    border-right-color: rgba(16, 16, 16, 255);
-    border-top-color: rgba(16, 16, 16, 255);
-    border-bottom-color: rgba(16, 16, 16, 255);
+    background-color: rgb(235, 235, 235);
+    border-left-color: rgb(16, 16, 16);
+    border-right-color: rgb(16, 16, 16);
+    border-top-color: rgb(16, 16, 16);
+    border-bottom-color: rgb(16, 16, 16);
     border-left-width: 3px;
     border-right-width: 3px;
     border-top-width: 3px;
@@ -51,11 +51,24 @@ Toggle:checked .unity-toggle__checkmark {
 
 .unity-help-box {
     flex-shrink: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    -unity-text-align: upper-left;
+}
+
+.unity-help-box__label {
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    font-size: 12px;
 }
 
 .unity-label {
-    margin-right: 8px;
     color: rgb(235, 235, 235);
+    margin-right: 24px;
 }
 
 .unity-base-text-field__input {
@@ -64,36 +77,29 @@ Toggle:checked .unity-toggle__checkmark {
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 4px;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    -unity-text-align: upper-left;
+    font-size: 12px;
 }
 
 .H1 {
-    font-size: 11px;
     -unity-font-style: bold;
     margin-left: 4px;
     margin-right: 4px;
     margin-top: 4px;
     margin-bottom: 4px;
-    -unity-text-align: upper-center;
+    -unity-text-align: upper-left;
 }
 
 .Section {
-    background-color: rgb(46, 46, 46);
+    background-color: rgb(43, 43, 43);
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
-    margin-left: 4px;
-    margin-right: 4px;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 3px;
+    margin-bottom: 3px;
     padding-left: 4px;
     padding-right: 4px;
     padding-top: 4px;
@@ -102,10 +108,10 @@ Toggle:checked .unity-toggle__checkmark {
 
 .Subsection {
     background-color: rgb(77, 77, 77);
-    margin-left: 2px;
-    margin-right: 2px;
-    margin-top: 2px;
-    margin-bottom: 2px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 3px;
+    margin-bottom: 3px;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
     border-top-right-radius: 4px;
@@ -114,4 +120,11 @@ Toggle:checked .unity-toggle__checkmark {
     padding-right: 4px;
     padding-top: 4px;
     padding-bottom: 4px;
+}
+
+.unity-foldout {
+}
+
+.Ground {
+    flex-grow: 1;
 }

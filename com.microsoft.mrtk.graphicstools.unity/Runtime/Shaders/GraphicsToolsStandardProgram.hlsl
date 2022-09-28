@@ -789,6 +789,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     half3 bakedGI = GTDefaultAmbientGI * occlusion;
 #endif
 
+#if defined(_VERTEX_BENTNORMALAO)
+    worldNormal = input.bentNormalAo.rgb;
+#endif
+
     // Indirect lighting.
     half3 indirect = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
 

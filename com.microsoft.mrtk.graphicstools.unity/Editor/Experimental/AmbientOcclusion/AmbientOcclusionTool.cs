@@ -7,7 +7,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -36,8 +35,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
         private MeshFilter _meshFilter;
-        private bool _selectionChanged = false;
-        private GameObject _newVisualized;
         private const string _magicPrefix = "A.O.";
 
         internal void DrawVisualization()
@@ -48,18 +45,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 || settings._referenceVertexIndex >= _normals.Length)
             {
                 return;
-            }
-
-            if (_selectionChanged)
-            {
-                //if (Selection.gameObjects[0].GetComponent<MeshFilter>() is MeshFilter meshFilter)
-                //{
-                //    _vertexs = meshFilter.mesh.vertices;
-                //    _normals = meshFilter.mesh.normals;
-                //    _referenceVertexSamples.Clear();
-                //    _referenceVertexHits.Clear();
-                //}
-                //_selectionChanged = false;
             }
 
             Handles.RadiusHandle(new Quaternion(),
@@ -110,8 +95,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                              _bentNormalsAo[i].z,
                                              1);
                     var coverage = 1 - _bentNormalsAo[i].w;
-                    Handles.color = new Color(coverage, coverage, coverage, 1);
-                    Handles.RadiusHandle(new Quaternion(), _vertexs[i], settings._coverageRadius * coverage);
+                    Handles.color = new Color(_bentNormalsAo[i].w, _bentNormalsAo[i].w, _bentNormalsAo[i].w, 1);
+                    Handles.SphereHandleCap(0, _vertexs[i], Quaternion.identity, settings._coverageRadius * coverage, EventType.Repaint);
                 }
             }
 
@@ -155,16 +140,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Peform the ambient occlusion calculation
         /// </summary>
-        internal void GatherSelectionSamples()
-        {
-            Selection.gameObjects.ToList().ForEach(i => GatherSamples(i));
-        }
-
-        /// <summary>
-        /// Peform the ambient occlusion calculation
-        /// </summary>
-        [ContextMenu(nameof(GatherSamples))]
-        public void GatherSamples(GameObject go)
+        internal void GatherSamples(GameObject go)
         {
             var meshFilter = go.GetComponent<MeshFilter>();
             if (meshFilter == null)
@@ -243,7 +219,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             // For the results to be visible to the user
             // we need to be using the graphics tools standard shader
-            // and the appropriate parameter must be turned on
+            // and the appropriate parameter must be enabled
 
             if (go.GetComponent<MeshRenderer>() is MeshRenderer meshRenderer)
             {
@@ -256,12 +232,25 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         {
                             if (material.name == "Default-Material")
                             {
-                                Material newMaterial = new Material(settings._standardShader);
-                                AssetDatabase.CreateAsset(newMaterial, $"Assets/{material.name}-AO.mat");
-                                UnityEngine.Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
-                                // Todo: change SetFloat signature to use int version Shader.PropToId...
-                                newMaterial.SetFloat(settings._shaderPropertyName, 1);
+                                Material newMaterial;
+                                var name = $"{material.name}-AO";
+                                var assetPath = $"Assets/{name}.mat";
+                                // See if we made one of these previously
+                                var found = AssetDatabase.FindAssets(name);
+                                if (found.Length == 0)
+                                {
+                                    newMaterial = new Material(settings._standardShader);
+                                    AssetDatabase.CreateAsset(newMaterial, assetPath);
+                                }
+                                else
+                                {
+                                    newMaterial = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+                                }
+                                // Ensure new material will display the effect
+                                newMaterial.SetFloat(settings._materialPropertyName, 1);
+                                newMaterial.EnableKeyword(settings._shaderPropertyKeyword);
                                 meshRenderer.material = newMaterial;
+                                UnityEngine.Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
                             }
                             else
                             {
@@ -277,23 +266,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private bool IsStandardShader(Material material)
         {
-            if (material.HasProperty(settings._shaderPropertyName))
+            if (material.HasProperty(settings._materialPropertyName))
             {
-                if (material.GetFloat(settings._shaderPropertyName) == 1f)
+                if (material.GetFloat(settings._materialPropertyName) == 1f)
                 {
                     return true;
                 }
             }
             return false;
-        }
-
-        public void OnSelectionChanged()
-        {
-            if (Selection.gameObjects.Length > 0)
-            {
-                _newVisualized = Selection.gameObjects[0];
-            }
-            _selectionChanged = true;
         }
 
         private Mesh DeepCopyMesh(Mesh source)

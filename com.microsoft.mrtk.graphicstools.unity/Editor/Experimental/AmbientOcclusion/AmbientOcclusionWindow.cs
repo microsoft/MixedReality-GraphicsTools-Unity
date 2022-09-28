@@ -9,12 +9,20 @@ using UnityEngine.UIElements;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
+    /// <summary>
+    /// Works with UXML to bind the controls for ambient occlusion tool settings
+    /// </summary>
     public class AmbientOcclusionToolWindow : EditorWindow
     {
-        private AmbientOcclusionTool _ambientOcclusionTool;
         private static AmbientOcclusionToolWindow window;
+
+        private AmbientOcclusionTool _ambientOcclusionTool;
         private HelpBox _helpBox;
-        private Button _fixMeshCollider;
+        private Button _fixMeshCollider; // used by help
+        private int _maxVertexIndex; // used for user input validation
+        private GameObject _lastVisualizedGO; // state used by visualization
+        private bool _shouldShowVis; // controls if we display some visuals in the scene view
+        private IntegerField _referenceVertexIndexField; // when selection changes we need to update this for validate
 
         [MenuItem("Window/Graphics Tools/Ambient occclusion")]
         private static void ShowWindow()
@@ -31,15 +39,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
         }
 
-        public void OnEnable()
+        private void OnEnable()
         {
-            SceneView.duringSceneGui += OnSceneGUI;
             _ambientOcclusionTool = new AmbientOcclusionTool(AmbientOcclusionSettings.GetOrCreateSettings());
+            SceneView.duringSceneGui += OnSceneGUI;
         }
 
-        public void CreateGUI()
+        private void CreateGUI()
         {
             var toolUI = AmbientOcclusionSettings.SettingsUI();
+            rootVisualElement.Add(toolUI);
+            rootVisualElement.Bind(AmbientOcclusionSettings.GetSerializedSettings());
             if (toolUI.Query<Button>("apply").First() is Button button)
             {
                 button.clicked += OnApplyButtonClicked;
@@ -55,13 +65,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
             if (toolUI.Query<IntegerField>("samplesPerVertex").First() is IntegerField integerField)
             {
-                integerField.RegisterCallback<ChangeEvent<int>>(e => Mathf.Clamp(e.newValue, 1, 100000));
+                integerField.RegisterCallback<ChangeEvent<int>>(e => integerField.value = Mathf.Clamp(e.newValue, 1, 100000));
             }
-            rootVisualElement.Add(toolUI);
-            rootVisualElement.Bind(AmbientOcclusionSettings.GetSerializedSettings());
-
+            if (toolUI.Query<IntegerField>("referenceVertexIndex").First() is IntegerField refVtxIdxField)
+            {
+                refVtxIdxField.RegisterCallback<ChangeEvent<int>>(e => refVtxIdxField.value = Mathf.Clamp(e.newValue, 0, _maxVertexIndex));
+                _referenceVertexIndexField = refVtxIdxField;
+            }
             UpdateHelp();
         }
+
         private void FixMeshColliderClicked()
         {
             foreach (var item in Selection.gameObjects)
@@ -77,10 +90,27 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private void OnSelectionChange()
         {
             UpdateHelp();
-
-            if (_ambientOcclusionTool != null)
+            _shouldShowVis = false;
+            if (Selection.gameObjects.Length == 0)
             {
-                _ambientOcclusionTool.OnSelectionChanged();
+                return;
+            }
+            var firstSelectedGO = Selection.gameObjects[0];
+            if (firstSelectedGO == null)
+            {
+                return;
+            }
+            // We've seen this before, draw it
+            if (firstSelectedGO == _lastVisualizedGO)
+            {
+                _shouldShowVis = true;
+            }
+            // Update validation limits for input fields
+            var mf = firstSelectedGO.GetComponent<MeshFilter>();
+            if (mf != null)
+            {
+                _maxVertexIndex = mf.sharedMesh.vertexCount - 1;
+                _referenceVertexIndexField.value = Mathf.Clamp(_referenceVertexIndexField.value, 0, _maxVertexIndex);
             }
         }
 
@@ -93,21 +123,32 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (_helpBox != null)
             {
+                _helpBox.text = "";
+
                 if (Selection.gameObjects.Length < 1)
                 {
+                    _helpBox.messageType = HelpBoxMessageType.Info;
                     _helpBox.text = "Select game objects to modify, then press 'Apply'.";
                 }
                 else
                 {
+                    _helpBox.messageType = HelpBoxMessageType.Info;
                     _helpBox.text = "Press 'Apply' to calculate occlusion and show visualization.";
                 }
 
                 foreach (var selected in Selection.gameObjects)
                 {
+                    var mf = selected.GetComponent<MeshFilter>();
+                    if (mf == null || mf.sharedMesh == null)
+                    {
+                        _helpBox.messageType = HelpBoxMessageType.Error;
+                        _helpBox.text = $"{selected.name} has no MeshFilter!";
+                        continue;
+                    }
                     if (selected.GetComponent<MeshCollider>() == null)
                     {
-                        _helpBox.text = $"{selected.name} has no mesh collider! (You should probably add one)\n";
-                        _helpBox.text += "Press 'Apply' to calculate occlusion and show visualization.";
+                        _helpBox.messageType = HelpBoxMessageType.Warning;
+                        _helpBox.text = $"{selected.name} has no mesh collider! (You should probably add one)";
                         if (_fixMeshCollider != null)
                         {
                             _fixMeshCollider.style.display = DisplayStyle.Flex;
@@ -121,37 +162,33 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void OnDestroy()
         {
-            // When the window is destroyed, remove the delegate
-            // so that it will no longer do any drawing.
             SceneView.duringSceneGui -= OnSceneGUI;
             ToolManager.RestorePreviousPersistentTool();
         }
 
-        //private void OnFocus()
-        //{
-        //    // Remove delegate listener if it has previously
-        //    // been assigned.
-        //    SceneView.duringSceneGui -= OnSceneGUI;
-        //    // Add (or re-add) the delegate.
-        //    SceneView.duringSceneGui += OnSceneGUI;
-        //}
-
         private void OnApplyButtonClicked()
         {
-            if (_ambientOcclusionTool != null)
+            _lastVisualizedGO = null;
+            foreach (var item in Selection.gameObjects)
             {
-                _ambientOcclusionTool.GatherSelectionSamples();
+                // Used by visualization to draw the first selected thing
+                if (_lastVisualizedGO == null)
+                {
+                    _lastVisualizedGO = item;
+                }
+                _ambientOcclusionTool.GatherSamples(item);
             }
+            _shouldShowVis = true;  
         }
 
-        /// <summary>
-        /// Custom inspector that exposes additional user controls for the AmbientOcclusion component
-        /// </summary>
         private void OnSceneGUI(SceneView sceneView)
         {
             if (_ambientOcclusionTool != null)
             {
-                _ambientOcclusionTool.DrawVisualization();
+                if (_shouldShowVis)
+                {
+                    _ambientOcclusionTool.DrawVisualization();
+                }
             }
             HandleUtility.Repaint();
         }
