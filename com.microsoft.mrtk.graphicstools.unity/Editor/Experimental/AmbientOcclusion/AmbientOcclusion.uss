@@ -1,4 +1,4 @@
-.unity-button {
+Button {
     border-left-color: rgb(91, 91, 91);
     border-right-color: rgb(91, 91, 91);
     border-top-color: rgb(91, 91, 91);
@@ -13,6 +13,25 @@
     padding-bottom: 8px;
     color: rgb(254, 235, 136);
     background-color: rgb(77, 77, 77);
+}
+
+Button:hover {
+    background-color: rgb(106, 106, 106);
+}
+
+Button:focus {
+    background-color: rgb(106, 106, 106);
+    border-left-color: rgba(235, 235, 235, 255);
+    border-right-color: rgba(235, 235, 235, 255);
+    border-top-color: rgba(235, 235, 235, 255);
+    border-bottom-color: rgba(235, 235, 235, 255);
+}
+
+Toggle:focus {
+    border-left-color: rgb(106, 106, 106);
+    border-right-color: rgb(106, 106, 106);
+    border-top-color: rgb(106, 106, 106);
+    border-bottom-color: rgb(106, 106, 106);
 }
 
 Toggle:checked .unity-toggle__checkmark {
@@ -49,7 +68,7 @@ Toggle:checked .unity-toggle__checkmark {
     background-image: none;
 }
 
-.unity-help-box {
+HelpBox {
     flex-shrink: 0;
     padding-left: 0;
     padding-right: 0;
@@ -66,7 +85,7 @@ Toggle:checked .unity-toggle__checkmark {
     font-size: 12px;
 }
 
-.unity-label {
+Label {
     color: rgb(235, 235, 235);
     margin-right: 24px;
 }

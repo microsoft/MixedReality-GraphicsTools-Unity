@@ -90,21 +90,25 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private void OnSelectionChange()
         {
             UpdateHelp();
-            _shouldShowVis = false;
+
             if (Selection.gameObjects.Length == 0)
             {
                 return;
             }
+
             var firstSelectedGO = Selection.gameObjects[0];
             if (firstSelectedGO == null)
             {
                 return;
             }
+
             // We've seen this before, draw it
+            _shouldShowVis = false;
             if (firstSelectedGO == _lastVisualizedGO)
             {
                 _shouldShowVis = true;
             }
+
             // Update validation limits for input fields
             var mf = firstSelectedGO.GetComponent<MeshFilter>();
             if (mf != null)
@@ -156,6 +160,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         }
                     }
                 }
+
                 rootVisualElement.MarkDirtyRepaint();
             }
         }
