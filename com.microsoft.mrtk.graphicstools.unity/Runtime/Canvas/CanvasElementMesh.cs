@@ -45,11 +45,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 if (texture == null)
                 {
-                    if (material != null && material.mainTexture != null)
-                    {
-                        return material.mainTexture;
-                    }
-
                     return s_WhiteTexture;
                 }
 
@@ -58,11 +53,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             set
             {
                 texture = value;
-
-                if (texture != null && material != null)
-                {
-                    material.mainTexture = texture;
-                }
             }
         }
 
@@ -130,6 +120,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #region Graphic Implementation
 
+        /// <inheritdoc/>
+        public override Texture mainTexture
+        {
+            get
+            {
+                return Texture;
+            }
+        }
+
         /// <summary>
         /// Callback function when a UI element needs to generate vertices.
         /// </summary>
@@ -182,20 +181,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
-        }
-
-        /// <summary>
-        /// Called to update the Material of the graphic onto the CanvasRenderer.
-        /// </summary>
-        protected override void UpdateMaterial()
-        {
-            if (!IsActive())
-            {
-                return;
-            }
-
-            canvasRenderer.materialCount = 1;
-            canvasRenderer.SetMaterial(materialForRendering, 0);
         }
 
         #endregion Graphic Implementation
