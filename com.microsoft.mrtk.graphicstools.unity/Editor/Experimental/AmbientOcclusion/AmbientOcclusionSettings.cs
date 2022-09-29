@@ -40,11 +40,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [Tooltip("The shader is used when 'Upgrade materials' is true. It's expected to support the ambient occlusion metadata.")]
 
         // UXML note:
-        // To find the appropriate string for an <ObjectField>'s type attribute...
-        // Lets use a Shader as an example type...
-        // Evaluate C#: typeof(Shader).AssemblyQualifiedName
+        // The type attribute for ObjectField in UXML can be specified with the "<Namespace>.<Class>, <Namespace>.<Module>" syntax
+        // Lets use the Shader class as an example type...
+        // In Visual Studio: Use the Immediate Window with debugger attched and evalue this: typeof(Shader).AssemblyQualifiedName
         // Take the first two items....
         // Result in UXML: <ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule">
+        // -or-
+        // Look up docs online for the class, let's use Material for example. https://docs.unity3d.com/ScriptReference/Material.html
+        // You'll see at the top...
+        // "Material class in UnityEngine / inherits from:Object / Implemented in:UnityEngine.CoreModule..."
+        // Which becomes <ObjectField type="UnityEngine.Material, UnityEngine.CoreModule">
         [SerializeField] internal Shader _standardShader;
 
         private const string AmbientOcclusionSettingsPath = "Assets/Editor/AmbientOcclusionSettings.asset";
@@ -110,8 +115,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
 
         /// <summary>
-        /// Returns a Visual Element to draw the Settings UI.
-        /// This ensures that the settings are drawn consistently everywhere.
+        /// Returns a Visual Element used to draw the Settings UI.
         /// </summary>
         /// <returns></returns>
         internal static VisualElement SettingsUI()
@@ -122,14 +126,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 result = visualTree.Instantiate();
             }
-
             return result;
-        }
-
-        private void OnMouseDown(MouseDownEvent evt)
-        {
-            // XXX this needed?
-            throw new System.NotImplementedException();
         }
     }
 }

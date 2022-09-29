@@ -4,7 +4,7 @@
         <ui:HelpBox name="help" text="Select some objects to modify, then press &apos;Apply&apos;." message-type="Info" class="Section" style="border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
         <ui:Button text="Add mesh colliders" name="fixMeshCollider" tooltip="Add MeshCollider components to selected objects. This is used for raycasting to collect hits. The MeshCollider can be safely removed after application." focusable="true" />
         <ui:VisualElement class="Section" style="flex-direction: row; align-items: center; justify-content: space-around; flex-shrink: 0;">
-            <ui:Button name="apply" text="Apply" focusable="true" />
+            <ui:Button name="apply" text="Apply" focusable="true" style="width: 100px;" />
             <ui:Toggle label="Upgrade materials" binding-path="_upgradeMaterials" value="false" tooltip="When checked, existing materials on the MeshRenderer component will be upgraded with the &apos;standard shader&apos; specified in the Advanced section." />
         </ui:VisualElement>
         <ui:ScrollView>

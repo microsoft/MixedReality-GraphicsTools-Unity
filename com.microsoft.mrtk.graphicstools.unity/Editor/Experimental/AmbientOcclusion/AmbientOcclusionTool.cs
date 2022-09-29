@@ -72,7 +72,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 var bn = _bentNormalsAo[settings._referenceVertexIndex];
                 var bn3 = new Vector3(bn.x, bn.y, bn.z);
                 Handles.DrawLine(_vertexs[settings._referenceVertexIndex],
-                                _vertexs[settings._referenceVertexIndex] + bn3 * settings._bentNormalScale);
+                                 _vertexs[settings._referenceVertexIndex] + bn3 * settings._bentNormalScale);
             }
 
             if (settings._showSamples)
@@ -90,13 +90,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 for (int i = 0; i < _vertexs.Length; i++)
                 {
-                    Handles.color = new Color(_bentNormalsAo[i].x,
-                                             _bentNormalsAo[i].y,
-                                             _bentNormalsAo[i].z,
-                                             1);
-                    var coverage = 1 - _bentNormalsAo[i].w;
-                    Handles.color = new Color(_bentNormalsAo[i].w, _bentNormalsAo[i].w, _bentNormalsAo[i].w, 1);
-                    Handles.SphereHandleCap(0, _vertexs[i], Quaternion.identity, settings._coverageRadius * coverage, EventType.Repaint);
+                    var occlusion = _bentNormalsAo[i].w;
+                    Handles.color = new Color(occlusion, occlusion, occlusion, 1);
+                    Handles.SphereHandleCap(0, _vertexs[i], Quaternion.identity, settings._coverageRadius * (1 - occlusion), EventType.Repaint);
                 }
             }
 
@@ -105,10 +101,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 for (int i = 0; i < _referenceVertexHits.Count; i++)
                 {
                     Handles.color = new Color(_bentNormalsAo[i].x,
-                                             _bentNormalsAo[i].y,
-                                             _bentNormalsAo[i].z,
-                                             1);
-                    //Handles.RadiusHandle(new Quaternion(), _referenceVertexHits[i].point, settings._hitRadius);
+                                              _bentNormalsAo[i].y,
+                                              _bentNormalsAo[i].z,
+                                              1);
                     Handles.SphereHandleCap(0, _referenceVertexHits[i].point, Quaternion.identity, settings._hitRadius, EventType.Repaint);
                 }
             }

@@ -3,13 +3,17 @@
     padding-right: 1px;
     padding-top: 1px;
     padding-bottom: 1px;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
 }
 
 .unity-base-field:focus {
-    border-left-color: rgb(235, 235, 235);
-    border-right-color: rgb(235, 235, 235);
-    border-top-color: rgb(235, 235, 235);
-    border-bottom-color: rgb(235, 235, 235);
+    border-left-color: rgb(160, 181, 232);
+    border-right-color: rgb(160, 181, 232);
+    border-top-color: rgb(160, 181, 232);
+    border-bottom-color: rgb(160, 181, 232);
     border-left-width: 1px;
     border-right-width: 1px;
     border-top-width: 1px;
@@ -43,6 +47,13 @@
 
 #unity-text-input {
     padding-left: 4px;
+    background-color: rgb(16, 16, 16);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    font-size: 12px;
+    -unity-text-align: middle-left;
 }
 
 Toggle:checked #unity-checkmark {
@@ -120,16 +131,6 @@ HelpBox > Label {
     margin-right: 4px;
     margin-top: 4px;
     margin-bottom: 4px;
-    font-size: 12px;
-}
-
-.unity-base-text-field__input {
-    background-color: rgb(16, 16, 16);
-    border-left-width: 0;
-    border-right-width: 0;
-    border-top-width: 0;
-    border-bottom-width: 0;
-    -unity-text-align: upper-left;
     font-size: 12px;
 }
 
