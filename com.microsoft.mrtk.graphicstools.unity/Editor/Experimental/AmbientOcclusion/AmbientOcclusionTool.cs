@@ -100,10 +100,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 for (int i = 0; i < _referenceVertexHits.Count; i++)
                 {
-                    Handles.color = new Color(_bentNormalsAo[i].x,
-                                              _bentNormalsAo[i].y,
-                                              _bentNormalsAo[i].z,
-                                              1);
+                    Handles.color = settings._hitColor;
                     Handles.SphereHandleCap(0, _referenceVertexHits[i].point, Quaternion.identity, settings._hitRadius, EventType.Repaint);
                 }
             }

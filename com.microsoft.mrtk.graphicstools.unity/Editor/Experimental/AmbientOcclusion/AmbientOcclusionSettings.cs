@@ -29,6 +29,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [SerializeField] internal Color _sampleColor;
         [SerializeField] internal bool _showHits;
         [SerializeField] internal float _hitRadius;
+        [SerializeField] internal Color _hitColor;
         [SerializeField] internal bool _showCoverage;
         [SerializeField] internal float _coverageRadius;
         [SerializeField] internal float _originNormalOffset;
@@ -72,6 +73,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _sampleColor = Color.yellow;
             _showHits = false;
             _hitRadius = .03f;
+            _hitColor = Color.green;
             _showCoverage = false;
             _coverageRadius = .03f;
             _originNormalOffset = .0001f;
