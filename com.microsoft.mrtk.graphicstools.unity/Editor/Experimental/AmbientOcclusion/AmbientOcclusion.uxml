@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="UnityEngine.UIElements" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../GraphicsToolsUnityProject/UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="AmbientOcclusion.uss" />
-    <ui:VisualElement class="Ground" style="background-color: rgb(16, 16, 16);">
+    <ui:VisualElement class="Ground" style="background-color: rgb(16, 16, 16); flex-grow: 1;">
         <ui:HelpBox name="help" text="Select some objects to modify, then press &apos;Apply&apos;." message-type="Info" class="Section" style="border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
         <ui:Button text="Add mesh colliders" name="fixMeshCollider" tooltip="Add MeshCollider components to selected objects. This is used for raycasting to collect hits. The MeshCollider can be safely removed after application." focusable="true" />
         <ui:VisualElement class="Section" style="flex-direction: row; align-items: center; justify-content: space-around; flex-shrink: 0;">
@@ -49,11 +49,13 @@
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:Foldout text="Advanced" value="false" tooltip="Most people will never need to touch these. Not even most developers." class="Section" style="-unity-text-align: upper-left;">
-                <uie:FloatField label="Origin normal offset" binding-path="_originNormalOffset" tooltip="Offset the origing of the ray cast by this amoun in the direction of the normal to prevent self intersections." />
-                <uie:IntegerField label="UV channel" binding-path="_uvChannel" tooltip="The UV channel number to store the computed occlusion data." />
-                <ui:TextField label="Shader property name" binding-path="_materialPropertyName" tooltip="The name of the material property that enables occlusion" />
-                <ui:TextField label="Shader property keyword" binding-path="_shaderPropertyKeyword" tooltip="The name of the shader keyword that enables occlusion" />
-                <uie:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_standardShader" tooltip="The shader is used when &apos;Upgrade materials&apos; is true. It&apos;s expected to support the ambient occlusion metadata." allow-scene-objects="false" />
+                <ui:VisualElement class="Subsection">
+                    <uie:FloatField label="Origin normal offset" binding-path="_originNormalOffset" tooltip="Offset the origing of the ray cast by this amoun in the direction of the normal to prevent self intersections." />
+                    <uie:IntegerField label="UV channel" binding-path="_uvChannel" tooltip="The UV channel number to store the computed occlusion data." />
+                    <ui:TextField label="Shader property name" binding-path="_materialPropertyName" tooltip="The name of the material property that enables occlusion" />
+                    <ui:TextField label="Shader property keyword" binding-path="_shaderPropertyKeyword" tooltip="The name of the shader keyword that enables occlusion" />
+                    <uie:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_standardShader" tooltip="The shader is used when &apos;Upgrade materials&apos; is true. It&apos;s expected to support the ambient occlusion metadata." allow-scene-objects="false" />
+                </ui:VisualElement>
             </ui:Foldout>
         </ui:ScrollView>
     </ui:VisualElement>

@@ -21,17 +21,60 @@ Button:hover {
 
 Button:focus {
     background-color: rgb(106, 106, 106);
-    border-left-color: rgba(235, 235, 235, 255);
-    border-right-color: rgba(235, 235, 235, 255);
-    border-top-color: rgba(235, 235, 235, 255);
-    border-bottom-color: rgba(235, 235, 235, 255);
+    border-left-color: rgb(235, 235, 235);
+    border-right-color: rgb(235, 235, 235);
+    border-top-color: rgb(235, 235, 235);
+    border-bottom-color: rgb(235, 235, 235);
+}
+
+Foldout > Toggle > VisualElement > Label {
+    margin-left: 8px;
+}
+
+.unity-base-field {
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+.unity-base-field:hover {
+    background-color: rgb(46, 46, 46);
+}
+
+.unity-base-field:focus {
+    border-left-color: rgb(235, 235, 235);
+    border-right-color: rgb(235, 235, 235);
+    border-top-color: rgb(235, 235, 235);
+    border-bottom-color: rgb(235, 235, 235);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    padding-left: -1px;
+    padding-right: -1px;
+    padding-top: -1px;
+    padding-bottom: -1px;
+}
+
+Label {
+    color: rgb(235, 235, 235);
+    margin-right: 24px;
 }
 
 Toggle:focus {
-    border-left-color: rgb(106, 106, 106);
-    border-right-color: rgb(106, 106, 106);
-    border-top-color: rgb(106, 106, 106);
-    border-bottom-color: rgb(106, 106, 106);
+    border-left-color: rgb(235, 235, 235);
+    border-right-color: rgb(235, 235, 235);
+    border-top-color: rgb(235, 235, 235);
+    border-bottom-color: rgb(235, 235, 235);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    padding-left: -1px;
+    padding-right: -1px;
+    padding-top: -1px;
+    padding-bottom: -1px;
 }
 
 Toggle:checked .unity-toggle__checkmark {
@@ -85,11 +128,6 @@ HelpBox {
     font-size: 12px;
 }
 
-Label {
-    color: rgb(235, 235, 235);
-    margin-right: 24px;
-}
-
 .unity-base-text-field__input {
     background-color: rgb(16, 16, 16);
     border-left-width: 0;
@@ -126,7 +164,7 @@ Label {
 }
 
 .Subsection {
-    background-color: rgb(77, 77, 77);
+    background-color: rgb(61, 61, 61);
     margin-left: 3px;
     margin-right: 3px;
     margin-top: 3px;
@@ -139,11 +177,4 @@ Label {
     padding-right: 4px;
     padding-top: 4px;
     padding-bottom: 4px;
-}
-
-.unity-foldout {
-}
-
-.Ground {
-    flex-grow: 1;
 }
