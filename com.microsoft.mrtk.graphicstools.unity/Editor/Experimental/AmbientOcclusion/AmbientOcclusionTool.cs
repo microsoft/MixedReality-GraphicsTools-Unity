@@ -47,9 +47,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 return;
             }
 
-            Handles.RadiusHandle(new Quaternion(),
-                                 _vertexs[settings._referenceVertexIndex],
-                                 settings._maxSampleDistance);
+            settings._maxSampleDistance = Handles.RadiusHandle(Quaternion.LookRotation(_normals[settings._referenceVertexIndex], Vector3.up),
+                                                               _vertexs[settings._referenceVertexIndex],
+                                                               settings._maxSampleDistance);
 
             if (settings._showOrigin)
             {

@@ -63,6 +63,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 _fixMeshCollider = fixMeshCollider;
                 _fixMeshCollider.clicked += FixMeshColliderClicked;
             }
+            // Note would be nice to not have to validate in Window and in Settings....
             if (toolUI.Query<IntegerField>("samplesPerVertex").First() is IntegerField integerField)
             {
                 integerField.RegisterCallback<ChangeEvent<int>>(e => integerField.value = Mathf.Clamp(e.newValue, 1, 100000));

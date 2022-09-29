@@ -1,3 +1,63 @@
+.unity-base-field {
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+.unity-base-field:focus {
+    border-left-color: rgb(235, 235, 235);
+    border-right-color: rgb(235, 235, 235);
+    border-top-color: rgb(235, 235, 235);
+    border-bottom-color: rgb(235, 235, 235);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    padding-left: -1px;
+    padding-right: -1px;
+    padding-top: -1px;
+    padding-bottom: -1px;
+}
+
+.unity-base-field:hover {
+    background-color: rgb(46, 46, 46);
+}
+
+#unity-checkmark {
+    background-color: rgb(16, 16, 16);
+    background-image: none;
+    border-left-color: rgb(106, 106, 106);
+    border-right-color: rgb(106, 106, 106);
+    border-top-color: rgb(106, 106, 106);
+    border-bottom-color: rgb(106, 106, 106);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+#unity-text-input {
+    padding-left: 4px;
+}
+
+Toggle:checked #unity-checkmark {
+    background-color: rgb(235, 235, 235);
+    background-image: none;
+    border-left-color: rgb(16, 16, 16);
+    border-right-color: rgb(16, 16, 16);
+    border-top-color: rgb(16, 16, 16);
+    border-bottom-color: rgb(16, 16, 16);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+}
+
 Button {
     border-left-color: rgb(91, 91, 91);
     border-right-color: rgb(91, 91, 91);
@@ -28,38 +88,11 @@ Button:focus {
 }
 
 Foldout > Toggle > VisualElement > Label {
-    margin-left: 8px;
-}
-
-.unity-base-field {
-    padding-left: 1px;
-    padding-right: 1px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-}
-
-.unity-base-field:hover {
-    background-color: rgb(46, 46, 46);
-}
-
-.unity-base-field:focus {
-    border-left-color: rgb(235, 235, 235);
-    border-right-color: rgb(235, 235, 235);
-    border-top-color: rgb(235, 235, 235);
-    border-bottom-color: rgb(235, 235, 235);
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    padding-left: -1px;
-    padding-right: -1px;
-    padding-top: -1px;
-    padding-bottom: -1px;
+    margin-left: 4px;
 }
 
 Label {
     color: rgb(235, 235, 235);
-    margin-right: 24px;
 }
 
 Toggle:focus {
@@ -67,48 +100,10 @@ Toggle:focus {
     border-right-color: rgb(235, 235, 235);
     border-top-color: rgb(235, 235, 235);
     border-bottom-color: rgb(235, 235, 235);
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
     padding-left: -1px;
     padding-right: -1px;
     padding-top: -1px;
     padding-bottom: -1px;
-}
-
-Toggle:checked .unity-toggle__checkmark {
-    background-image: none;
-    background-color: rgb(235, 235, 235);
-    border-left-color: rgb(16, 16, 16);
-    border-right-color: rgb(16, 16, 16);
-    border-top-color: rgb(16, 16, 16);
-    border-bottom-color: rgb(16, 16, 16);
-    border-left-width: 3px;
-    border-right-width: 3px;
-    border-top-width: 3px;
-    border-bottom-width: 3px;
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-}
-
-.unity-toggle__checkmark {
-    background-color: rgb(16, 16, 16);
-    border-left-color: rgb(106, 106, 106);
-    border-right-color: rgb(106, 106, 106);
-    border-top-color: rgb(106, 106, 106);
-    border-bottom-color: rgb(106, 106, 106);
-    border-left-width: 2px;
-    border-right-width: 2px;
-    border-top-width: 2px;
-    border-bottom-width: 2px;
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-    background-image: none;
 }
 
 HelpBox {
@@ -120,7 +115,7 @@ HelpBox {
     -unity-text-align: upper-left;
 }
 
-.unity-help-box__label {
+HelpBox > Label {
     margin-left: 4px;
     margin-right: 4px;
     margin-top: 4px;
