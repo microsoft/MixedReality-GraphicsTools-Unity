@@ -104,8 +104,8 @@ Button {
     padding-right: 8px;
     padding-top: 8px;
     padding-bottom: 8px;
-    color: rgb(254, 235, 136);
     background-color: rgb(77, 77, 77);
+    color: rgba(235, 235, 235, 255);
 }
 
 Button:hover {

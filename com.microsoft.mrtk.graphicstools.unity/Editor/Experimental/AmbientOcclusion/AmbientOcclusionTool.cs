@@ -21,7 +21,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     public class AmbientOcclusionTool
     {
         internal AmbientOcclusionSettings settings;
-        private List<GameObject> selectedObjects;
 
         public AmbientOcclusionTool(AmbientOcclusionSettings toolSettings)
         {
@@ -29,6 +28,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             selectedObjects = new List<GameObject>();
         }
 
+        private List<GameObject> selectedObjects;
         private Vector3[] _vertexs;
         private Vector3[] _normals;
         private Vector4[] _bentNormalsAo;
@@ -201,50 +201,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 Physics.queriesHitBackfaces = false;
 
+                var ao = 1 - ((float)_hitsInHemisphere.Count / settings._samplesPerVertex);
                 var avgN = averageDir.normalized;
-                _bentNormalsAo[vi] = new Vector4(avgN.x,
-                                                 avgN.y,
-                                                 avgN.z,
-                                                 1 - ((float)_hitsInHemisphere.Count / settings._samplesPerVertex));
+                _bentNormalsAo[vi] = new Vector4(avgN.x, avgN.y, avgN.z, ao);
             }
 
             mesh.SetUVs(settings._uvChannel, _bentNormalsAo);
-
-            // For the results to be visible to the user
-            // we need to be using the graphics tools standard shader
-            // and the appropriate parameter must be enabled
-
-            if (go.GetComponent<MeshRenderer>() is MeshRenderer meshRenderer)
-            {
-                // No material? No problem.
-                if (meshRenderer.sharedMaterials.Length == 0)
-                {
-                    meshRenderer.sharedMaterial = ConfiguredAoMaterial(meshRenderer.gameObject.name);
-                }
-                foreach (var material in meshRenderer.sharedMaterials)
-                {
-                    // Got non-standard manterials that don't support AO?
-                    if (!IsStandardShader(material))
-                    {
-                        Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {go.name}.");
-                        // This is a special interal material, we need something better.
-                        if (material.name == "Default-Material")
-                        {
-                            meshRenderer.material = ConfiguredAoMaterial(material.name);
-                        }
-                        if (settings._upgradeMaterials)
-                        {
-                            Debug.Log($"Upgrading material {material.shader.name} to Graphics Tools Standard.");
-                            material.shader = settings._standardShader;
-                        }
-                    }
-                    else
-                    {
-                        // Okay so you're standard... are you setup correctly?
-                        EnsureAoSetup(material);
-                    }
-                }
-            }
 
             Debug.Log($"{nameof(GatherSamples)} vertex-count={mesh.vertexCount} rays-per-vertex={settings._samplesPerVertex} elapsed-ms={watch.ElapsedMilliseconds}");
         }
@@ -318,6 +280,57 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             result.uv8 = source.uv8;
             result.triangles = source.triangles;
             result.tangents = source.tangents;
+            return result;
+        }
+
+        internal string ValidateMaterialSetup(GameObject go)
+        {
+            var result = "";
+            bool didConversion = false;
+            // For the results to be visible to the user
+            // we need to be using the graphics tools standard shader
+            // and the appropriate parameter must be enabled
+            if (go.GetComponent<MeshRenderer>() is MeshRenderer meshRenderer)
+            {
+                // No material? No problem.
+                if (meshRenderer.sharedMaterials.Length == 0)
+                {
+                    meshRenderer.sharedMaterial = ConfiguredAoMaterial(meshRenderer.gameObject.name);
+                }
+                foreach (var sharedMat in meshRenderer.sharedMaterials)
+                {
+                    // Got non-standard manterials that don't support AO?
+                    if (!IsStandardShader(sharedMat))
+                    {
+                        Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {go.name}.", go);
+                        // This is a special interal material, we need something better.
+                        if (sharedMat.name == "Default-Material")
+                        {
+                            meshRenderer.material = ConfiguredAoMaterial(sharedMat.name);
+                        }
+                        if (settings._upgradeMaterials)
+                        {
+                            Debug.LogWarning($"{sharedMat.name} needs upgrade to Graphics Tools Standard! Please do so manually in the inspector.",
+                                             meshRenderer);
+                            Debug.LogWarning("Tip: Don't forget to enable AO!", meshRenderer);
+                            Debug.LogWarning("Tip: If textures look weird, try setting standad-shader.tiling.y to -1", meshRenderer);
+                            // I want to use this but don't have an instance...
+                            //StandardShaderGUI.AssignNewShaderToMaterial(meshRenderer.material,
+                            //                                            meshRenderer.material.shader,
+                            //                                            settings._standardShader);
+                        }
+                    }
+                    else
+                    {
+                        // Okay so you're standard... are you setup correctly?
+                        EnsureAoSetup(sharedMat);
+                    }
+                }
+            }
+            if (didConversion)
+            {
+                result += "";
+            }
             return result;
         }
     }

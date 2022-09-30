@@ -50,19 +50,22 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var toolUI = AmbientOcclusionSettings.SettingsUI();
             rootVisualElement.Add(toolUI);
             rootVisualElement.Bind(AmbientOcclusionSettings.GetSerializedSettings());
-            if (toolUI.Query<Button>("apply").First() is Button button)
-            {
-                button.clicked += OnApplyButtonClicked;
-            }
+            // Be helpful
             if (toolUI.Query<HelpBox>("help").First() is HelpBox help)
             {
                 _helpBox = help;
+            }
+            // Find and hook up buttons
+            if (toolUI.Query<Button>("apply").First() is Button button)
+            {
+                button.clicked += OnApplyButtonClicked;
             }
             if (toolUI.Query<Button>("fixMeshCollider").First() is Button fixMeshCollider)
             {
                 _fixMeshCollider = fixMeshCollider;
                 _fixMeshCollider.clicked += FixMeshColliderClicked;
             }
+            // Validation for input
             // Note would be nice to not have to validate in Window and in Settings....
             if (toolUI.Query<IntegerField>("samplesPerVertex").First() is IntegerField integerField)
             {
@@ -183,6 +186,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     _lastVisualizedGO = item;
                 }
                 _ambientOcclusionTool.GatherSamples(item);
+                var msg = _ambientOcclusionTool.ValidateMaterialSetup(item);
+                _helpBox.text += msg;
             }
             _shouldShowVis = true;  
         }

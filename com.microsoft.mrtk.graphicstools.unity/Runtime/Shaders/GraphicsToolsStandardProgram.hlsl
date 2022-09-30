@@ -294,6 +294,14 @@ Varyings VertexStage(Attributes input)
     v2f.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
 #endif
 
+#if defined(_NORMAL) || defined(_VERTEX_EXTRUSION)
+#if defined(_VERTEX_BENTNORMALAO)
+    half3 envNormal = input.uv5.rgb;
+#else
+    half3 envNormal = worldNormal;
+#endif
+#endif
+
 #if defined(_SPHERICAL_HARMONICS)
 #if defined(_URP)
     float4 coefficients[7];
@@ -305,9 +313,9 @@ Varyings VertexStage(Attributes input)
     coefficients[5] = unity_SHBb;
     coefficients[6] = unity_SHC;
 
-    v2f.ambient = max(0.0, SampleSH9(coefficients, worldNormal));
+    v2f.ambient = max(0.0, SampleSH9(coefficients, envNormal));
 #else
-    v2f.ambient = ShadeSH9(float4(worldNormal, 1.0));
+    v2f.ambient = ShadeSH9(float4(envNormal, 1.0));
 #endif
 
 #endif
@@ -779,19 +787,15 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     occlusion = input.bentNormalAo.a;
 #endif
 
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_NPR_Rendering)
-    GTBRDFData brdfData;
-    GTInitializeBRDFData(albedo.rgb, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
-
 #if defined(_SPHERICAL_HARMONICS)
     half3 bakedGI = input.ambient;
 #else
-    half3 bakedGI = GTDefaultAmbientGI * occlusion;
+    half3 bakedGI = GTDefaultAmbientGI;
 #endif
 
-#if defined(_VERTEX_BENTNORMALAO)
-    worldNormal = input.bentNormalAo.rgb;
-#endif
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DIRECTIONAL_LIGHT) || defined(_NPR_Rendering)
+    GTBRDFData brdfData;
+    GTInitializeBRDFData(albedo.rgb, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
 
     // Indirect lighting.
     half3 indirect = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
