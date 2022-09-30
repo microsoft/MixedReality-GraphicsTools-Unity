@@ -153,7 +153,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     if (selected.GetComponent<MeshCollider>() == null)
                     {
                         _helpBox.messageType = HelpBoxMessageType.Warning;
-                        _helpBox.text = $"{selected.name} has no mesh collider! (You should probably add one)";
+                        _helpBox.text = $"{selected.name} has no mesh collider! Please add one. You can delete it later.";
                         if (_fixMeshCollider != null)
                         {
                             _fixMeshCollider.style.display = DisplayStyle.Flex;

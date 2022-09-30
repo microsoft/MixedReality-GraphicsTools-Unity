@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
@@ -137,7 +138,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var meshFilter = go.GetComponent<MeshFilter>();
             if (meshFilter == null)
             {
-                UnityEngine.Debug.LogWarning($"No mesh filter found for {go.name}! - skipping.", go);
+                Debug.LogWarning($"No mesh filter found for {go.name}! - skipping.", go);
                 return;
             }
 
@@ -215,45 +216,78 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (go.GetComponent<MeshRenderer>() is MeshRenderer meshRenderer)
             {
+                // No material? No problem.
+                if (meshRenderer.sharedMaterials.Length == 0)
+                {
+                    meshRenderer.sharedMaterial = ConfiguredAoMaterial(meshRenderer.gameObject.name);
+                }
                 foreach (var material in meshRenderer.sharedMaterials)
                 {
+                    // Got non-standard manterials that don't support AO?
                     if (!IsStandardShader(material))
                     {
-                        UnityEngine.Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {go.name}.");
+                        Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {go.name}.");
+                        // This is a special interal material, we need something better.
+                        if (material.name == "Default-Material")
+                        {
+                            meshRenderer.material = ConfiguredAoMaterial(material.name);
+                        }
                         if (settings._upgradeMaterials)
                         {
-                            if (material.name == "Default-Material")
-                            {
-                                Material newMaterial;
-                                var name = $"{material.name}-AO";
-                                var assetPath = $"Assets/{name}.mat";
-                                // See if we made one of these previously
-                                var found = AssetDatabase.FindAssets(name);
-                                if (found.Length == 0)
-                                {
-                                    newMaterial = new Material(settings._standardShader);
-                                    AssetDatabase.CreateAsset(newMaterial, assetPath);
-                                }
-                                else
-                                {
-                                    newMaterial = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
-                                }
-                                // Ensure new material will display the effect
-                                newMaterial.SetFloat(settings._materialPropertyName, 1);
-                                newMaterial.EnableKeyword(settings._shaderPropertyKeyword);
-                                meshRenderer.material = newMaterial;
-                                UnityEngine.Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
-                            }
-                            else
-                            {
-                                UnityEngine.Debug.Log($"Upgrading material {material.shader.name} to Graphics Tools Standard.");
-                            }
+                            Debug.Log($"Upgrading material {material.shader.name} to Graphics Tools Standard.");
+                            material.shader = settings._standardShader;
                         }
+                    }
+                    else
+                    {
+                        // Okay so you're standard... are you setup correctly?
+                        EnsureAoSetup(material);
                     }
                 }
             }
 
-            UnityEngine.Debug.Log($"{nameof(GatherSamples)} vertex-count={mesh.vertexCount} rays-per-vertex={settings._samplesPerVertex} elapsed-ms={watch.ElapsedMilliseconds}");
+            Debug.Log($"{nameof(GatherSamples)} vertex-count={mesh.vertexCount} rays-per-vertex={settings._samplesPerVertex} elapsed-ms={watch.ElapsedMilliseconds}");
+        }
+
+        private Material ConfiguredAoMaterial(string name)
+        {
+            Material newMaterial;
+            var suffixedName = $"{name}-AO";
+            var assetPath = $"Assets/{suffixedName}.mat";
+            // See if we made one of these previously
+            // XXX when/why would we want multiple objects to share the same material?
+            var found = AssetDatabase.FindAssets(suffixedName);
+            if (found.Length == 0)
+            {
+                newMaterial = new Material(settings._standardShader);
+                AssetDatabase.CreateAsset(newMaterial, assetPath);
+                Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
+            }
+            else
+            {
+                newMaterial = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+            }
+            // Ensure new material will display the effect
+            EnsureAoSetup(newMaterial);
+            return newMaterial;
+        }
+
+        private void EnsureAoSetup(Material newMaterial)
+        {
+            if (!newMaterial.IsKeywordEnabled(settings._shaderPropertyKeyword))
+            {
+                newMaterial.EnableKeyword(settings._shaderPropertyKeyword);
+                Debug.LogWarning($"Enabling {settings._shaderPropertyKeyword} on {newMaterial.name}");
+            }
+            if (newMaterial.HasProperty(settings._materialPropertyName)
+                && newMaterial.GetFloat(settings._materialPropertyName) != 1)
+            {
+                newMaterial.SetFloat(settings._materialPropertyName, 1);
+                Debug.LogWarning($"Set {settings._materialPropertyName} to 1 on {newMaterial.name}");
+            }
+            newMaterial.EnableKeyword("_DIRECTIONAL_LIGHT");
+            newMaterial.EnableKeyword("_SPHERICAL_HARMONICS");
+            newMaterial.SetFloat("_SphericalHarmonics", 1);
         }
 
         private bool IsStandardShader(Material material)
