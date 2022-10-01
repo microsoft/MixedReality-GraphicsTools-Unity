@@ -20,7 +20,6 @@ struct Attributes
     float4 uv2 : TEXCOORD2;
     // Used for UGUI scaling data.
     float2 uv3 : TEXCOORD3;
-
 #if defined(_VERTEX_BENTNORMALAO)
     half4 uv5 : TEXCOORD5;
 #endif
