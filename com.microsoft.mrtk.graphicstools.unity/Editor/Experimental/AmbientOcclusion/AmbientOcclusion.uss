@@ -7,6 +7,7 @@
     margin-right: 1px;
     margin-top: 1px;
     margin-bottom: 1px;
+    align-items: center;
 }
 
 .unity-base-field:focus {
@@ -105,7 +106,7 @@ Button {
     padding-top: 8px;
     padding-bottom: 8px;
     background-color: rgb(77, 77, 77);
-    color: rgba(235, 235, 235, 255);
+    color: rgb(235, 235, 235);
 }
 
 Button:hover {

@@ -19,15 +19,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         Smoothness = 2
     }
 
-        /// <summary>
-        /// What type of direct light affects the surface.
-        /// </summary>
-        public enum LightMode
-        {
-            Unlit = 0,
-            LitDirectional = 1,
-            LitDistant = 2
-        }
+    /// <summary>
+    /// What type of direct light affects the surface.
+    /// </summary>
+    public enum LightMode
+    {
+        Unlit = 0,
+        LitDirectional = 1,
+        LitDistant = 2
+    }
 
     /// <summary>
     /// What type of gradient to generate.
@@ -121,7 +121,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent rimColor = new GUIContent("Color", "Rim Highlight Color");
             public static readonly GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
             public static readonly GUIContent vertexColors = new GUIContent("Vertex color", "Enable to use the mesh's vertex color for albedo and transparency");
-            public static readonly GUIContent vertexBentNormalAo = new GUIContent("Vertex ambient occlusion", "Enable to use ambient occlusion and bent normal information embedded mesh");
+            public static readonly GUIContent vertexBentNormalAo = new GUIContent("Vertex ambient occlusion", "Enable to use ambient occlusion and bent normal information embedded mesh. IMPORTANT - if this box is ON but there is no occlusion data the surface will render incorrectly!");
             public static readonly GUIContent vertexExtrusion = new GUIContent("Vertex Extrusion", "Enable Vertex Extrusion Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionValue = new GUIContent("Extrusion Value", "How Far to Extrude the Vertex Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionSmoothNormals = new GUIContent("Use Smooth Normals", "Should Vertex Extrusion use the Smooth Normals in UV3, or Default Normals");

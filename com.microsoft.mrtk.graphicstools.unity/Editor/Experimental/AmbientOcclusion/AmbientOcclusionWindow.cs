@@ -23,6 +23,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private GameObject _lastVisualizedGO; // state used by visualization
         private bool _shouldShowVis; // controls if we display some visuals in the scene view
         private IntegerField _referenceVertexIndexField; // when selection changes we need to update this for validate
+        private Button _applyButton;
 
         [MenuItem("Window/Graphics Tools/Ambient occclusion")]
         private static void ShowWindow()
@@ -59,6 +60,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             if (toolUI.Query<Button>("apply").First() is Button button)
             {
                 button.clicked += OnApplyButtonClicked;
+                _applyButton = button;
             }
             if (toolUI.Query<Button>("fixMeshCollider").First() is Button fixMeshCollider)
             {
@@ -97,12 +99,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (Selection.gameObjects.Length == 0)
             {
+                _shouldShowVis = false;
                 return;
             }
 
             var firstSelectedGO = Selection.gameObjects[0];
             if (firstSelectedGO == null)
             {
+                _shouldShowVis = false;
                 return;
             }
 
@@ -124,6 +128,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void UpdateHelp()
         {
+            _applyButton.visible = true;
+
             if (_fixMeshCollider != null)
             {
                 _fixMeshCollider.style.display = DisplayStyle.None;
@@ -136,7 +142,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 if (Selection.gameObjects.Length < 1)
                 {
                     _helpBox.messageType = HelpBoxMessageType.Info;
-                    _helpBox.text = "Select game objects to modify, then press 'Apply'.";
+                    _helpBox.text = "Select game objects to modify...";
+                    _applyButton.visible = false;
                 }
                 else
                 {
@@ -151,6 +158,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     {
                         _helpBox.messageType = HelpBoxMessageType.Error;
                         _helpBox.text = $"{selected.name} has no MeshFilter!";
+                        _applyButton.visible = false;
                         continue;
                     }
                     if (selected.GetComponent<MeshCollider>() == null)
@@ -160,6 +168,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         if (_fixMeshCollider != null)
                         {
                             _fixMeshCollider.style.display = DisplayStyle.Flex;
+                            _applyButton.visible = false;
                             break;
                         }
                     }

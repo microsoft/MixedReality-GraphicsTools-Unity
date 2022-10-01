@@ -9,7 +9,7 @@
         </ui:VisualElement>
         <ui:ScrollView class="Scrollview">
             <ui:VisualElement class="Section">
-                <ui:Label text="Ray casting" display-tooltip-when-elided="true" class="H1" />
+                <ui:Label text="Options" display-tooltip-when-elided="true" class="H1" />
                 <ui:VisualElement class="Subsection">
                     <uie:IntegerField label="Samples per vertex" binding-path="_samplesPerVertex" tooltip="The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower." name="samplesPerVertex" />
                     <uie:FloatField label="Max sample distance" binding-path="_maxSampleDistance" tooltip="How far to search for nearby colliders in the scene." />
