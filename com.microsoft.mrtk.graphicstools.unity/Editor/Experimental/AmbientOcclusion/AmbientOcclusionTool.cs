@@ -252,18 +252,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             newMaterial.SetFloat("_SphericalHarmonics", 1);
         }
 
-        private bool IsStandardShader(Material material)
-        {
-            if (material.HasProperty(settings._materialPropertyName))
-            {
-                if (material.GetFloat(settings._materialPropertyName) == 1f)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private Mesh DeepCopyMesh(Mesh source)
         {
             var result = new Mesh();
@@ -300,7 +288,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 foreach (var sharedMat in meshRenderer.sharedMaterials)
                 {
                     // Got non-standard manterials that don't support AO?
-                    if (!IsStandardShader(sharedMat))
+                    if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(sharedMat))
                     {
                         Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {go.name}.", go);
                         // This is a special interal material, we need something better.
