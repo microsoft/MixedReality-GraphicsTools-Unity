@@ -18,7 +18,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private AmbientOcclusionTool _ambientOcclusionTool;
         private HelpBox _helpBox;
-        private Button _fixMeshCollider; // used by help
+        private Button _addMeshCollidersButton; // used by help
         private int _maxVertexIndex; // used for user input validation
         private GameObject _lastVisualizedGO; // state used by visualization
         private bool _shouldShowVis; // controls if we display some visuals in the scene view
@@ -62,10 +62,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 button.clicked += OnApplyButtonClicked;
                 _applyButton = button;
             }
-            if (toolUI.Query<Button>("fixMeshCollider").First() is Button fixMeshCollider)
+            if (toolUI.Query<Button>("addMeshColliders").First() is Button addMeshCollidersButton)
             {
-                _fixMeshCollider = fixMeshCollider;
-                _fixMeshCollider.clicked += FixMeshColliderClicked;
+                _addMeshCollidersButton = addMeshCollidersButton;
+                _addMeshCollidersButton.clicked += OnAddMeshColliders;
             }
             // Validation for input
             // Note would be nice to not have to validate in Window and in Settings....
@@ -77,18 +77,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 refVtxIdxField.RegisterCallback<ChangeEvent<int>>(e => refVtxIdxField.value = Mathf.Clamp(e.newValue, 0, _maxVertexIndex));
                 _referenceVertexIndexField = refVtxIdxField;
-            }
-            UpdateHelp();
-        }
-
-        private void FixMeshColliderClicked()
-        {
-            foreach (var item in Selection.gameObjects)
-            {
-                if (item.GetComponent<MeshCollider>() == null)
-                {
-                    item.AddComponent<MeshCollider>();
-                }
             }
             UpdateHelp();
         }
@@ -126,13 +114,31 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
         }
 
+        private void OnDestroy()
+        {
+            SceneView.duringSceneGui -= OnSceneGUI;
+            ToolManager.RestorePreviousPersistentTool();
+        }
+
+        private void OnAddMeshColliders()
+        {
+            foreach (var item in Selection.gameObjects)
+            {
+                if (item.GetComponent<MeshCollider>() == null)
+                {
+                    item.AddComponent<MeshCollider>();
+                }
+            }
+            UpdateHelp();
+        }
+
         private void UpdateHelp()
         {
             _applyButton.visible = true;
 
-            if (_fixMeshCollider != null)
+            if (_addMeshCollidersButton != null)
             {
-                _fixMeshCollider.style.display = DisplayStyle.None;
+                _addMeshCollidersButton.style.display = DisplayStyle.None;
             }
 
             if (_helpBox != null)
@@ -165,9 +171,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     {
                         _helpBox.messageType = HelpBoxMessageType.Warning;
                         _helpBox.text = $"{selected.name} has no mesh collider! Please add one. You can delete it later.";
-                        if (_fixMeshCollider != null)
+                        if (_addMeshCollidersButton != null)
                         {
-                            _fixMeshCollider.style.display = DisplayStyle.Flex;
+                            _addMeshCollidersButton.style.display = DisplayStyle.Flex;
                             _applyButton.visible = false;
                             break;
                         }
@@ -176,12 +182,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 rootVisualElement.MarkDirtyRepaint();
             }
-        }
-
-        private void OnDestroy()
-        {
-            SceneView.duringSceneGui -= OnSceneGUI;
-            ToolManager.RestorePreviousPersistentTool();
         }
 
         private void OnApplyButtonClicked()

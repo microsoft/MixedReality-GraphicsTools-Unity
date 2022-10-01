@@ -1,6 +1,6 @@
-# Ambient occlusion
+# Ambient occlusion (AO)
 
-Calculates [ambient occlusion](https://en.wikipedia.org/wiki/Ambient_occlusion) using ray-casts (AO) and stores it per-vertex for use with the Graphics Tools Standard shader.
+Calculates [ambient occlusion](https://en.wikipedia.org/wiki/Ambient_occlusion) using ray-casts (and stores it per-vertex for use with the Graphics Tools Standard shader.
 
 Using AO with a `Mesh` is a two part process. The first is to cast rays and store how often we hit nearby objects. This is done for every vertex. The second part is to read that vertex metadata in the shader, and integrate it with the lighting.
 
