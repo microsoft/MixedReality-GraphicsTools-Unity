@@ -210,7 +210,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var suffixedName = $"{name}-AO";
             var assetPath = $"Assets/{suffixedName}.mat";
             // See if we made one of these previously
-            // XXX when/why would we want multiple objects to share the same material?
             var found = AssetDatabase.FindAssets(suffixedName);
             if (found.Length == 0)
             {

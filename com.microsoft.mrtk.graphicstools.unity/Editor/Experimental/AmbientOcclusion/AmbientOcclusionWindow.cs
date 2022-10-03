@@ -20,14 +20,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private AmbientOcclusionTool _ambientOcclusionTool;
         private HelpBox _helpBox;
-        private Button _addMeshCollidersButton; // used by help
         private int _maxVertexIndex; // used for user input validation
         private GameObject _lastVisualizedGO; // state used by visualization
         private bool _shouldShowVis; // controls if we display some visuals in the scene view
         private IntegerField _referenceVertexIndexField; // when selection changes we need to update this for validate
         private Button _applyButton;
-        private Button _cleanupButton;
-        private List<MeshCollider> _createdColliders = new List<MeshCollider>();
+        private List<MeshCollider> _tempColliders = new List<MeshCollider>();
 
         [MenuItem("Window/Graphics Tools/Ambient occclusion")]
         private static void ShowWindow()
@@ -65,17 +63,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 button.clicked += OnApplyButtonClicked;
                 _applyButton = button;
-            }
-            if (toolUI.Query<Button>("addMeshColliders").First() is Button addMeshCollidersButton)
-            {
-                _addMeshCollidersButton = addMeshCollidersButton;
-                _addMeshCollidersButton.clicked += OnAddMeshColliders;
-            }
-            if (toolUI.Query<Button>("cleanup").First() is Button cleanup)
-            {
-                cleanup.clicked += OnCleanupClicked;
-                _cleanupButton = cleanup;
-                _cleanupButton.visible = _createdColliders.Count > 0;
             }
             // Validation for input
             // Note would be nice to not have to validate in Window and in Settings....
@@ -131,18 +118,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             ToolManager.RestorePreviousPersistentTool();
         }
         
-        private void OnCleanupClicked()
+        private void DeleteTempMeshColliders()
         {
-            if (_cleanupButton != null)
+            foreach (var collider in _tempColliders)
             {
-                foreach (var collider in _createdColliders)
-                {
-                    DestroyImmediate(collider);
-                }
-                _createdColliders.Clear();
+                DestroyImmediate(collider);
             }
-            UpdateHelp();
-            rootVisualElement.MarkDirtyRepaint();
+            _tempColliders.Clear();
         }
 
         private GameObject FirstSelectedGameObjectWithMeshFilter()
@@ -160,32 +142,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return result;
         }
 
-        private void OnAddMeshColliders()
-        {
-            foreach (var item in Selection.gameObjects)
-            {
-                if (item.GetComponent<MeshCollider>() == null)
-                {
-                    _createdColliders.Add(item.AddComponent<MeshCollider>());
-                }
-            }
-            UpdateHelp();
-            rootVisualElement.MarkDirtyRepaint();
-        }
-
         private void UpdateHelp()
         {
             _applyButton.visible = true;
-
-            if (_cleanupButton != null)
-            {
-                _cleanupButton.visible = _createdColliders.Count > 0;
-            }
-
-            if (_addMeshCollidersButton != null)
-            {
-                _addMeshCollidersButton.style.display = DisplayStyle.None;
-            }
 
             if (_helpBox != null)
             {
@@ -203,34 +162,23 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     _helpBox.messageType = HelpBoxMessageType.Info;
                     _helpBox.text = "Press 'Apply' to calculate occlusion and show visualization.";
                 }
-                // Ensure our objects have mesh colliders on them
-                foreach (var selected in Selection.gameObjects)
-                {
-                    var meshCollider = selected.GetComponent<MeshCollider>();
-                    if (meshCollider == null)
-                    {
-                        var meshFilter = selected.GetComponent<MeshFilter>();
-                        if (meshFilter == null)
-                        {
-                            continue;
-                        }
-                        _helpBox.messageType = HelpBoxMessageType.Warning;
-                        _helpBox.text = $"{selected.name} has no mesh collider! Please add one. You can delete it later.";
-                        if (_addMeshCollidersButton != null)
-                        {
-                            _addMeshCollidersButton.style.display = DisplayStyle.Flex;
-                            _applyButton.visible = false;
-                            break;
-                        }
-                    }
-                }
             }
         }
 
         private void OnApplyButtonClicked()
         {
+            var meshFilters = Selection.gameObjects.Where(g => g.GetComponent<MeshFilter>() != null);
+            // Ensure we have something to collide with
+            foreach (var item in meshFilters)
+            {
+                var meshCollider = item.GetComponent<MeshCollider>();
+                if (meshCollider == null)
+                {
+                    _tempColliders.Add(item.AddComponent<MeshCollider>());
+                }
+            }
             _lastVisualizedGO = null;
-            foreach (var item in Selection.gameObjects)
+            foreach (var item in meshFilters)
             {
                 // Used by visualization to draw the first selected thing
                 if (_lastVisualizedGO == null)
@@ -242,12 +190,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     _ambientOcclusionTool.GatherSamples(meshFilter);
                 }
+                // Ensure material is setup to display results
                 var meshRenderer = item.GetComponent<MeshRenderer>();
                 if (meshRenderer != null)
                 {
                     _helpBox.text += _ambientOcclusionTool.ValidateMaterialSetup(meshRenderer);
                 }
             }
+            // Delete our temp colliders
+            foreach (var collider in _tempColliders)
+            {
+                DestroyImmediate(collider);
+            }
+            _tempColliders.Clear();
             _shouldShowVis = true;
         }
 
