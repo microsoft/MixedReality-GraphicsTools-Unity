@@ -1,0 +1,14 @@
+{
+  "hlsl.preprocessorDefinitions": {
+    "_NORMAL": 1,
+    "_URP": "1",
+    "_VERTEX_BENTNORMALAO": 1,
+    "_WORLD_POSITION":  "1"
+  },
+  "hlsl.additionalIncludeDirectories": [
+    "E:\\builtin_shaders-2020.3.36f1\\CGIncludes"
+  ],
+  "hlsl.virtualDirectoryMappings": {
+    "/Project": "C:\\MyProject\\Shaders"
+  }
+}

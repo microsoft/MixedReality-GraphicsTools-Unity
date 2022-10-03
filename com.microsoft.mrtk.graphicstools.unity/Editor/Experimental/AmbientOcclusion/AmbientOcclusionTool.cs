@@ -117,12 +117,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <returns></returns>
         private Vector3 RandomSampleAboveHemisphere(Vector3 normalizedReferenceNormal)
         {
-            float angle;
             Vector3 randomAxis;
             while (true)
             {
                 // This method is appears to be more uniform than Random.onUnitSphere in testing...
-                Random.rotationUniform.ToAngleAxis(out angle, out randomAxis);
+                Random.rotationUniform.ToAngleAxis(out _, out randomAxis);
                 if (Vector3.Dot(randomAxis, normalizedReferenceNormal) > 0)
                 {
                     return randomAxis;
@@ -133,17 +132,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Peform the ambient occlusion calculation
         /// </summary>
-        internal void GatherSamples(GameObject go)
+        internal void GatherSamples(MeshFilter meshFilter)
         {
-            var meshFilter = go.GetComponent<MeshFilter>();
-            if (meshFilter == null)
-            {
-                Debug.LogWarning($"No mesh filter found for {go.name}! - skipping.", go);
-                return;
-            }
-
             var mesh = DeepCopyMesh(meshFilter.sharedMesh);
-            mesh.name = $"{_magicPrefix} {go.name}";
+            mesh.name = $"{_magicPrefix} {meshFilter.gameObject.name}";
             meshFilter.mesh = mesh;
 
             if (_bentNormalsAo == null || _bentNormalsAo.Length != mesh.vertexCount)
@@ -159,19 +151,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _referenceVertexSamples.Clear();
             _referenceVertexHits.Clear();
 
+            Physics.queriesHitBackfaces = true;
+
             for (int vi = 0; vi < mesh.vertexCount; vi++)
             {
                 // Do the work in world space
-                _vertexs[vi] = go.transform.TransformPoint(_vertexs[vi]);
-                _normals[vi] = go.transform.TransformVector(_normals[vi]);
+                _vertexs[vi] = meshFilter.transform.TransformPoint(_vertexs[vi]);
+                _normals[vi] = meshFilter.transform.TransformVector(_normals[vi]);
 
                 _hitsInHemisphere.Clear();
 
                 Vector3 averageDir = Vector3.zero;
 
                 var origin = _vertexs[vi] + _normals[vi].normalized * settings._originNormalOffset;
-
-                Physics.queriesHitBackfaces = true;
 
                 for (int ni = 0; ni < settings._samplesPerVertex; ni++)
                 {
@@ -199,12 +191,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
                 }
 
-                Physics.queriesHitBackfaces = false;
 
                 var ao = 1 - ((float)_hitsInHemisphere.Count / settings._samplesPerVertex);
                 var avgN = averageDir.normalized;
                 _bentNormalsAo[vi] = new Vector4(avgN.x, avgN.y, avgN.z, ao);
             }
+
+            Physics.queriesHitBackfaces = false;
 
             mesh.SetUVs(settings._uvChannel, _bentNormalsAo);
 
@@ -221,7 +214,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var found = AssetDatabase.FindAssets(suffixedName);
             if (found.Length == 0)
             {
-                newMaterial = new Material(settings._standardShader);
+                newMaterial = new Material(settings._bentNormalAoShader);
                 AssetDatabase.CreateAsset(newMaterial, assetPath);
                 Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
             }
@@ -247,7 +240,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 newMaterial.SetFloat(settings._materialPropertyName, 1);
                 Debug.LogWarning($"Set {settings._materialPropertyName} to 1 on {newMaterial.name}");
             }
-            newMaterial.EnableKeyword("_DIRECTIONAL_LIGHT");
             newMaterial.EnableKeyword("_SPHERICAL_HARMONICS");
             newMaterial.SetFloat("_SphericalHarmonics", 1);
         }
@@ -271,48 +263,45 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return result;
         }
 
-        internal string ValidateMaterialSetup(GameObject go)
+        internal string ValidateMaterialSetup(MeshRenderer meshRenderer)
         {
             var result = "";
             bool didConversion = false;
             // For the results to be visible to the user
             // we need to be using the graphics tools standard shader
             // and the appropriate parameter must be enabled
-            if (go.GetComponent<MeshRenderer>() is MeshRenderer meshRenderer)
+            // No material? No problem.
+            if (meshRenderer.sharedMaterials.Length == 0)
             {
-                // No material? No problem.
-                if (meshRenderer.sharedMaterials.Length == 0)
+                meshRenderer.sharedMaterial = ConfiguredAoMaterial(meshRenderer.gameObject.name);
+            }
+            foreach (var sharedMat in meshRenderer.sharedMaterials)
+            {
+                // Got non-standard manterials that don't support AO?
+                if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(sharedMat))
                 {
-                    meshRenderer.sharedMaterial = ConfiguredAoMaterial(meshRenderer.gameObject.name);
+                    // This is a special interal material, we need something better.
+                    if (sharedMat.name == "Default-Material")
+                    {
+                        meshRenderer.material = ConfiguredAoMaterial(sharedMat.name);
+                    }
+                    if (settings._upgradeMaterials)
+                    {
+                        // TODO - user shouldn't have to do this step!
+                        // Could use this but don't have an instance...
+                        //StandardShaderGUI.AssignNewShaderToMaterial(meshRenderer.material,
+                        //                                            meshRenderer.material.shader,
+                        //                                            settings._standardShader);
+                        Debug.LogWarning($"{sharedMat.name} needs upgrade to Graphics Tools Standard! Please do so manually in the inspector.",
+                                         meshRenderer);
+                        Debug.LogWarning("Tip: Don't forget to enable AO!", meshRenderer);
+                        Debug.LogWarning("Tip: If textures look weird, try setting standad-shader.tiling.y to -1", meshRenderer);
+                    }
                 }
-                foreach (var sharedMat in meshRenderer.sharedMaterials)
+                else
                 {
-                    // Got non-standard manterials that don't support AO?
-                    if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(sharedMat))
-                    {
-                        Debug.LogWarning($"No Graphics Tools Standard material found with 'Vertex ambient occlusion' enabled on {go.name}.", go);
-                        // This is a special interal material, we need something better.
-                        if (sharedMat.name == "Default-Material")
-                        {
-                            meshRenderer.material = ConfiguredAoMaterial(sharedMat.name);
-                        }
-                        if (settings._upgradeMaterials)
-                        {
-                            Debug.LogWarning($"{sharedMat.name} needs upgrade to Graphics Tools Standard! Please do so manually in the inspector.",
-                                             meshRenderer);
-                            Debug.LogWarning("Tip: Don't forget to enable AO!", meshRenderer);
-                            Debug.LogWarning("Tip: If textures look weird, try setting standad-shader.tiling.y to -1", meshRenderer);
-                            // I want to use this but don't have an instance...
-                            //StandardShaderGUI.AssignNewShaderToMaterial(meshRenderer.material,
-                            //                                            meshRenderer.material.shader,
-                            //                                            settings._standardShader);
-                        }
-                    }
-                    else
-                    {
-                        // Okay so you're standard... are you setup correctly?
-                        EnsureAoSetup(sharedMat);
-                    }
+                    // Okay so you're standard... are you setup correctly?
+                    EnsureAoSetup(sharedMat);
                 }
             }
             if (didConversion)

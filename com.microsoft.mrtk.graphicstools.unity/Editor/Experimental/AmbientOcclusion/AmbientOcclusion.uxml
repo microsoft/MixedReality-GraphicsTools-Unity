@@ -5,6 +5,7 @@
         <ui:Button text="Add mesh colliders" name="addMeshColliders" tooltip="Add MeshCollider components to selected objects. This is used for raycasting to collect hits. The MeshCollider can be safely removed after application." focusable="true" />
         <ui:VisualElement class="Section" style="flex-direction: row; align-items: center; justify-content: space-around; flex-shrink: 0;">
             <ui:Button name="apply" text="Apply" focusable="true" style="width: 100px; color: rgb(254, 235, 134);" />
+            <ui:Button name="cleanup" text="Cleanup" focusable="true" tooltip="Deletes all MeshColliders create by this tool." />
             <ui:Toggle label="Upgrade materials" binding-path="_upgradeMaterials" value="false" tooltip="When checked, existing materials on the MeshRenderer component will be upgraded with the &apos;standard shader&apos; specified in the Advanced section." />
         </ui:VisualElement>
         <ui:ScrollView class="Scrollview">
@@ -55,7 +56,7 @@
                     <uie:IntegerField label="UV channel" binding-path="_uvChannel" tooltip="The UV channel number to store the computed occlusion data." />
                     <ui:TextField label="Shader property name" binding-path="_materialPropertyName" tooltip="The name of the material property that enables occlusion" />
                     <ui:TextField label="Shader property keyword" binding-path="_shaderPropertyKeyword" tooltip="The name of the shader keyword that enables occlusion" />
-                    <uie:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_standardShader" tooltip="The shader is used when &apos;Upgrade materials&apos; is true. It&apos;s expected to support the ambient occlusion metadata." allow-scene-objects="false" />
+                    <uie:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_bentNormalAoShader" tooltip="The shader is used when &apos;Upgrade materials&apos; is true. It&apos;s expected to support the ambient occlusion metadata." allow-scene-objects="false" />
                 </ui:VisualElement>
             </ui:Foldout>
         </ui:ScrollView>

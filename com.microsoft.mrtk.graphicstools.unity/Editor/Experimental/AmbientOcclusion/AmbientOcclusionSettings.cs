@@ -51,7 +51,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         // You'll see at the top...
         // "Material class in UnityEngine / inherits from:Object / Implemented in:UnityEngine.CoreModule..."
         // Which becomes <ObjectField type="UnityEngine.Material, UnityEngine.CoreModule">
-        [SerializeField] internal Shader _standardShader;
+        [SerializeField] internal Shader _bentNormalAoShader;
 
         private const string AmbientOcclusionSettingsPath = "Assets/Editor/AmbientOcclusionSettings.asset";
 
@@ -82,7 +82,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _samplesIndex = 2;
             _materialPropertyName = "_VertexBentNormalAo";
             _shaderPropertyKeyword = "_VERTEX_BENTNORMALAO";
-            _standardShader = Shader.Find("Graphics Tools/Standard");
+            _bentNormalAoShader = StandardShaderUtility.GraphicsToolsStandardShader;
         }
 
         private void OnValidate()

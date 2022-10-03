@@ -146,10 +146,10 @@
 /// </summary>
 Varyings VertexStage(Attributes input)
 {
-    Varyings v2f = (Varyings)0;
+    Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    UNITY_TRANSFER_INSTANCE_ID(input, v2f);
-    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(v2f);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     float4 vertexPosition = input.vertex;
 
@@ -158,20 +158,20 @@ Varyings VertexStage(Attributes input)
 #endif
 
 #if defined(_SCALE)
-    v2f.scale = GTGetWorldScale();
+    output.scale = GTGetWorldScale();
     float canvasScale = 1.0;
 #if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
 #if defined(_CANVAS_RENDERED)
-    canvasScale = min(min(v2f.scale.x, v2f.scale.y), v2f.scale.z);
-    v2f.scale.x *= input.uv2.x;
-    v2f.scale.y *= input.uv2.y;
-    v2f.scale.z *= input.uv3.x;
+    canvasScale = min(min(output.scale.x, output.scale.y), output.scale.z);
+    output.scale.x *= input.uv2.x;
+    output.scale.y *= input.uv2.y;
+    output.scale.z *= input.uv3.x;
 #endif
 #endif
 #endif
 
 #if defined(_VERTEX_BENTNORMALAO)
-    v2f.bentNormalAo = input.uv5;
+    output.bentNormalAo = input.uv5;
 #endif
 
     half3 localNormal = input.normal;
@@ -187,9 +187,9 @@ Varyings VertexStage(Attributes input)
 #if defined(_VERTEX_EXTRUSION)
 #if defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
 #if defined(_URP)
-    worldVertexPosition += TransformObjectToWorldNormal(input.uv2.xyz * v2f.scale) * _VertexExtrusionValue;
+    worldVertexPosition += TransformObjectToWorldNormal(input.uv2.xyz * output.scale) * _VertexExtrusionValue;
 #else
-    worldVertexPosition += UnityObjectToWorldNormal(input.uv2.xyz * v2f.scale) * _VertexExtrusionValue;
+    worldVertexPosition += UnityObjectToWorldNormal(input.uv2.xyz * output.scale) * _VertexExtrusionValue;
 #endif
 #else
     worldVertexPosition += worldNormal * _VertexExtrusionValue;
@@ -202,17 +202,17 @@ Varyings VertexStage(Attributes input)
 #endif
 
 #if defined(_URP)
-    v2f.position = TransformObjectToHClip(vertexPosition.xyz);
+    output.position = TransformObjectToHClip(vertexPosition.xyz);
 #else
-    v2f.position = UnityObjectToClipPos(vertexPosition);
+    output.position = UnityObjectToClipPos(vertexPosition);
 #endif
 
 #if defined(_WORLD_POSITION)
-    v2f.worldPosition.xyz = worldVertexPosition;
+    output.worldPosition.xyz = worldVertexPosition;
 #endif
 
 #if defined(UNITY_UI_CLIP_RECT)
-    v2f.localPosition.xyz = vertexPosition.xyz;
+    output.localPosition.xyz = vertexPosition.xyz;
 #endif
 
 #if defined(_NEAR_PLANE_FADE)
@@ -224,14 +224,14 @@ Varyings VertexStage(Attributes input)
     for (int hoverLightIndex = 0; hoverLightIndex < HOVER_LIGHT_COUNT; ++hoverLightIndex)
     {
         int dataIndex = hoverLightIndex * HOVER_LIGHT_DATA_SIZE;
-        fadeDistance = min(fadeDistance, GTNearLightDistance(_HoverLightData[dataIndex], v2f.worldPosition.xyz));
+        fadeDistance = min(fadeDistance, GTNearLightDistance(_HoverLightData[dataIndex], output.worldPosition.xyz));
     }
 
     [unroll]
     for (int proximityLightIndex = 0; proximityLightIndex < PROXIMITY_LIGHT_COUNT; ++proximityLightIndex)
     {
         int dataIndex = proximityLightIndex * PROXIMITY_LIGHT_DATA_SIZE;
-        fadeDistance = min(fadeDistance, GTNearLightDistance(_ProximityLightData[dataIndex], v2f.worldPosition.xyz));
+        fadeDistance = min(fadeDistance, GTNearLightDistance(_ProximityLightData[dataIndex], output.worldPosition.xyz));
     }
 #else
     
@@ -241,62 +241,62 @@ Varyings VertexStage(Attributes input)
     float fadeDistance = -UnityObjectToViewPos(vertexPosition).z;
 #endif
 #endif
-    v2f.worldPosition.w = max(saturate(mad(fadeDistance, rangeInverse, -_FadeCompleteDistance * rangeInverse)), _FadeMinValue);
+    output.worldPosition.w = max(saturate(mad(fadeDistance, rangeInverse, -_FadeCompleteDistance * rangeInverse)), _FadeMinValue);
 #endif
 
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
-    v2f.uv = input.uv;
+    output.uv = input.uv;
 
 #if defined(_USE_WORLD_SCALE)
-    v2f.scale.z = canvasScale;
+    output.scale.z = canvasScale;
  #else
-    float minScale = min(min(v2f.scale.x, v2f.scale.y), v2f.scale.z);
+    float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
 #endif
 
     if (abs(localNormal.x) == 1.0) // Y,Z plane.
     {
-        v2f.scale.x = v2f.scale.z;
-        v2f.scale.y = v2f.scale.y;
+        output.scale.x = output.scale.z;
+        output.scale.y = output.scale.y;
     }
     else if (abs(localNormal.y) == 1.0) // X,Z plane.
     {
-        v2f.scale.x = v2f.scale.x;
-        v2f.scale.y = v2f.scale.z;
+        output.scale.x = output.scale.x;
+        output.scale.y = output.scale.z;
     }
     // Else X,Y plane.
 
 #if !defined(_USE_WORLD_SCALE)
-    v2f.scale.z = minScale;
+    output.scale.z = minScale;
 #endif
 
 #elif defined(_UV)
-    v2f.uv = TRANSFORM_TEX(input.uv, _MainTex);
+    output.uv = TRANSFORM_TEX(input.uv, _MainTex);
 #endif
 
 #if defined(_UV_SCREEN)
-    v2f.uvScreen = ComputeScreenPos(v2f.position);
+    output.uvScreen = ComputeScreenPos(output.position);
     // Flip vertical UV for orthographic projections (if not already flipped) to ensure the image is not upside down.
 #if defined(UNITY_UV_STARTS_AT_TOP)
-    v2f.uvScreen.y = unity_OrthoParams.w ? (1.0 - v2f.uvScreen.y) : v2f.uvScreen.y;
+    output.uvScreen.y = unity_OrthoParams.w ? (1.0 - output.uvScreen.y) : output.uvScreen.y;
 #else
-    v2f.uvScreen.y = unity_OrthoParams.w ? v2f.uvScreen.y : (1.0 - v2f.uvScreen.y);
+    output.uvScreen.y = unity_OrthoParams.w ? output.uvScreen.y : (1.0 - output.uvScreen.y);
 #endif
 #elif (_BLUR_TEXTURE_PREBAKED_BACKGROUND)
-    v2f.uvBackgroundRect = float2((vertexPosition.x - _BlurBackgroundRect.x) / (_BlurBackgroundRect.z - _BlurBackgroundRect.x), 
+    output.uvBackgroundRect = float2((vertexPosition.x - _BlurBackgroundRect.x) / (_BlurBackgroundRect.z - _BlurBackgroundRect.x), 
                                      (vertexPosition.y - _BlurBackgroundRect.y) / (_BlurBackgroundRect.w - _BlurBackgroundRect.y));
 #endif 
 
 #if defined(LIGHTMAP_ON)
-    v2f.lightMapUV.xy = input.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+    output.lightMapUV.xy = input.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 #endif
 
-    v2f.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
+    output.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
 
 #if defined(_VERTEX_COLORS)
-    v2f.color *= input.color;
+    output.color *= input.color;
 #endif
 
-#if defined(_NORMAL) || defined(_VERTEX_EXTRUSION) || defined(_SPHERICAL_HARMONICS)
+#if defined(_VERTEX_EXTRUSION) || defined(_SPHERICAL_HARMONICS)
     half3 envNormal = worldNormal;
 #if defined(_VERTEX_BENTNORMALAO)
     envNormal = input.uv5.rgb;
@@ -311,11 +311,9 @@ Varyings VertexStage(Attributes input)
     coefficients[5] = unity_SHBb;
     coefficients[6] = unity_SHC;
 
-    v2f.ambient = max(0.0, SampleSH9(coefficients, envNormal));
+    output.ambient = max(0.0, SampleSH9(coefficients, envNormal));
 #else
-#if defined(_SPHERICAL_HARMONICS)
-    v2f.ambient = ShadeSH9(float4(envNormal, 1.0));
-#endif
+    output.ambient = ShadeSH9(float4(envNormal, 1.0));
 #endif
 #endif
 
@@ -324,14 +322,14 @@ Varyings VertexStage(Attributes input)
     float3 incidentWithCenter = normalize(mul(UNITY_MATRIX_M, float4(0.0, 0.0, 0.0, 1.0)).xyz - _WorldSpaceCameraPos);
     float tangentDotIncident = dot(rightTangent, incidentWithCenter);
 #if defined(_URP)
-    v2f.gradient = GTIridescence(tangentDotIncident, 
+    output.gradient = GTIridescence(tangentDotIncident, 
                                   TEXTURE2D_ARGS(_IridescentSpectrumMap, sampler_IridescentSpectrumMap), 
                                   _IridescenceThreshold, 
                                   input.uv, 
                                   _IridescenceAngle, 
                                   _IridescenceIntensity);
 #else
-    v2f.gradient = GTIridescence(tangentDotIncident, 
+    output.gradient = GTIridescence(tangentDotIncident, 
                                   _IridescentSpectrumMap, 
                                   _IridescenceThreshold, 
                                   input.uv, 
@@ -349,8 +347,8 @@ Varyings VertexStage(Attributes input)
     float2 direction = mul(float2(0.0, 1.0), float2x2(cosA, -sinA, sinA, cosA));
 
     // Calculate the length of the gradient line for this rect.
-    float width = v2f.scale.x;
-    float height = v2f.scale.y;
+    float width = output.scale.x;
+    float height = output.scale.y;
     float length = abs(width * sinA) + abs(height * cosA);
 
     // Calculate start point of the gradient (which can lie outside of the rect).
@@ -359,20 +357,20 @@ Varyings VertexStage(Attributes input)
 
     // Project the vector from the start point to the current texel onto the gradient direction. This will 
     // tell us how far this texel is along the gradient.
-    float2 texel = float2(v2f.uv.x * width, v2f.uv.y * height);
+    float2 texel = float2(output.uv.x * width, output.uv.y * height);
     float t = dot(texel - start, direction / length);
-    v2f.gradient = t;
+    output.gradient = t;
 #endif
 
 #if defined(_NORMAL)
 #if defined(_TRIPLANAR_MAPPING)
-    v2f.worldNormal = worldNormal;
+    output.worldNormal = worldNormal;
 #if defined(_LOCAL_SPACE_TRIPLANAR_MAPPING)
-    v2f.triplanarNormal = localNormal;
-    v2f.triplanarPosition = vertexPosition.xyz;
+    output.triplanarNormal = localNormal;
+    output.triplanarPosition = vertexPosition.xyz;
 #else
-    v2f.triplanarNormal = worldNormal;
-    v2f.triplanarPosition = v2f.worldPosition;
+    output.triplanarNormal = worldNormal;
+    output.triplanarPosition = output.worldPosition;
 #endif
 #elif defined(_NORMAL_MAP)
 #if defined(_URP)
@@ -382,15 +380,15 @@ Varyings VertexStage(Attributes input)
 #endif
     half tangentSign = input.tangent.w * unity_WorldTransformParams.w;
     half3 worldBitangent = cross(worldNormal, worldTangent) * tangentSign;
-    v2f.tangentX = half3(worldTangent.x, worldBitangent.x, worldNormal.x);
-    v2f.tangentY = half3(worldTangent.y, worldBitangent.y, worldNormal.y);
-    v2f.tangentZ = half3(worldTangent.z, worldBitangent.z, worldNormal.z);
+    output.tangentX = half3(worldTangent.x, worldBitangent.x, worldNormal.x);
+    output.tangentY = half3(worldTangent.y, worldBitangent.y, worldNormal.y);
+    output.tangentZ = half3(worldTangent.z, worldBitangent.z, worldNormal.z);
 #else
-    v2f.worldNormal = worldNormal;
+    output.worldNormal = worldNormal;
 #endif
 #endif
 
-    return v2f;
+    return output;
 }
 
 /// <summary>

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEditor.UIElements;
@@ -24,6 +26,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private bool _shouldShowVis; // controls if we display some visuals in the scene view
         private IntegerField _referenceVertexIndexField; // when selection changes we need to update this for validate
         private Button _applyButton;
+        private Button _cleanupButton;
+        private List<MeshCollider> _createdColliders = new List<MeshCollider>();
 
         [MenuItem("Window/Graphics Tools/Ambient occclusion")]
         private static void ShowWindow()
@@ -67,6 +71,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 _addMeshCollidersButton = addMeshCollidersButton;
                 _addMeshCollidersButton.clicked += OnAddMeshColliders;
             }
+            if (toolUI.Query<Button>("cleanup").First() is Button cleanup)
+            {
+                cleanup.clicked += OnCleanupClicked;
+                _cleanupButton = cleanup;
+                _cleanupButton.visible = _createdColliders.Count > 0;
+            }
             // Validation for input
             // Note would be nice to not have to validate in Window and in Settings....
             if (toolUI.Query<IntegerField>("samplesPerVertex").First() is IntegerField integerField)
@@ -84,6 +94,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private void OnSelectionChange()
         {
             UpdateHelp();
+            rootVisualElement.MarkDirtyRepaint();
 
             if (Selection.gameObjects.Length == 0)
             {
@@ -91,8 +102,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 return;
             }
 
-            var firstSelectedGO = Selection.gameObjects[0];
-            if (firstSelectedGO == null)
+            GameObject firstSelected = FirstSelectedGameObjectWithMeshFilter();
+            if (firstSelected == null)
             {
                 _shouldShowVis = false;
                 return;
@@ -100,16 +111,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             // We've seen this before, draw it
             _shouldShowVis = false;
-            if (firstSelectedGO == _lastVisualizedGO)
+            if (firstSelected == _lastVisualizedGO)
             {
                 _shouldShowVis = true;
             }
 
             // Update validation limits for input fields
-            var mf = firstSelectedGO.GetComponent<MeshFilter>();
-            if (mf != null)
+            var firstMeshFilter = firstSelected.GetComponent<MeshFilter>();
+            if (firstMeshFilter != null)
             {
-                _maxVertexIndex = mf.sharedMesh.vertexCount - 1;
+                _maxVertexIndex = firstMeshFilter.sharedMesh.vertexCount - 1;
                 _referenceVertexIndexField.value = Mathf.Clamp(_referenceVertexIndexField.value, 0, _maxVertexIndex);
             }
         }
@@ -119,6 +130,35 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             SceneView.duringSceneGui -= OnSceneGUI;
             ToolManager.RestorePreviousPersistentTool();
         }
+        
+        private void OnCleanupClicked()
+        {
+            if (_cleanupButton != null)
+            {
+                foreach (var collider in _createdColliders)
+                {
+                    DestroyImmediate(collider);
+                }
+                _createdColliders.Clear();
+            }
+            UpdateHelp();
+            rootVisualElement.MarkDirtyRepaint();
+        }
+
+        private GameObject FirstSelectedGameObjectWithMeshFilter()
+        {
+            GameObject result = null;
+            foreach (var item in Selection.gameObjects)
+            {
+                var meshFilter = item.GetComponent<MeshFilter>();
+                if (meshFilter != null)
+                {
+                    result = item;
+                    break;
+                }
+            }
+            return result;
+        }
 
         private void OnAddMeshColliders()
         {
@@ -126,15 +166,21 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 if (item.GetComponent<MeshCollider>() == null)
                 {
-                    item.AddComponent<MeshCollider>();
+                    _createdColliders.Add(item.AddComponent<MeshCollider>());
                 }
             }
             UpdateHelp();
+            rootVisualElement.MarkDirtyRepaint();
         }
 
         private void UpdateHelp()
         {
             _applyButton.visible = true;
+
+            if (_cleanupButton != null)
+            {
+                _cleanupButton.visible = _createdColliders.Count > 0;
+            }
 
             if (_addMeshCollidersButton != null)
             {
@@ -145,10 +191,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 _helpBox.text = "";
 
-                if (Selection.gameObjects.Length < 1)
+                var first = FirstSelectedGameObjectWithMeshFilter();
+                if (first == null)
                 {
                     _helpBox.messageType = HelpBoxMessageType.Info;
-                    _helpBox.text = "Select game objects to modify...";
+                    _helpBox.text = "Select meshes to modify...";
                     _applyButton.visible = false;
                 }
                 else
@@ -156,19 +203,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     _helpBox.messageType = HelpBoxMessageType.Info;
                     _helpBox.text = "Press 'Apply' to calculate occlusion and show visualization.";
                 }
-
+                // Ensure our objects have mesh colliders on them
                 foreach (var selected in Selection.gameObjects)
                 {
-                    var mf = selected.GetComponent<MeshFilter>();
-                    if (mf == null || mf.sharedMesh == null)
+                    var meshCollider = selected.GetComponent<MeshCollider>();
+                    if (meshCollider == null)
                     {
-                        _helpBox.messageType = HelpBoxMessageType.Error;
-                        _helpBox.text = $"{selected.name} has no MeshFilter!";
-                        _applyButton.visible = false;
-                        continue;
-                    }
-                    if (selected.GetComponent<MeshCollider>() == null)
-                    {
+                        var meshFilter = selected.GetComponent<MeshFilter>();
+                        if (meshFilter == null)
+                        {
+                            continue;
+                        }
                         _helpBox.messageType = HelpBoxMessageType.Warning;
                         _helpBox.text = $"{selected.name} has no mesh collider! Please add one. You can delete it later.";
                         if (_addMeshCollidersButton != null)
@@ -179,8 +224,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         }
                     }
                 }
-
-                rootVisualElement.MarkDirtyRepaint();
             }
         }
 
@@ -194,11 +237,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     _lastVisualizedGO = item;
                 }
-                _ambientOcclusionTool.GatherSamples(item);
-                var msg = _ambientOcclusionTool.ValidateMaterialSetup(item);
-                _helpBox.text += msg;
+                var meshFilter = item.GetComponent<MeshFilter>();
+                if (meshFilter != null)
+                {
+                    _ambientOcclusionTool.GatherSamples(meshFilter);
+                }
+                var meshRenderer = item.GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
+                {
+                    _helpBox.text += _ambientOcclusionTool.ValidateMaterialSetup(meshRenderer);
+                }
             }
-            _shouldShowVis = true;  
+            _shouldShowVis = true;
         }
 
         private void OnSceneGUI(SceneView sceneView)
