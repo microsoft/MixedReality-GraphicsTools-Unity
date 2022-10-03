@@ -51,9 +51,7 @@ struct Varyings
 #if defined(LIGHTMAP_ON)
     float2 lightMapUV : TEXCOORD1;
 #endif
-#if defined(_VERTEX_COLORS)
     half4 color : COLOR0;
-#endif
 #if defined(_VERTEX_BENTNORMALAO)
     half4 bentNormalAo : TEXCOORD5;
 #endif

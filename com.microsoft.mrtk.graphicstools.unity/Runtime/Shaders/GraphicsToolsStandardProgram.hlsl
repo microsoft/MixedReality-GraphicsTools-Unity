@@ -290,19 +290,17 @@ Varyings VertexStage(Attributes input)
     v2f.lightMapUV.xy = input.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 #endif
 
-#if defined(_VERTEX_COLORS)
     v2f.color = UNITY_ACCESS_INSTANCED_PROP(PerMaterialInstanced, _Color);
+
+#if defined(_VERTEX_COLORS)
+    v2f.color *= input.color;
 #endif
 
-#if defined(_NORMAL) || defined(_VERTEX_EXTRUSION)
-#if defined(_VERTEX_BENTNORMALAO)
-    half3 envNormal = input.uv5.rgb;
-#else
+#if defined(_NORMAL) || defined(_VERTEX_EXTRUSION) || defined(_SPHERICAL_HARMONICS)
     half3 envNormal = worldNormal;
+#if defined(_VERTEX_BENTNORMALAO)
+    envNormal = input.uv5.rgb;
 #endif
-#endif
-
-#if defined(_SPHERICAL_HARMONICS)
 #if defined(_URP)
     float4 coefficients[7];
     coefficients[0] = unity_SHAr;
@@ -315,9 +313,10 @@ Varyings VertexStage(Attributes input)
 
     v2f.ambient = max(0.0, SampleSH9(coefficients, envNormal));
 #else
+#if defined(_SPHERICAL_HARMONICS)
     v2f.ambient = ShadeSH9(float4(envNormal, 1.0));
 #endif
-
+#endif
 #endif
 
 #if defined(_IRIDESCENCE)
@@ -339,7 +338,7 @@ Varyings VertexStage(Attributes input)
                                   _IridescenceAngle, 
                                   _IridescenceIntensity);
 #endif
- #elif defined(_GRADIENT_LINEAR)
+#elif defined(_GRADIENT_LINEAR)
     // Reference: https://patrickbrosset.medium.com/do-you-really-understand-css-linear-gradients-631d9a895caf
     // Translate the angle from degress to radians and default pointing up along the unit circle.
     float angle = _GradientAngle * GT_DEGREES_TO_RADIANS;
@@ -546,11 +545,9 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 #endif
 
-#if defined(_VERTEX_COLORS)
     albedo *= input.color;
 #if defined(_ADDITIVE_ON)
     albedo.rgb *= input.color.a;
-#endif
 #endif
 
 #if defined(_GRADIENT)
@@ -777,14 +774,15 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // Final lighting mix.
     half4 output = albedo;
 
-#if defined(_CHANNEL_MAP)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS) || defined(_RIM_LIGHT) || defined(_ENVIRONMENT_COLORING) || defined(_VERTEX_BENTNORMALAO)
+#if defined(_CHANNEL_MAP) 
     half occlusion = channel.g;
 #else
-    half occlusion = 1;
+    half occlusion = 1.0h;
 #endif
-
 #if defined(_VERTEX_BENTNORMALAO)
-    occlusion = input.bentNormalAo.a;
+    occlusion *= input.bentNormalAo.a;
+#endif
 #endif
 
 #if defined(_SPHERICAL_HARMONICS)
@@ -798,9 +796,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     GTInitializeBRDFData(albedo.rgb, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
 
     // Indirect lighting.
-    half3 indirect = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
-
-    output.rgb = indirect;
+    output.rgb = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
 
     // Direct lighting.
     GTMainLight light = GTGetMainLight();
@@ -813,16 +809,16 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // No lighting, but show reflections.
 #elif defined(_REFLECTIONS) 
     half3 reflectVector = reflect(-worldViewDir, worldNormal);
-    half3 reflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
-    reflection = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h);
-    reflection *= occlusion;
-    output.rgb += reflection;
+    half3 indirectReflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
+    indirectReflection = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h); // TODO Verify correctness...
+    indirectReflection *= occlusion;
+    output.rgb += indirectReflection;
 #endif
 
     // Fresnel lighting.
 #if defined(_RIM_LIGHT)
     half fresnel = 1.0h - saturate(abs(dot(worldViewDir, worldNormal)));
-    output.rgb += _RimColor * pow(fresnel, _RimPower);
+    output.rgb += _RimColor * pow(fresnel, _RimPower) * occlusion;
 #endif
 
     // Emmissive light.
@@ -853,7 +849,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     half3 environmentColor = incident.x * incident.x * _EnvironmentColorX +
                              incident.y * incident.y * _EnvironmentColorY +
                              incident.z * incident.z * _EnvironmentColorZ;
-    output.rgb += environmentColor * max(0.0, dot(incident, worldNormal) + _EnvironmentColorThreshold) * _EnvironmentColorIntensity;
+    output.rgb += environmentColor * max(0.0, dot(incident, worldNormal) + _EnvironmentColorThreshold) * _EnvironmentColorIntensity * occlusion;
 #endif
 
 #if defined(_NEAR_PLANE_FADE)
