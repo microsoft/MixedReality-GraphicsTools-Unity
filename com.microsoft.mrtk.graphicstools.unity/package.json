@@ -55,6 +55,11 @@
       "displayName": "Canvas Shadow (Experimental)",
       "description": "Demonstrates how to add a procedural drop shadow on a canvas.",
       "path": "Samples~/Experimental/CanvasShadow"
+    },
+    {
+      "displayName": "Vertex ambient occlusion (Experimental)",
+      "description": "Editor tool that calculates surface visibility per-vertex and passes that information to the standard shader. Can improve lighting realism in some scenarios with little cost.",
+      "path": "Samples~/Experimental/AmbientOcclusion"
     }
   ]
 }
