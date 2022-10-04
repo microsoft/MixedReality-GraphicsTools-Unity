@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// Radius handles don't work
-// Shader doesn't update
-// Check we're using bent normals.
-
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEditor;
@@ -56,7 +52,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 Handles.color = settings._originColor;
                 Handles.Label(_vertexs[settings._referenceVertexIndex], $"{settings._referenceVertexIndex}");
-                Handles.RadiusHandle(new Quaternion(), _vertexs[settings._referenceVertexIndex], settings._originRadius);
+                Handles.SphereHandleCap(0, _vertexs[settings._referenceVertexIndex], Quaternion.identity, settings._originRadius, EventType.Repaint);
             }
 
             if (settings._showNormal)

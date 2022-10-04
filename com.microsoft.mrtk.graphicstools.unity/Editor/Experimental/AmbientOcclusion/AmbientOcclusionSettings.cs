@@ -37,7 +37,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [SerializeField] internal bool _upgradeMaterials;
         [SerializeField] internal int _samplesIndex;
         [SerializeField] internal string _materialPropertyName = "_VertexBentNormalAo";
-        [SerializeField] internal string _shaderPropertyKeyword = "_VERTEX_BENTNORMALAO";
+        [SerializeField] internal string _shaderPropertyKeyword = "_VERTEX_AO";
         [Tooltip("The shader is used when 'Upgrade materials' is true. It's expected to support the ambient occlusion metadata.")]
 
         // UXML note:
@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _upgradeMaterials = false;
             _samplesIndex = 2;
             _materialPropertyName = "_VertexBentNormalAo";
-            _shaderPropertyKeyword = "_VERTEX_BENTNORMALAO";
+            _shaderPropertyKeyword = "_VERTEX_AO";
             _bentNormalAoShader = StandardShaderUtility.GraphicsToolsStandardShader;
         }
 

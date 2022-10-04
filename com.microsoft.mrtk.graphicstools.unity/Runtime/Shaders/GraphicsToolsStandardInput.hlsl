@@ -20,7 +20,7 @@ struct Attributes
     float4 uv2 : TEXCOORD2;
     // Used for UGUI scaling data.
     float2 uv3 : TEXCOORD3;
-#if defined(_VERTEX_BENTNORMALAO)
+#if defined(_VERTEX_AO)
     half4 uv5 : TEXCOORD5;
 #endif
 
@@ -52,7 +52,7 @@ struct Varyings
     float2 lightMapUV : TEXCOORD1;
 #endif
     half4 color : COLOR0;
-#if defined(_VERTEX_BENTNORMALAO)
+#if defined(_VERTEX_AO)
     half4 bentNormalAo : TEXCOORD5;
 #endif
 #if defined(_SPHERICAL_HARMONICS)

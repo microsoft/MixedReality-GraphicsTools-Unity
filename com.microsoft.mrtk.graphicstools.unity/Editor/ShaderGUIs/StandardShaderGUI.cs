@@ -72,6 +72,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     }
 
     /// <summary>
+    /// Method of ambient occlusion integration
+    /// </summary>
+    public enum VertexBentNormalAoMode
+    {
+        None = 0,
+        Indirect = 1,
+        Direct = 2,
+        IndirectBent = 3,
+        DirectBent = 4
+    }
+
+    /// <summary>
     /// A custom shader inspector for the "Graphics Tools/Standard" and "Graphics Tools/Standard Canvas" shaders.
     /// </summary>
     public class StandardShaderGUI : BaseShaderGUI
@@ -122,6 +134,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
             public static readonly GUIContent vertexColors = new GUIContent("Vertex color", "Enable to use the mesh's vertex color for albedo and transparency");
             public static readonly GUIContent vertexBentNormalAo = new GUIContent("Vertex ambient occlusion", "Enable to use ambient occlusion and bent normal information embedded mesh. IMPORTANT - if this box is ON but there is no occlusion data the surface will render incorrectly!");
+            public static readonly string[] vertexBentNormalAoNames = new string[] { "None", "Indirect", "Indirect + direct", "Indirect bent", "Indirect + direct bent" };
+            public static readonly string vertexAo = "_VERTEX_AO";
+            public static readonly string vertexAoDirect = "_VERTEX_AO_DIRECT";
+            public static readonly string vertexAoBentNormal = "_VERTEX_AO_BENTNORMAL";
             public static readonly GUIContent vertexExtrusion = new GUIContent("Vertex Extrusion", "Enable Vertex Extrusion Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionValue = new GUIContent("Extrusion Value", "How Far to Extrude the Vertex Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionSmoothNormals = new GUIContent("Use Smooth Normals", "Should Vertex Extrusion use the Smooth Normals in UV3, or Default Normals");
@@ -825,7 +841,48 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
 
             materialEditor.ShaderProperty(vertexColors, Styles.vertexColors);
-            materialEditor.ShaderProperty(vertexBentNormalAo, Styles.vertexBentNormalAo);
+
+            vertexBentNormalAo.floatValue = EditorGUILayout.Popup(Styles.vertexBentNormalAo, (int)vertexBentNormalAo.floatValue, Styles.vertexBentNormalAoNames);
+            switch ((VertexBentNormalAoMode)vertexBentNormalAo.floatValue)
+            {
+                default:
+                case VertexBentNormalAoMode.None:
+                    {
+                        material.DisableKeyword(Styles.vertexAo);
+                        material.DisableKeyword(Styles.vertexAoDirect);
+                        material.DisableKeyword(Styles.vertexAoBentNormal);
+                    }
+                    break;
+                case VertexBentNormalAoMode.Indirect:
+                    {
+                        material.EnableKeyword(Styles.vertexAo);
+                        material.DisableKeyword(Styles.vertexAoDirect);
+                        material.DisableKeyword(Styles.vertexAoBentNormal);
+                    }
+                    break;
+                case VertexBentNormalAoMode.Direct:
+                    {
+                        material.EnableKeyword(Styles.vertexAo);
+                        material.EnableKeyword(Styles.vertexAoDirect);
+                        material.DisableKeyword(Styles.vertexAoBentNormal);
+                    }
+                    break;
+                case VertexBentNormalAoMode.IndirectBent:
+                    {
+                        material.EnableKeyword(Styles.vertexAo);
+                        material.DisableKeyword(Styles.vertexAoDirect);
+                        material.EnableKeyword(Styles.vertexAoBentNormal);
+                    }
+                    break;
+                case VertexBentNormalAoMode.DirectBent:
+                    {
+                        material.EnableKeyword(Styles.vertexAo);
+                        material.EnableKeyword(Styles.vertexAoDirect);
+                        material.EnableKeyword(Styles.vertexAoBentNormal);
+                    }
+                    break;
+            }
+
             materialEditor.ShaderProperty(vertexExtrusion, Styles.vertexExtrusion);
 
             if (PropertyEnabled(vertexExtrusion))

@@ -32,7 +32,9 @@
 #pragma shader_feature_local _REFLECTIONS
 #pragma shader_feature_local _RIM_LIGHT
 #pragma shader_feature_local _VERTEX_COLORS
-#pragma shader_feature_local _VERTEX_BENTNORMALAO
+#pragma shader_feature_local _VERTEX_AO
+#pragma shader_feature_local _VERTEX_AO_BENTNORMAL
+#pragma shader_feature_local _VERTEX_AO_DIRECT
 #pragma shader_feature_local _VERTEX_EXTRUSION
 #pragma shader_feature_local_vertex _VERTEX_EXTRUSION_SMOOTH_NORMALS
 #pragma shader_feature_local _NEAR_PLANE_FADE
@@ -170,7 +172,7 @@ Varyings VertexStage(Attributes input)
 #endif
 #endif
 
-#if defined(_VERTEX_BENTNORMALAO)
+#if defined(_VERTEX_AO)
     output.bentNormalAo = input.uv5;
 #endif
 
@@ -296,9 +298,9 @@ Varyings VertexStage(Attributes input)
     output.color *= input.color;
 #endif
 
-#if defined(_VERTEX_EXTRUSION) || defined(_SPHERICAL_HARMONICS)
+#if defined(_VERTEX_EXTRUSION) || defined(_SPHERICAL_HARMONICS) || defined(_VERTEX_AO_BENTNORMAL)
     half3 envNormal = worldNormal;
-#if defined(_VERTEX_BENTNORMALAO)
+#if defined(_VERTEX_AO_BENTNORMAL)
     envNormal = input.uv5.rgb;
 #endif
 #if defined(_URP)
@@ -772,13 +774,13 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // Final lighting mix.
     half4 output = albedo;
 
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS) || defined(_RIM_LIGHT) || defined(_ENVIRONMENT_COLORING) || defined(_VERTEX_BENTNORMALAO)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS) || defined(_RIM_LIGHT) || defined(_ENVIRONMENT_COLORING) || defined(_VERTEX_AO)
 #if defined(_CHANNEL_MAP) 
     half occlusion = channel.g;
 #else
     half occlusion = 1.0h;
 #endif
-#if defined(_VERTEX_BENTNORMALAO)
+#if defined(_VERTEX_AO)
     occlusion *= input.bentNormalAo.a;
 #endif
 #endif
@@ -800,23 +802,30 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     GTMainLight light = GTGetMainLight();
     // Non Photorealistic
 #if defined(_NON_PHOTOREALISTIC)
-    output.rgb += GTLightingNonPhotorealistic(brdfData, light.color, light.direction, worldNormal, worldViewDir);
+    half3 direct = GTLightingNonPhotorealistic(brdfData, light.color, light.direction, worldNormal, worldViewDir);
 #else
-    output.rgb += GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir);
+    half3 direct = GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir);
 #endif
+    output.rgb += direct;
     // No lighting, but show reflections.
 #elif defined(_REFLECTIONS) 
     half3 reflectVector = reflect(-worldViewDir, worldNormal);
     half3 indirectReflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
     indirectReflection = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h); // TODO Verify correctness...
+#if defined(_VERTEX_AO)
     indirectReflection *= occlusion;
+#endif
     output.rgb += indirectReflection;
 #endif
 
     // Fresnel lighting.
 #if defined(_RIM_LIGHT)
     half fresnel = 1.0h - saturate(abs(dot(worldViewDir, worldNormal)));
-    output.rgb += _RimColor * pow(fresnel, _RimPower) * occlusion;
+    half3 rim = _RimColor * pow(fresnel, _RimPower);
+#if defined(_VERTEX_AO)
+    rim *= occlusion;
+#endif
+    output.rgb += rim;
 #endif
 
     // Emmissive light.
@@ -847,7 +856,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     half3 environmentColor = incident.x * incident.x * _EnvironmentColorX +
                              incident.y * incident.y * _EnvironmentColorY +
                              incident.z * incident.z * _EnvironmentColorZ;
-    output.rgb += environmentColor * max(0.0, dot(incident, worldNormal) + _EnvironmentColorThreshold) * _EnvironmentColorIntensity * occlusion;
+    environmentColor *= max(0.0, dot(incident, worldNormal) + _EnvironmentColorThreshold) * _EnvironmentColorIntensity;
+#if defined(_VERTEX_AO)
+    environmentColor *= occlusion;
+#endif
+    output.rgb += environmentColor;
 #endif
 
 #if defined(_NEAR_PLANE_FADE)
