@@ -298,7 +298,7 @@ Varyings VertexStage(Attributes input)
     output.color *= input.color;
 #endif
 
-#if defined(_VERTEX_EXTRUSION) || defined(_SPHERICAL_HARMONICS) || defined(_VERTEX_AO_BENTNORMAL)
+#if defined(_SPHERICAL_HARMONICS) || defined(_VERTEX_AO) || defined(_VERTEX_EXTRUSION)
     half3 envNormal = worldNormal;
 #if defined(_VERTEX_AO_BENTNORMAL)
     envNormal = input.uv5.rgb;

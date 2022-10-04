@@ -55,7 +55,7 @@ struct Varyings
 #if defined(_VERTEX_AO)
     half4 bentNormalAo : TEXCOORD5;
 #endif
-#if defined(_SPHERICAL_HARMONICS)
+#if defined(_SPHERICAL_HARMONICS) || defined(_VERTEX_AO) || defined(_VERTEX_EXTRUSION)
     half3 ambient : COLOR1;
 #endif
 #if defined(_IRIDESCENCE)
