@@ -373,7 +373,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             rimColor = FindProperty("_RimColor", props);
             rimPower = FindProperty("_RimPower", props);
             vertexColors = FindProperty("_VertexColors", props);
-            vertexBentNormalAo = FindProperty("_VertexBentNormalAo", props);
+            vertexBentNormalAo = FindProperty("_VertexBentNormalAo", props, false);
             vertexExtrusion = FindProperty("_VertexExtrusion", props);
             vertexExtrusionValue = FindProperty("_VertexExtrusionValue", props);
             vertexExtrusionSmoothNormals = FindProperty("_VertexExtrusionSmoothNormals", props);
@@ -842,45 +842,48 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             materialEditor.ShaderProperty(vertexColors, Styles.vertexColors);
 
-            vertexBentNormalAo.floatValue = EditorGUILayout.Popup(Styles.vertexBentNormalAo, (int)vertexBentNormalAo.floatValue, Styles.vertexBentNormalAoNames);
-            switch ((VertexBentNormalAoMode)vertexBentNormalAo.floatValue)
+            if (vertexBentNormalAo != null)
             {
-                default:
-                case VertexBentNormalAoMode.None:
-                    {
-                        material.DisableKeyword(Styles.vertexAo);
-                        material.DisableKeyword(Styles.vertexAoDirect);
-                        material.DisableKeyword(Styles.vertexAoBentNormal);
-                    }
-                    break;
-                case VertexBentNormalAoMode.Indirect:
-                    {
-                        material.EnableKeyword(Styles.vertexAo);
-                        material.DisableKeyword(Styles.vertexAoDirect);
-                        material.DisableKeyword(Styles.vertexAoBentNormal);
-                    }
-                    break;
-                case VertexBentNormalAoMode.Direct:
-                    {
-                        material.EnableKeyword(Styles.vertexAo);
-                        material.EnableKeyword(Styles.vertexAoDirect);
-                        material.DisableKeyword(Styles.vertexAoBentNormal);
-                    }
-                    break;
-                case VertexBentNormalAoMode.IndirectBent:
-                    {
-                        material.EnableKeyword(Styles.vertexAo);
-                        material.DisableKeyword(Styles.vertexAoDirect);
-                        material.EnableKeyword(Styles.vertexAoBentNormal);
-                    }
-                    break;
-                case VertexBentNormalAoMode.DirectBent:
-                    {
-                        material.EnableKeyword(Styles.vertexAo);
-                        material.EnableKeyword(Styles.vertexAoDirect);
-                        material.EnableKeyword(Styles.vertexAoBentNormal);
-                    }
-                    break;
+                vertexBentNormalAo.floatValue = EditorGUILayout.Popup(Styles.vertexBentNormalAo, (int)vertexBentNormalAo.floatValue, Styles.vertexBentNormalAoNames);
+                switch ((VertexBentNormalAoMode)vertexBentNormalAo.floatValue)
+                {
+                    default:
+                    case VertexBentNormalAoMode.None:
+                        {
+                            material.DisableKeyword(Styles.vertexAo);
+                            material.DisableKeyword(Styles.vertexAoDirect);
+                            material.DisableKeyword(Styles.vertexAoBentNormal);
+                        }
+                        break;
+                    case VertexBentNormalAoMode.Indirect:
+                        {
+                            material.EnableKeyword(Styles.vertexAo);
+                            material.DisableKeyword(Styles.vertexAoDirect);
+                            material.DisableKeyword(Styles.vertexAoBentNormal);
+                        }
+                        break;
+                    case VertexBentNormalAoMode.Direct:
+                        {
+                            material.EnableKeyword(Styles.vertexAo);
+                            material.EnableKeyword(Styles.vertexAoDirect);
+                            material.DisableKeyword(Styles.vertexAoBentNormal);
+                        }
+                        break;
+                    case VertexBentNormalAoMode.IndirectBent:
+                        {
+                            material.EnableKeyword(Styles.vertexAo);
+                            material.DisableKeyword(Styles.vertexAoDirect);
+                            material.EnableKeyword(Styles.vertexAoBentNormal);
+                        }
+                        break;
+                    case VertexBentNormalAoMode.DirectBent:
+                        {
+                            material.EnableKeyword(Styles.vertexAo);
+                            material.EnableKeyword(Styles.vertexAoDirect);
+                            material.EnableKeyword(Styles.vertexAoBentNormal);
+                        }
+                        break;
+                }
             }
 
             materialEditor.ShaderProperty(vertexExtrusion, Styles.vertexExtrusion);
