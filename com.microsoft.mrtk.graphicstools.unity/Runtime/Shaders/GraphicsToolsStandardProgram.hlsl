@@ -312,7 +312,6 @@ Varyings VertexStage(Attributes input)
     coefficients[4] = unity_SHBg;
     coefficients[5] = unity_SHBb;
     coefficients[6] = unity_SHC;
-
     output.ambient = max(0.0, SampleSH9(coefficients, envNormal));
 #else
     output.ambient = ShadeSH9(float4(envNormal, 1.0));
