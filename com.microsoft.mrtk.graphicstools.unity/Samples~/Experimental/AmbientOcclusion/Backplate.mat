@@ -7,10 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DetailsPanels
+  m_Name: Backplate
   m_Shader: {fileID: 4800000, guid: df5380aa6ab293c4fafbb942ed5da93f, type: 3}
-  m_ShaderKeywords: _ALPHABLEND_ON _BORDER_LIGHT _BORDER_LIGHT_OPAQUE _BORDER_LIGHT_USES_COLOR
-    _EDGE_SMOOTHING_AUTOMATIC _INNER_GLOW _IRIDESCENCE _PROXIMITY_LIGHT _ROUND_CORNERS
+  m_ShaderKeywords: _ALPHABLEND_TRANS_ON _BORDER_LIGHT _BORDER_LIGHT_OPAQUE _BORDER_LIGHT_USES_COLOR
+    _EDGE_SMOOTHING_AUTOMATIC _ROUND_CORNERS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -45,6 +45,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _EmissiveMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _IridescentSpectrumMap:
         m_Texture: {fileID: 2800000, guid: 88b803af96d0c1c4ea86ea42be3751c4, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -73,7 +77,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Ints: []
     m_Floats:
     - _AlbedoAlphaMode: 0
     - _AlbedoAlphaSmoothness: 0
@@ -90,7 +93,7 @@ Material:
     - _BorderLightReplacesAlbedo: 0
     - _BorderLightUsesHoverColor: 1
     - _BorderMinValue: 1
-    - _BorderWidth: 0.005
+    - _BorderWidth: 0.08
     - _BorderWidthHorizontal: 0.048
     - _BorderWidthVertical: 0.1
     - _BumpScale: 1
@@ -107,6 +110,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DirectionalLight: 0
     - _DstBlend: 10
+    - _DstBlendAlpha: 1
     - _EdgeSmoothingMode: 1
     - _EdgeSmoothingValue: 0.001
     - _EnableChannelMap: 0
@@ -123,7 +127,7 @@ Material:
     - _EnvironmentColorIntensity: 0.5
     - _EnvironmentColorThreshold: 1.5
     - _EnvironmentColoring: 0
-    - _Fade: 0.485
+    - _Fade: 1
     - _FadeBeginDistance: 0.85
     - _FadeCompleteDistance: 0.5
     - _FadeMinValue: 0
@@ -132,12 +136,12 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _GradientAngle: 180
-    - _GradientMode: 1
+    - _GradientMode: 0
     - _HoverLight: 0
     - _HoverLightOpaque: 0
     - _IgnoreZScale: 0
     - _IndependentCorners: 0
-    - _InnerGlow: 1
+    - _InnerGlow: 0
     - _InnerGlowPower: 4
     - _InstancedColor: 0
     - _Iridescence: 1
@@ -146,13 +150,13 @@ Material:
     - _IridescenceThreshold: 0.05
     - _Metallic: 0
     - _MipmapBias: -2
-    - _Mode: 2
+    - _Mode: 3
     - _NearLightFade: 0
     - _NearPlaneFade: 0
     - _NormalMapScale: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _ProximityLight: 1
+    - _ProximityLight: 0
     - _ProximityLightSubtractive: 0
     - _ProximityLightTwoSided: 0
     - _Reflections: 0
@@ -169,7 +173,8 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 0
     - _SphericalHarmonics: 0
-    - _SrcBlend: 5
+    - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _Stencil: 0
     - _StencilComp: 0
     - _StencilComparison: 0
@@ -191,13 +196,13 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _BlurBackgroundRect: {r: 0, g: 0, b: 1, a: 1}
-    - _BorderColor: {r: 1, g: 1, b: 1, a: 0.4117647}
+    - _BorderColor: {r: 0.3764706, g: 0.3764706, b: 0.3764706, a: 0.4117647}
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
     - _ClipRectRadii: {r: 10, g: 10, b: 10, a: 10}
     - _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
-    - _Color: {r: 0, g: 0, b: 0, a: 0.050980393}
+    - _Color: {r: 0.003921569, g: 0.003921569, b: 0.003921569, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
