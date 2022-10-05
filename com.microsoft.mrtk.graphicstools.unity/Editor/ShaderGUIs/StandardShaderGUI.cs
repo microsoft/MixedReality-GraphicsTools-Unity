@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -133,7 +134,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent rimColor = new GUIContent("Color", "Rim Highlight Color");
             public static readonly GUIContent rimPower = new GUIContent("Power", "Rim Highlight Saturation");
             public static readonly GUIContent vertexColors = new GUIContent("Vertex color", "Enable to use the mesh's vertex color for albedo and transparency");
-            public static readonly GUIContent vertexBentNormalAo = new GUIContent("Vertex ambient occlusion", "Enable to use ambient occlusion and bent normal information embedded mesh. IMPORTANT - if this box is ON but there is no occlusion data the surface will render incorrectly!");
+            public static readonly GUIContent vertexBentNormalAo = new GUIContent("Vertex ambient occlusion", "Enable to use ambient occlusion and bent normal information embedded mesh.");
             public static readonly string[] vertexBentNormalAoNames = new string[] { "None", "Indirect", "Indirect + direct", "Indirect bent", "Indirect + direct bent" };
             public static readonly string vertexAo = "_VERTEX_AO";
             public static readonly string vertexAoDirect = "_VERTEX_AO_DIRECT";
@@ -477,149 +478,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="newShader">Current shader.</param>
         public override void AssignNewShaderToMaterial(Material material, Shader oldShader, Shader newShader)
         {
-            // Cache old shader properties with potentially different names than the new shader.
-            float? smoothness = GetFloatProperty(material, "_Glossiness");
-            float? diffuse = GetFloatProperty(material, "_UseDiffuse");
-            float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
+            ConvertToGTStandard(material, oldShader, newShader);
 
-            Color? albedoFactor = GetColorProperty(material, "_baseColorFactor");
-
-            Texture albedoMapTexture = null;
-            var albedoMapTextureNames = new string[] { "_baseColorTexture" };
-            foreach (var name in albedoMapTextureNames)
-            {
-                if (material.HasProperty(name))
-                {
-                    albedoMapTexture = material.GetTexture(name);
-                }
-            }
-
-            Texture channelMapTexture = null;
-            var channelMapTextureNames = new string[] { null };
-            foreach (var name in channelMapTextureNames)
-            {
-                if (material.HasProperty(name))
-                {
-                    channelMapTexture = material.GetTexture(name);
-                }
-            }
-
-            float? isNormalMapEnabled = null;
-            Texture normalMapTexture = null;
-            var normalMapTextureNames = new string[] { "_BumpMap", "_normalTexture" };
-            foreach (var name in normalMapTextureNames)
-            {
-                if (material.HasProperty(name))
-                {
-                    normalMapTexture = material.GetTexture(name);
-                    isNormalMapEnabled = 1;
-                }
-            }
-
-            float? isNormalMapScaleEnabled = GetFloatProperty(material, "_BumpScale");
-
-            float? isEmissionEnabled = null;
-
-            Color? emissionColor = GetColorProperty(material, "_EmissionColor");
-            var emissionColorNames = new string[] { "_emissiveFactor" };
-            foreach (var name in emissionColorNames)
-            {
-                if (material.HasProperty(name))
-                {
-                    emissionColor = material.GetColor(name);
-                    isEmissionEnabled = 1;
-                }
-            }
-
-            Texture emissionMapTexture = null;
-            var emissionMapTextureNames = new string[] { "_EmissionMap" };
-            foreach (var name in emissionMapTextureNames)
-            {
-                if (material.HasProperty(name))
-                {
-                    emissionMapTexture = material.GetTexture(name);
-                }
-            }
-
-            float? isReflectionsEnabled = null;
-            float? rimLighting = null;
-            Vector4? textureScaleOffset = null;
-            float? cullMode = GetFloatProperty(material, "_Cull");
-            bool newShaderIsStandardCanvas = newShader.name == StandardShaderUtility.GraphicsToolsStandardCanvasShaderName;
-
-            if (oldShader)
-            {
-                if (oldShader.name.Contains("Standard"))
-                {
-                    isNormalMapEnabled = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
-                    isEmissionEnabled = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
-                    isReflectionsEnabled = GetFloatProperty(material, "_GlossyReflections");
-                }
-                else if (oldShader.name.Contains("Fast Configurable"))
-                {
-                    isNormalMapEnabled = material.IsKeywordEnabled("_USEBUMPMAP_ON") ? 1.0f : 0.0f;
-                    isEmissionEnabled = GetFloatProperty(material, "_UseEmissionColor");
-                    isReflectionsEnabled = GetFloatProperty(material, "_UseReflections");
-                    rimLighting = GetFloatProperty(material, "_UseRimLighting");
-                    textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
-                }
-            }
-
-            base.AssignNewShaderToMaterial(material, oldShader, newShader);
-
-            // Apply old shader properties to the new shader.
-            SetShaderFeatureActive(material, null, "_Smoothness", smoothness);
-
-            if (!newShaderIsStandardCanvas)
-            {
-                SetShaderFeatureActive(material, "_DIRECTIONAL_LIGHT", "_DirectionalLight", diffuse);
-                SetShaderFeatureActive(material, "_SPECULAR_HIGHLIGHTS", "_SpecularHighlights", specularHighlights);
-            }
-
-            if (albedoFactor.HasValue)
-            {
-                SetColorProperty(material, "_Color", albedoFactor);
-            }
-
-            if (albedoMapTexture)
-            {
-                material.SetTexture("_MainTex", albedoMapTexture);
-            }
-
-            if (channelMapTexture)
-            {
-                SetShaderFeatureActive(material, "_CHANNEL_MAP", "_EnableChannelMap", 1);
-                material.SetTexture("_ChannelMap", channelMapTexture);
-            }
-
-            if (normalMapTexture)
-            {
-                SetShaderFeatureActive(material, "_NORMAL_MAP", "_EnableNormalMap", isNormalMapEnabled);
-                material.SetTexture("_NormalMap", normalMapTexture);
-            }
-
-            SetShaderFeatureActive(material, null, "_NormalMapScale", isNormalMapScaleEnabled);
-
-            SetShaderFeatureActive(material, "_EMISSION", "_EnableEmission", isEmissionEnabled);
-
-            if (emissionMapTexture)
-            {
-                material.SetTexture("_EmissiveMap", emissionMapTexture);
-            }
-
-            SetColorProperty(material, "_EmissiveColor", emissionColor);
-
-
-            if (!newShaderIsStandardCanvas)
-            {
-                SetShaderFeatureActive(material, "_REFLECTIONS", "_Reflections", isReflectionsEnabled);
-            }
-
-            SetShaderFeatureActive(material, "_RIM_LIGHT", "_RimLight", rimLighting);
-            SetVectorProperty(material, "_MainTex_ST", textureScaleOffset);
-            SetShaderFeatureActive(material, null, "_CullMode", cullMode);
-
+            //
             // Setup the rendering mode based on the old shader.
+            //
+
             if (oldShader == null || !oldShader.name.Contains(LegacyShadersPath))
             {
                 SetupMaterialWithRenderingMode(material, (RenderingMode)material.GetFloat(BaseStyles.renderingModeName), RenderingMode.Opaque, -1);
@@ -639,14 +503,86 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 material.SetFloat(BaseStyles.renderingModeName, (float)mode);
 
-                MaterialChanged(material);
+                //MaterialChanged(material);
             }
 
             // Clear the main texture when going to the Standard Canvas shader since this will be specified by an image component. 
-            if (newShaderIsStandardCanvas)
+            if (newShader.name == StandardShaderUtility.GraphicsToolsStandardCanvasShaderName)
             {
                 material.SetTexture("_MainTex", null);
             }
+        }
+
+        /// <summary>
+        /// Trys to map property values from oldShader to newShader
+        /// </summary>
+        /// <param name="material"></param>
+        /// <param name="oldShader"></param>
+        /// <param name="newShader"></param>
+        public static void ConvertToGTStandard(Material material, Shader oldShader, Shader newShader, bool isCanvasShader = false)
+        {
+            // Parse the material for properties we care about
+            float? smoothness = GetFloatProperty(material, "_Glossiness");
+            float? diffuse = GetFloatProperty(material, "_UseDiffuse");
+            float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
+            float? rimLighting = GetFloatProperty(material, "_UseRimLighting");
+            float? normalMapScale = GetFloatProperty(material, "_BumpScale");
+            float? cullMode = GetFloatProperty(material, "_Cull");
+            Color? albedoFactor = GetColorProperty(material, "_baseColorFactor");
+            Color? emissionColor = GetColorProperty(material, "_emissiveFactor", "_EmissionColor");
+            Texture albedoMap = GetTextureProperty(material, "_baseColorTexture");
+            Texture emissionMap = GetTextureProperty(material, "_EmissionMap", "_emissiveTexture");
+            Texture normalMap = GetTextureProperty(material, "_BumpMap", "_normalTexture");
+            Vector4? textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
+
+            float? isReflectionsEnabled = GetFloatProperty(material, "_GlossyReflections", "_UseReflections");
+            if (isCanvasShader)
+            {
+                isReflectionsEnabled = 0;
+            }
+
+            float? isEmissionMapEnabled = GetFirstEnabledKeyword(material, "_EMISSION", "_UseEmissionColor") == null ? 0 : 1;
+            if (emissionMap != null)
+            {
+                isEmissionMapEnabled = 1;
+            }
+
+            float? isNormalMapEnabled = GetFirstEnabledKeyword(material, "_NORMALMAP", "_USEBUMPMAP_ON") == null ? 0 : 1;
+            if (normalMap != null)
+            {
+                isNormalMapEnabled = 1;
+            }
+
+            //
+            // Done parsing material properties
+            // Assign new shader to material
+            //
+
+            material.shader = newShader;
+
+            //
+            // Apply properties to material with new shader backing
+            //
+
+            SetShaderFeatureActive(material, null, "_Smoothness", smoothness);
+            SetShaderFeatureActive(material, "_DIRECTIONAL_LIGHT", "_DirectionalLight", diffuse);
+            SetShaderFeatureActive(material, "_SPECULAR_HIGHLIGHTS", "_SpecularHighlights", specularHighlights);
+            SetShaderFeatureActive(material, null, "_NormalMapScale", normalMapScale);
+            SetShaderFeatureActive(material, "_EMISSION", "_EnableEmission", isEmissionMapEnabled);
+            SetShaderFeatureActive(material, "_RIM_LIGHT", "_RimLight", rimLighting);
+            SetShaderFeatureActive(material, null, "_CullMode", cullMode);
+            SetShaderFeatureActive(material, "_CHANNEL_MAP", "_EnableChannelMap", 1);
+            SetShaderFeatureActive(material, "_NORMAL_MAP", "_EnableNormalMap", isNormalMapEnabled);
+            SetShaderFeatureActive(material, "_REFLECTIONS", "_Reflections", isReflectionsEnabled);
+
+            SetColorProperty(material, "_Color", albedoFactor);
+            SetColorProperty(material, "_EmissiveColor", emissionColor);
+
+            SetVectorProperty(material, "_MainTex_ST", textureScaleOffset);
+
+            SetTextureProperty(material, "_MainTex", albedoMap);
+            SetTextureProperty(material, "_NormalMap", normalMap);
+            SetTextureProperty(material, "_EmissiveMap", emissionMap);
         }
 
         /// <inheritdoc/>

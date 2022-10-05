@@ -407,11 +407,46 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="material">material to check</param>
         /// <param name="propertyName">name of property against material</param>
         /// <returns>if has property, then value of that property for current material, null otherwise</returns>
-        protected static float? GetFloatProperty(Material material, string propertyName)
+        protected static float? GetFloatProperty(Material material, params string[] propertyNames)
         {
-            if (material.HasProperty(propertyName))
+            foreach (var propertyName in propertyNames)
             {
-                return material.GetFloat(propertyName);
+                if (material.HasProperty(propertyName))
+                {
+                    return material.GetFloat(propertyName);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get named textures from a material
+        /// </summary>
+        /// <param name="material">The material to search</param>
+        /// <param name="propertyNamesToFind">Names of properties to look for in material</param>
+        /// <returns>First texture matching property name, null otherwise</returns>
+        protected static Texture GetTextureProperty(Material material, params string[] propertyNamesToFind)
+        {
+            foreach (var propertyName in propertyNamesToFind)
+            {
+                if (material.HasProperty(propertyName))
+                {
+                    return material.GetTexture(propertyName);
+                }
+            }
+
+            return null;
+        }
+
+        protected static string GetFirstEnabledKeyword(Material material, params string[] keywordsToFind)
+        {
+            foreach (var propertyName in keywordsToFind)
+            {
+                if (material.IsKeywordEnabled(propertyName))
+                {
+                    return propertyName;
+                }
             }
 
             return null;
@@ -420,14 +455,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Get the value of a given vector property for a material
         /// </summary>
-        /// <param name="material">material to check</param>
-        /// <param name="propertyName">name of property against material</param>
-        /// <returns>if has property, then value of that property for current material, null otherwise</returns>
-        protected static Vector4? GetVectorProperty(Material material, string propertyName)
+        /// <param name="material">Material to check</param>
+        /// <param name="propertyName">Name of property to look for in material</param>
+        /// <returns>If has property, then value of that property for current material, null otherwise</returns>
+        protected static Vector4? GetVectorProperty(Material material, params string[] propertyNames)
         {
-            if (material.HasProperty(propertyName))
+            foreach (var propertyName in propertyNames)
             {
-                return material.GetVector(propertyName);
+                if (material.HasProperty(propertyName))
+                {
+                    return material.GetVector(propertyName);
+                }
             }
 
             return null;
@@ -437,13 +475,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// Get the value of a given color property for a material
         /// </summary>
         /// <param name="material">material to check</param>
-        /// <param name="propertyName">name of property against material</param>
+        /// <param name="propertyNames">name of property to look for in material</param>
         /// <returns>if has property, then value of that property for current material, null otherwise</returns>
-        protected static Color? GetColorProperty(Material material, string propertyName)
+        protected static Color? GetColorProperty(Material material, params string[] propertyNames)
         {
-            if (material.HasProperty(propertyName))
+            foreach (var propertyName in propertyNames)
             {
-                return material.GetColor(propertyName);
+                if (material.HasProperty(propertyName))
+                {
+                    return material.GetColor(propertyName);
+                }
             }
 
             return null;
@@ -487,6 +528,20 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             if (propertyValue.HasValue)
             {
                 material.SetVector(propertyName, propertyValue.Value);
+            }
+        }
+
+        /// <summary>
+        /// Set texture property against associated material
+        /// </summary>
+        /// <param name="material">material to control</param>
+        /// <param name="propertyName">name of property to set</param>
+        /// <param name="texture">value of property to set</param>
+        protected static void SetTextureProperty(Material material, string propertyName, Texture texture)
+        {
+            if (texture && material.HasProperty(propertyName))
+            {
+                material.SetTexture(propertyName, texture);
             }
         }
 

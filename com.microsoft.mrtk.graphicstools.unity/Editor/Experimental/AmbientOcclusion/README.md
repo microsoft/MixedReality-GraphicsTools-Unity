@@ -42,3 +42,7 @@ As an alternative, we bake this occlusion information into the mesh vertices, wh
 ### How can I toggle this effect on and off?
 
 - Uncheck `Vertex ambient occlusion` in the material, this is the fastest way. It ignores the data, but still sends it to the GPU.
+
+### Why do my upgraded material's textures look weird?
+
+- They may have come from GLTF/GLB - try setting standad-shader.tiling.y to -1

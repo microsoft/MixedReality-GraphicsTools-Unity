@@ -282,15 +282,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
                     if (settings._upgradeMaterials)
                     {
-                        // TODO - user shouldn't have to do this step!
-                        // Could use this but don't have an instance...
-                        //StandardShaderGUI.AssignNewShaderToMaterial(meshRenderer.material,
-                        //                                            meshRenderer.material.shader,
-                        //                                            settings._standardShader);
-                        Debug.LogWarning($"{sharedMat.name} needs upgrade to Graphics Tools Standard! Please do so manually in the inspector.",
-                                         meshRenderer);
-                        Debug.LogWarning("Tip: Don't forget to enable AO!", meshRenderer);
-                        Debug.LogWarning("Tip: If textures look weird, try setting standad-shader.tiling.y to -1", meshRenderer);
+                        StandardShaderGUI.ConvertToGTStandard(meshRenderer.material, meshRenderer.material.shader, settings._bentNormalAoShader);
                     }
                 }
                 else
