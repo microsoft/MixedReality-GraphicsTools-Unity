@@ -194,7 +194,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 var meshRenderer = item.GetComponent<MeshRenderer>();
                 if (meshRenderer != null)
                 {
-                    _helpBox.text += _ambientOcclusionTool.ValidateMaterialSetup(meshRenderer);
+                    _ambientOcclusionTool.ValidateMaterialSetup(meshRenderer);
                 }
             }
             // Delete our temp colliders

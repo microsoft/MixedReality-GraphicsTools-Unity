@@ -223,7 +223,7 @@ Material:
     - _TriplanarMappingBlendSharpness: 4
     - _UVSec: 0
     - _UseWorldScale: 1
-    - _VertexBentNormalAo: 1
+    - _VertexBentNormalAo: 2
     - _VertexColors: 0
     - _VertexExtrusion: 0
     - _VertexExtrusionSmoothNormals: 0

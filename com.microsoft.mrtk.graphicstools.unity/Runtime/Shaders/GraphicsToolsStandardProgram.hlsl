@@ -298,7 +298,7 @@ Varyings VertexStage(Attributes input)
     output.color *= input.color;
 #endif
 
-#if defined(_SPHERICAL_HARMONICS) || defined(_VERTEX_AO) || defined(_VERTEX_EXTRUSION)
+#if defined(_SPHERICAL_HARMONICS) || defined(_VERTEX_EXTRUSION)
     half3 envNormal = worldNormal;
 #if defined(_VERTEX_AO_BENTNORMAL)
     envNormal = input.uv5.rgb;
@@ -809,12 +809,12 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // No lighting, but show reflections.
 #elif defined(_REFLECTIONS) 
     half3 reflectVector = reflect(-worldViewDir, worldNormal);
-    half3 indirectReflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
-    indirectReflection = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h); // TODO Verify correctness...
+    half3 reflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
+    reflection = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h); // TODO Verify correctness...
 #if defined(_VERTEX_AO)
-    indirectReflection *= occlusion;
+    reflection *= occlusion;
 #endif
-    output.rgb += indirectReflection;
+    output.rgb += reflection;
 #endif
 
     // Fresnel lighting.

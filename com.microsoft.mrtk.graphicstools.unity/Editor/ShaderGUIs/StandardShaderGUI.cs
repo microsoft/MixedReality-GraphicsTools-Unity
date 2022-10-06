@@ -503,7 +503,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 material.SetFloat(BaseStyles.renderingModeName, (float)mode);
 
-                //MaterialChanged(material);
+                MaterialChanged(material);
             }
 
             // Clear the main texture when going to the Standard Canvas shader since this will be specified by an image component. 
@@ -571,9 +571,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             SetShaderFeatureActive(material, "_EMISSION", "_EnableEmission", isEmissionMapEnabled);
             SetShaderFeatureActive(material, "_RIM_LIGHT", "_RimLight", rimLighting);
             SetShaderFeatureActive(material, null, "_CullMode", cullMode);
-            SetShaderFeatureActive(material, "_CHANNEL_MAP", "_EnableChannelMap", 1);
+            SetShaderFeatureActive(material, "_CHANNEL_MAP", "_EnableChannelMap", 0);
             SetShaderFeatureActive(material, "_NORMAL_MAP", "_EnableNormalMap", isNormalMapEnabled);
             SetShaderFeatureActive(material, "_REFLECTIONS", "_Reflections", isReflectionsEnabled);
+            SetShaderFeatureActive(material, "_SPHERICAL_HARMONICS", "_SphericalHarmonics", 1);
 
             SetColorProperty(material, "_Color", albedoFactor);
             SetColorProperty(material, "_EmissiveColor", emissionColor);

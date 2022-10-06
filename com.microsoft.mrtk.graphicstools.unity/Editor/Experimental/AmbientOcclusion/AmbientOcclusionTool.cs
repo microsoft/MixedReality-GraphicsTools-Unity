@@ -217,26 +217,22 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 newMaterial = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
             }
-            // Ensure new material will display the effect
-            EnsureAoSetup(newMaterial);
             return newMaterial;
         }
 
         private void EnsureAoSetup(Material newMaterial)
         {
+            // Enable keyword feature for shader specified in settings
             if (!newMaterial.IsKeywordEnabled(settings._shaderPropertyKeyword))
             {
                 newMaterial.EnableKeyword(settings._shaderPropertyKeyword);
-                Debug.LogWarning($"Enabling {settings._shaderPropertyKeyword} on {newMaterial.name}");
             }
+            // Set the material properties to display AO
             if (newMaterial.HasProperty(settings._materialPropertyName)
-                && newMaterial.GetFloat(settings._materialPropertyName) != 1)
+                && newMaterial.GetFloat(settings._materialPropertyName) == 0)
             {
                 newMaterial.SetFloat(settings._materialPropertyName, 1);
-                Debug.LogWarning($"Set {settings._materialPropertyName} to 1 on {newMaterial.name}");
             }
-            newMaterial.EnableKeyword("_SPHERICAL_HARMONICS");
-            newMaterial.SetFloat("_SphericalHarmonics", 1);
         }
 
         private Mesh DeepCopyMesh(Mesh source)
@@ -258,44 +254,34 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return result;
         }
 
-        internal string ValidateMaterialSetup(MeshRenderer meshRenderer)
+        internal void ValidateMaterialSetup(MeshRenderer meshRenderer)
         {
-            var result = "";
-            bool didConversion = false;
             // For the results to be visible to the user
             // we need to be using the graphics tools standard shader
             // and the appropriate parameter must be enabled
+            Material[] sharedMaterialsCopy = meshRenderer.sharedMaterials;
             // No material? No problem.
             if (meshRenderer.sharedMaterials.Length == 0)
             {
                 meshRenderer.sharedMaterial = ConfiguredAoMaterial(meshRenderer.gameObject.name);
+                return;
             }
-            foreach (var sharedMat in meshRenderer.sharedMaterials)
+            if (!settings._upgradeMaterials)
             {
-                // Got non-standard manterials that don't support AO?
-                if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(sharedMat))
+                return;
+            }
+            // Visit all the materials and check on them
+            for (int i = 0; i < sharedMaterialsCopy.Length; i++)
+            {
+                // Got non-gt-standard manterials that don't support AO? No problem.
+                if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(sharedMaterialsCopy[i]))
                 {
-                    // This is a special interal material, we need something better.
-                    if (sharedMat.name == "Default-Material")
-                    {
-                        meshRenderer.material = ConfiguredAoMaterial(sharedMat.name);
-                    }
-                    if (settings._upgradeMaterials)
-                    {
-                        StandardShaderGUI.ConvertToGTStandard(meshRenderer.material, meshRenderer.material.shader, settings._bentNormalAoShader);
-                    }
-                }
-                else
-                {
-                    // Okay so you're standard... are you setup correctly?
-                    EnsureAoSetup(sharedMat);
+                    sharedMaterialsCopy[i] = ConfiguredAoMaterial(sharedMaterialsCopy[i].name);
+                    StandardShaderGUI.ConvertToGTStandard(sharedMaterialsCopy[i], sharedMaterialsCopy[i].shader, settings._bentNormalAoShader);
+                    EnsureAoSetup(sharedMaterialsCopy[i]);
                 }
             }
-            if (didConversion)
-            {
-                result += "";
-            }
-            return result;
+            meshRenderer.sharedMaterials = sharedMaterialsCopy;
         }
     }
 }
