@@ -14,7 +14,7 @@ resources:
   repositories:
   - repository: PipelineTools
     type: git
-    endpoint: ToolsAccess
+    endpoint: ToolsAccessGT
     name: tools.internal
     ref: 78ecf591964ecf511b4c7a0cd84d98ce11e8be16
 
