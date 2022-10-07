@@ -118,24 +118,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             ToolManager.RestorePreviousPersistentTool();
         }
         
-        private void DeleteTempMeshColliders()
-        {
-            foreach (var collider in _tempColliders)
-            {
-                DestroyImmediate(collider);
-            }
-            _tempColliders.Clear();
-        }
-
         private GameObject FirstSelectedGameObjectWithMeshFilter()
         {
             GameObject result = null;
-            foreach (var item in Selection.gameObjects)
+            foreach (var item in Selection.GetFiltered<MeshFilter>(SelectionMode.Deep))
             {
                 var meshFilter = item.GetComponent<MeshFilter>();
                 if (meshFilter != null)
                 {
-                    result = item;
+                    result = item.gameObject;
                     break;
                 }
             }
@@ -167,14 +158,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void OnApplyButtonClicked()
         {
-            var meshFilters = Selection.gameObjects.Where(g => g.GetComponent<MeshFilter>() != null);
+            var meshFilters = Selection.GetFiltered<MeshFilter>(SelectionMode.Deep);
             // Ensure we have something to collide with
             foreach (var item in meshFilters)
             {
                 var meshCollider = item.GetComponent<MeshCollider>();
                 if (meshCollider == null)
                 {
-                    _tempColliders.Add(item.AddComponent<MeshCollider>());
+                    _tempColliders.Add(item.gameObject.AddComponent<MeshCollider>());
                 }
             }
             _lastVisualizedGO = null;
@@ -183,7 +174,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 // Used by visualization to draw the first selected thing
                 if (_lastVisualizedGO == null)
                 {
-                    _lastVisualizedGO = item;
+                    _lastVisualizedGO = item.gameObject;
                 }
                 var meshFilter = item.GetComponent<MeshFilter>();
                 if (meshFilter != null)

@@ -153,13 +153,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 // Do the work in world space
                 _vertexs[vi] = meshFilter.transform.TransformPoint(_vertexs[vi]);
-                _normals[vi] = meshFilter.transform.TransformVector(_normals[vi]);
+                _normals[vi] = meshFilter.transform.TransformVector(_normals[vi]).normalized;
 
                 _hitsInHemisphere.Clear();
 
                 Vector3 averageDir = Vector3.zero;
 
-                var origin = _vertexs[vi] + _normals[vi].normalized * settings._originNormalOffset;
+                var origin = _vertexs[vi] + _normals[vi] * settings._originNormalOffset;
 
                 for (int ni = 0; ni < settings._samplesPerVertex; ni++)
                 {
