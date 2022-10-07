@@ -14,9 +14,9 @@ Using AO with a `Mesh` is a two part process. The first is to cast rays and stor
 
 Ambient occlusion adds realism to a scene by providing important clues to viewers about an object's relationship to other objects.
 
-However, as a post-process it is expensive and not well suited for VR and low-end platforms. Baking global illumination to textures can cumbersome and relies on well-formed UVs (when not using lightmaps).
+However, as a post-process it may be expensive, and not well suited for mobile, VR, or other "low end" platforms. Baking global illumination to textures can cumbersome and relies on well-formed UVs (when not using lightmaps).
 
-As an alternative, we bake this occlusion information into the mesh vertices, which is evaluated per vertex and passed to fragment shader as part of rasterization.
+As an alternative, this tool will bake occlusion information into the mesh vertices. The Graphics Tools Standard shader then uses this information to integrate the lighting.
 
 ## Implementation Notes
 

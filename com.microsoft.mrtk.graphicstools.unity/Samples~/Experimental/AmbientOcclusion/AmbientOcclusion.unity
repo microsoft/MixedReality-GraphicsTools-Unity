@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18385571, g: 0.2286334, b: 0.30098233, a: 1}
+  m_IndirectSpecularColor: {r: 0.18385634, g: 0.22863305, b: 0.30098173, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -651,7 +651,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
---- !u!64 &446431494
+--- !u!1 &446531492
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 446307204}
+  - component: {fileID: 447634340}
+  - component: {fileID: 448731492}
+  - component: {fileID: 446531493}
+  m_Layer: 0
+  m_Name: ShaderBall_IndirectDirect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!64 &446531493
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -664,26 +683,7 @@ MeshCollider:
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300002, guid: 1104611d051d4e42a68391888b61b32e, type: 3}
---- !u!1 &446531492
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 446307204}
-  - component: {fileID: 447634340}
-  - component: {fileID: 448731492}
-  - component: {fileID: 446431494}
-  m_Layer: 0
-  m_Name: ShaderBall_IndirectDirect
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_Mesh: {fileID: 2045157078}
 --- !u!33 &447634340
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -782,7 +782,26 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &670599452
+--- !u!1 &670633913
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 670995353}
+  - component: {fileID: 667603897}
+  - component: {fileID: 668701049}
+  - component: {fileID: 670633914}
+  m_Layer: 0
+  m_Name: ShaderBall_NoAo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!64 &670633914
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -795,26 +814,7 @@ MeshCollider:
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300002, guid: 1104611d051d4e42a68391888b61b32e, type: 3}
---- !u!1 &670633913
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 670995353}
-  - component: {fileID: 667603897}
-  - component: {fileID: 668701049}
-  - component: {fileID: 670599452}
-  m_Layer: 0
-  m_Name: ShaderBall_NoAo
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_Mesh: {fileID: 119672428}
 --- !u!4 &670995353
 Transform:
   m_ObjectHideFlags: 0
@@ -1848,7 +1848,7 @@ MeshCollider:
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 1812646318}
 --- !u!23 &1885283297
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2060,7 +2060,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
---- !u!64 &2033478103
+--- !u!1 &2033577844
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2033349460}
+  - component: {fileID: 2030449524}
+  - component: {fileID: 2031579572}
+  - component: {fileID: 2033577845}
+  m_Layer: 0
+  m_Name: ShaderBall_AoOn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!64 &2033577845
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2073,26 +2092,7 @@ MeshCollider:
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300002, guid: 1104611d051d4e42a68391888b61b32e, type: 3}
---- !u!1 &2033577844
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2033349460}
-  - component: {fileID: 2030449524}
-  - component: {fileID: 2031579572}
-  - component: {fileID: 2033478103}
-  m_Layer: 0
-  m_Name: ShaderBall_AoOn
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_Mesh: {fileID: 233065379}
 --- !u!43 &2045157078
 Mesh:
   m_ObjectHideFlags: 0

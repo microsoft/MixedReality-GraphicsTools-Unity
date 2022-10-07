@@ -516,9 +516,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Trys to map property values from oldShader to newShader
         /// </summary>
-        /// <param name="material"></param>
-        /// <param name="oldShader"></param>
-        /// <param name="newShader"></param>
         public static void ConvertToGTStandard(Material material, Shader oldShader, Shader newShader, bool isCanvasShader = false)
         {
             // Parse the material for properties we care about

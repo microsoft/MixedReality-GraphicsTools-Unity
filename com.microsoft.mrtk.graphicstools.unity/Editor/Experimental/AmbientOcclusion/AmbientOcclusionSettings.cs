@@ -37,7 +37,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [SerializeField] internal bool _upgradeMaterials;
         [SerializeField] internal int _samplesIndex;
         [SerializeField] internal string _materialPropertyName = "_VertexBentNormalAo";
-        [SerializeField] internal string _shaderPropertyKeyword = "_VERTEX_AO";
+        [SerializeField] internal string _shaderKeyword = "_VERTEX_AO";
         [Tooltip("The shader is used when 'Upgrade materials' is true. It's expected to support the ambient occlusion metadata.")]
 
         // UXML note:
@@ -51,7 +51,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         // You'll see at the top...
         // "Material class in UnityEngine / inherits from:Object / Implemented in:UnityEngine.CoreModule..."
         // Which becomes <ObjectField type="UnityEngine.Material, UnityEngine.CoreModule">
-        [SerializeField] internal Shader _bentNormalAoShader;
+        [SerializeField] internal Shader _ambientOcclusionShader;
 
         private const string AmbientOcclusionSettingsPath = "Assets/Editor/AmbientOcclusionSettings.asset";
 
@@ -81,8 +81,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _upgradeMaterials = false;
             _samplesIndex = 2;
             _materialPropertyName = "_VertexBentNormalAo";
-            _shaderPropertyKeyword = "_VERTEX_AO";
-            _bentNormalAoShader = StandardShaderUtility.GraphicsToolsStandardShader;
+            _shaderKeyword = "_VERTEX_AO";
+            _ambientOcclusionShader = StandardShaderUtility.GraphicsToolsStandardShader;
         }
 
         private void OnValidate()

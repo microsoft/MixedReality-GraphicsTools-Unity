@@ -21,10 +21,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         public AmbientOcclusionTool(AmbientOcclusionSettings toolSettings)
         {
             settings = toolSettings;
-            selectedObjects = new List<GameObject>();
         }
 
-        private List<GameObject> selectedObjects;
         private Vector3[] _vertexs;
         private Vector3[] _normals;
         private Vector4[] _bentNormalsAo;
@@ -32,7 +30,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
         private MeshFilter _meshFilter;
+        private Material _defaultMaterial;
         private const string _magicPrefix = "A.O.";
+        private const string _defaultMaterialName = "Default-Material";
 
         internal void DrawVisualization()
         {
@@ -187,7 +187,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
                 }
 
-
                 var ao = 1 - ((float)_hitsInHemisphere.Count / settings._samplesPerVertex);
                 var avgN = averageDir.normalized;
                 _bentNormalsAo[vi] = new Vector4(avgN.x, avgN.y, avgN.z, ao);
@@ -198,41 +197,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             mesh.SetUVs(settings._uvChannel, _bentNormalsAo);
 
             Debug.Log($"{nameof(GatherSamples)} vertex-count={mesh.vertexCount} rays-per-vertex={settings._samplesPerVertex} elapsed-ms={watch.ElapsedMilliseconds}");
-        }
-
-        private Material ConfiguredAoMaterial(string name)
-        {
-            Material newMaterial;
-            var suffixedName = $"{name}-AO";
-            var assetPath = $"Assets/{suffixedName}.mat";
-            // See if we made one of these previously
-            var found = AssetDatabase.FindAssets(suffixedName);
-            if (found.Length == 0)
-            {
-                newMaterial = new Material(settings._bentNormalAoShader);
-                AssetDatabase.CreateAsset(newMaterial, assetPath);
-                Debug.Log($"Created new GT Standard material {AssetDatabase.GetAssetPath(newMaterial)}");
-            }
-            else
-            {
-                newMaterial = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
-            }
-            return newMaterial;
-        }
-
-        private void EnsureAoSetup(Material newMaterial)
-        {
-            // Enable keyword feature for shader specified in settings
-            if (!newMaterial.IsKeywordEnabled(settings._shaderPropertyKeyword))
-            {
-                newMaterial.EnableKeyword(settings._shaderPropertyKeyword);
-            }
-            // Set the material properties to display AO
-            if (newMaterial.HasProperty(settings._materialPropertyName)
-                && newMaterial.GetFloat(settings._materialPropertyName) == 0)
-            {
-                newMaterial.SetFloat(settings._materialPropertyName, 1);
-            }
         }
 
         private Mesh DeepCopyMesh(Mesh source)
@@ -254,34 +218,63 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return result;
         }
 
-        internal void ValidateMaterialSetup(MeshRenderer meshRenderer)
+        private Material GetOrMakeMaterialAsset(string assetPath, string shaderName = "Standard")
         {
-            // For the results to be visible to the user
-            // we need to be using the graphics tools standard shader
-            // and the appropriate parameter must be enabled
-            Material[] sharedMaterialsCopy = meshRenderer.sharedMaterials;
+            if (_defaultMaterial != null)
+            {
+                return _defaultMaterial;
+            }
+            if (AssetDatabase.FindAssets(assetPath).Length == 0)
+            {
+                _defaultMaterial = new Material(Shader.Find(shaderName));
+                AssetDatabase.CreateAsset(_defaultMaterial, "Assets/" + assetPath);
+                AssetDatabase.SaveAssets();
+            }
+            else
+            {
+                _defaultMaterial = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+            }
+            return _defaultMaterial;
+        }
+
+        /// <summary>
+        /// For the results to be visible to the user
+        /// we need to be using the graphics tools standard shader
+        /// and the appropriate parameter must be enabled
+        /// </summary>
+        internal void ModifyMaterials(MeshRenderer meshRenderer)
+        {
             // No material? No problem.
             if (meshRenderer.sharedMaterials.Length == 0)
             {
-                meshRenderer.sharedMaterial = ConfiguredAoMaterial(meshRenderer.gameObject.name);
-                return;
+                meshRenderer.sharedMaterial = GetOrMakeMaterialAsset($"{_defaultMaterialName}-AO.mat");
             }
-            if (!settings._upgradeMaterials)
-            {
-                return;
-            }
+            Material[] materialsCopy = new Material[meshRenderer.sharedMaterials.Length];
+            System.Array.Copy(meshRenderer.sharedMaterials, materialsCopy, materialsCopy.Length);
             // Visit all the materials and check on them
-            for (int i = 0; i < sharedMaterialsCopy.Length; i++)
+            for (int i = 0; i < materialsCopy.Length; i++)
             {
-                // Got non-gt-standard manterials that don't support AO? No problem.
-                if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(sharedMaterialsCopy[i]))
+                if (materialsCopy[i].name.Contains(_defaultMaterialName))
                 {
-                    sharedMaterialsCopy[i] = ConfiguredAoMaterial(sharedMaterialsCopy[i].name);
-                    StandardShaderGUI.ConvertToGTStandard(sharedMaterialsCopy[i], sharedMaterialsCopy[i].shader, settings._bentNormalAoShader);
-                    EnsureAoSetup(sharedMaterialsCopy[i]);
+                    materialsCopy[i] = GetOrMakeMaterialAsset($"{_defaultMaterialName}-AO.mat");
+                }
+                if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(materialsCopy[i]))
+                {
+                    StandardShaderGUI.ConvertToGTStandard(materialsCopy[i], materialsCopy[i].shader, settings._ambientOcclusionShader);
+                    // Enable keyword feature for shader specified in settings
+                    if (!materialsCopy[i].IsKeywordEnabled(settings._shaderKeyword))
+                    {
+                        materialsCopy[i].EnableKeyword(settings._shaderKeyword);
+                    }
+                    // Set the material properties to display AO
+                    if (materialsCopy[i].HasProperty(settings._materialPropertyName)
+                        && materialsCopy[i].GetFloat(settings._materialPropertyName) == 0)
+                    {
+                        materialsCopy[i].SetFloat(settings._materialPropertyName, 1);
+                    }
                 }
             }
-            meshRenderer.sharedMaterials = sharedMaterialsCopy;
+            meshRenderer.sharedMaterials = materialsCopy;
         }
     }
 }
