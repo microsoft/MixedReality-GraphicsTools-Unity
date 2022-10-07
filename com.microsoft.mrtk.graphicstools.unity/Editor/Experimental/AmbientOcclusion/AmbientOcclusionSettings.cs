@@ -66,7 +66,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _showNormal = true;
             _normalColor = Color.cyan;
             _normalScale = 1;
-            _showBentNormal = true;
+            _showBentNormal = false;
             _bentNormalColor = Color.magenta;
             _bentNormalScale = 1;
             _showSamples = false;
@@ -78,7 +78,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _coverageRadius = .03f;
             _originNormalOffset = .0001f;
             _uvChannel = 5;
-            _upgradeMaterials = false;
+            _upgradeMaterials = true;
             _samplesIndex = 2;
             _materialPropertyName = "_VertexBentNormalAo";
             _shaderKeyword = "_VERTEX_AO";
