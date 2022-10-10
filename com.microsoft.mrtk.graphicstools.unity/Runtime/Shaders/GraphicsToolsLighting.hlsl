@@ -1,6 +1,6 @@
 // Copyright © 2020 Unity Technologies ApS
 // Licensed under the Unity Companion License for Unity-dependent projects--see https://unity3d.com/legal/licenses/Unity_Companion_License
-// Unless expressly provided otherwise, the Software under this license is made available strictly on an ìAS ISî BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
+// Unless expressly provided otherwise, the Software under this license is made available strictly on an ìAS ISÅEBASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
 
 #ifndef GT_LIGHTING
 #define GT_LIGHTING
@@ -18,8 +18,8 @@ struct GTMainLight
 GTMainLight GTGetMainLight()
 {
     GTMainLight light;
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
-#if defined(_DISTANT_LIGHT)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)|| defined(_NPR_Rendering)
+#if defined(_DISTANT_LIGHT) 
     light.direction = _DistantLightData[0].xyz;
     light.color = _DistantLightData[1].xyz;
 #else
@@ -231,6 +231,19 @@ half3 GTLightingPhysicallyBased(GTBRDFData brdfData,
 #endif
 
     return brdf * radiance;
+}
+
+
+half3 GTLightingNonPhotorealistic(GTBRDFData brdfData,
+half3 lightColor, half3 lightDirectionWS,
+half3 normalWS, half3 viewDirectionWS)
+{
+   half NdotL = ceil(saturate(dot(normalWS, lightDirectionWS)));
+   half3 radiance = lightColor * NdotL;
+
+   half3 brdf = brdfData.diffuse;
+
+   return brdf * radiance;
 }
 
 #endif // GT_LIGHTING
