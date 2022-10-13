@@ -1237,19 +1237,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             // Show the RenderQueueField but do not allow users to directly manipulate it. That is done via the renderQueueOverride.
             GUI.enabled = false;
             materialEditor.RenderQueueField();
-
-            // Enable instancing to disable batching. Static and dynamic batching will normalize the object scale, which breaks 
-            // features which utilize object scale.
-            GUI.enabled = !ScaleRequired();
-
-            if (!GUI.enabled && !material.enableInstancing)
-            {
-                material.enableInstancing = true;
-            }
+            GUI.enabled = true;
 
             materialEditor.EnableInstancingField();
-
-            GUI.enabled = true;
 
             materialEditor.ShaderProperty(enableStencil, Styles.stencil);
 
@@ -1269,10 +1259,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 material.SetInt(Styles.stencilOperationName, (int)StencilOp.Keep);
             }
 
-            if (ScaleRequired())
+            bool scaleRequired = ScaleRequired();
+
+            if (scaleRequired)
             {
                 materialEditor.ShaderProperty(useWorldScale, Styles.useWorldScale);
             }
+
+            // Static and dynamic batching will normalize the object scale, which breaks features which utilize object scale.
+            material.SetOverrideTag("DisableBatching", scaleRequired ? "True" : "False");
         }
 
         /// <summary>
