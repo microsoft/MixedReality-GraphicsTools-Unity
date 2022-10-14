@@ -230,6 +230,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty metallic;
         protected MaterialProperty smoothness;
         protected MaterialProperty lightMode;
+        protected MaterialProperty lightModeProxy;
         protected MaterialProperty specularHighlights;
         protected MaterialProperty sphericalHarmonics;
         protected MaterialProperty reflections;
@@ -343,6 +344,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             enableSSAA = FindProperty("_EnableSSAA", props);
             mipmapBias = FindProperty("_MipmapBias", props);
             lightMode = FindProperty("_DirectionalLight", props);
+            lightModeProxy = FindProperty("_DirectionalLightProxy", props, false);
             specularHighlights = FindProperty("_SpecularHighlights", props);
             sphericalHarmonics = FindProperty("_SphericalHarmonics", props);
             reflections = FindProperty("_Reflections", props);
@@ -695,18 +697,33 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     {
                         material.DisableKeyword(Styles.lightModeLitDirectional);
                         material.DisableKeyword(Styles.lightModeLitDistant);
+
+                        if (lightModeProxy != null)
+                        {
+                            lightModeProxy.floatValue = 0.0f;
+                        }
                     }
                     break;
                 case LightMode.LitDirectional:
                     {
                         material.EnableKeyword(Styles.lightModeLitDirectional);
                         material.DisableKeyword(Styles.lightModeLitDistant);
+
+                        if (lightModeProxy != null)
+                        {
+                            lightModeProxy.floatValue = 1.0f;
+                        }
                     }
                     break;
                 case LightMode.LitDistant:
                     {
                         material.DisableKeyword(Styles.lightModeLitDirectional);
                         material.EnableKeyword(Styles.lightModeLitDistant);
+
+                        if (lightModeProxy != null)
+                        {
+                            lightModeProxy.floatValue = 0.0f;
+                        }
 
                         GUILayout.Box(string.Format(Styles.propertiesComponentHelp, nameof(DistantLight), Styles.lightModeNames[(int)LightMode.LitDistant]), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
                     }
