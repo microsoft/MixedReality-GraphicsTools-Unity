@@ -25,7 +25,8 @@
 #pragma shader_feature_local _TRIPLANAR_MAPPING
 #pragma shader_feature_local _LOCAL_SPACE_TRIPLANAR_MAPPING
 #pragma shader_feature_local_fragment _USE_SSAA
-#pragma shader_feature_local _ _DIRECTIONAL_LIGHT _DISTANT_LIGHT _NPR_Rendering
+#pragma shader_feature_local _ _DIRECTIONAL_LIGHT _DISTANT_LIGHT
+#pragma shader_feature_local _NON_PHOTOREALISTIC
 #pragma shader_feature_local_fragment _SPECULAR_HIGHLIGHTS
 #pragma shader_feature_local _SPHERICAL_HARMONICS
 #pragma shader_feature_local _REFLECTIONS
@@ -59,7 +60,7 @@
 ///  Defines and includes.
 /// </summary>
 
-#if defined(_TRIPLANAR_MAPPING) || defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_NPR_Rendering) || defined(_SPHERICAL_HARMONICS) || defined(_REFLECTIONS) || defined(_RIM_LIGHT) || defined(_PROXIMITY_LIGHT) || defined(_ENVIRONMENT_COLORING) || defined(LIGHTMAP_ON)
+#if defined(_TRIPLANAR_MAPPING) || defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_SPHERICAL_HARMONICS) || defined(_REFLECTIONS) || defined(_RIM_LIGHT) || defined(_PROXIMITY_LIGHT) || defined(_ENVIRONMENT_COLORING) || defined(LIGHTMAP_ON)
 #define _NORMAL
 #else
 #undef _NORMAL
@@ -762,7 +763,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // Final lighting mix.
     half4 output = albedo;
 
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_NPR_Rendering) || defined(_REFLECTIONS)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_REFLECTIONS)
 #if defined(_CHANNEL_MAP)
     half occlusion = channel.g;
 #else
@@ -785,7 +786,8 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
     // Direct lighting.
     GTMainLight light = GTGetMainLight();
-#if defined(_NPR_Rendering)
+    // Non Photorealistic
+#if defined(_NON_PHOTOREALISTIC)
     output.rgb += GTLightingNonPhotorealistic(brdfData, light.color, light.direction, worldNormal, worldViewDir);
 #else
     output.rgb += GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir);

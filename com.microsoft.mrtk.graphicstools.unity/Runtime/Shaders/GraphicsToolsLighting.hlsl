@@ -1,7 +1,6 @@
-// Copyright © 2020 Unity Technologies ApS
+// Copyright ÔøΩ 2020 Unity Technologies ApS
 // Licensed under the Unity Companion License for Unity-dependent projects--see https://unity3d.com/legal/licenses/Unity_Companion_License
-// Unless expressly provided otherwise, the Software under this license is made available strictly on an ìAS ISÅEBASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
-
+// Unless expressly provided otherwise, the Software under this license is made available strictly on an AS IS BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
 #ifndef GT_LIGHTING
 #define GT_LIGHTING
 
@@ -18,8 +17,8 @@ struct GTMainLight
 GTMainLight GTGetMainLight()
 {
     GTMainLight light;
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)|| defined(_NPR_Rendering)
-#if defined(_DISTANT_LIGHT) 
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)|| defined(_NON_PHOTOREALISTIC)
+#if defined(_DISTANT_LIGHT)
     light.direction = _DistantLightData[0].xyz;
     light.color = _DistantLightData[1].xyz;
 #else

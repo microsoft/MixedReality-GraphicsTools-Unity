@@ -26,8 +26,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     {
         Unlit = 0,
         LitDirectional = 1,
-        LitDistant = 2,
-        NonPhotorealistic = 3
+        LitDistant = 2
     }
 
     /// <summary>
@@ -111,10 +110,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent enableSSAA = new GUIContent("Super Sample Anti-Aliasing", "Enable Super Sample Anti-Aliasing, a technique improves texture clarity at long distances");
             public static readonly GUIContent mipmapBias = new GUIContent("Mipmap Bias", "Degree to bias the mip map. A larger negative value reduces aliasing and improves clarity, but may decrease performance");
             public static readonly GUIContent lightMode = new GUIContent("Light Mode", "What Type of Direct Light Affects the Surface");
-            public static readonly string[] lightModeNames = new string[] { "Unlit", "Lit - Directional", "Lit - Distant" , "Non - Photorealistic" };
+            public static readonly string[] lightModeNames = new string[] { "Unlit", "Lit - Directional", "Lit - Distant" };
             public static readonly string lightModeLitDirectional = "_DIRECTIONAL_LIGHT";
             public static readonly string lightModeLitDistant = "_DISTANT_LIGHT";
-            public static readonly string lightModeNPR = "_NPR_Rendering";
+            public static readonly GUIContent nonPhotorealisticRendering = new GUIContent("Non-Photorealistic Rendering","Non-Photorealistic Rendering");
             public static readonly GUIContent specularHighlights = new GUIContent("Specular Highlights", "Calculate Specular Highlights");
             public static readonly GUIContent sphericalHarmonics = new GUIContent("Spherical Harmonics", "Read From Spherical Harmonics Data for Ambient Light");
             public static readonly GUIContent reflections = new GUIContent("Reflections", "Calculate Glossy Reflections");
@@ -232,6 +231,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty metallic;
         protected MaterialProperty smoothness;
         protected MaterialProperty lightMode;
+        protected MaterialProperty nonPhotorealisticRendering;
         protected MaterialProperty specularHighlights;
         protected MaterialProperty sphericalHarmonics;
         protected MaterialProperty reflections;
@@ -345,6 +345,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             enableSSAA = FindProperty("_EnableSSAA", props);
             mipmapBias = FindProperty("_MipmapBias", props);
             lightMode = FindProperty("_DirectionalLight", props);
+            nonPhotorealisticRendering = FindProperty("_NPR", props);
             specularHighlights = FindProperty("_SpecularHighlights", props);
             sphericalHarmonics = FindProperty("_SphericalHarmonics", props);
             reflections = FindProperty("_Reflections", props);
@@ -697,30 +698,20 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     {
                         material.DisableKeyword(Styles.lightModeLitDirectional);
                         material.DisableKeyword(Styles.lightModeLitDistant);
-                        material.DisableKeyword(Styles.lightModeNPR);
                     }
                     break;
                 case LightMode.LitDirectional:
                     {
                         material.EnableKeyword(Styles.lightModeLitDirectional);
                         material.DisableKeyword(Styles.lightModeLitDistant);
-                        material.DisableKeyword(Styles.lightModeNPR);
                     }
                     break;
                 case LightMode.LitDistant:
                     {
                         material.DisableKeyword(Styles.lightModeLitDirectional);
                         material.EnableKeyword(Styles.lightModeLitDistant);
-                        material.DisableKeyword(Styles.lightModeNPR);
 
                         GUILayout.Box(string.Format(Styles.propertiesComponentHelp, nameof(DistantLight), Styles.lightModeNames[(int)LightMode.LitDistant]), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
-                    }
-                    break;
-                case LightMode.NonPhotorealistic:
-                    {
-                        material.EnableKeyword(Styles.lightModeNPR);
-                        material.DisableKeyword(Styles.lightModeLitDirectional);
-                        material.DisableKeyword(Styles.lightModeLitDistant);
                     }
                     break;
             }
@@ -729,6 +720,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 materialEditor.ShaderProperty(specularHighlights, Styles.specularHighlights, 2);
                 materialEditor.ShaderProperty(sphericalHarmonics, Styles.sphericalHarmonics, 2);
+                materialEditor.ShaderProperty(nonPhotorealisticRendering, Styles.nonPhotorealisticRendering, 2);
             }
 
             materialEditor.ShaderProperty(reflections, Styles.reflections);
