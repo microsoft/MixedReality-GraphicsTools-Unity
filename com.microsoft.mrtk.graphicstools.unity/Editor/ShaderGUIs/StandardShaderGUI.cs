@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -113,6 +113,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly string[] lightModeNames = new string[] { "Unlit", "Lit - Directional", "Lit - Distant" };
             public static readonly string lightModeLitDirectional = "_DIRECTIONAL_LIGHT";
             public static readonly string lightModeLitDistant = "_DISTANT_LIGHT";
+            public static readonly GUIContent nonPhotorealisticRendering = new GUIContent("Non-Photorealistic Rendering","Non-Photorealistic Rendering");
             public static readonly GUIContent specularHighlights = new GUIContent("Specular Highlights", "Calculate Specular Highlights");
             public static readonly GUIContent sphericalHarmonics = new GUIContent("Spherical Harmonics", "Read From Spherical Harmonics Data for Ambient Light");
             public static readonly GUIContent reflections = new GUIContent("Reflections", "Calculate Glossy Reflections");
@@ -233,6 +234,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty lightModeProxy;
         protected MaterialProperty specularHighlights;
         protected MaterialProperty sphericalHarmonics;
+        protected MaterialProperty nonPhotorealisticRendering;
         protected MaterialProperty reflections;
         protected MaterialProperty rimLight;
         protected MaterialProperty rimColor;
@@ -347,6 +349,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             lightModeProxy = FindProperty("_DirectionalLightProxy", props, false);
             specularHighlights = FindProperty("_SpecularHighlights", props);
             sphericalHarmonics = FindProperty("_SphericalHarmonics", props);
+            nonPhotorealisticRendering = FindProperty("_NPR", props);
             reflections = FindProperty("_Reflections", props);
             rimLight = FindProperty("_RimLight", props);
             rimColor = FindProperty("_RimColor", props);
@@ -734,6 +737,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 materialEditor.ShaderProperty(specularHighlights, Styles.specularHighlights, 2);
                 materialEditor.ShaderProperty(sphericalHarmonics, Styles.sphericalHarmonics, 2);
+                materialEditor.ShaderProperty(nonPhotorealisticRendering, Styles.nonPhotorealisticRendering, 2);
             }
 
             materialEditor.ShaderProperty(reflections, Styles.reflections);

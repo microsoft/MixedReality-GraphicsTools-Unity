@@ -37,6 +37,7 @@ Shader "Graphics Tools/Standard"
         [Toggle(_DIRECTIONAL_LIGHT)] _DirectionalLightProxy("Directional Light", Float) = 1.0 // "LitDirectional"
         [Toggle(_SPECULAR_HIGHLIGHTS)] _SpecularHighlights("Specular Highlights", Float) = 1.0
         [Toggle(_SPHERICAL_HARMONICS)] _SphericalHarmonics("Spherical Harmonics", Float) = 0.0
+        [Toggle(_NON_PHOTOREALISTIC)] _NPR("Non-Photorealistic Rendering", Float) = 0.0
         [Toggle(_REFLECTIONS)] _Reflections("Reflections", Float) = 0.0
         [Toggle(_RIM_LIGHT)] _RimLight("Rim Light", Float) = 0.0
         _RimColor("Rim Color", Color) = (0.5, 0.5, 0.5, 1.0)
