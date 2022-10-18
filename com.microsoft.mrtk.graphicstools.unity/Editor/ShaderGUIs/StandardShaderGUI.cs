@@ -232,10 +232,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty smoothness;
         protected MaterialProperty lightMode;
         protected MaterialProperty lightModeProxy;
-        protected MaterialProperty nonPhotorealisticRendering;
-        protected MaterialProperty lightModeProxy;
         protected MaterialProperty specularHighlights;
         protected MaterialProperty sphericalHarmonics;
+        protected MaterialProperty nonPhotorealisticRendering;
         protected MaterialProperty reflections;
         protected MaterialProperty rimLight;
         protected MaterialProperty rimColor;
@@ -348,9 +347,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             mipmapBias = FindProperty("_MipmapBias", props);
             lightMode = FindProperty("_DirectionalLight", props);
             lightModeProxy = FindProperty("_DirectionalLightProxy", props, false);
-            nonPhotorealisticRendering = FindProperty("_NPR", props);
             specularHighlights = FindProperty("_SpecularHighlights", props);
             sphericalHarmonics = FindProperty("_SphericalHarmonics", props);
+            nonPhotorealisticRendering = FindProperty("_NPR", props);
             reflections = FindProperty("_Reflections", props);
             rimLight = FindProperty("_RimLight", props);
             rimColor = FindProperty("_RimColor", props);
