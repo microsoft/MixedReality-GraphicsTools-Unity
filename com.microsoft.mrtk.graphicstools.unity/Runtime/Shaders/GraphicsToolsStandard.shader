@@ -34,9 +34,10 @@ Shader "Graphics Tools/Standard"
 
         // Rendering options.
         [Enum(Microsoft.MixedReality.GraphicsTools.Editor.LightMode)] _DirectionalLight("Light Mode", Float) = 1.0 // "LitDirectional"
-        [Toggle(_NON_PHOTOREALISTIC)] _NPR("Non-Photorealistic Rendering", Float) = 0.0
+        [Toggle(_DIRECTIONAL_LIGHT)] _DirectionalLightProxy("Directional Light", Float) = 1.0 // "LitDirectional"
         [Toggle(_SPECULAR_HIGHLIGHTS)] _SpecularHighlights("Specular Highlights", Float) = 1.0
         [Toggle(_SPHERICAL_HARMONICS)] _SphericalHarmonics("Spherical Harmonics", Float) = 0.0
+        [Toggle(_NON_PHOTOREALISTIC)] _NPR("Non-Photorealistic Rendering", Float) = 0.0
         [Toggle(_REFLECTIONS)] _Reflections("Reflections", Float) = 0.0
         [Toggle(_RIM_LIGHT)] _RimLight("Rim Light", Float) = 0.0
         _RimColor("Rim Color", Color) = (0.5, 0.5, 0.5, 1.0)
@@ -147,7 +148,8 @@ Shader "Graphics Tools/Standard"
         Tags
         { 
             "RenderPipeline" = "UniversalPipeline"
-            "RenderType" = "Opaque" 
+            "RenderType" = "Opaque"
+            "DisableBatching" = "False"
         }
 
         // Default pass (only pass outside of the editor).
@@ -211,7 +213,8 @@ Shader "Graphics Tools/Standard"
     {
         Tags
         { 
-            "RenderType" = "Opaque" 
+            "RenderType" = "Opaque"
+            "DisableBatching" = "False"
         }
 
         // Default pass (only pass outside of the editor).

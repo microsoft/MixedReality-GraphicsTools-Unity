@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -231,7 +231,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty metallic;
         protected MaterialProperty smoothness;
         protected MaterialProperty lightMode;
+        protected MaterialProperty lightModeProxy;
         protected MaterialProperty nonPhotorealisticRendering;
+        protected MaterialProperty lightModeProxy;
         protected MaterialProperty specularHighlights;
         protected MaterialProperty sphericalHarmonics;
         protected MaterialProperty reflections;
@@ -345,6 +347,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             enableSSAA = FindProperty("_EnableSSAA", props);
             mipmapBias = FindProperty("_MipmapBias", props);
             lightMode = FindProperty("_DirectionalLight", props);
+            lightModeProxy = FindProperty("_DirectionalLightProxy", props, false);
             nonPhotorealisticRendering = FindProperty("_NPR", props);
             specularHighlights = FindProperty("_SpecularHighlights", props);
             sphericalHarmonics = FindProperty("_SphericalHarmonics", props);
@@ -698,18 +701,33 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     {
                         material.DisableKeyword(Styles.lightModeLitDirectional);
                         material.DisableKeyword(Styles.lightModeLitDistant);
+
+                        if (lightModeProxy != null)
+                        {
+                            lightModeProxy.floatValue = 0.0f;
+                        }
                     }
                     break;
                 case LightMode.LitDirectional:
                     {
                         material.EnableKeyword(Styles.lightModeLitDirectional);
                         material.DisableKeyword(Styles.lightModeLitDistant);
+
+                        if (lightModeProxy != null)
+                        {
+                            lightModeProxy.floatValue = 1.0f;
+                        }
                     }
                     break;
                 case LightMode.LitDistant:
                     {
                         material.DisableKeyword(Styles.lightModeLitDirectional);
                         material.EnableKeyword(Styles.lightModeLitDistant);
+
+                        if (lightModeProxy != null)
+                        {
+                            lightModeProxy.floatValue = 0.0f;
+                        }
 
                         GUILayout.Box(string.Format(Styles.propertiesComponentHelp, nameof(DistantLight), Styles.lightModeNames[(int)LightMode.LitDistant]), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
                     }
@@ -1241,19 +1259,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             // Show the RenderQueueField but do not allow users to directly manipulate it. That is done via the renderQueueOverride.
             GUI.enabled = false;
             materialEditor.RenderQueueField();
-
-            // Enable instancing to disable batching. Static and dynamic batching will normalize the object scale, which breaks 
-            // features which utilize object scale.
-            GUI.enabled = !ScaleRequired();
-
-            if (!GUI.enabled && !material.enableInstancing)
-            {
-                material.enableInstancing = true;
-            }
+            GUI.enabled = true;
 
             materialEditor.EnableInstancingField();
-
-            GUI.enabled = true;
 
             materialEditor.ShaderProperty(enableStencil, Styles.stencil);
 
@@ -1273,10 +1281,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 material.SetInt(Styles.stencilOperationName, (int)StencilOp.Keep);
             }
 
-            if (ScaleRequired())
+            bool scaleRequired = ScaleRequired();
+
+            if (scaleRequired)
             {
                 materialEditor.ShaderProperty(useWorldScale, Styles.useWorldScale);
             }
+
+            // Static and dynamic batching will normalize the object scale, which breaks features which utilize object scale.
+            material.SetOverrideTag("DisableBatching", scaleRequired ? "True" : "False");
         }
 
         /// <summary>
