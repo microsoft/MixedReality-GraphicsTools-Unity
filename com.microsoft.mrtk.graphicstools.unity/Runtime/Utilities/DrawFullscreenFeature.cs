@@ -26,15 +26,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         public class Settings
         {
             public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
-
-            public Material blitMaterial = null;
-            public string blitSourceTextureName = "_SourceTex";
-            public int blitMaterialPassIndex = -1;
-            public BufferType sourceType = BufferType.CameraColor;
-            public BufferType destinationType = BufferType.CameraColor;
-            public string sourceTextureId = "_SourceTexture";
-            public string destinationTextureId = "_DestinationTexture";
-            public bool restoreCameraColorTarget = true;
+            public Material BlitMaterial = null;
+            public string BlitSourceTextureName = "_SourceTex";
+            public int BlitMaterialPassIndex = -1;
+            public BufferType SourceType = BufferType.CameraColor;
+            public BufferType DestinationType = BufferType.CameraColor;
+            public string SourceTextureId = "_SourceTexture";
+            public string DestinationTextureId = "_DestinationTexture";
+            public bool RestoreCameraColorTarget = true;
         }
 
         public Settings settings = new Settings();
@@ -46,21 +45,21 @@ namespace Microsoft.MixedReality.GraphicsTools
         public override void Create()
         {
             blitPass = new DrawFullscreenPass(name);
-            blitPass.filterMode = FilterMode.Bilinear;
+            blitPass.FilterMode = FilterMode.Bilinear;
         }
         /// <summary>
         /// Method <c>AddRenderPasses</c> calls the custom render pass.
         /// </summary>
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (settings.blitMaterial == null)
+            if (settings.BlitMaterial == null)
             {
                 Debug.LogWarningFormat("Missing Blit Material. {0} blit pass will not execute. Check for missing reference in the assigned renderer.", GetType().Name);
                 return;
             }
 
             blitPass.renderPassEvent = settings.renderPassEvent;
-            blitPass.settings = settings;
+            blitPass.Settings = settings;
             renderer.EnqueuePass(blitPass);
         }
     }

@@ -5,13 +5,12 @@ Shader "Graphics Tools/Magnifier"
 {
     Properties
     { 
-        _Magnification("Magnification", Float) = 0.5
+        Magnification("Magnification", Float) = 0.5
         [ShowAsVector2]  Center("Center", Vector) = (0.5,0.5,0,0)
     }
     SubShader
     {
-        // thmicka: Tagged the material as "Transparent" so that it renders later in the frame.
-        // This isn't technically needed, just helped me debug via the Unity Frame Debugger. Later we will want to control this via a render feature.      
+       
         Tags
         {
             "RenderType" = "Transparent"
@@ -44,11 +43,11 @@ Shader "Graphics Tools/Magnifier"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
             
-            half _Magnification;
+            half Magnification;
             float2 Center;
            
-            TEXTURE2D_X(_MagnifierTexture);
-            SAMPLER(sampler_MagnifierTexture);
+            TEXTURE2D_X(MagnifierTexture);
+            SAMPLER(samplerMagnifierTexture);
            
             float2 zoomIn(float2 uv, float zoomAmount, float2 zoomCenter)
             {
@@ -72,14 +71,14 @@ Shader "Graphics Tools/Magnifier"
 
                 float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);
 
-                float zoomAmount = _Magnification;
+                float zoomAmount = Magnification;
 
                 // zoomCenter expects normalized coordinates (between 0 and 1)
                 float2 zoomCenter = Center;
 
                 float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, zoomAmount, zoomCenter);
                
-                float4 output = SAMPLE_TEXTURE2D_X(_MagnifierTexture, sampler_MagnifierTexture, zoomedUv);
+                float4 output = SAMPLE_TEXTURE2D_X(MagnifierTexture, samplerMagnifierTexture, zoomedUv);
                                 
               return output;
             }
