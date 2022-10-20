@@ -29,7 +29,6 @@ param(
     [ValidatePattern("\d+")]
     [string]$BuildNumber,
 
-    [ValidatePattern("[A-Za-z]+\.\d+[\.\d+]*")]
     [string]$PreviewTag
 )
 
