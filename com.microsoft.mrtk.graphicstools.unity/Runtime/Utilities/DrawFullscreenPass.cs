@@ -14,8 +14,8 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     internal class DrawFullscreenPass : ScriptableRenderPass
     {
-        public FilterMode filterMode { get; set; }
-        public DrawFullscreenFeature.Settings settings;
+        public FilterMode FilterMode { get; set; }
+        public DrawFullscreenFeature.Settings Settings;
 
         private RenderTargetIdentifier source;
         private RenderTargetIdentifier destination;
@@ -37,38 +37,38 @@ namespace Microsoft.MixedReality.GraphicsTools
             RenderTextureDescriptor blitTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
             blitTargetDescriptor.depthBufferBits = 0;
 
-            isSourceAndDestinationSameTarget = settings.sourceType == settings.destinationType &&
-                (settings.sourceType == BufferType.CameraColor || settings.sourceTextureId == settings.destinationTextureId);
+            isSourceAndDestinationSameTarget = Settings.SourceType == Settings.DestinationType &&
+                (Settings.SourceType == BufferType.CameraColor || Settings.SourceTextureId == Settings.DestinationTextureId);
 
             var renderer = renderingData.cameraData.renderer;
 
-            if (settings.sourceType == BufferType.CameraColor)
+            if (Settings.SourceType == BufferType.CameraColor)
             {
                 sourceId = -1;
                 source = renderer.cameraColorTarget;
             }
             else
             {
-                sourceId = Shader.PropertyToID(settings.sourceTextureId);
-                cmd.GetTemporaryRT(sourceId, blitTargetDescriptor, filterMode);
+                sourceId = Shader.PropertyToID(Settings.SourceTextureId);
+                cmd.GetTemporaryRT(sourceId, blitTargetDescriptor, FilterMode);
                 source = new RenderTargetIdentifier(sourceId);
             }
 
             if (isSourceAndDestinationSameTarget)
             {
                 destinationId = temporaryRTId;
-                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, filterMode);
+                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, FilterMode);
                 destination = new RenderTargetIdentifier(destinationId);
             }
-            else if (settings.destinationType == BufferType.CameraColor)
+            else if (Settings.DestinationType == BufferType.CameraColor)
             {
                 destinationId = -1;
                 destination = renderer.cameraColorTarget;
             }
             else
             {
-                destinationId = Shader.PropertyToID(settings.destinationTextureId);
-                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, filterMode);
+                destinationId = Shader.PropertyToID(Settings.DestinationTextureId);
+                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, FilterMode);
                 destination = new RenderTargetIdentifier(destinationId);
             }
 
@@ -85,15 +85,15 @@ namespace Microsoft.MixedReality.GraphicsTools
             // Can't read and write to same color target, create a temp render target to blit.
             if (isSourceAndDestinationSameTarget)
             {
-                Blit(cmd, source, destination, settings.blitMaterial, settings.blitMaterialPassIndex, isXR);
-                Blit(cmd, destination, source, settings.blitMaterial, 0, isXR);
+                Blit(cmd, source, destination, Settings.BlitMaterial, Settings.BlitMaterialPassIndex, isXR);
+                Blit(cmd, destination, source, Settings.BlitMaterial, 0, isXR);
             }
             else
             {
-                Blit(cmd, source, destination, settings.blitMaterial, settings.blitMaterialPassIndex, isXR);
+                Blit(cmd, source, destination, Settings.BlitMaterial, Settings.BlitMaterialPassIndex, isXR);
             }
 
-            if (settings.restoreCameraColorTarget)
+            if (Settings.RestoreCameraColorTarget)
             {
                 cmd.SetRenderTarget(cameraColorTarget);
             }
