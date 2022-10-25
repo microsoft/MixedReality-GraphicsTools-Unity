@@ -31,8 +31,14 @@ jobs:
   - pwsh: Write-Host "##vso[build.updatebuildnumber]$(MRTKGraphicsToolsVersion)-$(MRTKGraphicsToolsReleaseTag).$(Version.PreReleaseRevision)"
     displayName: 'Set Build Number'
 
+  - task: ComponentGovernanceComponentDetection@0
+    inputs:
+      scanType: 'Register'
+      alertWarningLevel: 'Medium'
+      failOnAlert: true
+
   - template: Templates/upm.yaml
     parameters:
       buildNumber: $(Version.Revision)
       previewTag: $(MRTKGraphicsToolsReleaseTag).$(Version.PreReleaseRevision)
-      publishToFeed: true
+      publishToFeed: false

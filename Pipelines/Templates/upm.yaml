@@ -8,7 +8,7 @@ parameters:
   outputDirectory: $(Build.ArtifactStagingDirectory)/build/upm/output
   buildNumber: $(Build.BuildNumber)
   previewTag: $(MRTKGraphicsToolsReleaseTag)
-  publishToArtifacts: false
+  publishToArtifacts: true
   publishToFeed: false
 
 steps:
@@ -23,3 +23,17 @@ steps:
       -OutputDirectory: ${{ parameters.outputDirectory }}
       -BuildNumber: ${{ parameters.buildNumber }}
       -PreviewTag: ${{ parameters.previewTag }}
+
+- ${{ if eq(parameters.publishToArtifacts, true) }}:
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish UPM artifacts'
+    inputs:
+      pathToPublish: ${{ parameters.outputDirectory }}
+      artifactName: "mrtk-graphicstools-upm"
+
+- ${{ if eq(parameters.publishToFeed, true) }}:
+  - template: publish-task.yaml
+    parameters:
+      packageDirectory: ${{ parameters.outputDirectory }}
+      registryPath: $(UpmRegistry)
+      authenticationEndpoint: $(ServiceConnectionName)
