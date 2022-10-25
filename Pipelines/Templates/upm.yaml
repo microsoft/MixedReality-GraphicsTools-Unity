@@ -32,7 +32,7 @@ steps:
       artifactName: "mrtk-graphicstools-upm"
 
 - ${{ if eq(parameters.publishToFeed, true) }}:
-  - template: publish-task.yaml
+  - template: Tasks/publish-upm.yaml
     parameters:
       packageDirectory: ${{ parameters.outputDirectory }}
       registryPath: $(UpmRegistry)

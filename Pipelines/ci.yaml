@@ -41,4 +41,4 @@ jobs:
     parameters:
       buildNumber: $(Version.Revision)
       previewTag: $(MRTKGraphicsToolsReleaseTag).$(Version.PreReleaseRevision)
-      publishToFeed: false
+      publishToFeed: true
