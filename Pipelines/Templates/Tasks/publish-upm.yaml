@@ -10,9 +10,6 @@ parameters:
 - name: registryPath
   type: string
 
-- name: authenticationEndpoint
-  type: string
-
 steps:
 - task: NodeTool@0
   displayName: 'Use Node 6.x'
@@ -27,7 +24,6 @@ steps:
   displayName: 'Authenticate the .npmrc'
   inputs:
     workingFile: .npmrc
-    customEndpoint: ${{ parameters.authenticationEndpoint }}
 
 - task: PowerShell@2
   displayName: 'UPM packages to ${{ parameters.registryPath }}'
