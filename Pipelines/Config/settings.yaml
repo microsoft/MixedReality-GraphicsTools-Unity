@@ -4,5 +4,5 @@ variables:
   # match (see scripts/packaging/versionmetadata.ps1)
   # ProjectSettings/ProjectSettings.asset:  bundleVersion: x.x.x
   # ProjectSettings/ProjectSettings.asset:  metroPackageVersion: x.x.x.0
-  MRTKGraphicsToolsVersion: 0.4.9
-  MRTKGraphicsToolsReleaseTag: ''  # final version component, e.g. 'RC2.1' or empty string
+  MRTKGraphicsToolsVersion: 0.4.13
+  MRTKGraphicsToolsReleaseTag: 'test.0'  # final version component, e.g. 'RC2.1' or empty string
