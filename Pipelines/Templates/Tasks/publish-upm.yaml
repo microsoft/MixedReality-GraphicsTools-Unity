@@ -30,7 +30,7 @@ steps:
   inputs:
     pwsh: true
     targetType: filePath
-    filePath: ./MixedRealityToolkit-Unity/Pipelines/Scripts/publish-upm.ps1
+    filePath: ./MixedReality-GraphicsTools-Unity/Pipelines/Scripts/publish-upm.ps1
     arguments: >
       -PackageDirectory: ${{ parameters.packageDirectory }}
 
