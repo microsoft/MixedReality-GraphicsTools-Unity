@@ -53,7 +53,7 @@
                     <uie:FloatField label="Origin normal offset" binding-path="_originNormalOffset" tooltip="Offset the origing of the ray cast by this amoun in the direction of the normal to prevent self intersections." />
                     <uie:IntegerField label="UV channel" binding-path="_uvChannel" tooltip="The UV channel number to store the computed occlusion data." />
                     <ui:TextField label="Shader property name" binding-path="_materialPropertyName" tooltip="The name of the material property that enables occlusion" />
-                    <ui:TextField label="Shader property keyword" binding-path="_shaderPropertyKeyword" tooltip="The name of the shader keyword that enables occlusion" />
+                    <ui:TextField label="Shader property keyword" binding-path="_shaderKeyword" tooltip="The name of the shader keyword that enables occlusion" />
                     <uie:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_ambientOcclusionShader" tooltip="The shader is used when &apos;Upgrade materials&apos; is true. It&apos;s expected to support the ambient occlusion metadata." allow-scene-objects="false" />
                 </ui:VisualElement>
             </ui:Foldout>
