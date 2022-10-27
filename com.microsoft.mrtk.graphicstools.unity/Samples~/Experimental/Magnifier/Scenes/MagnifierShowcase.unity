@@ -123,6 +123,72 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &73648372
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 73648375}
+  - component: {fileID: 73648374}
+  - component: {fileID: 73648373}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &73648373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 73648372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
+--- !u!114 &73648374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 73648372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &73648375
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 73648372}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &109395126
 GameObject:
   m_ObjectHideFlags: 0
@@ -924,7 +990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   count: 100
   primitiveType: 0
-  orbitalMaterial: {fileID: 0}
+  orbitalMaterial: {fileID: -1294284738371021749, guid: 26384066970d00541827ecc4f996cd01, type: 3}
   size: 0.03
   sizeVary: 0.7
   speed: 0.02
@@ -1853,6 +1919,40 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 253056527}
     m_Modifications:
+    - target: {fileID: 2062000841186252220, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 60.83
+      objectReference: {fileID: 0}
+    - target: {fileID: 2062000841186252220, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -57.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2062000841186252221, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
+      propertyPath: m_text
+      value: "\rThis is a relatively optimal method of having something akin to the
+        windows magnifier within VR scenes for accessibility purposes.\n<color=\"red\"><b>This
+        feature requires the use of URP</b>."
+      objectReference: {fileID: 0}
+    - target: {fileID: 2062000841186252221, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
+      propertyPath: m_fontSize
+      value: 6.62
+      objectReference: {fileID: 0}
+    - target: {fileID: 2062000841186252221, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 6.62
+      objectReference: {fileID: 0}
+    - target: {fileID: 2062000841186252221, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
+      propertyPath: m_isRightToLeft
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2062000841186252221, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2062000841186252221, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2062000841247569024, guid: c80a8a6c5b163c842bf7d65b71e370ee, type: 3}
       propertyPath: m_Name
       value: MagnifierDescriptionPanel
