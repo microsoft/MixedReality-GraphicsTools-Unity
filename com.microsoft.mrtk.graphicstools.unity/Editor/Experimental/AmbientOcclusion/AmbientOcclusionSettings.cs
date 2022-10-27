@@ -85,7 +85,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _showCoverage = false;
             _coverageRadius = .03f;
             _originNormalOffset = .0001f;
-            _uvChannel = 4;
+            _uvChannel = 5;
             _upgradeMaterials = true;
             _samplesIndex = 2;
             _materialPropertyName = "_VertexBentNormalAo";
