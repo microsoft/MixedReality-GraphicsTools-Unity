@@ -34,6 +34,7 @@ As an alternative, this tool will bake occlusion information into the mesh verti
 ### Why is the AO noisy?
 
 - Increase your `vertex samples`
+- Decrease your `MaxSampleDistance`, the further out you to the more likely you'll hit stuff randomly without having to increase your vertex sample count.
 
 ### Shouldn't this area be darker?
 
