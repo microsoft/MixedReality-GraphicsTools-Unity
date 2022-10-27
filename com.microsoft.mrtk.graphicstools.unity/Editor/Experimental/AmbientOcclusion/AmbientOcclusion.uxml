@@ -12,7 +12,7 @@
                 <ui:VisualElement class="Subsection">
                     <uie:IntegerField label="Samples per vertex" binding-path="_samplesPerVertex" tooltip="The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower." name="samplesPerVertex" />
                     <uie:FloatField label="Max sample distance" binding-path="_maxSampleDistance" tooltip="How far to search for nearby colliders in the scene." />
-                    <ui:Toggle label="Smooth normals" binding-path="_smoothNormals" value="true" tooltip="When checked uses the average of nearby normals when casting rays."/>
+                    <ui:Toggle label="Smooth normals" binding-path="_smoothNormals" value="true" tooltip="When checked uses the average of nearby normals when casting rays. Verticies less than .0005 apart will be share the same normal direction."/>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement class="Section">
@@ -28,8 +28,8 @@
                 </ui:VisualElement>
                 <ui:VisualElement class="Subsection">
                     <ui:Label text="Normals" display-tooltip-when-elided="true" class="H2" />
-                    <ui:Toggle label="Sample normal" binding-path="_showNormal" value="false"/>
-                    <uie:ColorField label="Sample normal color" binding-path="_normalColor" />
+                    <ui:Toggle label="Sample normal" binding-path="_showNormal" value="false" tooltip="Show the ray used for sampling"/>
+                    <uie:ColorField label="Sample normal color" binding-path="_normalColor" tooltip="Show the smoothed ray used for sampling (if Smoothing checked on above)"/>
                     <ui:Toggle label="Mesh normals" binding-path="_meshNormals" value="false" />
                     <ui:Toggle label="Mesh smooth normals" binding-path="_meshSmoothNormals" value="false" />
                     <uie:FloatField label="Normals scale" binding-path="_normalScale" />
