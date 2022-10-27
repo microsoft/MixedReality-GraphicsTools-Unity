@@ -183,6 +183,15 @@ Toggle:focus {
     -unity-text-align: upper-left;
 }
 
+.H2 {
+    -unity-font-style: bold;
+    margin-left: 2px;
+    margin-right: 2px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    -unity-text-align: upper-left;
+}
+
 .Section {
     background-color: rgb(43, 43, 43);
     border-top-left-radius: 8px;

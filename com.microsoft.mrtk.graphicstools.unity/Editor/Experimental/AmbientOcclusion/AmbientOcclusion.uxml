@@ -12,12 +12,14 @@
                 <ui:VisualElement class="Subsection">
                     <uie:IntegerField label="Samples per vertex" binding-path="_samplesPerVertex" tooltip="The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower." name="samplesPerVertex" />
                     <uie:FloatField label="Max sample distance" binding-path="_maxSampleDistance" tooltip="How far to search for nearby colliders in the scene." />
+                    <ui:Toggle label="Smooth normals" binding-path="_smoothNormals" value="true" tooltip="When checked uses the average of nearby normals when casting rays."/>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement class="Section">
                 <ui:Label text="Visualization" display-tooltip-when-elided="true" class="H1" />
                 <ui:VisualElement class="Subsection">
                     <uie:IntegerField label="Reference vertex index" binding-path="_referenceVertexIndex" name="referenceVertexIndex" tooltip="The index of vertex to visualize" style="-unity-font-style: italic;" />
+                    <ui:Toggle label="Vertex ID" binding-path="_vertexID" value="false" tooltip="Display vertex number for every vertex. WARNING! This can be very slow when checked!"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="Subsection">
                     <ui:Toggle label="Origin" binding-path="_showOrigin" value="false" style="-unity-font-style: bold;" />
@@ -25,9 +27,12 @@
                     <uie:FloatField label="Origin radius" binding-path="_originRadius" />
                 </ui:VisualElement>
                 <ui:VisualElement class="Subsection">
-                    <ui:Toggle label="Normal" binding-path="_showNormal" value="false" style="-unity-font-style: bold;" />
-                    <uie:ColorField label="Normal color" binding-path="_normalColor" />
-                    <uie:FloatField label="Normal scale" binding-path="_normalScale" />
+                    <ui:Label text="Normals" display-tooltip-when-elided="true" class="H2" />
+                    <ui:Toggle label="Sample normal" binding-path="_showNormal" value="false"/>
+                    <uie:ColorField label="Sample normal color" binding-path="_normalColor" />
+                    <ui:Toggle label="Mesh normals" binding-path="_meshNormals" value="false" />
+                    <ui:Toggle label="Mesh smooth normals" binding-path="_meshSmoothNormals" value="false" />
+                    <uie:FloatField label="Normals scale" binding-path="_normalScale" />
                 </ui:VisualElement>
                 <ui:VisualElement class="Subsection">
                     <ui:Toggle label="Samples" binding-path="_showSamples" value="false" style="-unity-font-style: bold;" />
@@ -51,7 +56,7 @@
             <ui:Foldout text="Advanced" value="false" tooltip="Most people will never need to touch these. Not even most developers." class="Section" style="-unity-text-align: upper-left;">
                 <ui:VisualElement class="Subsection">
                     <uie:FloatField label="Origin normal offset" binding-path="_originNormalOffset" tooltip="Offset the origing of the ray cast by this amoun in the direction of the normal to prevent self intersections." />
-                    <uie:IntegerField label="UV channel" binding-path="_uvChannel" tooltip="The UV channel number to store the computed occlusion data." />
+                    <uie:IntegerField label="UV channel" binding-path="_uvChannel" tooltip="The UV channel number to store the computed occlusion data. IMPORTANT: Set this to 5 for it to work with the Graphics Tools' Standard shader!" />
                     <ui:TextField label="Shader property name" binding-path="_materialPropertyName" tooltip="The name of the material property that enables occlusion" />
                     <ui:TextField label="Shader property keyword" binding-path="_shaderKeyword" tooltip="The name of the shader keyword that enables occlusion" />
                     <uie:ObjectField type="UnityEngine.Shader, UnityEngine.CoreModule" label="Standard shader" binding-path="_ambientOcclusionShader" tooltip="The shader is used when &apos;Upgrade materials&apos; is true. It&apos;s expected to support the ambient occlusion metadata." allow-scene-objects="false" />

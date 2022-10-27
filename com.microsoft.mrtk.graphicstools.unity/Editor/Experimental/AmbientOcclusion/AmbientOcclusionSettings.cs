@@ -15,6 +15,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [Tooltip("The number of rays cast into the hemisphere above the surface, per vertex. Bigger numbers will be slower.")]
         [SerializeField] internal int _samplesPerVertex;
         [SerializeField] internal float _maxSampleDistance;
+        [SerializeField] internal bool _smoothNormals;
         [SerializeField] internal int _referenceVertexIndex;
         [SerializeField] internal bool _showOrigin;
         [SerializeField] internal Color _originColor;
@@ -22,7 +23,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [SerializeField] internal bool _showNormal;
         [SerializeField] internal Color _normalColor;
         [SerializeField] internal float _normalScale;
+        [SerializeField] internal bool _meshNormals;
+        [SerializeField] internal bool _meshSmoothNormals;
         [SerializeField] internal bool _showBentNormal;
+        [SerializeField] internal bool _vertexID;
         [SerializeField] internal Color _bentNormalColor;
         [SerializeField] internal float _bentNormalScale;
         [SerializeField] internal bool _showSamples;
@@ -59,6 +63,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             _samplesPerVertex = 100;
             _maxSampleDistance = 1;
+            _smoothNormals = true;
             _referenceVertexIndex = 0;
             _showOrigin = true;
             _originColor = Color.cyan;
@@ -66,7 +71,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _showNormal = true;
             _normalColor = Color.cyan;
             _normalScale = 1;
+            _meshNormals = false;
+            _meshSmoothNormals = false;
             _showBentNormal = false;
+            _vertexID = false;
             _bentNormalColor = Color.magenta;
             _bentNormalScale = 1;
             _showSamples = false;
@@ -77,7 +85,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             _showCoverage = false;
             _coverageRadius = .03f;
             _originNormalOffset = .0001f;
-            _uvChannel = 5;
+            _uvChannel = 4;
             _upgradeMaterials = true;
             _samplesIndex = 2;
             _materialPropertyName = "_VertexBentNormalAo";

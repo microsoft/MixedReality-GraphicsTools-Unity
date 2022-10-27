@@ -25,12 +25,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private Vector3[] _vertexs;
         private Vector3[] _normals;
+        private Vector3[] _smoothNormals;
         private Vector4[] _bentNormalsAo;
         private List<Vector3> _referenceVertexSamples = new List<Vector3>();
         private List<RaycastHit> _referenceVertexHits = new List<RaycastHit>();
         private List<RaycastHit> _hitsInHemisphere = new List<RaycastHit>();
         private MeshFilter _meshFilter;
         private Material _defaultMaterial;
+        //private Dictionary<int, Hash128> _hashForVertex;
         private const string _magicPrefix = "A.O.";
         private const string _defaultMaterialName = "Default-Material";
 
@@ -42,6 +44,37 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 || settings._referenceVertexIndex >= _normals.Length)
             {
                 return;
+            }
+
+            // Draw all vertex normals
+            if (settings._meshNormals)
+            {
+                for (int i = 0; i < _vertexs.Length; i++)
+                {
+                    Handles.color = new Color(_normals[i].x, _normals[i].y, _normals[i].z);
+                    Handles.DrawLine(
+                        _vertexs[i],
+                        _vertexs[i] + _normals[i] * settings._normalScale);
+                }
+            }
+
+            if (settings._vertexID)
+            {
+                for (int i = 0; i < _vertexs.Length; i++)
+                {
+                    Handles.Label(_vertexs[i] + _normals[i] * settings._normalScale, $"{i}");
+                }
+            }
+
+            if (settings._meshSmoothNormals && _smoothNormals != null)
+            {
+                for (int i = 0; i < _vertexs.Length; i++)
+                {
+                    Handles.color = new Color(1 - _smoothNormals[i].x, 1 - _smoothNormals[i].y, 1 - _smoothNormals[i].z);
+                    Handles.DrawLine(
+                        _vertexs[i],
+                        _vertexs[i] + _smoothNormals[i] * settings._normalScale);
+                }
             }
 
             settings._maxSampleDistance = Handles.RadiusHandle(Quaternion.LookRotation(_normals[settings._referenceVertexIndex], Vector3.up),
@@ -139,11 +172,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 _bentNormalsAo = new Vector4[mesh.vertexCount];
             }
 
-            var watch = Stopwatch.StartNew();
-            RaycastHit hit;
-
             _vertexs = mesh.vertices;
             _normals = mesh.normals;
+
+            if (settings._smoothNormals)
+            {
+                var smoothWatch = Stopwatch.StartNew();
+                _smoothNormals = GetAverageNearbyNormals(mesh);
+                Debug.Log($"{nameof(GetAverageNearbyNormals)} elapsed-ms={smoothWatch.ElapsedMilliseconds}");
+            }
+
+            var watch = Stopwatch.StartNew();
+            RaycastHit hit;
             _referenceVertexSamples.Clear();
             _referenceVertexHits.Clear();
 
@@ -151,19 +191,32 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             for (int vi = 0; vi < mesh.vertexCount; vi++)
             {
+                var sampleNormal = Vector3.zero;
+
                 // Do the work in world space
                 _vertexs[vi] = meshFilter.transform.TransformPoint(_vertexs[vi]);
-                _normals[vi] = meshFilter.transform.TransformVector(_normals[vi]).normalized;
+                _normals[vi] = meshFilter.transform.TransformVector(mesh.normals[vi]).normalized;
+
+                if (settings._smoothNormals)
+                {
+                    sampleNormal = meshFilter.transform.TransformVector(_smoothNormals[vi]).normalized;
+                }
+                else
+                {
+                    sampleNormal = _normals[vi];
+                }
 
                 _hitsInHemisphere.Clear();
 
                 Vector3 averageDir = Vector3.zero;
 
-                var origin = _vertexs[vi] + _normals[vi] * settings._originNormalOffset;
+                //var origin = _vertexs[vi] + _normals[vi] * settings._originNormalOffset;
+                var origin = _vertexs[vi] + sampleNormal * settings._originNormalOffset;
 
                 for (int ni = 0; ni < settings._samplesPerVertex; ni++)
                 {
-                    var sampleDirection = RandomSampleAboveHemisphere(_normals[vi]);
+                    //var sampleDirection = RandomSampleAboveHemisphere(_normals[vi]);
+                    var sampleDirection = RandomSampleAboveHemisphere(sampleNormal);
 
                     // Visualization: Save samples for gizmo
                     if (vi == settings._referenceVertexIndex && settings._showSamples)
@@ -197,6 +250,40 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             mesh.SetUVs(settings._uvChannel, _bentNormalsAo);
 
             Debug.Log($"{nameof(GatherSamples)} vertex-count={mesh.vertexCount} rays-per-vertex={settings._samplesPerVertex} elapsed-ms={watch.ElapsedMilliseconds}");
+        }
+
+        private Vector3[] GetAverageNearbyNormals(Mesh mesh)
+        {
+            var smoothedNormals = mesh.normals;
+            var normalForKeyedPosition = new Dictionary<Hash128, Vector3>();
+            var vertsForHash = new Dictionary<Hash128, List<int>>();
+            for (int i = 0; i < mesh.vertexCount; i++)
+            {
+                var hash = new Hash128();
+                // per docs considered close if position < .0005
+                HashUtilities.QuantisedVectorHash(ref mesh.vertices[i], ref hash);
+
+                // Initialize if we must...
+                if (!normalForKeyedPosition.ContainsKey(hash))
+                {
+                    normalForKeyedPosition[hash] = Vector3.zero;
+                }
+
+                if (!vertsForHash.ContainsKey(hash))
+                {
+                    vertsForHash[hash] = new List<int>();
+                }
+
+                normalForKeyedPosition[hash] = (normalForKeyedPosition[hash] + mesh.normals[i]).normalized;
+
+                // Set all verticies related to same hash to the same value
+                vertsForHash[hash].Add(i);
+                foreach (var vert in vertsForHash[hash])
+                {
+                    smoothedNormals[vert] = normalForKeyedPosition[hash];
+                }
+            }
+            return smoothedNormals;
         }
 
         private Mesh DeepCopyMesh(Mesh source)
