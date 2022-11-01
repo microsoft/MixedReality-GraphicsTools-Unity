@@ -77,9 +77,9 @@ half4 PixelStage(MetaVaryings input) : SV_Target
     output.Albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).rgb * _Color.rgb;
 #if defined(_EMISSION)
 #if defined(_CHANNEL_MAP)
-    output.Emission = SAMPLE_TEXTURE2D(_ChannelMap, sampler_ChannelMap, input.uv) * _EmissiveColor;
+    output.Emission = SAMPLE_TEXTURE2D(_ChannelMap, sampler_ChannelMap, input.uv).rgb * _EmissiveColor.rgb;
 #else
-    output.Emission = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv) * _EmissiveColor;
+    output.Emission = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv).rgb * _EmissiveColor.rgb;
 #endif
 #endif
 

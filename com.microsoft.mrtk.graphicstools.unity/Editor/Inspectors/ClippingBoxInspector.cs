@@ -26,5 +26,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Debug.Assert(primitive != null);
             return new Bounds(primitive.transform.position, primitive.transform.lossyScale);
         }
+
+        [MenuItem("GameObject/Effects/Graphics Tools/Clipping Box")]
+        private static void CreateClippingBox(MenuCommand menuCommand)
+        {
+            InspectorUtilities.CreateGameObjectFromMenu<ClippingBox>(menuCommand);
+        }
     }
 }

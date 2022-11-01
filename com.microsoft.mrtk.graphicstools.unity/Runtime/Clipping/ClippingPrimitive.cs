@@ -15,15 +15,11 @@ namespace Microsoft.MixedReality.GraphicsTools
     public abstract class ClippingPrimitive : MonoBehaviour, IMaterialInstanceOwner
     {
         [Header("Renders to Clip")]
-        [Tooltip("The renderer(s) that should be affected by the primitive. Renderers with materials in the materials list do not need to be added to this list.")]
-        [SerializeField]
-        protected List<Renderer> renderers = new List<Renderer>();
-
-        [SerializeField, Tooltip("Toggles whether clipping will apply to shared materials or material instances (default) on Renderers within the renderers list.")]
+        [SerializeField, Tooltip("Toggles whether clipping will apply to shared materials or material instances (default) on renderers within the renderers list. This cannot be altered when renderers are already specified.")]
         private bool applyToSharedMaterial = false;
 
         /// <summary>
-        /// Toggles whether clipping will apply to shared materials or material instances (default) on Renderers within the renderers list.
+        /// Toggles whether clipping will apply to shared materials or material instances (default) on renderers within the renderers list. This cannot be altered when renderers are already specified.
         /// </summary>
         /// <remarks>
         /// Applying to shared materials will allow for GPU instancing to batch calls between Renderers that interact with the same clipping primitives.
@@ -43,6 +39,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
         }
+
+        [Tooltip("The renderer(s) that should be affected by the primitive. Renderers with materials in the materials list do not need to be added to this list.")]
+        [SerializeField]
+        protected List<Renderer> renderers = new List<Renderer>();
 
         [Header("Materials to Clip")]
         [Tooltip("The materials(s) that should be affected by the primitive. Materials on renderers within the renderers list do not need to be added to this list.")]
@@ -182,6 +182,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     materialInstance.ReleaseMaterial(this, autoDestroyMaterial);
                 }
+
+                // Reset the material property block.
+                materialPropertyBlock.Clear();
+                _renderer.SetPropertyBlock(materialPropertyBlock);
             }
         }
 
@@ -432,7 +436,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     var _renderer = renderers[i];
                     if (_renderer == null)
                     {
-                        if (Application.isPlaying)
+                        if (!Application.isEditor)
                         {
                             RemoveRenderer(i);
                         }
@@ -453,7 +457,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     var material = materials[i];
                     if (material == null)
                     {
-                        if (Application.isPlaying)
+                        if (!Application.isEditor)
                         {
                             RemoveMaterial(i);
                         }
