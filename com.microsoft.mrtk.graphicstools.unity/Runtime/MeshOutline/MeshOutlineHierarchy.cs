@@ -55,7 +55,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Forwards the outlineMaterial to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
         /// </summary>
-        protected override void ApplyOutlineMaterial()
+        public override void ApplyOutlineMaterial()
         {
             if (meshOutlines != null)
             {
@@ -72,7 +72,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Forwards the outlineWidth to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
         /// </summary>
-        protected override void ApplyOutlineWidth()
+        public override void ApplyOutlineWidth()
         {
             if (meshOutlines != null)
             {

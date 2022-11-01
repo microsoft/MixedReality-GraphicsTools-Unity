@@ -76,43 +76,67 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Prepares and applies the current outline material to the renderer.
         /// </summary>
-        protected override void ApplyOutlineMaterial()
+        public override void ApplyOutlineMaterial()
         {
-            if (outlineMaterial != null && meshRenderer != null)
+            if (meshRenderer != null)
             {
-                Debug.AssertFormat(outlineMaterial.IsKeywordEnabled(vertexExtrusionKeyword),
-                                   "The material \"{0}\" does not have vertex extrusion enabled, no outline will be rendered.", outlineMaterial.name);
-
-                // Ensure that the outline material always renders before the default materials.
-                outlineMaterial.renderQueue = GetMinRenderQueue(defaultMaterials) - 1;
-
-                // If smooth normals are requested, make sure the mesh has smooth normals.
-                if (outlineMaterial.IsKeywordEnabled(vertexExtrusionSmoothNormalsKeyword))
+                if (outlineMaterial != null)
                 {
-                    var meshSmoother = (createdMeshSmoother == null) ? gameObject.GetComponent<MeshSmoother>() : createdMeshSmoother;
+                    Debug.AssertFormat(outlineMaterial.IsKeywordEnabled(vertexExtrusionKeyword),
+                   "The material \"{0}\" does not have vertex extrusion enabled, no outline will be rendered.", outlineMaterial.name);
 
-                    if (meshSmoother == null)
+                    int minRenderQueue = GetMinRenderQueue(defaultMaterials);
+
+                    if (UseStencilOutline)
                     {
-                        createdMeshSmoother = gameObject.AddComponent<MeshSmoother>();
-                        meshSmoother = createdMeshSmoother;
+                        // Ensure that the stencil after the default materials and the outline material after the stencil material.
+                        stencilMaterial.renderQueue = minRenderQueue + 1;
+                        outlineMaterial.renderQueue = minRenderQueue + 2;
+                    }
+                    else
+                    {
+                        // Ensure that the outline material always renders before the default materials.
+                        outlineMaterial.renderQueue = minRenderQueue - 1;
                     }
 
-                    meshSmoother.SmoothNormals();
+                    // If smooth normals are requested, make sure the mesh has smooth normals.
+                    if (outlineMaterial.IsKeywordEnabled(vertexExtrusionSmoothNormalsKeyword))
+                    {
+                        var meshSmoother = (createdMeshSmoother == null) ? gameObject.GetComponent<MeshSmoother>() : createdMeshSmoother;
+
+                        if (meshSmoother == null)
+                        {
+                            createdMeshSmoother = gameObject.AddComponent<MeshSmoother>();
+                            meshSmoother = createdMeshSmoother;
+                        }
+
+                        meshSmoother.SmoothNormals();
+                    }
+
+                    ApplyOutlineWidth();
+
+                    // Add the outline material as another material pass.
+                    var materials = new List<Material>(defaultMaterials);
+
+                    if (UseStencilOutline)
+                    {
+                        materials.Add(stencilMaterial);
+                    }
+
+                    materials.Add(outlineMaterial);
+                    meshRenderer.materials = materials.ToArray();
                 }
-
-                ApplyOutlineWidth();
-
-                // Add the outline material as another material pass.
-                var materials = new List<Material>(defaultMaterials);
-                materials.Add(outlineMaterial);
-                meshRenderer.materials = materials.ToArray();
+                else
+                {
+                    Debug.LogError("ApplyOutlineMaterial failed due to missing outline material.");
+                }
             }
         }
 
         /// <summary>
         /// Updates the current vertex extrusion value used by the shader. 
         /// </summary>
-        protected override void ApplyOutlineWidth()
+        public override void ApplyOutlineWidth()
         {
             if (meshRenderer != null && propertyBlock != null)
             {

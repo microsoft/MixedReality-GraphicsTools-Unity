@@ -17,6 +17,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private BaseMeshOutline instance;
         private SerializedProperty m_Script;
         private SerializedProperty outlineMaterial;
+        private SerializedProperty useStencilOutline;
+        private SerializedProperty stencilMaterial;
 
         private readonly Dictionary<string, object> defaultOutlineMaterialSettings = new Dictionary<string, object>()
         {
@@ -34,6 +36,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             instance = target as BaseMeshOutline;
             m_Script = serializedObject.FindProperty("m_Script");
             outlineMaterial = serializedObject.FindProperty(nameof(outlineMaterial));
+            useStencilOutline = serializedObject.FindProperty(nameof(useStencilOutline));
+            stencilMaterial = serializedObject.FindProperty(nameof(stencilMaterial));
         }
 
         /// <inheritdoc />
@@ -66,11 +70,23 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
 
             // Draw other properties
-            DrawPropertiesExcluding(serializedObject, nameof(m_Script), nameof(outlineMaterial));
+            DrawPropertiesExcluding(serializedObject, nameof(m_Script), nameof(outlineMaterial), nameof(useStencilOutline), nameof(stencilMaterial));
+
+            EditorGUILayout.PropertyField(useStencilOutline);
+
+            if (useStencilOutline.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(stencilMaterial);
+                EditorGUI.indentLevel--;
+            }
 
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
+
+                instance.ApplyOutlineMaterial();
+                instance.ApplyOutlineWidth();
             }
         }
 

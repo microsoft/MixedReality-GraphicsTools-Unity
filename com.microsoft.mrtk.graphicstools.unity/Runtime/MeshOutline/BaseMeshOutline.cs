@@ -32,6 +32,45 @@ namespace Microsoft.MixedReality.GraphicsTools
         protected Material outlineMaterial = null;
 
         /// <summary>
+        /// Should the stencil buffer be used to mask this outline rather than relying on depth? Required when a skybox is in use.
+        /// </summary>
+        public bool UseStencilOutline
+        {
+            get { return useStencilOutline; }
+            set
+            {
+                if (useStencilOutline != value)
+                {
+                    useStencilOutline = value;
+                }
+            }
+        }
+
+        [Tooltip("Should the stencil buffer be used to mask this outline rather than relying on depth? Required when a skybox is in use.")]
+        [SerializeField]
+        protected bool useStencilOutline = false;
+
+        /// <summary>
+        /// The material used write a value to the stencil buffer. This material should have \"Depth Write\" set to Off and a \"ColorMask\" set to Zero.
+        /// </summary>
+        public Material StencilMaterial
+        {
+            get { return stencilMaterial; }
+            set
+            {
+                if (stencilMaterial != value)
+                {
+                    stencilMaterial = value;
+                    ApplyOutlineMaterial();
+                }
+            }
+        }
+
+        [Tooltip("The material used write a value to the stencil buffer. This material should have \"Depth Write\" set to Off and a \"ColorMask\" set to Zero.")]
+        [SerializeField]
+        protected Material stencilMaterial = null;
+
+        /// <summary>
         /// How thick (in meters) should the outline be. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
         /// </summary>
         public float OutlineWidth
@@ -55,15 +94,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         #region MonoBehaviour Implementation
 
         /// <summary>
-        /// Enables users to modify inspector properties while playing in the editor.
-        /// </summary>
-        protected virtual void OnValidate()
-        {
-            ApplyOutlineMaterial();
-            ApplyOutlineWidth();
-        }
-
-        /// <summary>
         /// Event for when the animation system updates any serialized properties.
         /// </summary>
         protected virtual void OnDidApplyAnimationProperties()
@@ -73,7 +103,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #endregion MonoBehaviour Implementation
 
-        protected abstract void ApplyOutlineMaterial();
-        protected abstract void ApplyOutlineWidth();
+        /// <summary>
+        /// Interface to apply the outline material to the renderer(s).
+        /// </summary>
+        public abstract void ApplyOutlineMaterial();
+
+        /// <summary>
+        /// Interface to to update the outline width with the renderer(s).
+        /// </summary>
+        public abstract void ApplyOutlineWidth();
     }
 }
