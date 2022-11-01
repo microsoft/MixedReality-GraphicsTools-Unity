@@ -26,5 +26,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Debug.Assert(primitive != null);
             return new Bounds(primitive.transform.position, Vector3.one);
         }
+
+        [MenuItem("GameObject/Effects/Graphics Tools/Clipping Plane")]
+        private static void CreateClippingPlane(MenuCommand menuCommand)
+        {
+            InspectorUtilities.CreateGameObjectFromMenu<ClippingPlane>(menuCommand);
+        }
     }
 }
