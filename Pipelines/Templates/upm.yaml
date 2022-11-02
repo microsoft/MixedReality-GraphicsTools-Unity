@@ -8,7 +8,7 @@ parameters:
   outputDirectory: $(Build.ArtifactStagingDirectory)/build/upm/output
   buildNumber: $(Build.BuildNumber)
   previewTag: $(MRTKGraphicsToolsReleaseTag)
-  publishToArtifacts: true
+  publishToArtifacts: false
   publishToFeed: false
 
 steps:

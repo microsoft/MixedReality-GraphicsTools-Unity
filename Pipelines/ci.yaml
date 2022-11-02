@@ -28,7 +28,7 @@ jobs:
   
   - checkout: PipelineTools
 
-  - pwsh: Write-Host "##vso[build.updatebuildnumber]$(MRTKGraphicsToolsVersion)-$(MRTKGraphicsToolsReleaseTag).$(Version.PreReleaseRevision)"
+  - pwsh: Write-Host "##vso[build.updatebuildnumber]$(MRTKGraphicsToolsVersion)"
     displayName: 'Set Build Number'
 
   - task: ComponentGovernanceComponentDetection@0
@@ -41,4 +41,4 @@ jobs:
     parameters:
       buildNumber: $(Version.Revision)
       previewTag: $(MRTKGraphicsToolsReleaseTag).$(Version.PreReleaseRevision)
-      publishToFeed: true
+      publishToFeed: false
