@@ -7,7 +7,7 @@ parameters:
   projectRoot: $(Build.SourcesDirectory)/MixedReality-GraphicsTools-Unity
   outputDirectory: $(Build.ArtifactStagingDirectory)/build/upm/output
   buildNumber: $(Build.BuildNumber)
-  publishToArtifacts: false
+  publishToArtifacts: true
   publishToFeed: false
 
 steps:

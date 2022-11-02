@@ -39,4 +39,4 @@ jobs:
 
   - template: Templates/upm.yaml
     parameters:
-      publishToFeed: false
+      publishToFeed: true
