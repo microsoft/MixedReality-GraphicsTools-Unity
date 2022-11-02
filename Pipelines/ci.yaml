@@ -39,6 +39,4 @@ jobs:
 
   - template: Templates/upm.yaml
     parameters:
-      buildNumber: $(Version.Revision)
-      previewTag: $(MRTKGraphicsToolsReleaseTag).$(Version.PreReleaseRevision)
       publishToFeed: false

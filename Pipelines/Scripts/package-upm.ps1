@@ -12,10 +12,6 @@
     Where should we place the output? Defaults to ".\artifacts"
 .PARAMETER Version
     What version of the artifacts should we build?
-.PARAMETER BuildNumber
-    The fourth digit (revision) for the full version.
-.PARAMETER PreviewTag
-    The tag to append after the version, including the preview number (e.g. "internal.0" or "pre.100")
 #>
 param(
     [Parameter(Mandatory = $true)]
@@ -24,25 +20,11 @@ param(
     [string]$OutputDirectory = "./artifacts/upm",
 
     [ValidatePattern("\d+\.\d+\.\d+")]
-    [string]$Version,
-
-    [ValidatePattern("\d+")]
-    [string]$BuildNumber,
-
-    [string]$PreviewTag
+    [string]$Version
 )
 
 $ProjectRoot = Resolve-Path -Path $ProjectRoot
 Write-Output "ProjectRoot: $ProjectRoot"
-
-if ($PreviewTag) {
-    $PreviewTag = "-$PreviewTag"
-    Write-Output "Version preview: $PreviewTag"
-}
-
-if ($BuildNumber) {
-    $BuildNumber = ".$BuildNumber"
-}
 
 if (-not (Test-Path $OutputDirectory -PathType Container)) {
     New-Item $OutputDirectory -ItemType Directory | Out-Null
@@ -80,13 +62,13 @@ try {
             $Version = $inlineVersion.Matches.Groups[1].Value
         }
 
-        Write-Output "Patching package version to $Version$PreviewTag"
-        ((Get-Content -Path $_ -Raw) -Replace '("version": |"com\.microsoft\.mrtk\.\w+" *: *)"(?:[0-9.]+|%version%)-?[a-zA-Z0-9.]*', "`$1`"$Version$PreviewTag") | Set-Content -Path $_ -NoNewline
+        Write-Output "Patching package version to $Version"
+        ((Get-Content -Path $_ -Raw) -Replace '("version": |"com\.microsoft\.mrtk\.\w+" *: *)"(?:[0-9.]+|%version%)-?[a-zA-Z0-9.]*', "`$1`"$Version") | Set-Content -Path $_ -NoNewline
 
-        Write-Output "Patching assembly version to $Version$BuildNumber"
+        Write-Output "Patching assembly version to $Version"
         Get-ChildItem -Path $packagePath/AssemblyInfo.cs -Recurse | ForEach-Object {
-            Add-Content -Path $_ -Value "[assembly: AssemblyFileVersion(`"$Version$BuildNumber`")]"
-            Add-Content -Path $_ -Value "[assembly: AssemblyInformationalVersion(`"$Version$PreviewTag`")]"
+            Add-Content -Path $_ -Value "[assembly: AssemblyFileVersion(`"$Version`")]"
+            Add-Content -Path $_ -Value "[assembly: AssemblyInformationalVersion(`"$Version`")]"
         }
 
         Write-Output "Packing $packageFriendlyName"
