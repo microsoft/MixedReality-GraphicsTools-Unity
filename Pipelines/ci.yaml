@@ -2,14 +2,6 @@
 # Licensed under the MIT License.
 
 # CI build producing developer packages.
-
-variables:
-- template: Config/settings.yaml
-- name: Version.Revision
-  value: $[counter(variables['MRTKGraphicsToolsVersion'], 1)]
-- name: Version.PreReleaseRevision
-  value: $[counter(variables['MRTKGraphicsToolsReleaseTag'], 1)]
-
 resources:
   repositories:
   - repository: PipelineTools
@@ -19,6 +11,13 @@ resources:
     ref: 78ecf591964ecf511b4c7a0cd84d98ce11e8be16
 
 pr: none # disable PR validation
+trigger:
+  tags:
+    include:
+    - '*'
+  branches:
+    exclude:
+    - main
 
 jobs:
 - job: UnityValidation
@@ -27,8 +26,8 @@ jobs:
   - checkout: self
   
   - checkout: PipelineTools
-
-  - pwsh: Write-Host "##vso[build.updatebuildnumber]$(MRTKGraphicsToolsVersion)"
+  
+  - pwsh: Write-Host "##vso[build.updatebuildnumber]$(Version)"
     displayName: 'Set Build Number'
 
   - task: ComponentGovernanceComponentDetection@0
