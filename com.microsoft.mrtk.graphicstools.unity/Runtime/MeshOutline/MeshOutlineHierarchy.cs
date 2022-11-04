@@ -30,8 +30,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (meshRenderers[i] as SpriteRenderer == null)
                 {
                     var meshOutline = meshRenderers[i].gameObject.AddComponent<MeshOutline>();
-                    meshOutline.OutlineMaterial = outlineMaterial;
                     meshOutline.OutlineWidth = outlineWidth;
+                    meshOutline.OutlineMaterial = outlineMaterial;
+                    meshOutline.UseStencilOutline = useStencilOutline;
+                    meshOutline.StencilWriteMaterial = stencilWriteMaterial;
                     meshOutlines.Add(meshOutline);
                 }
             }

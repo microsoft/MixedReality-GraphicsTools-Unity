@@ -11,6 +11,27 @@ namespace Microsoft.MixedReality.GraphicsTools
     public abstract class BaseMeshOutline : MonoBehaviour
     {
         /// <summary>
+        /// How thick (in meters) should the outline be. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
+        /// </summary>
+        public float OutlineWidth
+        {
+            get { return outlineWidth; }
+            set
+            {
+                if (outlineWidth != value)
+                {
+                    outlineWidth = value;
+                    ApplyOutlineWidth();
+                }
+            }
+        }
+
+        [Tooltip("How thick (in meters) should the outline be. Overrides the \"Extrusion Value\" in the Graphics Tools/Standard material.")]
+        [SerializeField]
+        [Range(0.001f, 1.0f)]
+        protected float outlineWidth = 0.01f;
+
+        /// <summary>
         /// The material used to render the outline. Outline materials should normal have "Depth Write" set to Off and "Vertex Extrusion" enabled.
         /// Most Graphics Tools/Standard features should work as an outline material, but it is recommended to keep the outline material as simple as possible.
         /// </summary>
@@ -53,14 +74,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// The material used write a value to the stencil buffer. This material should have \"Depth Write\" set to Off and a \"ColorMask\" set to Zero.
         /// </summary>
-        public Material StencilMaterial
+        public Material StencilWriteMaterial
         {
-            get { return stencilMaterial; }
+            get { return stencilWriteMaterial; }
             set
             {
-                if (stencilMaterial != value)
+                if (stencilWriteMaterial != value)
                 {
-                    stencilMaterial = value;
+                    stencilWriteMaterial = value;
                     ApplyOutlineMaterial();
                 }
             }
@@ -68,28 +89,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         [Tooltip("The material used write a value to the stencil buffer. This material should have \"Depth Write\" set to Off and a \"ColorMask\" set to Zero.")]
         [SerializeField]
-        protected Material stencilMaterial = null;
-
-        /// <summary>
-        /// How thick (in meters) should the outline be. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
-        /// </summary>
-        public float OutlineWidth
-        {
-            get { return outlineWidth; }
-            set
-            {
-                if (outlineWidth != value)
-                {
-                    outlineWidth = value;
-                    ApplyOutlineWidth();
-                }
-            }
-        }
-
-        [Tooltip("How thick (in meters) should the outline be. Overrides the \"Extrusion Value\" in the Graphics Tools/Standard material.")]
-        [SerializeField]
-        [Range(0.001f, 1.0f)]
-        protected float outlineWidth = 0.01f;
+        protected Material stencilWriteMaterial = null;
 
         #region MonoBehaviour Implementation
 

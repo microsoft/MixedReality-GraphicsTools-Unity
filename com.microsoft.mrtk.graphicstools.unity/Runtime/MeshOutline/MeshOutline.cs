@@ -90,7 +90,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (UseStencilOutline)
                     {
                         // Ensure that the stencil after the default materials and the outline material after the stencil material.
-                        stencilMaterial.renderQueue = minRenderQueue + 1;
+                        stencilWriteMaterial.renderQueue = minRenderQueue + 1;
                         outlineMaterial.renderQueue = minRenderQueue + 2;
                     }
                     else
@@ -120,7 +120,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (UseStencilOutline)
                     {
-                        materials.Add(stencilMaterial);
+                        materials.Add(stencilWriteMaterial);
                     }
 
                     materials.Add(outlineMaterial);

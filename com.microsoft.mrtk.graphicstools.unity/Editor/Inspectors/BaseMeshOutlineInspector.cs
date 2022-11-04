@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using MaterialValue = System.Tuple<object, bool>;
+using MaterialSettings = System.Collections.Generic.Dictionary<string, System.Tuple<object, bool>>;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
@@ -18,17 +19,47 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private SerializedProperty m_Script;
         private SerializedProperty outlineMaterial;
         private SerializedProperty useStencilOutline;
-        private SerializedProperty stencilMaterial;
+        private SerializedProperty stencilWriteMaterial;
 
-        private readonly Dictionary<string, object> defaultOutlineMaterialSettings = new Dictionary<string, object>()
+        private readonly MaterialSettings defaultOutlineMaterialSettings = new MaterialSettings()
         {
-            { "_Mode", 5f },
-            { "_CustomMode", 0f },
-            { "_ZWrite", 0f },
-            { "_VertexExtrusion", 1f },
-            { "_VertexExtrusionSmoothNormals", 1f },
-            { "_VERTEX_EXTRUSION", true },
-            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", true },
+            { "_Color", new MaterialValue(Color.green, false) },
+            { "_Mode", new MaterialValue(5.0f, true) },
+            { "_CustomMode", new MaterialValue(0.0f, true) },
+            { "_ZWrite", new MaterialValue(0.0f, true) },
+            { "_VertexExtrusion", new MaterialValue(1.0f, true) },
+            { "_VERTEX_EXTRUSION", new MaterialValue(true, true) },
+            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, true) },
+            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, true) },
+        };
+
+        private readonly MaterialSettings defaultOutlineWithStencilMaterialSettings = new MaterialSettings()
+        {
+            { "_Color", new MaterialValue(Color.green, false) },
+            { "_Mode", new MaterialValue(5.0f, true) },
+            { "_CustomMode", new MaterialValue(0.0f, true) },
+            { "_ZWrite", new MaterialValue(1.0f, true) },
+            { "_VertexExtrusion", new MaterialValue(1.0f, true) },
+            { "_VERTEX_EXTRUSION", new MaterialValue(true, true) },
+            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, true) },
+            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, true) },
+            { "_EnableStencil", new MaterialValue(1.0f, true) },
+            { "_STENCIL", new MaterialValue(true, true) },
+            { "_StencilReference", new MaterialValue(1.0f, true) },
+            { "_StencilComparison", new MaterialValue((int)UnityEngine.Rendering.CompareFunction.NotEqual, true) },
+            { "_StencilOperation", new MaterialValue((int)UnityEngine.Rendering.StencilOp.Keep, true) },
+        };
+
+        private readonly MaterialSettings defaultStencilMaterialSettings = new MaterialSettings()
+        {
+            { "_Mode", new MaterialValue(5.0f, true) },
+            { "_CustomMode", new MaterialValue(0.0f, true) },
+            { "_ColorWriteMask", new MaterialValue(0.0f, true) },
+            { "_EnableStencil", new MaterialValue(1.0f, true) },
+            { "_STENCIL", new MaterialValue(true, true) },
+            { "_StencilReference", new MaterialValue(1.0f, true) },
+            { "_StencilComparison", new MaterialValue((int)UnityEngine.Rendering.CompareFunction.Always, true) },
+            { "_StencilOperation", new MaterialValue((int)UnityEngine.Rendering.StencilOp.Replace, true) },
         };
 
         private void OnEnable()
@@ -37,7 +68,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             m_Script = serializedObject.FindProperty("m_Script");
             outlineMaterial = serializedObject.FindProperty(nameof(outlineMaterial));
             useStencilOutline = serializedObject.FindProperty(nameof(useStencilOutline));
-            stencilMaterial = serializedObject.FindProperty(nameof(stencilMaterial));
+            stencilWriteMaterial = serializedObject.FindProperty(nameof(stencilWriteMaterial));
         }
 
         /// <inheritdoc />
@@ -46,39 +77,32 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             DrawReadonlyPropertyField(m_Script);
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(outlineMaterial);
-
-            var currentMat = instance.OutlineMaterial;
-
-            if (currentMat == null)
-            {
-                EditorGUILayout.HelpBox($"Outline Material field is empty, please create or select a material.", MessageType.Warning);
-
-                if (GUILayout.Button("Create & Set New Material"))
-                {
-                    outlineMaterial.objectReferenceValue = CreateNewMaterial();
-                }
-            }
-            else if (!IsCorrectMaterial(currentMat))
-            {
-                EditorGUILayout.HelpBox($"Material may not be configured correctly, please check or reset to default.", MessageType.Info);
-
-                if (GUILayout.Button("Update Material Settings to Default"))
-                {
-                    ForceUpdateToDefaultOutlineMaterial(ref currentMat);
-                }
-            }
 
             // Draw other properties
-            DrawPropertiesExcluding(serializedObject, nameof(m_Script), nameof(outlineMaterial), nameof(useStencilOutline), nameof(stencilMaterial));
+            DrawPropertiesExcluding(serializedObject, nameof(m_Script), nameof(outlineMaterial), nameof(useStencilOutline), nameof(stencilWriteMaterial));
+
+            EditorGUILayout.PropertyField(outlineMaterial);
+
+            var outlineMaterialSettings = useStencilOutline.boolValue ? defaultOutlineWithStencilMaterialSettings : defaultOutlineMaterialSettings;
+
+            VerifyMaterial(outlineMaterial, instance.OutlineMaterial, outlineMaterialSettings, "Outline.mat");
 
             EditorGUILayout.PropertyField(useStencilOutline);
 
             if (useStencilOutline.boolValue)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(stencilMaterial);
+                EditorGUILayout.PropertyField(stencilWriteMaterial);
                 EditorGUI.indentLevel--;
+
+                VerifyMaterial(stencilWriteMaterial, instance.StencilWriteMaterial, defaultStencilMaterialSettings, "OutlineStencilWrite.mat");
+            }
+            else
+            {
+                if (Camera.main && Camera.main.clearFlags == CameraClearFlags.Skybox)
+                {
+                    EditorGUILayout.HelpBox("The main camera is using a skybox, for outlines to appear it is recommended stencil outlines be enabled.", MessageType.Info);
+                }
             }
 
             if (EditorGUI.EndChangeCheck())
@@ -90,67 +114,105 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
         }
 
-        private Material CreateNewMaterial()
+        private static void VerifyMaterial(SerializedProperty property, Material material, MaterialSettings materialSettings, string postfix)
+        {
+            if (material == null)
+            {
+                EditorGUILayout.HelpBox($"{property.displayName} field is empty, please create or select a material.", MessageType.Warning);
+
+                if (GUILayout.Button("Create New Material"))
+                {
+                    property.objectReferenceValue = CreateNewMaterial(materialSettings, postfix);
+                }
+            }
+            else if (!IsCorrectMaterial(material, materialSettings))
+            {
+                EditorGUILayout.HelpBox("Material may not be configured correctly, please check or reset to default.", MessageType.Info);
+
+                if (GUILayout.Button("Update Material Settings to Default"))
+                {
+                    ForceUpdateToDefaultMaterial(material, materialSettings, false);
+                }
+            }
+        }
+
+        private static Material CreateNewMaterial(MaterialSettings materialSettings, string postfix)
         {
             var material = new Material(StandardShaderUtility.GraphicsToolsStandardShader);
-            ForceUpdateToDefaultOutlineMaterial(ref material);
-            AssetDatabase.CreateAsset(material, $"Assets/{Selection.activeGameObject.name}Mat.mat");
+            ForceUpdateToDefaultMaterial(material, materialSettings, true);
+            AssetDatabase.CreateAsset(material, AssetDatabase.GenerateUniqueAssetPath($"Assets/{Selection.activeGameObject.name}{postfix}"));
+
             return material;
         }
 
-        private void ForceUpdateToDefaultOutlineMaterial(ref Material material)
+        private static void ForceUpdateToDefaultMaterial(Material material, MaterialSettings materialSettings, bool isNewMaterial)
         {
             if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(material))
             {
                 material.shader = StandardShaderUtility.GraphicsToolsStandardShader;
             }
 
-            foreach (var pair in defaultOutlineMaterialSettings)
+            foreach (var pair in materialSettings)
             {
-                switch (pair.Value.GetType().Name)
+                // Apply the setting if it is required or we are creating a new material.
+                if (pair.Value.Item2 || isNewMaterial)
                 {
-                    case nameof(System.Single):
-                        {
-                            material.SetFloat(pair.Key, (float)pair.Value);
-                        }
-                        break;
-                    case nameof(System.Boolean):
-                        {
-                            var val = (bool)pair.Value;
-                            if (val)
+                    switch (pair.Value.Item1.GetType().Name)
+                    {
+                        case nameof(System.Single):
                             {
-                                material.EnableKeyword(pair.Key);
+                                material.SetFloat(pair.Key, (float)pair.Value.Item1);
                             }
-                            else
+                            break;
+                        case nameof(System.Boolean):
                             {
-                                material.DisableKeyword(pair.Key);
+                                var val = (bool)pair.Value.Item1;
+                                if (val)
+                                {
+                                    material.EnableKeyword(pair.Key);
+                                }
+                                else
+                                {
+                                    material.DisableKeyword(pair.Key);
+                                }
                             }
-                        }
-                        break;
-                    default:
-                        break;
+                            break;
+                        case nameof(Color):
+                            {
+                                material.SetColor(pair.Key, (Color)pair.Value.Item1);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
 
-        private bool IsCorrectMaterial(Material material)
+        private static bool IsCorrectMaterial(Material material, MaterialSettings materialSettings)
         {
             if (!StandardShaderUtility.IsUsingGraphicsToolsStandardShader(material))
             {
                 return false;
             }
 
-            return defaultOutlineMaterialSettings.All(x =>
+            return materialSettings.All(x =>
             {
-                switch (x.Value.GetType().Name)
+                // If the item isn't required the material is correct.
+                if (!x.Value.Item2)
+                {
+                    return true;
+                }
+
+                switch (x.Value.Item1.GetType().Name)
                 {
                     case nameof(System.Single):
                         {
-                            return material.GetFloat(x.Key) == (float)x.Value;
+                            return material.GetFloat(x.Key) == (float)x.Value.Item1;
                         }
                     case nameof(System.Boolean):
                         {
-                            var val = (bool)x.Value;
+                            var val = (bool)x.Value.Item1;
                             if (val)
                             {
                                 return material.IsKeywordEnabled(x.Key);
@@ -160,6 +222,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                 return !material.IsKeywordEnabled(x.Key);
                             }
                         }
+                    case nameof(Color):
+                        {
+                            return material.GetColor(x.Key) == (Color)x.Value.Item1;
+                        }
                     default:
                         // Default return value
                         return false;
@@ -167,7 +233,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             });
         }
 
-        private void DrawReadonlyPropertyField(SerializedProperty property, params GUILayoutOption[] options)
+        private static void DrawReadonlyPropertyField(SerializedProperty property, params GUILayoutOption[] options)
         {
             GUI.enabled = false;
             EditorGUILayout.PropertyField(property, options);
