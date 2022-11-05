@@ -18,24 +18,24 @@ namespace Microsoft.MixedReality.GraphicsTools
         #region MonoBehaviour Implementation
 
         /// <summary>
-        /// Creates a <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/> component on each child MeshRenderer.
+        /// Creates a <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/> component on each child MeshRenderer/SkinnedMeshRenderer.
         /// </summary>
         private void Awake()
         {
-            Renderer[] meshRenderers = GetComponentsInChildren<Renderer>();
             meshOutlines = new List<MeshOutline>();
 
+            var meshRenderers = GetComponentsInChildren<MeshRenderer>();
+   
             for (int i = 0; i < meshRenderers.Length; ++i)
             {
-                if (meshRenderers[i] as SpriteRenderer == null)
-                {
-                    var meshOutline = meshRenderers[i].gameObject.AddComponent<MeshOutline>();
-                    meshOutline.OutlineWidth = outlineWidth;
-                    meshOutline.OutlineMaterial = outlineMaterial;
-                    meshOutline.UseStencilOutline = useStencilOutline;
-                    meshOutline.StencilWriteMaterial = stencilWriteMaterial;
-                    meshOutlines.Add(meshOutline);
-                }
+                AddMeshOutline(meshRenderers[i]);
+            }
+
+            var skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+
+            for (int i = 0; i < skinnedMeshRenderers.Length; ++i)
+            {
+                AddMeshOutline(skinnedMeshRenderers[i]);
             }
         }
 
@@ -72,6 +72,23 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
+        /// Forwards the outlineColor to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
+        /// </summary>
+        public override void ApplyOutlineColor()
+        {
+            if (meshOutlines != null)
+            {
+                foreach (var meshOutline in meshOutlines)
+                {
+                    if (meshOutline != null)
+                    {
+                        meshOutline.OutlineColor = outlineColor;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Forwards the outlineWidth to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
         /// </summary>
         public override void ApplyOutlineWidth()
@@ -89,5 +106,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         #endregion BaseMeshOutline Implementation
+
+        private void AddMeshOutline(Renderer target)
+        {
+            var meshOutline = target.gameObject.AddComponent<MeshOutline>();
+            meshOutline.CopyFrom(this);
+            meshOutlines.Add(meshOutline);
+        }
     }
 }

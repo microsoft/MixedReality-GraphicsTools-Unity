@@ -23,31 +23,46 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private readonly MaterialSettings defaultOutlineMaterialSettings = new MaterialSettings()
         {
-            { "_Color", new MaterialValue(Color.green, false) },
             { "_Mode", new MaterialValue(5.0f, true) },
             { "_CustomMode", new MaterialValue(0.0f, true) },
             { "_ZWrite", new MaterialValue(0.0f, true) },
+
+            { "_Color", new MaterialValue(Color.green, false) },
+
+            { "_DirectionalLight", new MaterialValue((float)LightMode.Unlit, false) },
+            { "_DirectionalLightProxy", new MaterialValue(0.0f, false) },
+            { "_DIRECTIONAL_LIGHT", new MaterialValue(false, false) },
+
             { "_VertexExtrusion", new MaterialValue(1.0f, true) },
             { "_VERTEX_EXTRUSION", new MaterialValue(true, true) },
+
             { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, true) },
             { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, true) },
         };
 
         private readonly MaterialSettings defaultOutlineWithStencilMaterialSettings = new MaterialSettings()
         {
-            { "_Color", new MaterialValue(Color.green, false) },
             { "_Mode", new MaterialValue(5.0f, true) },
             { "_CustomMode", new MaterialValue(0.0f, true) },
             { "_ZWrite", new MaterialValue(1.0f, true) },
+
+            { "_Color", new MaterialValue(Color.green, false) },
+
+            { "_DirectionalLight", new MaterialValue((float)LightMode.Unlit, false) },
+            { "_DirectionalLightProxy", new MaterialValue(0.0f, false) },
+            { "_DIRECTIONAL_LIGHT", new MaterialValue(false, false) },
+
             { "_VertexExtrusion", new MaterialValue(1.0f, true) },
             { "_VERTEX_EXTRUSION", new MaterialValue(true, true) },
+
             { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, true) },
             { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, true) },
+
             { "_EnableStencil", new MaterialValue(1.0f, true) },
             { "_STENCIL", new MaterialValue(true, true) },
             { "_StencilReference", new MaterialValue(1.0f, true) },
-            { "_StencilComparison", new MaterialValue((int)UnityEngine.Rendering.CompareFunction.NotEqual, true) },
-            { "_StencilOperation", new MaterialValue((int)UnityEngine.Rendering.StencilOp.Keep, true) },
+            { "_StencilComparison", new MaterialValue((float)UnityEngine.Rendering.CompareFunction.NotEqual, true) },
+            { "_StencilOperation", new MaterialValue((float)UnityEngine.Rendering.StencilOp.Keep, true) },
         };
 
         private readonly MaterialSettings defaultStencilMaterialSettings = new MaterialSettings()
@@ -55,11 +70,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_Mode", new MaterialValue(5.0f, true) },
             { "_CustomMode", new MaterialValue(0.0f, true) },
             { "_ColorWriteMask", new MaterialValue(0.0f, true) },
+
+            { "_DirectionalLight", new MaterialValue((float)LightMode.Unlit, false) },
+            { "_DirectionalLightProxy", new MaterialValue(0.0f, false) },
+            { "_DIRECTIONAL_LIGHT", new MaterialValue(false, false) },
+
             { "_EnableStencil", new MaterialValue(1.0f, true) },
             { "_STENCIL", new MaterialValue(true, true) },
             { "_StencilReference", new MaterialValue(1.0f, true) },
-            { "_StencilComparison", new MaterialValue((int)UnityEngine.Rendering.CompareFunction.Always, true) },
-            { "_StencilOperation", new MaterialValue((int)UnityEngine.Rendering.StencilOp.Replace, true) },
+            { "_StencilComparison", new MaterialValue((float)UnityEngine.Rendering.CompareFunction.Always, true) },
+            { "_StencilOperation", new MaterialValue((float)UnityEngine.Rendering.StencilOp.Replace, true) },
         };
 
         private void OnEnable()
@@ -110,6 +130,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 serializedObject.ApplyModifiedProperties();
 
                 instance.ApplyOutlineMaterial();
+                instance.ApplyOutlineColor();
                 instance.ApplyOutlineWidth();
             }
         }
@@ -157,7 +178,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 // Apply the setting if it is required or we are creating a new material.
                 if (pair.Value.Item2 || isNewMaterial)
                 {
-                    switch (pair.Value.Item1.GetType().Name)
+                    var typeName = pair.Value.Item1.GetType().Name;
+                    switch (typeName)
                     {
                         case nameof(System.Single):
                             {
@@ -183,6 +205,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                             }
                             break;
                         default:
+                            Debug.Log($"{pair.Key} of type {typeName} was not handled.");
                             break;
                     }
                 }

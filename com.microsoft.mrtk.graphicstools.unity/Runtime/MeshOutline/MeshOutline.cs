@@ -19,11 +19,10 @@ namespace Microsoft.MixedReality.GraphicsTools
     {
         private const string vertexExtrusionKeyword = "_VERTEX_EXTRUSION";
         private const string vertexExtrusionSmoothNormalsKeyword = "_VERTEX_EXTRUSION_SMOOTH_NORMALS";
-        private const string vertexExtrusionValueName = "_VertexExtrusionValue";
 
         private Renderer meshRenderer = null;
-        private MaterialPropertyBlock propertyBlock = null;
-        private int vertexExtrusionValueID = 0;
+        private int colorID = Shader.PropertyToID("_Color");
+        private int vertexExtrusionValueID = Shader.PropertyToID("_VertexExtrusionValue");
         private Material[] defaultMaterials = null;
         private MeshSmoother createdMeshSmoother = null;
 
@@ -34,14 +33,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Awake()
         {
-            if (GetComponent<SpriteRenderer>() != null)
+            if (GetComponent<MeshRenderer>() == null && 
+                GetComponent<SkinnedMeshRenderer>() == null)
             {
-                Debug.LogWarning($"{this.GetType()} is not supported on SpriteRenderers");
+                Debug.LogWarning($"{this.GetType()} is not supported on this type of renderer.");
             }
 
             meshRenderer = GetComponent<Renderer>();
-            propertyBlock = new MaterialPropertyBlock();
-            vertexExtrusionValueID = Shader.PropertyToID(vertexExtrusionValueName);
             defaultMaterials = meshRenderer.sharedMaterials;
         }
 
@@ -74,62 +72,75 @@ namespace Microsoft.MixedReality.GraphicsTools
         #region BaseMeshOutline Implementation
 
         /// <summary>
-        /// Prepares and applies the current outline material to the renderer.
+        /// Prepares and applies the current outline material to the MeshRenderer/SkinnedMeshRenderer.
         /// </summary>
         public override void ApplyOutlineMaterial()
         {
-            if (meshRenderer != null)
+            if (meshRenderer == null || outlineMaterial == null)
             {
-                if (outlineMaterial != null)
+                return;
+            }
+
+            Debug.AssertFormat(outlineMaterial.IsKeywordEnabled(vertexExtrusionKeyword),
+           "The material \"{0}\" does not have vertex extrusion enabled, an outline might not be rendered.", outlineMaterial.name);
+
+            if (UseStencilOutline)
+            {
+                if (stencilWriteMaterial == null)
                 {
-                    Debug.AssertFormat(outlineMaterial.IsKeywordEnabled(vertexExtrusionKeyword),
-                   "The material \"{0}\" does not have vertex extrusion enabled, no outline will be rendered.", outlineMaterial.name);
-
-                    int minRenderQueue = GetMinRenderQueue(defaultMaterials);
-
-                    if (UseStencilOutline)
-                    {
-                        // Ensure that the stencil after the default materials and the outline material after the stencil material.
-                        stencilWriteMaterial.renderQueue = minRenderQueue + 1;
-                        outlineMaterial.renderQueue = minRenderQueue + 2;
-                    }
-                    else
-                    {
-                        // Ensure that the outline material always renders before the default materials.
-                        outlineMaterial.renderQueue = minRenderQueue - 1;
-                    }
-
-                    // If smooth normals are requested, make sure the mesh has smooth normals.
-                    if (outlineMaterial.IsKeywordEnabled(vertexExtrusionSmoothNormalsKeyword))
-                    {
-                        var meshSmoother = (createdMeshSmoother == null) ? gameObject.GetComponent<MeshSmoother>() : createdMeshSmoother;
-
-                        if (meshSmoother == null)
-                        {
-                            createdMeshSmoother = gameObject.AddComponent<MeshSmoother>();
-                            meshSmoother = createdMeshSmoother;
-                        }
-
-                        meshSmoother.SmoothNormals();
-                    }
-
-                    ApplyOutlineWidth();
-
-                    // Add the outline material as another material pass.
-                    var materials = new List<Material>(defaultMaterials);
-
-                    if (UseStencilOutline)
-                    {
-                        materials.Add(stencilWriteMaterial);
-                    }
-
-                    materials.Add(outlineMaterial);
-                    meshRenderer.materials = materials.ToArray();
+                    Debug.LogError("ApplyOutlineMaterial failed due to missing stencil write material.");
+                    return;
                 }
-                else
+
+                // Ensure that the stencil after the default materials and the outline material after the stencil material.
+                int maxRenderQueue = GetMaxRenderQueue(defaultMaterials);
+                stencilWriteMaterial.renderQueue = maxRenderQueue + 1;
+                outlineMaterial.renderQueue = maxRenderQueue + 2;
+            }
+            else
+            {
+                // Ensure that the outline material always renders before the default materials.
+                outlineMaterial.renderQueue = GetMinRenderQueue(defaultMaterials) - 1;
+            }
+
+            // If smooth normals are requested, make sure the mesh has smooth normals.
+            if (outlineMaterial.IsKeywordEnabled(vertexExtrusionSmoothNormalsKeyword))
+            {
+                var meshSmoother = (createdMeshSmoother == null) ? gameObject.GetComponent<MeshSmoother>() : createdMeshSmoother;
+
+                if (meshSmoother == null)
                 {
-                    Debug.LogError("ApplyOutlineMaterial failed due to missing outline material.");
+                    createdMeshSmoother = gameObject.AddComponent<MeshSmoother>();
+                    meshSmoother = createdMeshSmoother;
                 }
+
+                meshSmoother.SmoothNormals();
+            }
+
+            ApplyOutlineColor();
+            ApplyOutlineWidth();
+
+            // Add the outline material as another material pass.
+            var materials = new List<Material>(defaultMaterials);
+
+            if (UseStencilOutline)
+            {
+                materials.Add(stencilWriteMaterial);
+            }
+
+            materials.Add(outlineMaterial);
+
+            meshRenderer.materials = materials.ToArray();
+        }
+
+        /// <summary>
+        /// Updates the current color value used by the shader. 
+        /// </summary>
+        public override void ApplyOutlineColor()
+        {
+            if (outlineMaterial != null)
+            {
+                outlineMaterial.SetColor(colorID, outlineColor);
             }
         }
 
@@ -138,21 +149,30 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public override void ApplyOutlineWidth()
         {
-            if (meshRenderer != null && propertyBlock != null)
+            if (outlineMaterial != null)
             {
-                meshRenderer.GetPropertyBlock(propertyBlock);
-                propertyBlock.SetFloat(vertexExtrusionValueName, outlineWidth);
-                meshRenderer.SetPropertyBlock(propertyBlock);
+                outlineMaterial.SetFloat(vertexExtrusionValueID, outlineWidth);
             }
         }
 
         #endregion BaseMeshOutline Implementation
 
         /// <summary>
+        /// Makes this BaseMeshOutline's settings match the other BaseMeshOutline.
+        /// </summary>
+        public void CopyFrom(BaseMeshOutline other)
+        {
+            outlineColor = other.OutlineColor;
+            outlineWidth = other.OutlineWidth;
+            outlineMaterial = other.OutlineMaterial;
+            useStencilOutline = other.UseStencilOutline;
+            stencilWriteMaterial = other.StencilWriteMaterial;
+            ApplyOutlineMaterial();
+        }
+
+        /// <summary>
         /// Searches for the minimum render queue value in a list of materials.
         /// </summary>
-        /// <param name="materials">The list of materials to search.</param>
-        /// <returns>The minimum render queue value.</returns>
         private static int GetMinRenderQueue(Material[] materials)
         {
             var min = int.MaxValue;
@@ -171,6 +191,29 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             return min;
+        }
+
+        /// <summary>
+        /// Searches for the maximum render queue value in a list of materials.
+        /// </summary>
+        private static int GetMaxRenderQueue(Material[] materials)
+        {
+            var max = int.MinValue;
+
+            foreach (var material in materials)
+            {
+                if (material != null)
+                {
+                    max = Mathf.Max(max, material.renderQueue);
+                }
+            }
+
+            if (max == int.MinValue)
+            {
+                max = (int)RenderQueue.Overlay;
+            }
+
+            return max;
         }
     }
 }

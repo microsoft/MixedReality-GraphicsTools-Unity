@@ -11,6 +11,26 @@ namespace Microsoft.MixedReality.GraphicsTools
     public abstract class BaseMeshOutline : MonoBehaviour
     {
         /// <summary>
+        /// The main color of the outline. Applied to the "_Color" shader property.
+        /// </summary>
+        public Color OutlineColor
+        {
+            get { return outlineColor; }
+            set
+            {
+                if (outlineColor != value)
+                {
+                    outlineColor = value;
+                    ApplyOutlineColor();
+                }
+            }
+        }
+
+        [Tooltip("The main color of the outline. Applied to the \"_Color\" shader property.")]
+        [SerializeField]
+        protected Color outlineColor = Color.green;
+
+        /// <summary>
         /// How thick (in meters) should the outline be. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
         /// </summary>
         public float OutlineWidth
@@ -107,6 +127,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Interface to apply the outline material to the renderer(s).
         /// </summary>
         public abstract void ApplyOutlineMaterial();
+
+        /// <summary>
+        /// Interface to to update the outline color with the renderer(s).
+        /// </summary>
+        public abstract void ApplyOutlineColor();
 
         /// <summary>
         /// Interface to to update the outline width with the renderer(s).
