@@ -11,47 +11,6 @@ namespace Microsoft.MixedReality.GraphicsTools
     public abstract class BaseMeshOutline : MonoBehaviour
     {
         /// <summary>
-        /// The main color of the outline. Applied to the "_Color" shader property.
-        /// </summary>
-        public Color OutlineColor
-        {
-            get { return outlineColor; }
-            set
-            {
-                if (outlineColor != value)
-                {
-                    outlineColor = value;
-                    ApplyOutlineColor();
-                }
-            }
-        }
-
-        [Tooltip("The main color of the outline. Applied to the \"_Color\" shader property.")]
-        [SerializeField]
-        protected Color outlineColor = Color.green;
-
-        /// <summary>
-        /// How thick (in meters) should the outline be. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
-        /// </summary>
-        public float OutlineWidth
-        {
-            get { return outlineWidth; }
-            set
-            {
-                if (outlineWidth != value)
-                {
-                    outlineWidth = value;
-                    ApplyOutlineWidth();
-                }
-            }
-        }
-
-        [Tooltip("How thick (in meters) should the outline be. Overrides the \"Extrusion Value\" in the Graphics Tools/Standard material.")]
-        [SerializeField]
-        [Range(0.001f, 1.0f)]
-        protected float outlineWidth = 0.01f;
-
-        /// <summary>
         /// The material used to render the outline. Outline materials should normal have "Depth Write" set to Off and "Vertex Extrusion" enabled.
         /// Most Graphics Tools/Standard features should work as an outline material, but it is recommended to keep the outline material as simple as possible.
         /// </summary>
@@ -71,6 +30,27 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("The material used to render the outline. Outline materials should normal have \"Depth Write\" set to Off and \"Vertex Extrusion\" enabled.")]
         [SerializeField]
         protected Material outlineMaterial = null;
+
+        /// <summary>
+        /// How thick (in meters) should the outline be. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
+        /// </summary>
+        public float OutlineWidth
+        {
+            get { return outlineWidth; }
+            set
+            {
+                if (outlineWidth != value)
+                {
+                    outlineWidth = value;
+                    ApplyOutlineWidth();
+                }
+            }
+        }
+
+        [Tooltip("How thick (in meters) should the outline be. Overrides the \"Extrusion Value\" in the Graphics Tools/Standard material.")]
+        [SerializeField]
+        [Range(0.0f, 1.0f)]
+        protected float outlineWidth = 0.01f;
 
         /// <summary>
         /// Should the stencil buffer be used to mask this outline rather than relying on depth? Required when a skybox is in use.
@@ -111,6 +91,27 @@ namespace Microsoft.MixedReality.GraphicsTools
         [SerializeField]
         protected Material stencilWriteMaterial = null;
 
+        /// <summary>
+        /// How far (in meters) should the outline be begin from the surface. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
+        /// </summary>
+        public float OutlineMargin
+        {
+            get { return outlineMargin; }
+            set
+            {
+                if (outlineMargin != value)
+                {
+                    outlineMargin = value;
+                    ApplyOutlineWidth();
+                }
+            }
+        }
+
+        [Tooltip("How far (in meters) should the outline be begin from the surface. Overrides the \"Extrusion Value\" in the Graphics Tools/Standard material.")]
+        [SerializeField]
+        [Range(0.0f, 1.0f)]
+        protected float outlineMargin = 0.0f;
+
         #region MonoBehaviour Implementation
 
         /// <summary>
@@ -127,11 +128,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Interface to apply the outline material to the renderer(s).
         /// </summary>
         public abstract void ApplyOutlineMaterial();
-
-        /// <summary>
-        /// Interface to to update the outline color with the renderer(s).
-        /// </summary>
-        public abstract void ApplyOutlineColor();
 
         /// <summary>
         /// Interface to to update the outline width with the renderer(s).

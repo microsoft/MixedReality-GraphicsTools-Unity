@@ -18,8 +18,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private BaseMeshOutline instance;
         private SerializedProperty m_Script;
         private SerializedProperty outlineMaterial;
+        private SerializedProperty outlineWidth;
         private SerializedProperty useStencilOutline;
         private SerializedProperty stencilWriteMaterial;
+        private SerializedProperty outlineMargin;
 
         private readonly MaterialSettings defaultOutlineMaterialSettings = new MaterialSettings()
         {
@@ -69,11 +71,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             { "_Mode", new MaterialValue(5.0f, true) },
             { "_CustomMode", new MaterialValue(0.0f, true) },
+            { "_ZWrite", new MaterialValue(0.0f, true) },
             { "_ColorWriteMask", new MaterialValue(0.0f, true) },
 
             { "_DirectionalLight", new MaterialValue((float)LightMode.Unlit, false) },
             { "_DirectionalLightProxy", new MaterialValue(0.0f, false) },
             { "_DIRECTIONAL_LIGHT", new MaterialValue(false, false) },
+
+            { "_VertexExtrusion", new MaterialValue(1.0f, true) },
+            { "_VERTEX_EXTRUSION", new MaterialValue(true, true) },
+
+            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, true) },
+            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, true) },
 
             { "_EnableStencil", new MaterialValue(1.0f, true) },
             { "_STENCIL", new MaterialValue(true, true) },
@@ -87,8 +96,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             instance = target as BaseMeshOutline;
             m_Script = serializedObject.FindProperty("m_Script");
             outlineMaterial = serializedObject.FindProperty(nameof(outlineMaterial));
+            outlineWidth = serializedObject.FindProperty(nameof(outlineWidth));
             useStencilOutline = serializedObject.FindProperty(nameof(useStencilOutline));
             stencilWriteMaterial = serializedObject.FindProperty(nameof(stencilWriteMaterial));
+            outlineMargin = serializedObject.FindProperty(nameof(outlineMargin));
         }
 
         /// <inheritdoc />
@@ -99,7 +110,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             EditorGUI.BeginChangeCheck();
 
             // Draw other properties
-            DrawPropertiesExcluding(serializedObject, nameof(m_Script), nameof(outlineMaterial), nameof(useStencilOutline), nameof(stencilWriteMaterial));
+            DrawPropertiesExcluding(serializedObject, nameof(m_Script), 
+                                                      nameof(outlineMaterial), 
+                                                      nameof(outlineWidth), 
+                                                      nameof(useStencilOutline), 
+                                                      nameof(stencilWriteMaterial), 
+                                                      nameof(outlineMargin));
 
             EditorGUILayout.PropertyField(outlineMaterial);
 
@@ -107,12 +123,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             VerifyMaterial(outlineMaterial, instance.OutlineMaterial, outlineMaterialSettings, "Outline.mat");
 
+            EditorGUILayout.PropertyField(outlineWidth);
+
             EditorGUILayout.PropertyField(useStencilOutline);
 
             if (useStencilOutline.boolValue)
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(stencilWriteMaterial);
+                EditorGUILayout.PropertyField(outlineMargin);
                 EditorGUI.indentLevel--;
 
                 VerifyMaterial(stencilWriteMaterial, instance.StencilWriteMaterial, defaultStencilMaterialSettings, "OutlineStencilWrite.mat");
@@ -130,7 +149,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 serializedObject.ApplyModifiedProperties();
 
                 instance.ApplyOutlineMaterial();
-                instance.ApplyOutlineColor();
                 instance.ApplyOutlineWidth();
             }
         }

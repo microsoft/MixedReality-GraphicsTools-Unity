@@ -21,7 +21,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         private const string vertexExtrusionSmoothNormalsKeyword = "_VERTEX_EXTRUSION_SMOOTH_NORMALS";
 
         private Renderer meshRenderer = null;
-        private int colorID = Shader.PropertyToID("_Color");
         private int vertexExtrusionValueID = Shader.PropertyToID("_VertexExtrusionValue");
         private Material[] defaultMaterials = null;
         private MeshSmoother createdMeshSmoother = null;
@@ -117,7 +116,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 meshSmoother.SmoothNormals();
             }
 
-            ApplyOutlineColor();
             ApplyOutlineWidth();
 
             // Add the outline material as another material pass.
@@ -134,24 +132,19 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Updates the current color value used by the shader. 
-        /// </summary>
-        public override void ApplyOutlineColor()
-        {
-            if (outlineMaterial != null)
-            {
-                outlineMaterial.SetColor(colorID, outlineColor);
-            }
-        }
-
-        /// <summary>
         /// Updates the current vertex extrusion value used by the shader. 
         /// </summary>
         public override void ApplyOutlineWidth()
         {
             if (outlineMaterial != null)
             {
-                outlineMaterial.SetFloat(vertexExtrusionValueID, outlineWidth);
+                outlineMaterial.SetFloat(vertexExtrusionValueID, outlineMargin + outlineWidth);
+            }
+
+            if (stencilWriteMaterial != null)
+            {
+                // Clamp to ensure we don't get z-fighting.
+                stencilWriteMaterial.SetFloat(vertexExtrusionValueID, Mathf.Max(0.0001f, outlineMargin));
             }
         }
 
@@ -162,11 +155,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void CopyFrom(BaseMeshOutline other)
         {
-            outlineColor = other.OutlineColor;
             outlineWidth = other.OutlineWidth;
             outlineMaterial = other.OutlineMaterial;
             useStencilOutline = other.UseStencilOutline;
             stencilWriteMaterial = other.StencilWriteMaterial;
+            outlineMargin = other.OutlineMargin;
             ApplyOutlineMaterial();
         }
 

@@ -55,54 +55,19 @@ namespace Microsoft.MixedReality.GraphicsTools
         #region BaseMeshOutline Implementation
 
         /// <summary>
-        /// Forwards the outlineMaterial to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
+        /// Forwards settings to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
         /// </summary>
         public override void ApplyOutlineMaterial()
         {
-            if (meshOutlines != null)
-            {
-                foreach (var meshOutline in meshOutlines)
-                {
-                    if (meshOutline != null)
-                    {
-                        meshOutline.OutlineMaterial = outlineMaterial;
-                    }
-                }
-            }
+            ApplyToChildren();
         }
 
         /// <summary>
-        /// Forwards the outlineColor to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
-        /// </summary>
-        public override void ApplyOutlineColor()
-        {
-            if (meshOutlines != null)
-            {
-                foreach (var meshOutline in meshOutlines)
-                {
-                    if (meshOutline != null)
-                    {
-                        meshOutline.OutlineColor = outlineColor;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Forwards the outlineWidth to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
+        /// Forwards settings to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
         /// </summary>
         public override void ApplyOutlineWidth()
         {
-            if (meshOutlines != null)
-            {
-                foreach (var meshOutline in meshOutlines)
-                {
-                    if (meshOutline != null)
-                    {
-                        meshOutline.OutlineWidth = outlineWidth;
-                    }
-                }
-            }
+            ApplyToChildren();
         }
 
         #endregion BaseMeshOutline Implementation
@@ -112,6 +77,20 @@ namespace Microsoft.MixedReality.GraphicsTools
             var meshOutline = target.gameObject.AddComponent<MeshOutline>();
             meshOutline.CopyFrom(this);
             meshOutlines.Add(meshOutline);
+        }
+
+        private void ApplyToChildren()
+        {
+            if (meshOutlines != null)
+            {
+                foreach (var meshOutline in meshOutlines)
+                {
+                    if (meshOutline != null)
+                    {
+                        meshOutline.CopyFrom(this);
+                    }
+                }
+            }
         }
     }
 }
