@@ -8,10 +8,10 @@ using UnityEngine.Rendering;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Component which can be used to render an outline around a mesh renderer. Enabling this component introduces an additional render pass 
+    /// Component which can be used to render an outline around a mesh renderer. Enabling this component introduces an additional render pass(es) 
     /// of the object being outlined, but is designed to run performantly on mobile Mixed Reality devices and does not utilize any post processes.
     /// This behavior is designed to be used in conjunction with the Graphics Tools/Standard shader. Limitations of this effect include it not working well 
-    /// on objects which are not watertight (or required to be two sided) and depth sorting issues can occur on overlapping objects.
+    /// on objects which are not watertight (or required to be two sided) and depth sorting issues may occur on overlapping objects.
     /// </summary>
     [RequireComponent(typeof(Renderer))]
     [AddComponentMenu("Scripts/GraphicsTools/MeshOutline")]
@@ -118,7 +118,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             ApplyOutlineWidth();
-            ApplyStencilID();
+            ApplyStencilReference();
 
             // Add the outline material as another material pass.
             var materials = new List<Material>(defaultMaterials);
@@ -146,23 +146,23 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (stencilWriteMaterial != null)
             {
                 // Clamp to ensure we don't get z-fighting.
-                stencilWriteMaterial.SetFloat(vertexExtrusionValueID, Mathf.Max(0.0001f, outlineMargin));
+                stencilWriteMaterial.SetFloat(vertexExtrusionValueID, Mathf.Max(0.00001f, outlineMargin));
             }
         }
 
         /// <summary>
         /// Updates the current stencil ID used by the materials.
         /// </summary>
-        public override void ApplyStencilID()
+        public override void ApplyStencilReference()
         {
             if (outlineMaterial != null)
             {
-                outlineMaterial.SetFloat(stencilReferenceID, stencilID);
+                outlineMaterial.SetFloat(stencilReferenceID, stencilReference);
             }
 
             if (stencilWriteMaterial != null)
             {
-                stencilWriteMaterial.SetFloat(stencilReferenceID, stencilID);
+                stencilWriteMaterial.SetFloat(stencilReferenceID, stencilReference);
             }
         }
 
@@ -178,7 +178,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             useStencilOutline = other.UseStencilOutline;
             stencilWriteMaterial = other.StencilWriteMaterial;
             outlineMargin = other.OutlineMargin;
-            stencilID = other.StencilID;
+            stencilReference = other.StencilReference;
             ApplyOutlineMaterial();
         }
 

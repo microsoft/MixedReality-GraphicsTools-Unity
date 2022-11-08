@@ -73,7 +73,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Forwards settings to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
         /// </summary>
-        public override void ApplyStencilID()
+        public override void ApplyStencilReference()
         {
             ApplyToChildren();
         }

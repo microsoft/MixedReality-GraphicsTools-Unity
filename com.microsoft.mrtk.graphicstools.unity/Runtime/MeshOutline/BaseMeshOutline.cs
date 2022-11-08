@@ -118,15 +118,15 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// "The value written to and read from the stencil buffer. This should be unique per outlined object."
         /// </summary>
-        public int StencilID
+        public int StencilReference
         {
-            get { return stencilID; }
+            get { return stencilReference; }
             set
             {
-                if (stencilID != value)
+                if (stencilReference != value)
                 {
-                    stencilID = value;
-                    ApplyStencilID();
+                    stencilReference = value;
+                    ApplyStencilReference();
                 }
             }
         }
@@ -134,7 +134,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("The value written to and read from the stencil buffer. This should be unique per outlined object.")]
         [SerializeField]
         [Range(1, 255)]
-        protected int stencilID = 1;
+        protected int stencilReference = 1;
 
         #region MonoBehaviour Implementation
 
@@ -144,7 +144,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         protected virtual void OnDidApplyAnimationProperties()
         {
             ApplyOutlineWidth();
-            ApplyStencilID();
+            ApplyStencilReference();
         }
 
         #endregion MonoBehaviour Implementation
@@ -162,6 +162,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Interface to to update the stencil ID with the renderer(s).
         /// </summary>
-        public abstract void ApplyStencilID();
+        public abstract void ApplyStencilReference();
     }
 }

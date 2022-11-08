@@ -22,7 +22,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private SerializedProperty useStencilOutline;
         private SerializedProperty stencilWriteMaterial;
         private SerializedProperty outlineMargin;
-        private SerializedProperty stencilID;
+        private SerializedProperty stencilReference;
 
         private readonly MaterialSettings defaultOutlineMaterialSettings = new MaterialSettings()
         {
@@ -39,8 +39,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_VertexExtrusion", new MaterialValue(1.0f, true) },
             { "_VERTEX_EXTRUSION", new MaterialValue(true, true) },
 
-            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, true) },
-            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, true) },
+            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, false) },
+            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, false) },
         };
 
         private readonly MaterialSettings defaultOutlineWithStencilMaterialSettings = new MaterialSettings()
@@ -58,8 +58,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_VertexExtrusion", new MaterialValue(1.0f, true) },
             { "_VERTEX_EXTRUSION", new MaterialValue(true, true) },
 
-            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, true) },
-            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, true) },
+            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, false) },
+            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, false) },
 
             { "_EnableStencil", new MaterialValue(1.0f, true) },
             { "_STENCIL", new MaterialValue(true, true) },
@@ -82,8 +82,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_VertexExtrusion", new MaterialValue(1.0f, true) },
             { "_VERTEX_EXTRUSION", new MaterialValue(true, true) },
 
-            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, true) },
-            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, true) },
+            { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, false) },
+            { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, false) },
 
             { "_EnableStencil", new MaterialValue(1.0f, true) },
             { "_STENCIL", new MaterialValue(true, true) },
@@ -101,7 +101,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             useStencilOutline = serializedObject.FindProperty(nameof(useStencilOutline));
             stencilWriteMaterial = serializedObject.FindProperty(nameof(stencilWriteMaterial));
             outlineMargin = serializedObject.FindProperty(nameof(outlineMargin));
-            stencilID = serializedObject.FindProperty(nameof(stencilID));
+            stencilReference = serializedObject.FindProperty(nameof(stencilReference));
         }
 
         /// <inheritdoc />
@@ -118,7 +118,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                                       nameof(useStencilOutline), 
                                                       nameof(stencilWriteMaterial), 
                                                       nameof(outlineMargin),
-                                                      nameof(stencilID));
+                                                      nameof(stencilReference));
 
             EditorGUILayout.PropertyField(outlineMaterial);
 
@@ -136,7 +136,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 EditorGUILayout.PropertyField(stencilWriteMaterial);
                 VerifyMaterial(stencilWriteMaterial, instance.StencilWriteMaterial, defaultStencilMaterialSettings, "OutlineStencilWrite.mat");
                 EditorGUILayout.PropertyField(outlineMargin);
-                EditorGUILayout.PropertyField(stencilID);
+                EditorGUILayout.PropertyField(stencilReference);
                 EditorGUI.indentLevel--;
             }
             else
@@ -153,7 +153,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 instance.ApplyOutlineMaterial();
                 instance.ApplyOutlineWidth();
-                instance.ApplyStencilID();
+                instance.ApplyStencilReference();
             }
         }
 
@@ -253,6 +253,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     case nameof(System.Single):
                         {
+                            // Special case, the _StencilReference can be in a range. 
+                            if (x.Key == "_StencilReference")
+                            {
+                                return (float)x.Value.Item1 > 0.0f && (float)x.Value.Item1 < 256.0f;
+                            }
+
                             return material.GetFloat(x.Key) == (float)x.Value.Item1;
                         }
                     case nameof(System.Boolean):
