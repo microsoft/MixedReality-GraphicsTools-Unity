@@ -22,6 +22,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private SerializedProperty useStencilOutline;
         private SerializedProperty stencilWriteMaterial;
         private SerializedProperty outlineMargin;
+        private SerializedProperty stencilID;
 
         private readonly MaterialSettings defaultOutlineMaterialSettings = new MaterialSettings()
         {
@@ -100,6 +101,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             useStencilOutline = serializedObject.FindProperty(nameof(useStencilOutline));
             stencilWriteMaterial = serializedObject.FindProperty(nameof(stencilWriteMaterial));
             outlineMargin = serializedObject.FindProperty(nameof(outlineMargin));
+            stencilID = serializedObject.FindProperty(nameof(stencilID));
         }
 
         /// <inheritdoc />
@@ -115,7 +117,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                                       nameof(outlineWidth), 
                                                       nameof(useStencilOutline), 
                                                       nameof(stencilWriteMaterial), 
-                                                      nameof(outlineMargin));
+                                                      nameof(outlineMargin),
+                                                      nameof(stencilID));
 
             EditorGUILayout.PropertyField(outlineMaterial);
 
@@ -131,10 +134,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(stencilWriteMaterial);
-                EditorGUILayout.PropertyField(outlineMargin);
-                EditorGUI.indentLevel--;
-
                 VerifyMaterial(stencilWriteMaterial, instance.StencilWriteMaterial, defaultStencilMaterialSettings, "OutlineStencilWrite.mat");
+                EditorGUILayout.PropertyField(outlineMargin);
+                EditorGUILayout.PropertyField(stencilID);
+                EditorGUI.indentLevel--;
             }
             else
             {
@@ -150,6 +153,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 instance.ApplyOutlineMaterial();
                 instance.ApplyOutlineWidth();
+                instance.ApplyStencilID();
             }
         }
 

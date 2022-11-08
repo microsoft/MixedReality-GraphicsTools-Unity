@@ -13,6 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// The material used to render the outline. Outline materials should normal have "Depth Write" set to Off and "Vertex Extrusion" enabled.
         /// Most Graphics Tools/Standard features should work as an outline material, but it is recommended to keep the outline material as simple as possible.
+        /// Note, this material is not automatically instanced.
         /// </summary>
         public Material OutlineMaterial
         {
@@ -27,7 +28,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        [Tooltip("The material used to render the outline. Outline materials should normal have \"Depth Write\" set to Off and \"Vertex Extrusion\" enabled.")]
+        [Tooltip("The material used to render the outline. Outline materials should normal have \"Depth Write\" set to Off and \"Vertex Extrusion\" enabled. Note, this material is not automatically instanced.")]
         [SerializeField]
         protected Material outlineMaterial = null;
 
@@ -54,6 +55,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         /// <summary>
         /// Should the stencil buffer be used to mask this outline rather than relying on depth? Required when a skybox is in use.
+        /// Note, it is up to the user to manage the stencil reference value.
         /// </summary>
         public bool UseStencilOutline
         {
@@ -67,12 +69,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        [Tooltip("Should the stencil buffer be used to mask this outline rather than relying on depth? Required when a skybox is in use.")]
+        [Tooltip("Should the stencil buffer be used to mask this outline rather than relying on depth? Required when a skybox is in use. Note, it is up to the user to manage the stencil reference value.")]
         [SerializeField]
         protected bool useStencilOutline = false;
 
         /// <summary>
         /// The material used write a value to the stencil buffer. This material should have \"Depth Write\" set to Off and a \"ColorMask\" set to Zero.
+        /// Note, this material is not automatically instanced.
         /// </summary>
         public Material StencilWriteMaterial
         {
@@ -87,7 +90,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        [Tooltip("The material used write a value to the stencil buffer. This material should have \"Depth Write\" set to Off and a \"ColorMask\" set to Zero.")]
+        [Tooltip("The material used write a value to the stencil buffer. This material should have \"Depth Write\" set to Off and a \"ColorMask\" set to Zero. Note, this material is not automatically instanced.")]
         [SerializeField]
         protected Material stencilWriteMaterial = null;
 
@@ -112,6 +115,27 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Range(0.0f, 1.0f)]
         protected float outlineMargin = 0.0f;
 
+        /// <summary>
+        /// "The value written to and read from the stencil buffer. This should be unique per outlined object."
+        /// </summary>
+        public int StencilID
+        {
+            get { return stencilID; }
+            set
+            {
+                if (stencilID != value)
+                {
+                    stencilID = value;
+                    ApplyStencilID();
+                }
+            }
+        }
+
+        [Tooltip("The value written to and read from the stencil buffer. This should be unique per outlined object.")]
+        [SerializeField]
+        [Range(1, 255)]
+        protected int stencilID = 1;
+
         #region MonoBehaviour Implementation
 
         /// <summary>
@@ -120,6 +144,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         protected virtual void OnDidApplyAnimationProperties()
         {
             ApplyOutlineWidth();
+            ApplyStencilID();
         }
 
         #endregion MonoBehaviour Implementation
@@ -133,5 +158,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Interface to to update the outline width with the renderer(s).
         /// </summary>
         public abstract void ApplyOutlineWidth();
+
+        /// <summary>
+        /// Interface to to update the stencil ID with the renderer(s).
+        /// </summary>
+        public abstract void ApplyStencilID();
     }
 }

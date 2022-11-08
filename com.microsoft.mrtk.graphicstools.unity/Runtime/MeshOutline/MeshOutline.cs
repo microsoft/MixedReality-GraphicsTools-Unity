@@ -21,6 +21,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private const string vertexExtrusionSmoothNormalsKeyword = "_VERTEX_EXTRUSION_SMOOTH_NORMALS";
 
         private Renderer meshRenderer = null;
+        private int stencilReferenceID = Shader.PropertyToID("_StencilReference");
         private int vertexExtrusionValueID = Shader.PropertyToID("_VertexExtrusionValue");
         private Material[] defaultMaterials = null;
         private MeshSmoother createdMeshSmoother = null;
@@ -117,6 +118,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             ApplyOutlineWidth();
+            ApplyStencilID();
 
             // Add the outline material as another material pass.
             var materials = new List<Material>(defaultMaterials);
@@ -132,7 +134,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Updates the current vertex extrusion value used by the shader. 
+        /// Updates the current vertex extrusion value used by the materials.
         /// </summary>
         public override void ApplyOutlineWidth()
         {
@@ -148,6 +150,22 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+        /// <summary>
+        /// Updates the current stencil ID used by the materials.
+        /// </summary>
+        public override void ApplyStencilID()
+        {
+            if (outlineMaterial != null)
+            {
+                outlineMaterial.SetFloat(stencilReferenceID, stencilID);
+            }
+
+            if (stencilWriteMaterial != null)
+            {
+                stencilWriteMaterial.SetFloat(stencilReferenceID, stencilID);
+            }
+        }
+
         #endregion BaseMeshOutline Implementation
 
         /// <summary>
@@ -160,6 +178,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             useStencilOutline = other.UseStencilOutline;
             stencilWriteMaterial = other.StencilWriteMaterial;
             outlineMargin = other.OutlineMargin;
+            stencilID = other.StencilID;
             ApplyOutlineMaterial();
         }
 

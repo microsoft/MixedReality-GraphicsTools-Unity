@@ -25,7 +25,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             meshOutlines = new List<MeshOutline>();
 
             var meshRenderers = GetComponentsInChildren<MeshRenderer>();
-   
+
             for (int i = 0; i < meshRenderers.Length; ++i)
             {
                 AddMeshOutline(meshRenderers[i]);
@@ -66,6 +66,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Forwards settings to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
         /// </summary>
         public override void ApplyOutlineWidth()
+        {
+            ApplyToChildren();
+        }
+
+        /// <summary>
+        /// Forwards settings to all children <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/>s.
+        /// </summary>
+        public override void ApplyStencilID()
         {
             ApplyToChildren();
         }
