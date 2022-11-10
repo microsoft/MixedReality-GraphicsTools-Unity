@@ -58,7 +58,7 @@
     },
     {
       "displayName": "Magnifier (Experimental)",
-      "description": "Demonstrates magnification in a stereoscopic rendering setup",
+      "description": "Demonstrates magnification in a stereoscopic rendering setup.",
       "path": "Samples~/Experimental/Magnifier"
     }
   ]
