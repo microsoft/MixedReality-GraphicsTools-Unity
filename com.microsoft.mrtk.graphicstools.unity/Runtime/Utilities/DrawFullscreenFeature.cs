@@ -47,6 +47,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             blitPass = new DrawFullscreenPass(name);
             blitPass.FilterMode = FilterMode.Bilinear;
         }
+
         /// <summary>
         /// Method <c>AddRenderPasses</c> calls the custom render pass.
         /// </summary>
