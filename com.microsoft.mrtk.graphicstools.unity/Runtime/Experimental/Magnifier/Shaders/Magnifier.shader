@@ -69,14 +69,12 @@ Shader "Graphics Tools/Magnifier"
             {               
                 float2 normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(i.vertex);
 
-                float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);
-
-                float zoomAmount = Magnification;
+                float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);              
 
                 // zoomCenter expects normalized coordinates (between 0 and 1)
                 float2 zoomCenter = Center;
 
-                float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, zoomAmount, zoomCenter);
+                float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, Magnification, zoomCenter);
                
                 float4 output = SAMPLE_TEXTURE2D_X(MagnifierTexture, samplerMagnifierTexture, zoomedUv);
                                 
