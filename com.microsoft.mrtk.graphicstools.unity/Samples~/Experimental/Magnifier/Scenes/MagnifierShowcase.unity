@@ -1788,6 +1788,7 @@ GameObject:
   - component: {fileID: 2139720945}
   - component: {fileID: 2139720944}
   - component: {fileID: 2139720943}
+  - component: {fileID: 2139720948}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -1912,6 +1913,49 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2139720948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2139720942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7fa20e0121f06f4ca28c947342626e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Boost: 1
+  MinBoost: 0.5
+  MaxBoost: 4
+  PositionLerpTime: 0.2
+  MouseSensitivityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 5
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 2.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  RotationLerpTime: 0.1
+  InvertY: 0
+  showControlsText: 1
 --- !u!1001 &4750978204798292840
 PrefabInstance:
   m_ObjectHideFlags: 0
