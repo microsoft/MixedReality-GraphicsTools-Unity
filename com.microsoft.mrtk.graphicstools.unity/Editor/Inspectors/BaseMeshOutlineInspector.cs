@@ -19,9 +19,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private SerializedProperty m_Script;
         private SerializedProperty outlineMaterial;
         private SerializedProperty outlineWidth;
+        private SerializedProperty autoAssignRenderQueue;
         private SerializedProperty useStencilOutline;
         private SerializedProperty stencilWriteMaterial;
-        private SerializedProperty outlineMargin;
+        private SerializedProperty outlineOffset;
         private SerializedProperty stencilReference;
 
         private readonly MaterialSettings defaultOutlineMaterialSettings = new MaterialSettings()
@@ -46,6 +47,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             { "_Mode", new MaterialValue(5.0f, true) },
             { "_CustomMode", new MaterialValue(0.0f, true) },
+            { "_ZTest", new MaterialValue((float)UnityEngine.Rendering.CompareFunction.Always, true) },
             { "_ZWrite", new MaterialValue(1.0f, true) },
 
             { "_Color", new MaterialValue(Color.green, false) },
@@ -70,6 +72,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             { "_Mode", new MaterialValue(5.0f, true) },
             { "_CustomMode", new MaterialValue(0.0f, true) },
+            { "_ZTest", new MaterialValue((float)UnityEngine.Rendering.CompareFunction.Always, true) },
             { "_ZWrite", new MaterialValue(0.0f, true) },
             { "_ColorWriteMask", new MaterialValue(0.0f, true) },
 
@@ -98,9 +101,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             m_Script = serializedObject.FindProperty("m_Script");
             outlineMaterial = serializedObject.FindProperty(nameof(outlineMaterial));
             outlineWidth = serializedObject.FindProperty(nameof(outlineWidth));
+            autoAssignRenderQueue = serializedObject.FindProperty(nameof(autoAssignRenderQueue));
             useStencilOutline = serializedObject.FindProperty(nameof(useStencilOutline));
             stencilWriteMaterial = serializedObject.FindProperty(nameof(stencilWriteMaterial));
-            outlineMargin = serializedObject.FindProperty(nameof(outlineMargin));
+            outlineOffset = serializedObject.FindProperty(nameof(outlineOffset));
             stencilReference = serializedObject.FindProperty(nameof(stencilReference));
         }
 
@@ -115,9 +119,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             DrawPropertiesExcluding(serializedObject, nameof(m_Script), 
                                                       nameof(outlineMaterial), 
                                                       nameof(outlineWidth), 
+                                                      nameof(autoAssignRenderQueue),
                                                       nameof(useStencilOutline), 
                                                       nameof(stencilWriteMaterial), 
-                                                      nameof(outlineMargin),
+                                                      nameof(outlineOffset),
                                                       nameof(stencilReference));
 
             EditorGUILayout.PropertyField(outlineMaterial);
@@ -127,6 +132,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             VerifyMaterial(outlineMaterial, instance.OutlineMaterial, outlineMaterialSettings, "Outline.mat");
 
             EditorGUILayout.PropertyField(outlineWidth);
+            EditorGUILayout.PropertyField(autoAssignRenderQueue);
 
             EditorGUILayout.PropertyField(useStencilOutline);
 
@@ -135,7 +141,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(stencilWriteMaterial);
                 VerifyMaterial(stencilWriteMaterial, instance.StencilWriteMaterial, defaultStencilMaterialSettings, "OutlineStencilWrite.mat");
-                EditorGUILayout.PropertyField(outlineMargin);
+                EditorGUILayout.PropertyField(outlineOffset);
                 EditorGUILayout.PropertyField(stencilReference);
                 EditorGUI.indentLevel--;
             }

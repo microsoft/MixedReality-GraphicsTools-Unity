@@ -92,15 +92,21 @@ namespace Microsoft.MixedReality.GraphicsTools
                     return;
                 }
 
-                // Ensure that the stencil after the default materials and the outline material after the stencil material.
-                int maxRenderQueue = GetMaxRenderQueue(defaultMaterials);
-                stencilWriteMaterial.renderQueue = maxRenderQueue + 1;
-                outlineMaterial.renderQueue = maxRenderQueue + 2;
+                // Ensure that the stencil material renders after the default materials and the outline material after the stencil material.
+                if (AutoAssignRenderQueue)
+                {
+                    int maxRenderQueue = Mathf.Max(GetMaxRenderQueue(defaultMaterials), (int)RenderQueue.Overlay);
+                    stencilWriteMaterial.renderQueue = maxRenderQueue + 1;
+                    outlineMaterial.renderQueue = maxRenderQueue + 2;
+                }
             }
             else
             {
                 // Ensure that the outline material always renders before the default materials.
-                outlineMaterial.renderQueue = GetMinRenderQueue(defaultMaterials) - 1;
+                if (AutoAssignRenderQueue)
+                {
+                    outlineMaterial.renderQueue = GetMinRenderQueue(defaultMaterials) - 1;
+                }
             }
 
             // If smooth normals are requested, make sure the mesh has smooth normals.
@@ -140,13 +146,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (outlineMaterial != null)
             {
-                outlineMaterial.SetFloat(vertexExtrusionValueID, outlineMargin + outlineWidth);
+                outlineMaterial.SetFloat(vertexExtrusionValueID, outlineOffset + outlineWidth);
             }
 
             if (stencilWriteMaterial != null)
             {
                 // Clamp to ensure we don't get z-fighting.
-                stencilWriteMaterial.SetFloat(vertexExtrusionValueID, Mathf.Max(0.00001f, outlineMargin));
+                stencilWriteMaterial.SetFloat(vertexExtrusionValueID, Mathf.Max(0.00001f, outlineOffset));
             }
         }
 
@@ -175,9 +181,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             outlineWidth = other.OutlineWidth;
             outlineMaterial = other.OutlineMaterial;
+            autoAssignRenderQueue = other.AutoAssignRenderQueue;
             useStencilOutline = other.UseStencilOutline;
             stencilWriteMaterial = other.StencilWriteMaterial;
-            outlineMargin = other.OutlineMargin;
+            outlineOffset = other.OutlineOffset;
             stencilReference = other.StencilReference;
             ApplyOutlineMaterial();
         }

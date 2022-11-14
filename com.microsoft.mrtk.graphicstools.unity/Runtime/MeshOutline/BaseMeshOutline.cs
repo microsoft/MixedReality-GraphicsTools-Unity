@@ -54,17 +54,38 @@ namespace Microsoft.MixedReality.GraphicsTools
         protected float outlineWidth = 0.01f;
 
         /// <summary>
+        /// Should the render queue be automatically calculated or based on the material properties?
+        /// </summary>
+        public bool AutoAssignRenderQueue
+        {
+            get { return autoAssignRenderQueue; }
+            set
+            {
+                if (autoAssignRenderQueue != value)
+                {
+                    autoAssignRenderQueue = value;
+                    ApplyOutlineMaterial();
+                }
+            }
+        }
+
+        [Tooltip("Should the render queue be automatically calculated or based on the material properties?")]
+        [SerializeField]
+        protected bool autoAssignRenderQueue = true;
+
+        /// <summary>
         /// Should the stencil buffer be used to mask this outline rather than relying on depth? Required when a skybox is in use.
         /// Note, it is up to the user to manage the stencil reference value.
         /// </summary>
         public bool UseStencilOutline
         {
             get { return useStencilOutline; }
-            set
-            {
+            set 
+            { 
                 if (useStencilOutline != value)
                 {
                     useStencilOutline = value;
+                    ApplyOutlineMaterial();
                 }
             }
         }
@@ -97,14 +118,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// How far (in meters) should the outline be begin from the surface. Overrides the "Extrusion Value" in the Graphics Tools/Standard material.
         /// </summary>
-        public float OutlineMargin
+        public float OutlineOffset
         {
-            get { return outlineMargin; }
+            get { return outlineOffset; }
             set
             {
-                if (outlineMargin != value)
+                if (outlineOffset != value)
                 {
-                    outlineMargin = value;
+                    outlineOffset = value;
                     ApplyOutlineWidth();
                 }
             }
@@ -113,7 +134,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("How far (in meters) should the outline be begin from the surface. Overrides the \"Extrusion Value\" in the Graphics Tools/Standard material.")]
         [SerializeField]
         [Range(0.0f, 1.0f)]
-        protected float outlineMargin = 0.0f;
+        protected float outlineOffset = 0.0f;
 
         /// <summary>
         /// "The value written to and read from the stencil buffer. This should be unique per outlined object."
