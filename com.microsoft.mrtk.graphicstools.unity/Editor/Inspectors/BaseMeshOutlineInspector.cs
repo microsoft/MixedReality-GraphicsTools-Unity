@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using MaterialValue = System.Tuple<object, bool>;
@@ -62,7 +61,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, false) },
 
             { "_EnableStencil", new MaterialValue(1.0f, true) },
-            { "_STENCIL", new MaterialValue(true, true) },
             { "_StencilReference", new MaterialValue(1.0f, true) },
             { "_StencilComparison", new MaterialValue((float)UnityEngine.Rendering.CompareFunction.NotEqual, true) },
             { "_StencilOperation", new MaterialValue((float)UnityEngine.Rendering.StencilOp.Keep, true) },
@@ -89,7 +87,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_ZOffsetUnits", new MaterialValue(-1.0f, true) },
 
             { "_EnableStencil", new MaterialValue(1.0f, true) },
-            { "_STENCIL", new MaterialValue(true, true) },
             { "_StencilReference", new MaterialValue(1.0f, true) },
             { "_StencilComparison", new MaterialValue((float)UnityEngine.Rendering.CompareFunction.Always, true) },
             { "_StencilOperation", new MaterialValue((float)UnityEngine.Rendering.StencilOp.Replace, true) },
@@ -247,47 +244,66 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 return false;
             }
 
-            return materialSettings.All(x =>
+            foreach (var x in materialSettings)
             {
                 // If the item isn't required the material is correct.
                 if (!x.Value.Item2)
                 {
-                    return true;
+                    continue;
                 }
 
                 switch (x.Value.Item1.GetType().Name)
                 {
                     case nameof(System.Single):
                         {
-                            // Special case, the _StencilReference can be in a range. 
+                            // Special case, the _StencilReference can be in a range.
                             if (x.Key == "_StencilReference")
                             {
-                                return (float)x.Value.Item1 > 0.0f && (float)x.Value.Item1 < 256.0f;
+                                if( (float)x.Value.Item1 <= 0.0f || (float)x.Value.Item1 >= 256.0f)
+                                {
+                                    return false;
+                                }
                             }
-
-                            return material.GetFloat(x.Key) == (float)x.Value.Item1;
+                            else if (material.GetFloat(x.Key) != (float)x.Value.Item1)
+                            {
+                                return false;
+                            }
                         }
+                        break;
                     case nameof(System.Boolean):
                         {
                             var val = (bool)x.Value.Item1;
                             if (val)
                             {
-                                return material.IsKeywordEnabled(x.Key);
+                                if (!material.IsKeywordEnabled(x.Key))
+                                {
+                                    return false;
+                                }
                             }
                             else
                             {
-                                return !material.IsKeywordEnabled(x.Key);
+                                if (material.IsKeywordEnabled(x.Key))
+                                {
+                                    return false;
+                                }
                             }
                         }
+                        break;
                     case nameof(Color):
                         {
-                            return material.GetColor(x.Key) == (Color)x.Value.Item1;
+                            if (material.GetColor(x.Key) != (Color)x.Value.Item1)
+                            {
+                                return false;
+                            }
                         }
+                        break;
                     default:
-                        // Default return value
-                        return false;
+                        Debug.LogWarning($"{x.Key} of type {x.Value.Item1.GetType().Name} was not handled.");
+                        break;
                 }
-            });
+            }
+
+            return true;
         }
 
         private static void DrawReadonlyPropertyField(SerializedProperty property, params GUILayoutOption[] options)
