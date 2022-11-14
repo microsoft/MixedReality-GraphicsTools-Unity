@@ -33,7 +33,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_Color", new MaterialValue(Color.green, false) },
 
             { "_DirectionalLight", new MaterialValue((float)LightMode.Unlit, false) },
-            { "_DirectionalLightProxy", new MaterialValue(0.0f, false) },
             { "_DIRECTIONAL_LIGHT", new MaterialValue(false, false) },
 
             { "_VertexExtrusion", new MaterialValue(1.0f, true) },
@@ -52,7 +51,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_Color", new MaterialValue(Color.green, false) },
 
             { "_DirectionalLight", new MaterialValue((float)LightMode.Unlit, false) },
-            { "_DirectionalLightProxy", new MaterialValue(0.0f, false) },
             { "_DIRECTIONAL_LIGHT", new MaterialValue(false, false) },
 
             { "_VertexExtrusion", new MaterialValue(1.0f, true) },
@@ -76,7 +74,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_ColorWriteMask", new MaterialValue(0.0f, true) },
 
             { "_DirectionalLight", new MaterialValue((float)LightMode.Unlit, false) },
-            { "_DirectionalLightProxy", new MaterialValue(0.0f, false) },
             { "_DIRECTIONAL_LIGHT", new MaterialValue(false, false) },
 
             { "_VertexExtrusion", new MaterialValue(1.0f, true) },
@@ -84,6 +81,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             { "_VertexExtrusionSmoothNormals", new MaterialValue(1.0f, false) },
             { "_VERTEX_EXTRUSION_SMOOTH_NORMALS", new MaterialValue(true, false) },
+
+            { "_ZOffsetFactor", new MaterialValue(-1.0f, true) },
+            { "_ZOffsetUnits", new MaterialValue(-1.0f, true) },
 
             { "_EnableStencil", new MaterialValue(1.0f, true) },
             { "_STENCIL", new MaterialValue(true, true) },
