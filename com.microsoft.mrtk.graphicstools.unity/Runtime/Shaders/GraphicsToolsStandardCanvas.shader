@@ -45,6 +45,7 @@ Shader "Graphics Tools/Standard Canvas"
         [Toggle(_VERTEX_EXTRUSION)] _VertexExtrusion("Vertex Extrusion", Float) = 0.0
         _VertexExtrusionValue("Vertex Extrusion Value", Float) = 0.0
         [Toggle(_VERTEX_EXTRUSION_SMOOTH_NORMALS)] _VertexExtrusionSmoothNormals("Vertex Extrusion Smooth Normals", Float) = 0.0
+        [Toggle(_VERTEX_EXTRUSION_CONSTANT_WIDTH)] _VertexExtrusionConstantWidth("Vertex Extrusion Constant Width", Float) = 0.0
         _BlendedClippingWidth("Clipping Alpha Falloff", Range(0.0, 10.0)) = 0.0
         [Toggle(_CLIPPING_BORDER)] _ClippingBorder("Clipping Border", Float) = 0.0
         _ClippingBorderWidth("Clipping Border Width", Range(0.0, 1.0)) = 0.025

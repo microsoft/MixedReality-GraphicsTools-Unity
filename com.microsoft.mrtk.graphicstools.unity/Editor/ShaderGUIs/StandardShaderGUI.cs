@@ -124,6 +124,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly GUIContent vertexExtrusion = new GUIContent("Vertex Extrusion", "Enable Vertex Extrusion Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionValue = new GUIContent("Extrusion Value", "How Far to Extrude the Vertex Along the Vertex Normal");
             public static readonly GUIContent vertexExtrusionSmoothNormals = new GUIContent("Use Smooth Normals", "Should Vertex Extrusion use the Smooth Normals in UV3, or Default Normals");
+            public static readonly GUIContent vertexExtrusionConstantWidth = new GUIContent("Constant Width", "Should the Extrusion Value be scaled by the pixels distance from the camera?");
             public static readonly GUIContent blendedClippingWidth = new GUIContent("Clipping Alpha Falloff", "Controls The Width of the Fade Region on Alpha Blended Materials. 0 Equals No Falloff.");
             public static readonly GUIContent clippingBorder = new GUIContent("Clipping Border", "Enable a Border Along the Clipping Primitive's Edge");
             public static readonly GUIContent clippingBorderWidth = new GUIContent("Width", "Width of the Clipping Border");
@@ -242,6 +243,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty vertexExtrusion;
         protected MaterialProperty vertexExtrusionValue;
         protected MaterialProperty vertexExtrusionSmoothNormals;
+        protected MaterialProperty vertexExtrusionConstantWidth;
         protected MaterialProperty blendedClippingWidth;
         protected MaterialProperty clippingBorder;
         protected MaterialProperty clippingBorderWidth;
@@ -356,6 +358,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             vertexExtrusion = FindProperty("_VertexExtrusion", props);
             vertexExtrusionValue = FindProperty("_VertexExtrusionValue", props);
             vertexExtrusionSmoothNormals = FindProperty("_VertexExtrusionSmoothNormals", props);
+            vertexExtrusionConstantWidth = FindProperty("_VertexExtrusionConstantWidth", props);
             blendedClippingWidth = FindProperty("_BlendedClippingWidth", props);
             clippingBorder = FindProperty("_ClippingBorder", props);
             clippingBorderWidth = FindProperty("_ClippingBorderWidth", props);
@@ -741,6 +744,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 materialEditor.ShaderProperty(vertexExtrusionValue, Styles.vertexExtrusionValue, 2);
                 materialEditor.ShaderProperty(vertexExtrusionSmoothNormals, Styles.vertexExtrusionSmoothNormals, 2);
+                materialEditor.ShaderProperty(vertexExtrusionConstantWidth, Styles.vertexExtrusionConstantWidth, 2);
             }
 
             if ((RenderingMode)renderingMode.floatValue != RenderingMode.Opaque &&

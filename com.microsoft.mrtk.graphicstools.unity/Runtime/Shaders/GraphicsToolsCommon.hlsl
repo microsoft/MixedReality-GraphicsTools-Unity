@@ -55,6 +55,15 @@ inline float GTGetWorldScaleMinAxis()
     return min(min(scale.x, scale.y), scale.z);
 }
 
+inline float GetDistanceToCamera(float4 vertexPosition)
+{
+#if defined(_URP)
+    return -TransformWorldToView(TransformObjectToWorld(vertexPosition.xyz)).z;
+#else
+    return -UnityObjectToViewPos(vertexPosition).z;
+#endif
+}
+
 /// <summary>
 /// Color space methods.
 /// </summary>
