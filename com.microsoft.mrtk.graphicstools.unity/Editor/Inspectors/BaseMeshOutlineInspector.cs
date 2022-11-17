@@ -11,7 +11,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     /// <summary>
     /// A custom inspector for BaseMeshOutline. Used for create or fix and outline material.
     /// </summary>
-    [CustomEditor(typeof(BaseMeshOutline), true)]
+    [CustomEditor(typeof(BaseMeshOutline), true), CanEditMultipleObjects]
     public class BaseMeshOutlineInspector : UnityEditor.Editor
     {
         private BaseMeshOutline instance;

@@ -62,7 +62,7 @@ Material:
     - _ClippingBorderWidth: 0.025
     - _ColorWriteMask: 15
     - _CullMode: 0
-    - _CustomMode: 2
+    - _CustomMode: 0
     - _Cutoff: 0.5
     - _DirectionalLight: 0
     - _DirectionalLightProxy: 0
@@ -101,7 +101,7 @@ Material:
     - _IridescenceThreshold: 0.05
     - _Metallic: 0
     - _MipmapBias: -2
-    - _Mode: 4
+    - _Mode: 5
     - _NPR: 0
     - _NearLightFade: 1
     - _NearPlaneFade: 1
@@ -135,6 +135,7 @@ Material:
     - _UseWorldScale: 1
     - _VertexColors: 0
     - _VertexExtrusion: 1
+    - _VertexExtrusionConstantWidth: 0
     - _VertexExtrusionSmoothNormals: 0
     - _VertexExtrusionValue: 0.01
     - _ZOffsetFactor: 0

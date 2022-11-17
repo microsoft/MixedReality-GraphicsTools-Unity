@@ -7,14 +7,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RainbowPulseOutlineStencilWrite
+  m_Name: CubeOutline
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ShaderKeywords: _DISABLE_ALBEDO_MAP _SPECULAR_HIGHLIGHTS _STENCIL _USE_WORLD_SCALE
-    _VERTEX_EXTRUSION _VERTEX_EXTRUSION_SMOOTH_NORMALS
+  m_ShaderKeywords: _DISABLE_ALBEDO_MAP _SPECULAR_HIGHLIGHTS _USE_WORLD_SCALE _VERTEX_EXTRUSION
+    _VERTEX_EXTRUSION_SMOOTH_NORMALS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 4001
+  m_CustomRenderQueue: 4002
   stringTagMap:
     DisableBatching: true
     RenderType: Opaque
@@ -59,12 +59,11 @@ Material:
     - _BorderWidth: 0.1
     - _ClippingBorder: 0
     - _ClippingBorderWidth: 0.025
-    - _ColorWriteMask: 0
+    - _ColorWriteMask: 15
     - _CullMode: 2
     - _CustomMode: 0
     - _Cutoff: 0.5
     - _DirectionalLight: 0
-    - _DirectionalLightProxy: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 1
     - _EdgeSmoothingMode: 0
@@ -118,8 +117,8 @@ Material:
     - _SphericalHarmonics: 0
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _StencilComparison: 8
-    - _StencilOperation: 2
+    - _StencilComparison: 6
+    - _StencilOperation: 0
     - _StencilReadMask: 255
     - _StencilReference: 1
     - _StencilWriteMask: 255
@@ -129,16 +128,16 @@ Material:
     - _VertexExtrusion: 1
     - _VertexExtrusionConstantWidth: 0
     - _VertexExtrusionSmoothNormals: 1
-    - _VertexExtrusionValue: 0.00001
-    - _ZOffsetFactor: -1
-    - _ZOffsetUnits: -1
+    - _VertexExtrusionValue: 0.01
+    - _ZOffsetFactor: 0
+    - _ZOffsetUnits: 0
     - _ZTest: 8
     - _ZWrite: 0
     m_Colors:
     - _BlurBackgroundRect: {r: 0, g: 0, b: 1, a: 1}
     - _BorderColor: {r: 1, g: 1, b: 1, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.19999996, b: 0, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0, g: 1, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
     - _EnvironmentColorY: {r: 0, g: 1, b: 0, a: 1}
