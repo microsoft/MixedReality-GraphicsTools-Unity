@@ -169,6 +169,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // A non-readable mesh cannot be processed, so return a null mesh.
                 if (sharedMesh.isReadable == false)
                 {
+                    Debug.LogWarning($"Mesh smoothing failed because {sharedMesh.name} is not readable. Check \"Read/Write Enabled\" in the mesh's import settings.");
+
                     mesh = null;
 
                     return true;
