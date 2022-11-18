@@ -45,6 +45,7 @@ Shader "Graphics Tools/Standard"
         [Toggle(_VERTEX_EXTRUSION)] _VertexExtrusion("Vertex Extrusion", Float) = 0.0
         _VertexExtrusionValue("Vertex Extrusion Value", Float) = 0.0
         [Toggle(_VERTEX_EXTRUSION_SMOOTH_NORMALS)] _VertexExtrusionSmoothNormals("Vertex Extrusion Smooth Normals", Float) = 0.0
+        [Toggle(_VERTEX_EXTRUSION_CONSTANT_WIDTH)] _VertexExtrusionConstantWidth("Vertex Extrusion Constant Width", Float) = 0.0
         _BlendedClippingWidth("Clipping Alpha Falloff", Range(0.0, 10.0)) = 0.0
         [Toggle(_CLIPPING_BORDER)] _ClippingBorder("Clipping Border", Float) = 0.0
         _ClippingBorderWidth("Clipping Border Width", Range(0.0, 1.0)) = 0.025
@@ -111,19 +112,19 @@ Shader "Graphics Tools/Standard"
         _BlurBackgroundRect("Blur Background Rect", Vector) = (0.0, 0.0, 1.0, 1.0)
 
         // Advanced options.
-        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.RenderingMode)] _Mode("Rendering Mode", Float) = 0 // "Opaque"
-        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.RenderingMode)] _CustomMode("Mode", Float) = 0     // "Opaque"
-        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                         // "One"
-        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 0                    // "Zero"
-        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1              // "One"
-        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1         // "One"
-        [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Float) = 0                         // "Add"
-        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4                        // "LessEqual"
-        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 1     // "On"
-        _ZOffsetFactor("Depth Offset Factor", Float) = 0                                                     // "Zero"
-        _ZOffsetUnits("Depth Offset Units", Float) = 0                                                       // "Zero"
-        [Enum(UnityEngine.Rendering.ColorWriteMask)] _ColorWriteMask("Color Write Mask", Float) = 15         // "All"
-        [Enum(UnityEngine.Rendering.CullMode)] _CullMode("Cull Mode", Float) = 2                             // "Back"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.RenderingMode)] _Mode("Rendering Mode", Float) = 0               // "Opaque"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.RenderingMode)] _CustomMode("Mode", Float) = 0                   // "Opaque"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Float) = 1                                       // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Float) = 0                                  // "Zero"
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendAlpha("Source Blend Alpha", Float) = 1                            // "One"
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendAlpha("Destination Blend Alpha", Float) = 1                       // "One"
+        [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Float) = 0                                       // "Add"
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4                                      // "LessEqual"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 1                   // "On"
+        _ZOffsetFactor("Depth Offset Factor", Float) = 0                                                                   // "Zero"
+        _ZOffsetUnits("Depth Offset Units", Float) = 0                                                                     // "Zero"
+        [Enum(Microsoft.MixedReality.GraphicsTools.Editor.ColorWriteMask)] _ColorWriteMask("Color Write Mask", Float) = 15 // "All"
+        [Enum(UnityEngine.Rendering.CullMode)] _CullMode("Cull Mode", Float) = 2                                           // "Back"
         _RenderQueueOverride("Render Queue Override", Range(-1.0, 5000)) = -1
         [Toggle(_USE_WORLD_SCALE)] _UseWorldScale("Absolute Size", Float) = 1.0
         [Toggle(_STENCIL)] _EnableStencil("Enable Stencil Testing", Float) = 0.0
