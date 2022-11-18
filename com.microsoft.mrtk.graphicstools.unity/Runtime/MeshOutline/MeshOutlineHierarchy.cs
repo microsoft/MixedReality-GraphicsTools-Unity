@@ -46,7 +46,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             foreach (var meshOutline in meshOutlines)
             {
-                meshOutline.enabled = true;
+                if (meshOutline != null)
+                {
+                    meshOutline.enabled = true;
+                }
             }
         }
 
@@ -57,7 +60,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             foreach (var meshOutline in meshOutlines)
             {
-                meshOutline.enabled = false;
+                if (meshOutline != null)
+                {
+                    meshOutline.enabled = false;
+                }
             }
         }
 
