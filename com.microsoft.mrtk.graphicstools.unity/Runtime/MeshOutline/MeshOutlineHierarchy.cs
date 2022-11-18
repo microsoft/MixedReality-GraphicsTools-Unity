@@ -40,6 +40,28 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
+        /// Enables all child mesh outlines.
+        /// </summary>
+        private void OnEnable()
+        {
+            foreach (var meshOutline in meshOutlines)
+            {
+                meshOutline.enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Disables all child mesh outlines.
+        /// </summary>
+        private void OnDisable()
+        {
+            foreach (var meshOutline in meshOutlines)
+            {
+                meshOutline.enabled = false;
+            }
+        }
+
+        /// <summary>
         /// Removes any components this component has created.
         /// </summary>
         private void OnDestroy()
