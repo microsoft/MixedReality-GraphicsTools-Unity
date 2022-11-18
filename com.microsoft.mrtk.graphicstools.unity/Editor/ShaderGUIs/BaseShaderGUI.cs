@@ -32,6 +32,20 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     }
 
     /// <summary>
+    /// Fork of https://docs.unity3d.com/ScriptReference/Rendering.ColorWriteMask.html which included a none option.
+    /// </summary>
+    [Flags]
+    public enum ColorWriteMask
+    {
+        None = 0,
+        Alpha = 1,
+        Blue = 2,
+        Green = 4,
+        Red = 8,
+        All = 15
+    }
+
+    /// <summary>
     /// A custom base shader inspector for Graphics Tools shaders.
     /// </summary>
     public abstract class BaseShaderGUI : ShaderGUI

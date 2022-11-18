@@ -101,24 +101,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
             }
 
-            // Create a camera clone with a transparent clear color.
+            // Create a camera clone.
             var renderCamera = new GameObject().AddComponent<Camera>();
+            renderCamera.CopyFrom(camera);
             renderCamera.orthographic = camera.orthographic;
             renderCamera.transform.position = camera.transform.position;
             renderCamera.transform.rotation = camera.transform.rotation;
             renderCamera.clearFlags = transparentClearColor ? CameraClearFlags.Color : camera.clearFlags;
-            renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) : camera.backgroundColor;
-            renderCamera.nearClipPlane = camera.nearClipPlane;
-            renderCamera.farClipPlane = camera.farClipPlane;
-
-            if (renderCamera.orthographic)
-            {
-                renderCamera.orthographicSize = camera.orthographicSize;
-            }
-            else
-            {
-                renderCamera.fieldOfView = camera.fieldOfView;
-            }
+            renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) : 
+                                                                   new Color(camera.backgroundColor.r, camera.backgroundColor.g, camera.backgroundColor.b, 1.0f);
 
             // Create a render texture for the camera clone to render into.
             var width = Screen.width * superSize;
