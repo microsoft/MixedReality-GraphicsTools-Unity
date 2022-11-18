@@ -151,7 +151,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Safely acquires a mesh for processing. Checks for meshes which have already been processed and increments reference counts.
         /// </summary>
-        /// <param name="mesh">A reference to the mesh which was already processed or is ready to be processed.</param>
+        /// <param name="mesh">A reference to the mesh which was already processed or is ready to be processed. Null if the mesh cannot be processed.</param>
         /// <returns>True if the mesh was already processed, false otherwise.</returns>
         private bool AcquirePreprocessedMesh(out UnityEngine.Mesh mesh)
         {
@@ -164,14 +164,27 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             MeshReference meshReference;
 
-            // If this mesh has already been processed, apply the preprocessed mesh and increment the reference count.
-            if (sharedMesh != null && processedMeshes.TryGetValue(sharedMesh, out meshReference))
+            if (sharedMesh != null)
             {
-                meshReference.Increment();
-                mesh = meshReference.Mesh;
-                meshFilter.mesh = mesh;
+                // A non-readable mesh cannot be processed, so return a null mesh.
+                if (sharedMesh.isReadable == false)
+                {
+                    Debug.LogWarning($"Mesh smoothing failed because {sharedMesh.name} is not readable. Check \"Read/Write Enabled\" in the mesh's import settings.");
 
-                return true;
+                    mesh = null;
+
+                    return true;
+                }
+
+                // If this mesh has already been processed, apply the preprocessed mesh and increment the reference count.
+                if (processedMeshes.TryGetValue(sharedMesh, out meshReference))
+                {
+                    meshReference.Increment();
+                    mesh = meshReference.Mesh;
+                    meshFilter.mesh = mesh;
+
+                    return true;
+                }
             }
 
             originalMesh = meshFilter.sharedMesh;
