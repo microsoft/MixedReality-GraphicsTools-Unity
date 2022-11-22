@@ -79,16 +79,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 return false;
             }
 
-            // If a transparent clear color isn't needed and we are capturing from the default camera, use Unity's screenshot API.
-            if (!transparentClearColor && (camera == null || camera == Camera.main))
-            {
-                ScreenCapture.CaptureScreenshot(path, superSize);
-
-                Debug.LogFormat("Screenshot captured to: {0}", path);
-
-                return true;
-            }
-
             // Make sure we have a valid camera to render from.
             if (camera == null)
             {
@@ -96,30 +86,30 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 if (camera == null)
                 {
-                    Debug.Log("Failed to acquire a valid camera to capture a screenshot from.");
+                    camera = GameObject.FindObjectOfType<Camera>();
 
-                    return false;
+                    if (camera == null)
+                    {
+                        Debug.LogError("Failed to find a any cameras to capture a screenshot from.");
+
+                        return false;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Capturing screenshot from a camera named \"{camera.name}\" because there is no camera tagged \"MainCamera\".");
+                    }
                 }
             }
 
-            // Create a camera clone with a transparent clear color.
+            // Create a camera clone.
             var renderCamera = new GameObject().AddComponent<Camera>();
+            renderCamera.CopyFrom(camera);
             renderCamera.orthographic = camera.orthographic;
             renderCamera.transform.position = camera.transform.position;
             renderCamera.transform.rotation = camera.transform.rotation;
             renderCamera.clearFlags = transparentClearColor ? CameraClearFlags.Color : camera.clearFlags;
-            renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) : camera.backgroundColor;
-            renderCamera.nearClipPlane = camera.nearClipPlane;
-            renderCamera.farClipPlane = camera.farClipPlane;
-
-            if (renderCamera.orthographic)
-            {
-                renderCamera.orthographicSize = camera.orthographicSize;
-            }
-            else
-            {
-                renderCamera.fieldOfView = camera.fieldOfView;
-            }
+            renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) : 
+                                                                   new Color(camera.backgroundColor.r, camera.backgroundColor.g, camera.backgroundColor.b, 1.0f);
 
             // Create a render texture for the camera clone to render into.
             var width = Screen.width * superSize;

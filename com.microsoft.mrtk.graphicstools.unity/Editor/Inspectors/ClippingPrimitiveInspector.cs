@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -27,10 +28,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected abstract Bounds OnGetFrameBounds();
 
         private ClippingPrimitive clippingPrimitive;
+        private SerializedProperty m_Script;
+        private SerializedProperty applyToSharedMaterial;
 
         private void OnEnable()
         {
             clippingPrimitive = (ClippingPrimitive)target;
+            m_Script = serializedObject.FindProperty(nameof(m_Script));
+            applyToSharedMaterial = serializedObject.FindProperty(nameof(applyToSharedMaterial));
         }
 
         /// <summary>
@@ -43,12 +48,25 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             using (var check = new EditorGUI.ChangeCheckScope())
             {
-                DrawDefaultInspector();
+                DrawReadonlyPropertyField(m_Script);
+
+                if (HasNoRenderers(previousRenderers))
+                {
+                    EditorGUILayout.PropertyField(applyToSharedMaterial);
+                }
+                else
+                {
+                    DrawReadonlyPropertyField(applyToSharedMaterial);
+                }
+
+                DrawPropertiesExcluding(serializedObject, nameof(m_Script), nameof(applyToSharedMaterial));
 
                 if (check.changed)
                 {
                     // Flagging changes other than renderers
                     clippingPrimitive.IsDirty = true;
+
+                    serializedObject.ApplyModifiedProperties();
                 }
             }
 
@@ -79,6 +97,26 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 clippingPrimitive.AddMaterial(material);
             }
+        }
+
+        private static void DrawReadonlyPropertyField(SerializedProperty property, params GUILayoutOption[] options)
+        {
+            GUI.enabled = false;
+            EditorGUILayout.PropertyField(property, options);
+            GUI.enabled = true;
+        }
+
+        private static bool HasNoRenderers(IEnumerable<Renderer> renderers)
+        {
+            foreach (var renderer in renderers)
+            {
+                if (renderer != null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

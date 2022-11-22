@@ -26,6 +26,7 @@
 #pragma shader_feature_local _LOCAL_SPACE_TRIPLANAR_MAPPING
 #pragma shader_feature_local_fragment _USE_SSAA
 #pragma shader_feature_local _ _DIRECTIONAL_LIGHT _DISTANT_LIGHT
+#pragma shader_feature_local _NON_PHOTOREALISTIC
 #pragma shader_feature_local_fragment _SPECULAR_HIGHLIGHTS
 #pragma shader_feature_local _SPHERICAL_HARMONICS
 #pragma shader_feature_local _REFLECTIONS
@@ -33,6 +34,7 @@
 #pragma shader_feature_local _VERTEX_COLORS
 #pragma shader_feature_local _VERTEX_EXTRUSION
 #pragma shader_feature_local_vertex _VERTEX_EXTRUSION_SMOOTH_NORMALS
+#pragma shader_feature_local_vertex _VERTEX_EXTRUSION_CONSTANT_WIDTH
 #pragma shader_feature_local _NEAR_PLANE_FADE
 #pragma shader_feature_local_vertex _NEAR_LIGHT_FADE
 #pragma shader_feature_local _HOVER_LIGHT
@@ -178,7 +180,14 @@ Varyings VertexStage(Attributes input)
 #endif
 #endif
 
+#if (defined(_VERTEX_EXTRUSION) && defined(_VERTEX_EXTRUSION_CONSTANT_WIDTH)) || defined(_NEAR_PLANE_FADE) && !defined(_NEAR_LIGHT_FADE)
+    float cameraDistance = GetDistanceToCamera(vertexPosition);
+#endif
+
 #if defined(_VERTEX_EXTRUSION)
+#if defined(_VERTEX_EXTRUSION_CONSTANT_WIDTH)
+    _VertexExtrusionValue *= cameraDistance;
+#endif
 #if defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
 #if defined(_URP)
     worldVertexPosition += TransformObjectToWorldNormal(input.uv2.xyz * output.scale) * _VertexExtrusionValue;
@@ -228,12 +237,7 @@ Varyings VertexStage(Attributes input)
         fadeDistance = min(fadeDistance, GTNearLightDistance(_ProximityLightData[dataIndex], output.worldPosition.xyz));
     }
 #else
-    
-#if defined(_URP)
-    float fadeDistance = -TransformWorldToView(TransformObjectToWorld(vertexPosition.xyz)).z;
-#else
-    float fadeDistance = -UnityObjectToViewPos(vertexPosition).z;
-#endif
+    float fadeDistance = cameraDistance;
 #endif
     output.worldPosition.w = max(saturate(mad(fadeDistance, rangeInverse, -_FadeCompleteDistance * rangeInverse)), _FadeMinValue);
 #endif
@@ -770,7 +774,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 #endif
 
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_NPR_Rendering)
     GTBRDFData brdfData;
     GTInitializeBRDFData(albedo.rgb, _Metallic, half3(1.0h, 1.0h, 1.0h), _Smoothness, albedo.a, brdfData);
 
@@ -785,8 +789,12 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
     // Direct lighting.
     GTMainLight light = GTGetMainLight();
+    // Non Photorealistic
+#if defined(_NON_PHOTOREALISTIC)
+    output.rgb += GTLightingNonPhotorealistic(brdfData, light.color, light.direction, worldNormal, worldViewDir);
+#else
     output.rgb += GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir);
-
+#endif
     // No lighting, but show reflections.
 #elif defined(_REFLECTIONS) 
     half3 reflectVector = reflect(-worldViewDir, worldNormal);

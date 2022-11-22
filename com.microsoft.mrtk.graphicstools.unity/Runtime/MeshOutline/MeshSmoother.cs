@@ -128,7 +128,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnDestroy()
         {
-            meshFilter.sharedMesh = originalMesh;
+            if (originalMesh != null)
+            {
+                meshFilter.sharedMesh = originalMesh;
+            }
 
             MeshReference meshReference;
             var sharedMesh = meshFilter.sharedMesh;
@@ -151,7 +154,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Safely acquires a mesh for processing. Checks for meshes which have already been processed and increments reference counts.
         /// </summary>
-        /// <param name="mesh">A reference to the mesh which was already processed or is ready to be processed.</param>
+        /// <param name="mesh">A reference to the mesh which was already processed or is ready to be processed. Null if the mesh cannot be processed.</param>
         /// <returns>True if the mesh was already processed, false otherwise.</returns>
         private bool AcquirePreprocessedMesh(out UnityEngine.Mesh mesh)
         {
@@ -160,12 +163,38 @@ namespace Microsoft.MixedReality.GraphicsTools
                 meshFilter = GetComponent<MeshFilter>();
             }
 
-            var sharedMesh = meshFilter.sharedMesh;
+            // No mesh filter, mesh cannot be processed, so return a null mesh.
+            if (meshFilter == null)
+            {
+                mesh = null;
+
+                return true;
+            }
+
+            originalMesh = meshFilter.sharedMesh;
+
+            // No mesh , mesh cannot be processed, so return a null mesh.
+            if (originalMesh == null)
+            {
+                mesh = null;
+
+                return true;
+            }
+
+            // A non-readable mesh cannot be processed, so return a null mesh.
+            if (originalMesh.isReadable == false)
+            {
+                Debug.LogWarning($"Mesh smoothing failed because {originalMesh.name} is not readable. Check \"Read/Write Enabled\" in the mesh's import settings.");
+
+                mesh = null;
+
+                return true;
+            }
 
             MeshReference meshReference;
 
             // If this mesh has already been processed, apply the preprocessed mesh and increment the reference count.
-            if (sharedMesh != null && processedMeshes.TryGetValue(sharedMesh, out meshReference))
+            if (processedMeshes.TryGetValue(originalMesh, out meshReference))
             {
                 meshReference.Increment();
                 mesh = meshReference.Mesh;
@@ -174,17 +203,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return true;
             }
 
-            originalMesh = meshFilter.sharedMesh;
-
             // Clone the mesh, and create a mesh reference which can be keyed off either the original mesh or cloned mesh.
             mesh = meshFilter.mesh;
             meshReference = new MeshReference(mesh);
             processedMeshes[mesh] = meshReference;
-
-            if (sharedMesh != null)
-            {
-                processedMeshes[sharedMesh] = meshReference;
-            }
+            processedMeshes[originalMesh] = meshReference;
 
             return false;
         }
