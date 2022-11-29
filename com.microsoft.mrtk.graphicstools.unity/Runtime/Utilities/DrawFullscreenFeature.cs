@@ -36,6 +36,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             public bool RestoreCameraColorTarget = true;
         }
 
+        /// <summary>
+        /// Defines a new Settings class
+        /// </summary>
         public Settings settings = new Settings();
         private DrawFullscreenPass blitPass;
 

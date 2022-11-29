@@ -13,8 +13,14 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Forked from: https://github.com/Unity-Technologies/UniversalRenderingExamples/tree/master/Assets/Scripts/Runtime/RenderPasses
     /// </summary>
     internal class DrawFullscreenPass : ScriptableRenderPass
-    {
+    { ///<summary>
+      ///Declares a filtering mode enum for  the source and destination render textures during blit
+      ///</summary>
         public FilterMode FilterMode { get; set; }
+
+        ///<summary>
+        ///A set of outlined controls for performing a fullscreen blit via this render pass
+        ///</summary>
         public DrawFullscreenFeature.Settings Settings;
 
         private RenderTargetIdentifier source;
@@ -27,11 +33,16 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool isSourceAndDestinationSameTarget;
         private string profilerTag;
 
+        ///<summary>
+        /// Assigns tag to the CMD buffer for this render pass
+        ///</summary>
         public DrawFullscreenPass(string tag)
         {
             profilerTag = tag;
         }
-
+        ///<summary>
+        /// Extracts the camera's view as a render texture in order for it to be assigned to the material of the fullscreen mesh
+        ///</summary>
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             RenderTextureDescriptor blitTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;

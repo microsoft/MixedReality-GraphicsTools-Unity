@@ -10,7 +10,11 @@ Shader "Graphics Tools/Magnifier"
     }
     SubShader
     {
-       
+        PackageRequirements
+        {
+            "com.unity.render-pipelines.universal": "10.6.0"
+        }
+
         Tags
         {
             "RenderType" = "Transparent"
@@ -71,14 +75,11 @@ Shader "Graphics Tools/Magnifier"
 
                 float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);              
 
-                // zoomCenter expects normalized coordinates (between 0 and 1)
-                float2 zoomCenter = Center;
-
-                float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, Magnification, zoomCenter);
+                float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, Magnification, Center);
                
                 float4 output = SAMPLE_TEXTURE2D_X(MagnifierTexture, samplerMagnifierTexture, zoomedUv);
                                 
-              return output;
+                return output;
             }
            ENDHLSL
         }
