@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Shadow
+  m_Name: Shadow_Hardness
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ValidKeywords:
   - _ALPHABLEND_ON
@@ -100,7 +100,7 @@ Material:
     - _BorderLightReplacesAlbedo: 1
     - _BorderLightUsesHoverColor: 0
     - _BorderMinValue: 0.6
-    - _BorderWidth: 0.1
+    - _BorderWidth: 0
     - _BorderWidthHorizontal: 0.1
     - _BorderWidthVertical: 0.1
     - _BumpScale: 1
@@ -120,7 +120,7 @@ Material:
     - _DstBlend: 10
     - _DstBlendAlpha: 1
     - _EdgeSmoothingMode: 0
-    - _EdgeSmoothingValue: 0.132
+    - _EdgeSmoothingValue: 0.01
     - _EnableChannelMap: 0
     - _EnableEmission: 0
     - _EnableHoverColorOpaqueOverride: 0
@@ -174,11 +174,11 @@ Material:
     - _RenderQueueOverride: 3001
     - _RimLight: 0
     - _RimPower: 5.83
-    - _RoundCornerMargin: 0.132
-    - _RoundCornerRadius: 0.026
+    - _RoundCornerMargin: 0
+    - _RoundCornerRadius: 0.132
     - _RoundCorners: 1
     - _RoundCornersHideInterior: 0
-    - _Smoothness: 0.5
+    - _Smoothness: 0.365
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 0
     - _SphericalHarmonics: 0
@@ -208,7 +208,7 @@ Material:
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
-    - _Color: {r: 0.25, g: 0.25, b: 0.25, a: 0.34117648}
+    - _Color: {r: 1, g: 0.79562736, b: 0, a: 0.2627451}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}

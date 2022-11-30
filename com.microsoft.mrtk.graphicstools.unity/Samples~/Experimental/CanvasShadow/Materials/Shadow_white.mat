@@ -7,13 +7,11 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Shadow
+  m_Name: Shadow_white
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ValidKeywords:
   - _ALPHABLEND_ON
   - _BORDER_LIGHT_REPLACES_ALBEDO
-  - _DISABLE_ALBEDO_MAP
-  - _METALLIC_TEXTURE_ALBEDO_CHANNEL_A
   - _ROUND_CORNERS
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -64,7 +62,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: a022f0d48f866cb49b298f421146d23d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -85,7 +83,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlbedoAlphaMode: 1
+    - _AlbedoAlphaMode: 0
     - _AlbedoAlphaSmoothness: 0
     - _AlbedoAssignedAtRuntime: 0
     - _BlendOp: 2
@@ -120,7 +118,7 @@ Material:
     - _DstBlend: 10
     - _DstBlendAlpha: 1
     - _EdgeSmoothingMode: 0
-    - _EdgeSmoothingValue: 0.132
+    - _EdgeSmoothingValue: 0.3
     - _EnableChannelMap: 0
     - _EnableEmission: 0
     - _EnableHoverColorOpaqueOverride: 0
@@ -135,7 +133,7 @@ Material:
     - _EnvironmentColorIntensity: 0.5
     - _EnvironmentColorThreshold: 1.5
     - _EnvironmentColoring: 0
-    - _Fade: 1
+    - _Fade: 0.74
     - _FadeBeginDistance: 0.85
     - _FadeCompleteDistance: 0.5
     - _FadeMinValue: 0
@@ -157,7 +155,7 @@ Material:
     - _IridescenceIntensity: 0.75
     - _IridescenceThreshold: 0.05
     - _Metallic: 0
-    - _MipmapBias: -2
+    - _MipmapBias: -3.34
     - _Mode: 5
     - _NPR: 0
     - _NearLightFade: 0
@@ -174,11 +172,11 @@ Material:
     - _RenderQueueOverride: 3001
     - _RimLight: 0
     - _RimPower: 5.83
-    - _RoundCornerMargin: 0.132
-    - _RoundCornerRadius: 0.026
+    - _RoundCornerMargin: 0.26
+    - _RoundCornerRadius: 0.5
     - _RoundCorners: 1
     - _RoundCornersHideInterior: 0
-    - _Smoothness: 0.5
+    - _Smoothness: 0.331
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 0
     - _SphericalHarmonics: 0
@@ -208,7 +206,7 @@ Material:
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
-    - _Color: {r: 0.25, g: 0.25, b: 0.25, a: 0.34117648}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
