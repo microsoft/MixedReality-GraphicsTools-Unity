@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Lava_Base_color
+  m_Name: Lava_Base_color-Outside
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ShaderKeywords: _GLOSSYREFLECTIONS_OFF _SPECULAR_HIGHLIGHTS _TRIPLANAR_MAPPING
     _USE_WORLD_SCALE
