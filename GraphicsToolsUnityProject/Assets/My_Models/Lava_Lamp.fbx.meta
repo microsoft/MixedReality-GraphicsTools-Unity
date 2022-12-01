@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9353b13e64514c94b9dba11889115edf
+guid: 2f2a0e2e726402641b13329ef5b8f9e2
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
@@ -8,22 +8,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat
-    second: {fileID: 2100000, guid: 58759deac7e8faf499cacab40cd9cd94, type: 2}
+    second: {fileID: 2100000, guid: 7672e3b56958ee04d9c4eab0f56f4e59, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat.1
-    second: {fileID: 2100000, guid: ef68c36a4c66b474883cfd2f960b2c37, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Mat.2
-    second: {fileID: 2100000, guid: bd6dfb7f76c6f324f8d9335d9240e494, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Mat.3
-    second: {fileID: 2100000, guid: 9eb7f846254e0394092845719c355920, type: 2}
+    second: {fileID: 2100000, guid: 7ecb159e00de17d479f128c642eb54ea, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -59,10 +49,10 @@ ModelImporter:
     addColliders: 0
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
-    importVisibility: 0
-    importBlendShapes: 0
-    importCameras: 0
-    importLights: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
     generateSecondaryUV: 0
@@ -87,7 +77,7 @@ ModelImporter:
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
-    tangentImportMode: 0
+    tangentImportMode: 3
     normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
