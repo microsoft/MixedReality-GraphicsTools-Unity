@@ -191,7 +191,7 @@ Material:
     - _RoundCornerRadius: 0.25
     - _RoundCorners: 0
     - _RoundCornersHideInterior: 0
-    - _Smoothness: 0.816
+    - _Smoothness: 0.431
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SphericalHarmonics: 1
