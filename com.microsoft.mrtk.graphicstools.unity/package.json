@@ -57,9 +57,15 @@
       "path": "Samples~/Experimental/CanvasShadow"
     },
     {
+<<<<<<< HEAD
       "displayName": "Magnifier (Experimental)",
       "description": "Demonstrates magnification in a stereoscopic rendering setup.",
       "path": "Samples~/Experimental/Magnifier"
+=======
+      "displayName": "Clipping Primitives",
+      "description": "Examples of different clipping primitive components used to clip through objects.",
+      "path": "Samples~/ClippingPrimitives"
+>>>>>>> a8fab4e (Clipping Primitives Hide Samples)
     }
   
   ]
