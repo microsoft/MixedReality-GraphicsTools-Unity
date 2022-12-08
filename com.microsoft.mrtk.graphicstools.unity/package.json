@@ -56,5 +56,6 @@
       "description": "Demonstrates how to add a procedural drop shadow on a canvas.",
       "path": "Samples~/Experimental/CanvasShadow"
     }
+  
   ]
 }
