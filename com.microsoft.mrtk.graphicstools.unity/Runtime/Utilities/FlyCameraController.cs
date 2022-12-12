@@ -24,7 +24,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             public void SetFromTransform(Transform t)
             {
                 Position = t.position;
-                Rotation = t.eulerAngles;
+                Vector3 euler = t.eulerAngles;
+                Rotation = new Vector3(euler.y, euler.x, euler.z);
             }
 
             public void Translate(Vector3 translation)
@@ -70,7 +71,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public bool InvertY = false;
 
         [Header("Other Settings")]
-        public bool showControlsText = true;
+        public bool showControlsText = false;
 
         private CameraState targetCameraState = new CameraState();
         private CameraState interpolatingCameraState = new CameraState();
