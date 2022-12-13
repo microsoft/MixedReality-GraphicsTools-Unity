@@ -1,70 +1,91 @@
-using ICSharpCode.NRefactory.Ast;
-using System.Collections;
-using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#if GT_USE_URP
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using static Microsoft.MixedReality.GraphicsTools.AcrylicLayerManager;
 
 namespace Microsoft.MixedReality.GraphicsTools
-{  /// <summary>
+{
+   /// <summary>
    /// Manages creating and updating render features necessary for the magnification effect on the scriptable render pipeline that in use .
    /// </summary>
     public class MagnifierManager : MonoBehaviour
     {
-        [Tooltip("When to copy the framebuffer in the rendering pipeline. No effect when render-to-texture is used.")]
-        public RenderPassEvent captureEvent = RenderPassEvent.AfterRenderingTransparents;
-        [Tooltip("If not nothing, creates render object features for the specified layers.")]
-        public LayerMask renderLayers;
-        public Material blitMaterial;
-        public string blitSourceTextureName;
-        public int blitMaterialPassIndex;  
-        public BufferType sourceType = BufferType.CameraColor;
-        public BufferType destyinationType = BufferType.Custom;
-        public string sourceTextureId;
-        public string destinationTextureId = "MagnifierTexture";
-        public bool restoreCameraColorTarget;
-        private int index;
-        private static MagnifierManager instance;
-        private DrawFullscreenFeature magnifierFeature;
-        private ScriptableRendererFeature renderTransparent;
-        public static MagnifierManager Instance
+        [SerializeField]
+        private DrawFullscreenFeature.Settings drawFullscreenSettings = new DrawFullscreenFeature.Settings()
         {
-            get { return instance; }
-        }
+            renderPassEvent = RenderPassEvent.AfterRenderingTransparents,
+            SourceType = BufferType.CameraColor,
+            DestinationType = BufferType.Custom,
+            SourceTextureId = string.Empty,
+            DestinationTextureId = "MagnifierTexture",
+        };
+
+        [SerializeField, Header("Render Objects Settings")]
+        private RenderObjects.RenderObjectsSettings renderObjectsSettings = new RenderObjects.RenderObjectsSettings()
+        {
+            Event = RenderPassEvent.AfterRenderingTransparents,
+            filterSettings = new RenderObjects.FilterSettings()
+            {
+                RenderQueueType = RenderQueueType.Transparent
+            }
+        };
+
         [Tooltip("Which renderer to use in the UniversalRenderPipelineAsset.")]
         [SerializeField]
         private int rendererIndex = 0;
+
+        private DrawFullscreenFeature magnifierFeature;
+        private ScriptableRendererFeature renderTransparent;
         private bool initialized = false;
-       
+
 #if UNITY_2021_2_OR_NEWER
         private UniversalRendererData rendererData = null;
 #else
         private ForwardRendererData rendererData = null;
 #endif
+        private LayerMask previousOpaqueLayerMask;
+        private LayerMask previousTransparentLayerMask;
 
-        //OnEnable is called when the object becomes enabled and active.
-        void OnEnable()
-        {
-            Initialize();
-        }
-
-        //OnDisable is called when the object becomes disabled and inactive.
-        void OnDisable()
-        {
-            rendererData.rendererFeatures.Remove(magnifierFeature);
-            rendererData.rendererFeatures.Remove(renderTransparent);
-            rendererData.SetDirty();
-        }
-        private void Initialize()
+        private void OnEnable()
         {
             if (!initialized)
             {
-                initialized = true;
                 InitializeRendererData();
-                CreateRendererFeatures();
+
+                if (rendererData != null)
+                {
+                    CreateRendererFeatures();
+                    initialized = true;
+                }
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (initialized)
+            {
+                if (magnifierFeature != null)
+                {
+                    rendererData.rendererFeatures.Remove(magnifierFeature);
+                }
+
+                if (renderTransparent != null)
+                {
+                    rendererData.rendererFeatures.Remove(renderTransparent);
+                }
+
+                // Reset the layer masks.
+                rendererData.opaqueLayerMask = previousOpaqueLayerMask;
+                rendererData.transparentLayerMask = previousTransparentLayerMask;
+
+                rendererData.SetDirty();
+
+                initialized = false;
             }
         }
 
@@ -74,6 +95,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void InitializeRendererData()
         {
             var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
+
             if (pipeline == null)
             {
                 Debug.LogWarning("Universal Render Pipeline not found");
@@ -92,45 +114,45 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Method <c>CreateRendererFeatures</c> creates renderer features and adds them to a list of features to be deployed on the scriptable render pipeline.
         /// </summary>
-        public void CreateRendererFeatures()
+        private void CreateRendererFeatures()
         {
-            magnifierFeature = CreateMagnifierFullsreenFeature("Magnifier Fullscreen Feature" + index, captureEvent, blitMaterial, Camera.main);
+            magnifierFeature = CreateMagnifierFullsreenFeature("Magnifier Draw Fullscreen Feature", drawFullscreenSettings);
             rendererData.rendererFeatures.Add(magnifierFeature);
-            renderTransparent = CreateRenderObjectsFeature("Render After Transparent " + index, RenderQueueType.Transparent, captureEvent);
+            renderTransparent = CreateMagnifierRenderObjectsFeature("Magnifier Render Objects", renderObjectsSettings);
             rendererData.rendererFeatures.Add(renderTransparent);
+
+            // Don't render the layers rendered by the RenderObjectsFeature
+            previousOpaqueLayerMask = rendererData.opaqueLayerMask;
+            previousTransparentLayerMask = rendererData.transparentLayerMask;
+            rendererData.opaqueLayerMask &= ~renderObjectsSettings.filterSettings.LayerMask;
+            rendererData.transparentLayerMask &= ~renderObjectsSettings.filterSettings.LayerMask;
+
             rendererData.SetDirty();
         }
 
         /// <summary>
         /// Method <c>CreateMagnifierFullsreenFeature</c> creates an instance of the draw fullscreen renderer feature.
         /// </summary>
-        public DrawFullscreenFeature CreateMagnifierFullsreenFeature(string name, RenderPassEvent passEvent, Material blitMaterial, Camera targetCamera)
+        private DrawFullscreenFeature CreateMagnifierFullsreenFeature(string name, DrawFullscreenFeature.Settings settings)
         {
-            DrawFullscreenFeature magnifierFeature = null;
-            magnifierFeature = ScriptableObject.CreateInstance<DrawFullscreenFeature>();
-            magnifierFeature.name = name;
-            magnifierFeature.settings.renderPassEvent = captureEvent;
-            magnifierFeature.settings.SourceTextureId = "";
-            magnifierFeature.settings.DestinationTextureId = "MagnifierTexture";
-            magnifierFeature.settings.DestinationType = BufferType.Custom;
-            magnifierFeature.settings.SourceType= BufferType.CameraColor;
-            magnifierFeature.settings.BlitMaterialPassIndex = -1;
-            magnifierFeature.settings.BlitMaterial = blitMaterial;        
-            return magnifierFeature;
+            DrawFullscreenFeature feature = ScriptableObject.CreateInstance<DrawFullscreenFeature>();
+            feature.name = name;
+            feature.settings = settings;
+
+            return feature;
         }
 
         /// <summary>
         /// Method <c>CreateRenderObjectsFeature</c> creates an instance of the render objects renderer feature.
         /// </summary>
-        private ScriptableRendererFeature CreateRenderObjectsFeature(string name, RenderQueueType queue, RenderPassEvent renderPassEvent)
+        private ScriptableRendererFeature CreateMagnifierRenderObjectsFeature(string name, RenderObjects.RenderObjectsSettings settings)
         {
-            RenderObjects r = ScriptableObject.CreateInstance<RenderObjects>();
-            r.name = name;
-            r.settings.Event = renderPassEvent;
-            r.settings.filterSettings.RenderQueueType = queue;
-            r.settings.filterSettings.LayerMask = renderLayers;
-            return r;
-        }
+            RenderObjects feature = ScriptableObject.CreateInstance<RenderObjects>();
+            feature.name = name;
+            feature.settings = settings;
 
+            return feature;
+        }
     }
 }
+#endif // GT_USE_URP

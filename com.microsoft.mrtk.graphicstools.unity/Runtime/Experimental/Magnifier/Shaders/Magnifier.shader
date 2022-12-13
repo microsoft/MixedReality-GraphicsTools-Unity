@@ -84,4 +84,6 @@ Shader "Graphics Tools/Magnifier"
            ENDHLSL
         }
     }
+
+    Fallback "Hidden/InternalErrorShader"
 }

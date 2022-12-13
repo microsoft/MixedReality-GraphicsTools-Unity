@@ -997,16 +997,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89dc6f73d9e8f76428559bdcbad37420, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  count: 100
-  primitiveType: 0
-  orbitalMaterial: {fileID: -1294284738371021749, guid: 26384066970d00541827ecc4f996cd01, type: 3}
-  size: 0.03
-  sizeVary: 0.7
-  speed: 0.02
-  speedVary: 0.8
-  radius: 0.5
+  count: 16
+  primitiveType: 3
+  orbitalMaterial: {fileID: 0}
+  size: 0.1
+  sizeVary: 0.5
+  speed: 1
+  speedVary: 0.5
+  radius: 1
   radiusVary: 0.5
-  tiltVary: 0.5
+  tiltVary: 0.1
 --- !u!4 &1140089218
 Transform:
   m_ObjectHideFlags: 0
@@ -1702,18 +1702,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a020379f78c3d574d99a41a4be6dabc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  captureEvent: 500
-  renderLayers:
-    serializedVersion: 2
-    m_Bits: 256
-  blitMaterial: {fileID: 2100000, guid: aee43c1cf28a72e48ae850053692e23e, type: 2}
-  blitSourceTextureName: 
-  blitMaterialPassIndex: -1
-  sourceType: 0
-  destyinationType: 1
-  sourceTextureId: 
-  destinationTextureId: MagnifierTexture
-  restoreCameraColorTarget: 1
+  drawFullscreenSettings:
+    renderPassEvent: 500
+    BlitMaterial: {fileID: 2100000, guid: aee43c1cf28a72e48ae850053692e23e, type: 2}
+    BlitSourceTextureName: _SourceTex
+    BlitMaterialPassIndex: -1
+    SourceType: 0
+    DestinationType: 1
+    SourceTextureId: 
+    DestinationTextureId: MagnifierTexture
+    RestoreCameraColorTarget: 1
+  renderObjectsSettings:
+    passTag: 
+    Event: 500
+    filterSettings:
+      RenderQueueType: 1
+      LayerMask:
+        serializedVersion: 2
+        m_Bits: 256
+      PassNames: []
+    overrideMaterial: {fileID: 0}
+    overrideMaterialPassIndex: 0
+    overrideDepthState: 0
+    depthCompareFunction: 4
+    enableWrite: 1
+    stencilSettings:
+      overrideStencilState: 0
+      stencilReference: 0
+      stencilCompareFunction: 8
+      passOperation: 0
+      failOperation: 0
+      zFailOperation: 0
+    cameraSettings:
+      overrideCamera: 0
+      restoreCamera: 1
+      offset: {x: 0, y: 0, z: 0, w: 0}
+      cameraFieldOfView: 60
   rendererIndex: 0
 --- !u!1 &2086421044
 GameObject:
