@@ -9,30 +9,23 @@ using UnityEngine.Rendering.Universal;
 using static Microsoft.MixedReality.GraphicsTools.AcrylicLayerManager;
 
 namespace Microsoft.MixedReality.GraphicsTools
-{
-  
+{  /// <summary>
+   /// Manages creating and updating render features necessary for the magnification effect on the scriptable render pipeline that in use .
+   /// </summary>
     public class MagnifierManager : MonoBehaviour
     {
-        public class Settings
-        {
-
-
-        }
         [Tooltip("When to copy the framebuffer in the rendering pipeline. No effect when render-to-texture is used.")]
         public RenderPassEvent captureEvent = RenderPassEvent.AfterRenderingTransparents;
         [Tooltip("If not nothing, creates render object features for the specified layers.")]
         public LayerMask renderLayers;
         public Material blitMaterial;
-
         public string blitSourceTextureName;
-        public int blitMaterialPassIndex;
-       
+        public int blitMaterialPassIndex;  
         public BufferType sourceType = BufferType.CameraColor;
         public BufferType destyinationType = BufferType.Custom;
         public string sourceTextureId;
         public string destinationTextureId = "MagnifierTexture";
         public bool restoreCameraColorTarget;
-        public Settings settings;
         private int index;
         private static MagnifierManager instance;
         private DrawFullscreenFeature magnifierFeature;
@@ -45,32 +38,21 @@ namespace Microsoft.MixedReality.GraphicsTools
         [SerializeField]
         private int rendererIndex = 0;
         private bool initialized = false;
-        public int RendererIndex
-        {
-            get { return rendererIndex; }
-            set
-            {
-                if (initialized)
-                {
-                    Debug.LogWarning("Failed to set the render index because the layer manager is already initialized.");
-                    return;
-                }
-
-                rendererIndex = value;
-            }
-        }
+       
 #if UNITY_2021_2_OR_NEWER
         private UniversalRendererData rendererData = null;
 #else
         private ForwardRendererData rendererData = null;
 #endif
-        // Start is called before the first frame update
+
+        //OnEnable is called when the object becomes enabled and active.
         void OnEnable()
         {
             Initialize();
-
         }
-        private void OnDisable()
+
+        //OnDisable is called when the object becomes disabled and inactive.
+        void OnDisable()
         {
             rendererData.rendererFeatures.Remove(magnifierFeature);
             rendererData.rendererFeatures.Remove(renderTransparent);
@@ -82,15 +64,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 initialized = true;
                 InitializeRendererData();
-                if (rendererData != null)
-                {
-                    // RemoveExistingAcrylicPasses();
-                }
                 CreateRendererFeatures();
-                
-
             }
         }
+
+        /// <summary>
+        /// Method <c>InitializeRendererData</c> gets the selected scriptable render pipeline thats currently in use.
+        /// </summary>
         private void InitializeRendererData()
         {
             var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
@@ -108,18 +88,25 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif
             }
         }
+
+        /// <summary>
+        /// Method <c>CreateRendererFeatures</c> creates renderer features and adds them to a list of features to be deployed on the scriptable render pipeline.
+        /// </summary>
         public void CreateRendererFeatures()
         {
-            magnifierFeature = setMagnifier("Magnifier Fullscreen Feature" + index, captureEvent, blitMaterial, Camera.main);
+            magnifierFeature = CreateMagnifierFullsreenFeature("Magnifier Fullscreen Feature" + index, captureEvent, blitMaterial, Camera.main);
             rendererData.rendererFeatures.Add(magnifierFeature);
             renderTransparent = CreateRenderObjectsFeature("Render After Transparent " + index, RenderQueueType.Transparent, captureEvent);
             rendererData.rendererFeatures.Add(renderTransparent);
             rendererData.SetDirty();
         }
-        public DrawFullscreenFeature setMagnifier(string name, RenderPassEvent passEvent, Material blitMaterial, Camera targetCamera)
+
+        /// <summary>
+        /// Method <c>CreateMagnifierFullsreenFeature</c> creates an instance of the draw fullscreen renderer feature.
+        /// </summary>
+        public DrawFullscreenFeature CreateMagnifierFullsreenFeature(string name, RenderPassEvent passEvent, Material blitMaterial, Camera targetCamera)
         {
             DrawFullscreenFeature magnifierFeature = null;
-
             magnifierFeature = ScriptableObject.CreateInstance<DrawFullscreenFeature>();
             magnifierFeature.name = name;
             magnifierFeature.settings.renderPassEvent = captureEvent;
@@ -128,13 +115,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             magnifierFeature.settings.DestinationType = BufferType.Custom;
             magnifierFeature.settings.SourceType= BufferType.CameraColor;
             magnifierFeature.settings.BlitMaterialPassIndex = -1;
-            magnifierFeature.settings.BlitMaterial = blitMaterial;
-            //  magnifierFeature.targetCamera = targetCamera;
-
-
+            magnifierFeature.settings.BlitMaterial = blitMaterial;        
             return magnifierFeature;
         }
 
+        /// <summary>
+        /// Method <c>CreateRenderObjectsFeature</c> creates an instance of the render objects renderer feature.
+        /// </summary>
         private ScriptableRendererFeature CreateRenderObjectsFeature(string name, RenderQueueType queue, RenderPassEvent renderPassEvent)
         {
             RenderObjects r = ScriptableObject.CreateInstance<RenderObjects>();
@@ -145,10 +132,5 @@ namespace Microsoft.MixedReality.GraphicsTools
             return r;
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
     }
 }
