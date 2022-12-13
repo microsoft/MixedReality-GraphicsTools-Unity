@@ -15,17 +15,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.UnityUI
         {
             rend = GetComponent<Renderer>();
             mat = GetComponent<Renderer>().material;
-
-
-        }
-
-        void Update()
-        {
-            
-            {
-                mat.SetColor("_EmissiveColor", Color.red);
-            }
+            mat.SetColor("_EmissiveColor", Color.red);
 
         }
+
+        
     }
 }

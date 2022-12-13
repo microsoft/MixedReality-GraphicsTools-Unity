@@ -183,7 +183,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Shadow Variant Samples
 
-'
+    (non-clickable samples)'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -625,9 +625,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 57725839054130256, guid: 8472770c16b731445a13e1f4804c4bf3, type: 3}
       propertyPath: m_text
-      value: 'Clickable Button
-
-        (Realtime)'
+      value: Realtime Sample
       objectReference: {fileID: 0}
     - target: {fileID: 57725839054130256, guid: 8472770c16b731445a13e1f4804c4bf3, type: 3}
       propertyPath: m_margin.x
@@ -1095,7 +1093,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6987474364445597170, guid: f66c73c6de6e54f4c9a3ad7a9338159e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 141.99997
+      value: 270
       objectReference: {fileID: 0}
     - target: {fileID: 6987474364445597170, guid: f66c73c6de6e54f4c9a3ad7a9338159e, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1355,7 +1353,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Clickable Button Samples
+  m_text: 'Button Samples
 
     (textured)'
   m_isRightToLeft: 0
@@ -2515,9 +2513,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Clickable Button
-
-    (Realtime)'
+  m_text: Realtime Sample
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2673,7 +2669,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2834343251810521152, guid: bbbd5a259bc4b1e4faf270027e78999b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -124.00003
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2834343251810521152, guid: bbbd5a259bc4b1e4faf270027e78999b, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -3012,9 +3008,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4076397784994135204, guid: b9b6935b06343574aa49ca6c38e8ffd6, type: 3}
       propertyPath: m_text
-      value: 'Clickable Button
-
-        (Baked)'
+      value: Baked Sample
       objectReference: {fileID: 0}
     - target: {fileID: 4076397784994135204, guid: b9b6935b06343574aa49ca6c38e8ffd6, type: 3}
       propertyPath: m_margin.x
