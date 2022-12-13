@@ -55,6 +55,11 @@
       "displayName": "Canvas Shadow (Experimental)",
       "description": "Demonstrates how to add a procedural drop shadow on a canvas.",
       "path": "Samples~/Experimental/CanvasShadow"
+    },
+    {
+      "displayName": "Magnifier (Experimental)",
+      "description": "Demonstrates magnification in a stereoscopic rendering setup.",
+      "path": "Samples~/Experimental/Magnifier"
     }
   
   ]
