@@ -55,11 +55,6 @@
       "displayName": "Canvas Shadow (Experimental)",
       "description": "Demonstrates how to add a procedural drop shadow on a canvas.",
       "path": "Samples~/Experimental/CanvasShadow"
-    },
-    {
-      "displayName": "Clipping Primitives",
-      "description": "Examples of different clipping primitive components used to clip through objects.",
-      "path": "Samples~/ClippingPrimitives"
     }
   
   ]
