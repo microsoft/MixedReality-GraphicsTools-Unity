@@ -15,6 +15,8 @@
 /// </summary>
 
 #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
+#pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+#pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
 
 #pragma shader_feature_local _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHABLEND_TRANS_ON _ADDITIVE_ON
 #pragma shader_feature_local _DISABLE_ALBEDO_MAP
@@ -27,6 +29,7 @@
 #pragma shader_feature_local_fragment _USE_SSAA
 #pragma shader_feature_local _ _DIRECTIONAL_LIGHT _DISTANT_LIGHT
 #pragma shader_feature_local _NON_PHOTOREALISTIC
+#pragma shader_feature_local _RECEIVESHADOW
 #pragma shader_feature_local_fragment _SPECULAR_HIGHLIGHTS
 #pragma shader_feature_local _SPHERICAL_HARMONICS
 #pragma shader_feature_local _REFLECTIONS
@@ -379,6 +382,10 @@ Varyings VertexStage(Attributes input)
 #else
     output.worldNormal = worldNormal;
 #endif
+#endif
+#if defined(_RECEIVESHADOW) && defined(_URP)
+    VertexPositionInputs vertexInput = GetVertexPositionInputs(vertexPosition.xyz);
+    output.shadowCoord = GetShadowCoord(vertexInput);
 #endif
 
     return output;
@@ -788,12 +795,24 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     output.rgb = GTGlobalIllumination(brdfData, bakedGI, occlusion, worldNormal, worldViewDir);
 
     // Direct lighting.
+#if defined(_RECEIVESHADOW) && defined(_URP)
+    GTMainLight light = GTGetMainLight(input.shadowCoord);
+#else
     GTMainLight light = GTGetMainLight();
+#endif
     // Non Photorealistic
 #if defined(_NON_PHOTOREALISTIC)
+#if defined(_RECEIVESHADOW)
+  output.rgb += GTLightingNonPhotorealistic(brdfData, light.color, light.direction, worldNormal, worldViewDir, light.shadowAttenuation);
+#else
     output.rgb += GTLightingNonPhotorealistic(brdfData, light.color, light.direction, worldNormal, worldViewDir);
+#endif
+#else
+#if defined(_RECEIVESHADOW)
+    output.rgb += GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir, light.shadowAttenuation);
 #else
     output.rgb += GTLightingPhysicallyBased(brdfData, light.color, light.direction, worldNormal, worldViewDir);
+#endif
 #endif
     // No lighting, but show reflections.
 #elif defined(_REFLECTIONS) 
