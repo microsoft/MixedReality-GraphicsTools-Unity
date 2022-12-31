@@ -894,10 +894,31 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
                 }
             }
+            
+            if (!PropertyEnabled(roundCorners) && PropertyEnabled(borderLight))
+            {
+                materialEditor.ShaderProperty(edgeSmoothingMode, Styles.edgeSmoothingMode, 2);
+
+                switch ((EdgeSmoothingMode)edgeSmoothingMode.floatValue)
+                {
+                    default:
+                    case EdgeSmoothingMode.Manual:
+                    {
+                        material.DisableKeyword(Styles.edgeSmoothingModeAutomaticName);
+                        materialEditor.ShaderProperty(edgeSmoothingValue, Styles.edgeSmoothingValue, 3);
+                    }
+                        break;
+                    case EdgeSmoothingMode.Automatic:
+                    {
+                        material.EnableKeyword(Styles.edgeSmoothingModeAutomaticName);
+                    }
+                        break;
+                }
+            }
 
             if (PropertyEnabled(hoverLight) || PropertyEnabled(proximityLight) || PropertyEnabled(borderLight))
             {
-                materialEditor.ShaderProperty(fluentLightIntensity, Styles.fluentLightIntensity);
+                materialEditor.ShaderProperty(fluentLightIntensity, Styles.fluentLightIntensity, 2);
             }
 
             materialEditor.ShaderProperty(roundCorners, Styles.roundCorners);
@@ -944,9 +965,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
             }
 
-            if (PropertyEnabled(roundCorners) || PropertyEnabled(borderLight))
+            if (PropertyEnabled(roundCorners))
             {
-                materialEditor.ShaderProperty(edgeSmoothingMode, Styles.edgeSmoothingMode);
+                materialEditor.ShaderProperty(edgeSmoothingMode, Styles.edgeSmoothingMode, 2);
 
                 switch ((EdgeSmoothingMode)edgeSmoothingMode.floatValue)
                 {
@@ -954,7 +975,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     case EdgeSmoothingMode.Manual:
                         {
                             material.DisableKeyword(Styles.edgeSmoothingModeAutomaticName);
-                            materialEditor.ShaderProperty(edgeSmoothingValue, Styles.edgeSmoothingValue, 2);
+                            materialEditor.ShaderProperty(edgeSmoothingValue, Styles.edgeSmoothingValue, 3);
                         }
                         break;
                     case EdgeSmoothingMode.Automatic:
