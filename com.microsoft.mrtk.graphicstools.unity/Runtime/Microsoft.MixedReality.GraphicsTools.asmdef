@@ -18,6 +18,11 @@
             "name": "com.unity.render-pipelines.universal",
             "expression": "10.6.0",
             "define": "GT_USE_URP"
+        },
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "3.0.6",
+            "define": "GT_USE_TMP"
         }
     ],
     "noEngineReferences": false
