@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.﻿
 
+#if GT_USE_UGUI
 using UnityEditor;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
@@ -18,3 +19,4 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
     }
 }
+#endif

@@ -1,6 +1,6 @@
 {
   "name": "com.microsoft.mrtk.graphicstools.unity",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "displayName": "MRTK Graphics Tools",
   "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
   "msftFeatureCategory": "MRTK3",

@@ -12,6 +12,27 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "10.6.0",
+            "define": "GT_USE_URP"
+        },
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "3.0.6",
+            "define": "GT_USE_TMP"
+        },
+        {
+            "name": "com.unity.ugui",
+            "expression": "1.0.0",
+            "define": "GT_USE_UGUI"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.3.0",
+            "define": "GT_USE_INPUT_SYSTEM"
+        }
+    ],
     "noEngineReferences": false
 }

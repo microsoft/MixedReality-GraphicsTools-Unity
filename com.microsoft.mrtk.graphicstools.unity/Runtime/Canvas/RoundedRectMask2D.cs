@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_UGUI
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -59,7 +60,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static int clipRectRadiiID = 0;
 
-        #region RectMask2DFast Implementation
+#region RectMask2DFast Implementation
 
         /// <summary>
         /// Lazy initialize shader IDs.
@@ -101,7 +102,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        #endregion RectMask2DFast Implementation
+#endregion RectMask2DFast Implementation
     }
 }
-
+#endif // GT_USE_UGUI
