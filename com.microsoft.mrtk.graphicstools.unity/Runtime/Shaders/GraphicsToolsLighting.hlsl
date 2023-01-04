@@ -34,13 +34,13 @@ GTMainLight GTGetMainLight(float4 shadowCoord)
     Light directionalLight = GetMainLight();
     light.direction = directionalLight.direction;
     light.color = directionalLight.color;
-#if defined(_RECEIVESHADOW)
-        light.shadowAttenuation = GetMainLight(shadowCoord).shadowAttenuation;
-#endif
 #else
     light.direction = _WorldSpaceLightPos0.xyz;
     light.color = _LightColor0.rgb;
 #endif
+#endif
+#if defined(_RECEIVESHADOW) && defined(_URP)
+        light.shadowAttenuation = GetMainLight(shadowCoord).shadowAttenuation;
 #endif
 #endif
     return light;
