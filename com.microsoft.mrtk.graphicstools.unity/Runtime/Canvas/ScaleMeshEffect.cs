@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_UGUI
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -61,3 +62,4 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
     }
 }
+#endif // GT_USE_UGUI

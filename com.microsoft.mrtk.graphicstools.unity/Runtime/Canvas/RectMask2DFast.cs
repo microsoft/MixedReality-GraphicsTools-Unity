@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_UGUI
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -29,7 +30,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Vector2Int lastSoftness = new Vector2Int();
         private List<RectMask2D> clippers = new List<RectMask2D>();
 
-        #region MonoBehaviour Implementation
+#region MonoBehaviour Implementation
 
         /// <inheritdoc />
         protected override void OnEnable()
@@ -57,9 +58,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             ForceClip = true;
         }
 
-        #endregion MonoBehaviour Implementation
+#endregion MonoBehaviour Implementation
 
-        #region RectMask2D Implementation
+#region RectMask2D Implementation
 
         /// <inheritdoc />
         protected override void OnTransformParentChanged()
@@ -183,7 +184,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             lastSoftness = softness;
         }
 
-        #endregion RectMask2D Implementation
+#endregion RectMask2D Implementation
 
         /// <summary>
         /// Checks if all clip/mask targets needs to be re-culled. 
@@ -280,4 +281,4 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
     }
 }
-
+#endif // GT_USE_UGUI
