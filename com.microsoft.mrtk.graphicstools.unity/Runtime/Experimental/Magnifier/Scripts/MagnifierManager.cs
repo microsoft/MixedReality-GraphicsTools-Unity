@@ -10,11 +10,44 @@ using UnityEngine.Rendering.Universal;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
-   /// <summary>
-   /// Manages creating and updating render features necessary for the magnification effect on the scriptable render pipeline that in use .
-   /// </summary>
+    /// <summary>
+    /// Manages creating and updating render features necessary for the magnification effect on the scriptable render pipeline.
+    /// </summary>
     public class MagnifierManager : MonoBehaviour
     {
+        [Tooltip("Scaler of the magnification.")]
+        [SerializeField, Range(0.0f, 1.0f)]
+        private float magnification = 0.7f;
+
+        // Scaler of the magnification.
+        public float Magnification
+        {
+            get => magnification;
+            set
+            {
+                magnification = Mathf.Clamp01(value);
+                ApplyMagnification();
+            }
+        }
+
+        [Tooltip("The name of the global shader property that drives the magnification ammount.")]
+        [SerializeField]
+        private string magnificationPropertyName = "MagnifierMagnification";
+
+        public string MagnificationPropertyName
+        {
+            get => magnificationPropertyName;
+            set
+            {
+                magnificationPropertyName = value;
+                ApplyMagnification();
+            }
+        }
+
+        [Tooltip("Which renderer to use in the UniversalRenderPipelineAsset.")]
+        [SerializeField]
+        private int rendererIndex = 0;
+
         [SerializeField]
         private DrawFullscreenFeature.Settings drawFullscreenSettings = new DrawFullscreenFeature.Settings()
         {
@@ -25,7 +58,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             DestinationTextureId = "MagnifierTexture",
         };
 
-        [SerializeField, Header("Render Objects Settings")]
+        [SerializeField]
         private RenderObjects.RenderObjectsSettings renderObjectsSettings = new RenderObjects.RenderObjectsSettings()
         {
             Event = RenderPassEvent.AfterRenderingTransparents,
@@ -35,9 +68,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         };
 
-        [Tooltip("Which renderer to use in the UniversalRenderPipelineAsset.")]
-        [SerializeField]
-        private int rendererIndex = 0;
+        [SerializeField, HideInInspector]
+        private Material defaultBlitMaterial;
 
         private DrawFullscreenFeature magnifierFeature;
         private ScriptableRendererFeature renderTransparent;
@@ -51,6 +83,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         private LayerMask previousOpaqueLayerMask;
         private LayerMask previousTransparentLayerMask;
 
+        private void Reset()
+        {
+            if (drawFullscreenSettings.BlitMaterial == null)
+            {
+                drawFullscreenSettings.BlitMaterial = defaultBlitMaterial;
+            }
+        }
+
         private void OnEnable()
         {
             if (!initialized)
@@ -62,6 +102,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                     CreateRendererFeatures();
                     initialized = true;
                 }
+
+                ApplyMagnification();
             }
         }
 
@@ -89,9 +131,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        /// <summary>
-        /// Method <c>InitializeRendererData</c> gets the selected scriptable render pipeline thats currently in use.
-        /// </summary>
+        public void ApplyMagnification()
+        {
+            Shader.SetGlobalFloat(MagnificationPropertyName, 1.0f - Magnification);
+        }
+
         private void InitializeRendererData()
         {
             var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
@@ -111,9 +155,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        /// <summary>
-        /// Method <c>CreateRendererFeatures</c> creates renderer features and adds them to a list of features to be deployed on the scriptable render pipeline.
-        /// </summary>
         private void CreateRendererFeatures()
         {
             magnifierFeature = CreateMagnifierFullsreenFeature("Magnifier Draw Fullscreen Feature", drawFullscreenSettings);
@@ -130,9 +171,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             rendererData.SetDirty();
         }
 
-        /// <summary>
-        /// Method <c>CreateMagnifierFullsreenFeature</c> creates an instance of the draw fullscreen renderer feature.
-        /// </summary>
         private DrawFullscreenFeature CreateMagnifierFullsreenFeature(string name, DrawFullscreenFeature.Settings settings)
         {
             DrawFullscreenFeature feature = ScriptableObject.CreateInstance<DrawFullscreenFeature>();
@@ -142,9 +180,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             return feature;
         }
 
-        /// <summary>
-        /// Method <c>CreateRenderObjectsFeature</c> creates an instance of the render objects renderer feature.
-        /// </summary>
         private ScriptableRendererFeature CreateMagnifierRenderObjectsFeature(string name, RenderObjects.RenderObjectsSettings settings)
         {
             RenderObjects feature = ScriptableObject.CreateInstance<RenderObjects>();
