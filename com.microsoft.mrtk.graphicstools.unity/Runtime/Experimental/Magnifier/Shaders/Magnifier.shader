@@ -5,7 +5,6 @@ Shader "Graphics Tools/Magnifier"
 {
     Properties
     { 
-        Magnification("Magnification", Float) = 0.5
         [ShowAsVector2]  Center("Center", Vector) = (0.5,0.5,0,0)
     }
     SubShader
@@ -47,7 +46,7 @@ Shader "Graphics Tools/Magnifier"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
             
-            half Magnification;
+            half MagnifierMagnification;
             float2 Center;
            
             TEXTURE2D_X(MagnifierTexture);
@@ -75,7 +74,7 @@ Shader "Graphics Tools/Magnifier"
 
                 float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);              
 
-                float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, Magnification, Center);
+                float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, MagnifierMagnification, Center);
                
                 float4 output = SAMPLE_TEXTURE2D_X(MagnifierTexture, samplerMagnifierTexture, zoomedUv);
                                 
