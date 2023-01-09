@@ -12,21 +12,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.UnityUI
     {
         public CanvasMaterialAnimatorGraphicsToolsStandardCanvas Animator;
 
-        private void Start()
-        {
-            if (Animator == null)
-            {
-                Animator = GetComponent<CanvasMaterialAnimatorGraphicsToolsStandardCanvas>();
-            }
-        }
-
         private void Update()
         {
-            if (Animator != null)
-            {
-                Animator._VertexExtrusionValue = Mathf.Lerp(0, 0.002f, (Mathf.Sin(Mathf.Repeat(Time.time, Mathf.PI * 2.0f)) + 1.0f) * 0.5f);
-                Animator.ApplyToMaterial();
-            }
+            Animator._VertexExtrusionValue = Mathf.Lerp(0, 0.002f, (Mathf.Sin(Mathf.Repeat(Time.time, Mathf.PI * 2.0f)) + 1.0f) * 0.5f);
+            Animator.ApplyToMaterial();
         }
     }
 }

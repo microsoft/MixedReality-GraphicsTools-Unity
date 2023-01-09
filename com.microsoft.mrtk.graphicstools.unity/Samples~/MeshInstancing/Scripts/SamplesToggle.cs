@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if GT_USE_UGUI
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,4 +48,3 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         }
     }
 }
-#endif // GT_USE_UGUI

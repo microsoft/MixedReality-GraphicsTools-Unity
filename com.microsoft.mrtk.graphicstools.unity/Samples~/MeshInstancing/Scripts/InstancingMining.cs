@@ -1,15 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if GT_USE_INPUT_SYSTEM && ENABLE_INPUT_SYSTEM
-#define USE_INPUT_SYSTEM
-#endif
-
 using UnityEngine;
-
-#if USE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
-#endif // USE_INPUT_SYSTEM
+#endif
 
 namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
 {
@@ -128,7 +123,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
             // Default to the camera look position.
             Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
 
-#if USE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
             if (Mouse.current != null)
             {
                 Vector2 mousePosition2D = Mouse.current.position.ReadValue();
@@ -141,7 +136,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
                 Vector3 mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
                 ray.direction = (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.farClipPlane)) - ray.origin).normalized;
             }
-#endif // USE_INPUT_SYSTEM
+#endif
             return ray;
         }
 
@@ -150,11 +145,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         /// </summary>
         private bool AddCubeInput()
         {
-#if USE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
             return Mouse.current.leftButton.wasPressedThisFrame && Keyboard.current.shiftKey.isPressed;
 #else
             return Input.GetMouseButtonDown(0) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
-#endif // USE_INPUT_SYSTEM
+#endif
         }
 
         /// <summary>
@@ -162,11 +157,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MeshInstancing
         /// </summary>
         private bool RemoveCubeInput()
         {
-#if USE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
             return Mouse.current.leftButton.isPressed && !Keyboard.current.shiftKey.isPressed;
 #else
             return Input.GetMouseButton(0) && !(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
-#endif // USE_INPUT_SYSTEM
+#endif
         }
     }
 }
