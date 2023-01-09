@@ -25,6 +25,29 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+<<<<<<< HEAD:com.microsoft.mrtk.graphicstools.unity/Runtime/Materials/CanvasBackplateQuad.mat
+=======
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissiveMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+>>>>>>> Hidden Samples:com.microsoft.mrtk.graphicstools.unity/Samples~/MaterialGallery/Materials/ShaderBallCutoutTransition.mat
     - _IridescentSpectrumMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -37,7 +60,18 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+<<<<<<< HEAD:com.microsoft.mrtk.graphicstools.unity/Runtime/Materials/CanvasBackplateQuad.mat
     m_Ints: []
+=======
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+>>>>>>> Hidden Samples:com.microsoft.mrtk.graphicstools.unity/Samples~/MaterialGallery/Materials/ShaderBallCutoutTransition.mat
     m_Floats:
     - _AlbedoAlphaMode: 0
     - _AlbedoAssignedAtRuntime: 0
@@ -60,6 +94,7 @@ Material:
     - _ClippingBorderWidth: 0.025
     - _ColorMask: 15
     - _ColorWriteMask: 15
+<<<<<<< HEAD:com.microsoft.mrtk.graphicstools.unity/Runtime/Materials/CanvasBackplateQuad.mat
     - _CullMode: 2
     - _CustomMode: 2
     - _Cutoff: 0.5
@@ -67,6 +102,17 @@ Material:
     - _DstBlend: 1
     - _EdgeSmoothingMode: 1
     - _EdgeSmoothingValue: 0.25
+=======
+    - _CullMode: 0
+    - _CustomMode: 1
+    - _Cutoff: 0.132
+    - _DetailNormalMapScale: 1
+    - _DirectionalLight: 1
+    - _DstBlend: 0
+    - _DstBlendAlpha: 1
+    - _EdgeSmoothingMode: 0
+    - _EdgeSmoothingValue: 0.002
+>>>>>>> Hidden Samples:com.microsoft.mrtk.graphicstools.unity/Samples~/MaterialGallery/Materials/ShaderBallCutoutTransition.mat
     - _EnableChannelMap: 0
     - _EnableEmission: 0
     - _EnableHoverColorOverride: 0
@@ -123,6 +169,7 @@ Material:
     - _SpecularHighlights: 1
     - _SphericalHarmonics: 0
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _Stencil: 0
     - _StencilComp: 0
     - _StencilComparison: 0
