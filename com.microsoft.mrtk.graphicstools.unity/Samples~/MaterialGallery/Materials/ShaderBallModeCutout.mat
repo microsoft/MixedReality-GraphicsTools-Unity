@@ -45,10 +45,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _EmissiveMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _IridescentSpectrumMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -77,6 +73,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlbedoAlphaMode: 0
     - _AlbedoAlphaSmoothness: 0
@@ -107,7 +104,6 @@ Material:
     - _DetailNormalMapScale: 1
     - _DirectionalLight: 1
     - _DstBlend: 0
-    - _DstBlendAlpha: 1
     - _EdgeSmoothingMode: 0
     - _EdgeSmoothingValue: 0.002
     - _EnableChannelMap: 0
@@ -124,7 +120,6 @@ Material:
     - _EnvironmentColorIntensity: 0.5
     - _EnvironmentColorThreshold: 1.5
     - _EnvironmentColoring: 0
-    - _Fade: 1
     - _FadeBeginDistance: 0.85
     - _FadeCompleteDistance: 0.5
     - _FadeMinValue: 0
@@ -171,7 +166,6 @@ Material:
     - _SpecularHighlights: 1
     - _SphericalHarmonics: 0
     - _SrcBlend: 1
-    - _SrcBlendAlpha: 1
     - _Stencil: 0
     - _StencilComparison: 0
     - _StencilOperation: 0
@@ -201,8 +195,6 @@ Material:
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
     - _EnvironmentColorY: {r: 0, g: 1, b: 0, a: 1}
     - _EnvironmentColorZ: {r: 0, g: 0, b: 1, a: 1}
-    - _GradientAlpha: {r: 1, g: 1, b: 1, a: 1}
-    - _GradientAlphaTime: {r: 0, g: 0, b: 0, a: 0}
     - _GradientColor0: {r: 0.631373, g: 0.631373, b: 0.631373, a: 0}
     - _GradientColor1: {r: 1, g: 0.690196, b: 0.976471, a: 0.25}
     - _GradientColor2: {r: 0, g: 0.32999998, b: 0.88, a: 0.5}
