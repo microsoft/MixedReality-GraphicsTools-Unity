@@ -11,7 +11,7 @@ MRTK Graphics Tools for Unity is a [Unity engine](https://unity.com/) package wi
 Graphics Tools is normally ingested as a Unity [package](https://docs.unity3d.com/Manual/Packages.html). To import Graphics Tools into your Unity project follow the below steps:
 
 > [!NOTE]
-> The Graphics Tools package requires Unity 2020.x and above.
+> The Graphics Tools package requires Unity 2021.3 and above.
 
 1. Open your Unity project and select `Window > Package Manager` from the file menu bar
 
