@@ -12,10 +12,11 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Draws full screen mesh using given material and pass and reading from source target.
     /// Forked from: https://github.com/Unity-Technologies/UniversalRenderingExamples/tree/master/Assets/Scripts/Runtime/RenderPasses
     /// </summary>
-    internal class DrawFullscreenPass : ScriptableRenderPass
-    { ///<summary>
-      ///Declares a filtering mode enum for  the source and destination render textures during blit
-      ///</summary>
+    class DrawFullscreenPass : ScriptableRenderPass
+    { 
+        ///<summary>
+        ///Declares a filtering mode enum for  the source and destination render textures during blit
+        ///</summary>
         public FilterMode FilterMode { get; set; }
 
         ///<summary>
@@ -40,6 +41,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             profilerTag = tag;
         }
+
         ///<summary>
         /// Extracts the camera's view as a render texture in order for it to be assigned to the material of the fullscreen mesh
         ///</summary>

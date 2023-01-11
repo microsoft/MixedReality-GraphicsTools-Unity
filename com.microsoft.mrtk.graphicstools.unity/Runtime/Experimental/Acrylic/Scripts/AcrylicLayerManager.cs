@@ -181,11 +181,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool ExecuteBeforeRenderAdded = false;
         private Coroutine updateRoutine = null;
 
-        // In older versions of the URP all intermediate texture behavior works like "Always."
-#if UNITY_2021_2_OR_NEWER
-        private IntermediateTextureMode intermediateTextureMode = IntermediateTextureMode.Always;
-#endif
-
 #endregion
 
 #region Monobehavior methods
@@ -550,14 +545,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (captureMethod != AcrylicMethod.CopyFramebuffer) return;
 
-#if UNITY_2021_2_OR_NEWER
-            if (rendererData.intermediateTextureMode != IntermediateTextureMode.Always)
-            {
-                intermediateTextureMode = rendererData.intermediateTextureMode;
-                rendererData.intermediateTextureMode = IntermediateTextureMode.Always;
-            }
-#endif
-
             for (int i = 0; i < layerData.Count; i++)
             {
                 if (layerData[i].activeCount > 0 && layerData[i].CaptureNextFrame)
@@ -571,14 +558,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (captureMethod != AcrylicMethod.CopyFramebuffer) return;
 
-#if UNITY_2021_2_OR_NEWER
-            if (intermediateTextureMode != IntermediateTextureMode.Always)
-            {
-                rendererData.intermediateTextureMode = intermediateTextureMode;
-                intermediateTextureMode = IntermediateTextureMode.Always;
-            }
-#endif
-
             for (int i = 0; i < layerData.Count; i++)
             {
                 layerData[i].RemoveLayerRendererFeatures(rendererData);
@@ -588,14 +567,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void AddLayersAsPersistent()
         {
             if (captureMethod != AcrylicMethod.CopyFramebuffer) return;
-
-#if UNITY_2021_2_OR_NEWER
-            if (rendererData.intermediateTextureMode != IntermediateTextureMode.Always)
-            {
-                intermediateTextureMode = rendererData.intermediateTextureMode;
-                rendererData.intermediateTextureMode = IntermediateTextureMode.Always;
-            }
-#endif
 
             for (int i = 0; i < layerData.Count; i++)
             {
