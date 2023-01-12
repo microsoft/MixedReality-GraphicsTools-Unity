@@ -24,8 +24,8 @@ Shader "Graphics Tools/Wireframe"
         [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Float) = 0                         // "Add"
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("Depth Test", Float) = 4                        // "LessEqual"
         [Enum(Microsoft.MixedReality.GraphicsTools.Editor.DepthWrite)] _ZWrite("Depth Write", Float) = 1     // "On"
-        _ZOffsetFactor("Depth Offset Factor", Float) = 50
-        _ZOffsetUnits("Depth Offset Units", Float) = 100
+        _ZOffsetFactor("Depth Offset Factor", Float) = 0                                                     // "Zero"
+        _ZOffsetUnits("Depth Offset Units", Float) = 0                                                       // "Zero"
         [Enum(UnityEngine.Rendering.ColorWriteMask)] _ColorWriteMask("Color Write Mask", Float) = 15         // "All"
         [Enum(UnityEngine.Rendering.CullMode)] _CullMode("Cull Mode", Float) = 2                             // "Back"
         _RenderQueueOverride("Render Queue Override", Range(-1.0, 5000)) = -1
