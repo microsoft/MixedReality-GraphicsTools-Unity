@@ -64,6 +64,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             blitPass.renderPassEvent = settings.renderPassEvent;
             blitPass.Settings = settings;
+
+            // Previously, URP would force rendering to go through an intermediate renderer if the Renderer had any Renderer Features active. On some platforms, this has
+            // significant performance implications. Due to that, Renderer Features are now expected to declare their inputs using ScriptableRenderPass.ConfigureInput.
+            // This information is used to decide automatically whether rendering via an intermediate texture is necessary.
+            if (settings.SourceType == BufferType.CameraColor)
+            {
+                blitPass.ConfigureInput(ScriptableRenderPassInput.Color);
+            }
+
             renderer.EnqueuePass(blitPass);
         }
     }
