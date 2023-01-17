@@ -7,7 +7,7 @@ Shader "Graphics Tools/Experimental/Acrylic/Kawase Blur"
     {
         PackageRequirements
         {
-            "com.unity.render-pipelines.universal": "10.6.0"
+            "com.unity.render-pipelines.universal": "12.1.0"
         }
 
         Tags { "RenderType"="Opaque" }

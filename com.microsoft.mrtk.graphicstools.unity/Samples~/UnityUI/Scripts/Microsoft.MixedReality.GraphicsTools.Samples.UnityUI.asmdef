@@ -15,7 +15,7 @@
     "versionDefines": [
         {
             "name": "com.unity.render-pipelines.universal",
-            "expression": "10.6.0",
+            "expression": "12.1.0",
             "define": "GT_USE_URP"
         },
         {
@@ -30,7 +30,7 @@
         },
         {
             "name": "com.unity.inputsystem",
-            "expression": "1.3.0",
+            "expression": "1.4.0",
             "define": "GT_USE_INPUT_SYSTEM"
         }
     ],
