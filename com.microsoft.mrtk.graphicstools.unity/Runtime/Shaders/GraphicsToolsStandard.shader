@@ -34,7 +34,6 @@ Shader "Graphics Tools/Standard"
 
         // Rendering options.
         [Toggle(_DIRECTIONAL_LIGHT)] _DirectionalLight("Light Mode", Float) = 1.0 // "LitDirectional"
-        [ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
         [Toggle(_SPECULAR_HIGHLIGHTS)] _SpecularHighlights("Specular Highlights", Float) = 1.0
         [Toggle(_SPHERICAL_HARMONICS)] _SphericalHarmonics("Spherical Harmonics", Float) = 0.0
         [Toggle(_NON_PHOTOREALISTIC)] _NPR("Non-Photorealistic Rendering", Float) = 0.0
