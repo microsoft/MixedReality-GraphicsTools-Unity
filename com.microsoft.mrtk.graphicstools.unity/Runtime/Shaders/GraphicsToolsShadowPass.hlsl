@@ -57,7 +57,7 @@ struct ShadowPassVaryings
 
 float4 GT_GetShadowPositionHClip(ShadowPassAttributes input)
 {
-    float3 positionWS = TransformObjectToWorld(input.position);
+    float3 positionWS = TransformObjectToWorld(input.position.xyz);
 #if defined(_URP)
     half3 normalWS = TransformObjectToWorldNormal(input.normal);
 #else
