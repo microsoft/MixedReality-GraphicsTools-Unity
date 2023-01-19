@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
-    /// General utility methods to help with shader inspector development.
+    /// General utility methods to help with inspector development.
     /// </summary>
     public static class InspectorUtilities
     {
@@ -27,6 +27,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Selection.activeObject = gameObject;
 
             return gameObject;
+        }
+
+        /// <summary>
+        /// Draws a property that is greyed out and non-interactible.
+        /// </summary>
+        public static void DrawReadonlyPropertyField(SerializedProperty property, params GUILayoutOption[] options)
+        {
+            GUI.enabled = false;
+            EditorGUILayout.PropertyField(property, options);
+            GUI.enabled = true;
         }
     }
 }

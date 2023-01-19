@@ -79,7 +79,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (targetCamera == null || renderingData.cameraData.camera == targetCamera)
             {
-                pass.Initialize(renderer.cameraColorTarget);
+                pass.ConfigureInput(ScriptableRenderPassInput.Color);
                 renderer.EnqueuePass(pass);
                 rendered = true;
             }
