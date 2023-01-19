@@ -140,6 +140,7 @@
 #include "GraphicsToolsCommon.hlsl"
 #include "GraphicsToolsStandardInput.hlsl"
 #include "GraphicsToolsLighting.hlsl"
+#include "GraphicsToolsRoundCorners.hlsl"
 
 /// <summary>
 /// Vertex shader entry point.
@@ -503,41 +504,26 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
 #endif
 
-#if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
-    float2 halfScale = input.scale.xy * 0.5;
-    float2 cornerPosition = distanceToEdge * halfScale;
+    
+    #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
+        half2 halfScale = input.scale.xy * 0.5;
+        half2 cornerPosition = distanceToEdge * halfScale;
+        
+        // Store results from corner rounding
+        half currentCornerRadius;
+        half cornerCircleRadius;
+        half2 cornerCircleDistance;
+        half cornerClip;
+        
+        RoundCorners(
+            cornerPosition, _RoundCornerRadius, input.uv.xy, input.scale.z, halfScale,
+            _RoundCornerMargin,
+            currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
 
-    half currentCornerRadius;
-
-    // Rounded corner clipping.
-#if defined(_ROUND_CORNERS)
-#if defined(_INDEPENDENT_CORNERS)
-#if !defined(_USE_WORLD_SCALE)
-    _RoundCornersRadius = clamp(_RoundCornersRadius, 0.0h, 0.5h);
-#endif
-    currentCornerRadius = GTFindCornerRadius(input.uv.xy, _RoundCornersRadius);
-#else 
-    currentCornerRadius = _RoundCornerRadius;
-#endif
-#else
-    currentCornerRadius = 0.0h;
-    _RoundCornerMargin = 0.0h;
-#endif
-#if defined(_USE_WORLD_SCALE)
-    float cornerCircleRadius = max(currentCornerRadius, GT_MIN_CORNER_VALUE) * input.scale.z;
-#else
-    float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, GT_MIN_CORNER_VALUE)) * input.scale.z;
-#endif
-    float2 cornerCircleDistance = halfScale - (_RoundCornerMargin * input.scale.z) - cornerCircleRadius;
-#if defined(_ROUND_CORNERS)
-    float roundCornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * input.scale.z);
-#if defined(_ROUND_CORNERS_HIDE_INTERIOR)
-    roundCornerClip = (roundCornerClip < 1.0) ? roundCornerClip : 0.0;
-#endif
-#endif
-#endif
+    #endif
 
     albedo *= input.color;
+    
 #if defined(_ADDITIVE_ON)
     albedo.rgb *= input.color.a;
 #endif
@@ -736,11 +722,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
 #if defined(_ROUND_CORNERS)
 #if defined(_ALPHABLEND_TRANS_ON)
-    albedo *= roundCornerClip;
+    albedo *= cornerClip;
 #else
-    albedo.a *= roundCornerClip;
+    albedo.a *= cornerClip;
 #endif
-    pointToLight *= roundCornerClip;
+    pointToLight *= cornerClip;
 #endif
 
 #ifdef UNITY_UI_CLIP_RECT

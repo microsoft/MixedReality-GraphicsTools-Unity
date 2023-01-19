@@ -241,8 +241,8 @@ CBUFFER_START(UnityPerMaterial)
     // #if defined(_ROUND_CORNERS) || defined(_BORDER_LIGHT)
     // #if defined(_INDEPENDENT_CORNERS)
     float4 _RoundCornersRadius;
-    float _RoundCornerRadius;
-    float _RoundCornerMargin;
+    half _RoundCornerRadius;
+    half _RoundCornerMargin;
 
     // #if defined(_BORDER_LIGHT)
     half _BorderWidth;
