@@ -110,7 +110,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                     if (GUILayout.Button("Combine Mesh"))
                     {
-                        Save(MeshUtility.CombineModels(settings));
+                        Save(MeshUtility.CombineModels(settings, targetPrefab.transform.worldToLocalMatrix));
                     }
 
                     EditorGUILayout.Space();
