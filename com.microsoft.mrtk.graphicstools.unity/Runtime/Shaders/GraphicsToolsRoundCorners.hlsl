@@ -11,7 +11,9 @@ void RoundCorners(
     half zscale,
     half halfScale,
     half roundCornerRadius, 
+
     inout half roundCornerMargin, 
+
     out half currentCornerRadius,
     out half cornerCircleRadius,
     out half2 cornerCircleDistance, 

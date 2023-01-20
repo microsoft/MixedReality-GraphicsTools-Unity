@@ -4,6 +4,7 @@
 #ifndef GT_SHADOW_PASS
 #define GT_SHADOW_PASS
 
+
 #pragma vertex ShadowPassVertexStage
 #pragma fragment ShadowPassPixelStage
 
@@ -131,6 +132,7 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
         half2 distanceToEdge;
         distanceToEdge.x = abs(input.uv.x - 0.5) * 2.0;
         distanceToEdge.y = abs(input.uv.y - 0.5) * 2.0;
+        //half2 distanceToEdge = abs(input.uv - half2(.5, .5)) * 2;
 
         half2 halfScale = input.scale.xy * 0.5;
         half2 cornerPosition = distanceToEdge * halfScale;
@@ -139,15 +141,18 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
         half currentCornerRadius;
         half cornerCircleRadius;
         half2 cornerCircleDistance;
+
         half cornerClip;
 
-        RoundCorners(
-            cornerPosition, input.uv.xy, input.scale.z, halfScale,
+       RoundCorners(
+            cornerPosition, input.uv.xy, input.scale.z, .027,
             _RoundCornerRadius, _RoundCornerMargin,
             currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
         
-        cornerClip = input.uv.y > .5 ? 1 : -1;
-        clip(cornerClip);
+        cornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * input.scale.z);
+       /* cornerClip = input.uv.y > .5 ? 1 : -1;*/
+
+        clip(cornerClip - .5);
     #else
         clip(tex.a - _Cutoff);
     #endif

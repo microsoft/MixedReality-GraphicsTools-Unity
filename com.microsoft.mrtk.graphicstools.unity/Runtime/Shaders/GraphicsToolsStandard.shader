@@ -191,7 +191,7 @@ Shader "Graphics Tools/Standard"
 
         Pass
         {
-            Name "ShadowCaster"
+            Name "GT_ShadowCaster"
             Tags{"LightMode" = "ShadowCaster"}
 
             ZWrite On
@@ -221,7 +221,8 @@ Shader "Graphics Tools/Standard"
             HLSLPROGRAM
 
             #define _URP
-
+            // Comment in to help with RenderDoc debugging.
+            #pragma enable_d3d11_debug_symbols
             #include_with_pragmas "GraphicsToolsStandardMetaProgram.hlsl"
             
             ENDHLSL

@@ -8,7 +8,7 @@
 #pragma fragment PixelStage
 
 // Comment in to help with RenderDoc debugging.
-//#pragma enable_d3d11_debug_symbols
+#pragma enable_d3d11_debug_symbols
 
 /// <summary>
 /// Features.
@@ -520,7 +520,8 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
             _RoundCornerRadius, _RoundCornerMargin,
             currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
 
-        //return half4(cornerClip, cornerClip, cornerClip, 1);
+     /*   float x = saturate(cornerClip);
+        return half4(cornerClip, cornerClip, cornerClip, 1);*/
 
     #endif
 
