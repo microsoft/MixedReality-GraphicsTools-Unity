@@ -522,7 +522,6 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     #endif
 
     albedo *= input.color;
-    
 #if defined(_ADDITIVE_ON)
     albedo.rgb *= input.color.a;
 #endif
