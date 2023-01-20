@@ -517,7 +517,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
         
         RoundCorners(
             cornerPosition, input.uv.xy, input.scale.z, halfScale,
-            _RoundCornerRadius, _RoundCornerMargin,
+            _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
             currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
 
      /*   float x = saturate(cornerClip);

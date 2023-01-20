@@ -200,6 +200,8 @@ Shader "Graphics Tools/Standard"
             Cull[_CullMode]
 
             HLSLPROGRAM
+            // Comment in to help with RenderDoc debugging.
+            #pragma enable_d3d11_debug_symbols
 
             #define _URP
             #define _SHADOW_PASS
@@ -221,8 +223,6 @@ Shader "Graphics Tools/Standard"
             HLSLPROGRAM
 
             #define _URP
-            // Comment in to help with RenderDoc debugging.
-            #pragma enable_d3d11_debug_symbols
             #include_with_pragmas "GraphicsToolsStandardMetaProgram.hlsl"
             
             ENDHLSL
