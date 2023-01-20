@@ -17,6 +17,7 @@
 //#pragma shader_feature_local _CHANNEL_MAP
 
 #pragma shader_feature_local _ROUND_CORNERS
+#pragma shader_feature_local_fragment _INDEPENDENT_CORNERS
 
 /// <summary>
 /// Inludes.
@@ -148,9 +149,7 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
 	half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
 
 	#if defined(_ROUND_CORNERS)
-		half2 distanceToEdge = abs(input.uv - 0.5) * 2;
-		//distanceToEdge.x = abs(input.uv.x - 0.5h) * 2.0h;
-		//distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
+		half2 distanceToEdge = abs(input.uv - half2(0.5, 0.5)) * 2;
 		
 		half2 halfScale = input.scale.xy / 2;
 		half2 cornerPosition = distanceToEdge * halfScale;
