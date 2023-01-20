@@ -152,9 +152,6 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
 		distanceToEdge.x = abs(input.uv.x - 0.5h) * 2.0h;
 		distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
 		
-		//half2 distanceToEdge2 = abs(input.uv - .5) * 2; // XXX remove
-		//distanceToEdge = distanceToEdge2; // XXX remove
-
 		half2 halfScale = input.scale.xy / 2;
 		half2 cornerPosition = distanceToEdge * halfScale;
 
@@ -169,9 +166,6 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
 			cornerPosition.xy, input.uv.xy, input.scale.z, halfScale,
 		   _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
 			currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
-		//
-		//cornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * input.scale.z);
-	   /* cornerClip = input.uv.y > .5 ? 1 : -1;*/
 
 		clip(cornerClip - .5);
 	#else
