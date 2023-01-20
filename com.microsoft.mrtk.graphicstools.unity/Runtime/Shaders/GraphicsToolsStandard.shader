@@ -200,7 +200,8 @@ Shader "Graphics Tools/Standard"
             Cull[_CullMode]
 
             HLSLPROGRAM
-            // Comment in to help with RenderDoc debugging.
+        
+            // Uncomment to help with RenderDoc debugging.
             #pragma enable_d3d11_debug_symbols
 
             #define _URP

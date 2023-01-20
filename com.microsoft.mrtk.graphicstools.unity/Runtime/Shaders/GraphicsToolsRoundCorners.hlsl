@@ -10,7 +10,7 @@ void RoundCorners(
     half2 cornerPosition, 
     float2 st,
     half zscale,
-    half halfScale,
+    half2 halfScale,
     half edgeSmoothingValue,
     
     inout half roundCornerRadius, 
@@ -23,9 +23,9 @@ void RoundCorners(
 {
     #if defined(_INDEPENDENT_CORNERS)
         #if !defined(_USE_WORLD_SCALE)
-            roundCornerRadius = clamp(roundCornerRadius, 0, 0);
+            roundCornerRadius = clamp(roundCornerRadius, 0, 0.5);
         #endif
-            currentCornerRadius = GTFindCornerRadius(st, roundCornerRadius);
+        currentCornerRadius = GTFindCornerRadius(st, roundCornerRadius);
     #else 
         currentCornerRadius = roundCornerRadius;
     #endif
@@ -39,9 +39,9 @@ void RoundCorners(
     cornerCircleDistance = halfScale - (roundCornerMargin * zscale) - cornerCircleRadius;
 
     #if defined(_ROUND_CORNERS_HIDE_INTERIOR)
-        cornerClip = (cornerClip < 1) ? cornerClip : 0;
+        cornerClip = (cornerClip < 1.0) ? cornerClip : 0.0;
     #else
-        cornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * zscale);
+        cornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, edgeSmoothingValue * zscale);
     #endif
 }
 #endif

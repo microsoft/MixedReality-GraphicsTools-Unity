@@ -148,9 +148,9 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
 	half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
 
 	#if defined(_ROUND_CORNERS)
-		half2 distanceToEdge;
-		distanceToEdge.x = abs(input.uv.x - 0.5h) * 2.0h;
-		distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
+		half2 distanceToEdge = abs(input.uv - 0.5) * 2;
+		//distanceToEdge.x = abs(input.uv.x - 0.5h) * 2.0h;
+		//distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
 		
 		half2 halfScale = input.scale.xy / 2;
 		half2 cornerPosition = distanceToEdge * halfScale;
