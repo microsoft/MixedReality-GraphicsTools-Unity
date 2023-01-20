@@ -7,14 +7,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: '"_EmissiveColor", value: Color.red'
+  m_Name: LightbulbGlow
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ValidKeywords:
   - _ALPHABLEND_ON
   - _DIRECTIONAL_LIGHT
   - _EMISSION
   - _HOVER_LIGHT
-  - _INNER_GLOW
+  - _RIM_LIGHT
   - _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   - _SPECULAR_HIGHLIGHTS
   - _USE_WORLD_SCALE
@@ -162,14 +162,14 @@ Material:
     - _GradientMode: 0
     - _HoverLight: 1
     - _IndependentCorners: 0
-    - _InnerGlow: 1
+    - _InnerGlow: 0
     - _InnerGlowPower: 2
     - _IridescenceAngle: -0.78
     - _IridescenceIntensity: 0.5
     - _IridescenceThreshold: 0.05
-    - _Metallic: 0.387
+    - _Metallic: 0.363
     - _MipmapBias: -2
-    - _Mode: 2
+    - _Mode: 5
     - _NPR: 0
     - _NearLightFade: 0
     - _NearPlaneFade: 0
@@ -185,8 +185,8 @@ Material:
     - _Refraction: 0
     - _RefractiveIndex: 0
     - _RenderQueueOverride: -1
-    - _RimLight: 0
-    - _RimPower: 7.36
+    - _RimLight: 1
+    - _RimPower: 6.06
     - _RoundCornerMargin: 0.01
     - _RoundCornerRadius: 0.25
     - _RoundCorners: 0
@@ -214,7 +214,7 @@ Material:
     - _ZOffsetFactor: 0
     - _ZOffsetUnits: 0
     - _ZTest: 4
-    - _ZWrite: 0
+    - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BlurBackgroundRect: {r: 0, g: 0, b: 1, a: 1}

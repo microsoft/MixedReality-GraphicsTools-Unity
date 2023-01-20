@@ -1,18 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if GT_USE_INPUT_SYSTEM && ENABLE_INPUT_SYSTEM
-#define USE_INPUT_SYSTEM
-#endif
-
-#if GT_USE_UGUI
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-#if USE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
-#endif // USE_INPUT_SYSTEM
+#endif
 
 namespace Microsoft.MixedReality.GraphicsTools.Samples.UnityUI
 {
@@ -40,11 +35,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.UnityUI
                     ProximityLight.enabled = true;
                     ProximityLight.transform.position = hitPoint;
 
-#if USE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
                     if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
 #else
                     if (Input.GetMouseButtonDown(0))
-#endif // USE_INPUT_SYSTEM
+#endif
                     {
                         // Pulse the Graphics Tools/Standard and Graphics Tools/Standard Canvas shaders.
                         ProximityLight.Pulse();
@@ -71,12 +66,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.UnityUI
         private bool RaycastScene(out Vector3 hitPoint, out GameObject hitObject)
         {
             Vector3 cursorPosition;
-#if USE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
             Vector2 position2D = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
             cursorPosition = new Vector3(position2D.x, position2D.y, 0.0f);
 #else
             cursorPosition = Input.mousePosition;
-#endif // USE_INPUT_SYSTEM
+#endif
 
             Ray ray = Camera.main.ScreenPointToRay(cursorPosition);
             RaycastHit raycastResult;
@@ -108,4 +103,3 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.UnityUI
         }
     }
 }
-#endif // GT_USE_UGUI
