@@ -11,9 +11,11 @@
 /// Features.
 /// </summary>
 
-#pragma shader_feature EDITOR_VISUALIZATION
-#pragma shader_feature_local_fragment _EMISSION
-#pragma shader_feature_local _CHANNEL_MAP
+//#pragma shader_feature EDITOR_VISUALIZATION
+//#pragma shader_feature_local_fragment _EMISSION
+//#pragma shader_feature_local _CHANNEL_MAP
+
+#pragma shader_feature_local _ROUND_CORNERS
 
 /// <summary>
 /// Inludes.
@@ -31,6 +33,11 @@
 #include "GraphicsToolsCommon.hlsl"
 #include "GraphicsToolsStandardInput.hlsl"
 #include "GraphicsToolsLighting.hlsl"
+#include "GraphicsToolsRoundCorners.hlsl"
+
+#if defined(_ROUND_CORNERS)
+#define _SCALE
+#endif
 
 /// <summary>
 /// Vertex attributes passed into the vertex shader from the app.
@@ -53,6 +60,9 @@ struct ShadowPassVaryings
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD0;
     half3 normal : NORMAL;
+#if defined(_SCALE)
+    float3 scale : TEXCOORD3;
+#endif
 };
 
 float4 GT_GetShadowPositionHClip(ShadowPassAttributes input)
@@ -116,7 +126,31 @@ ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
 half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
 {
     half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-    clip(tex.a - _Cutoff);
+
+    #if defined(_ROUND_CORNERS)
+        half2 distanceToEdge;
+        distanceToEdge.x = abs(input.uv.x - 0.5) * 2.0;
+        distanceToEdge.y = abs(input.uv.y - 0.5) * 2.0;
+
+        half2 halfScale = input.scale.xy * 0.5;
+        half2 cornerPosition = distanceToEdge * halfScale;
+
+        // Store results from corner rounding
+        half currentCornerRadius;
+        half cornerCircleRadius;
+        half2 cornerCircleDistance;
+        half cornerClip;
+
+        RoundCorners(
+            cornerPosition, input.uv.xy, input.scale.z, halfScale,
+            _RoundCornerRadius, _RoundCornerMargin,
+            currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
+        
+        cornerClip = input.uv.y > .5 ? 1 : -1;
+        clip(cornerClip);
+    #else
+        clip(tex.a - _Cutoff);
+    #endif
     return 0;
 }
 
