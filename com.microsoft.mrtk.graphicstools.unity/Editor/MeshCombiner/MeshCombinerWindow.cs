@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     {
         private GameObject targetHierarchy = null;
         private MeshCombineSettingsObject settingsObject = null;
+        private SerializedObject settingsSerializedObject = null;
         private bool includeInactive = false;
         private TextureFile.Format textureExtension = TextureFile.Format.TGA;
         private Vector2 meshFilterScrollPosition = Vector2.zero;
@@ -29,9 +31,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void OnGUI()
         {
-            settingsObject = settingsObject == null ? CreateInstance<MeshCombineSettingsObject>() : settingsObject;
+            if (settingsObject == null)
+            {
+                settingsObject = CreateInstance<MeshCombineSettingsObject>();
+                settingsSerializedObject = new SerializedObject(settingsObject);
+            }
+
             var settings = settingsObject.Context;
-            var settingsSerializedObject = new SerializedObject(settingsObject);
 
             EditorGUILayout.BeginVertical("Box");
             {
@@ -148,22 +154,52 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void AutopopulateMeshFilters()
         {
-            var settings = settingsObject.Context;
-            settings.MeshFilters.Clear();
-
             if (targetHierarchy != null)
             {
+                var meshFilters = new List<MeshFilter>();
                 var newMeshFilters = targetHierarchy.GetComponentsInChildren<MeshFilter>(includeInactive);
 
                 foreach (var meshFilter in newMeshFilters)
                 {
                     if (MeshUtility.CanCombine(meshFilter))
                     {
-                        settings.MeshFilters.Add(meshFilter);
+                        meshFilters.Add(meshFilter);
                     }
                 }
 
-                settings.pivot = targetHierarchy.transform.worldToLocalMatrix;
+                bool isEqual = settingsObject.Context.MeshFilters.Count == meshFilters.Count;
+
+                if (isEqual)
+                {
+                    foreach (var meshFilter in settingsObject.Context.MeshFilters)
+                    {
+                        if (!meshFilters.Contains(meshFilter))
+                        {
+                            isEqual = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (isEqual)
+                {
+                    foreach (var meshFilter in meshFilters)
+                    {
+                        if (!settingsObject.Context.MeshFilters.Contains(meshFilter))
+                        {
+                            isEqual = false;
+                            break;
+                        }
+                    }
+                }
+
+                settingsObject.Context.pivot = targetHierarchy.transform.worldToLocalMatrix;
+                settingsObject.Context.MeshFilters = meshFilters;
+
+                if (!isEqual)
+                {
+                    settingsSerializedObject = new SerializedObject(settingsObject);
+                }
             }
         }
 
