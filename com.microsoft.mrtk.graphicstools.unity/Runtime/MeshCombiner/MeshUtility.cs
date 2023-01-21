@@ -46,6 +46,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 UV3 = 3,
             }
 
+            public Matrix4x4 pivot = Matrix4x4.identity;
             public List<MeshFilter> MeshFilters = new List<MeshFilter>();
             public bool BakeMeshIDIntoUVChannel = true;
             public UVChannel MeshIDUVChannel = UVChannel.UV3;
@@ -154,7 +155,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             return true;
         }
 
-        public static MeshCombineResult CombineModels(MeshCombineSettings settings, Matrix4x4 pivot)
+        public static MeshCombineResult CombineModels(MeshCombineSettings settings)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var output = new MeshCombineResult();
@@ -169,7 +170,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 textureToCombineInstanceMappings.Add(new Dictionary<Texture2D, List<CombineInstance>>());
             }
 
-            var vertexCount = GatherCombineData(settings, pivot, combineInstances, meshIDTable, textureToCombineInstanceMappings);
+            var vertexCount = GatherCombineData(settings, combineInstances, meshIDTable, textureToCombineInstanceMappings);
 
             if (vertexCount != 0)
             {
@@ -189,7 +190,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         private static uint GatherCombineData(MeshCombineSettings settings,
-                                             Matrix4x4 pivot,
                                              List<CombineInstance> combineInstances,
                                              List<MeshCombineResult.MeshID> meshIDTable,
                                              List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings)
@@ -255,7 +255,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                 }
 
-                combineInstance.transform = meshFilter.gameObject.transform.localToWorldMatrix * pivot;
+                combineInstance.transform = settings.pivot * meshFilter.gameObject.transform.localToWorldMatrix;
                 vertexCount += (uint)combineInstance.mesh.vertexCount;
 
                 combineInstances.Add(combineInstance);

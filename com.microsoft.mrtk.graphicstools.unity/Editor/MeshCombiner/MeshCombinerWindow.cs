@@ -9,7 +9,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     public class MeshCombinerWindow : EditorWindow
     {
-        private GameObject targetPrefab = null;
+        private GameObject targetHierarchy = null;
         private MeshCombineSettingsObject settingsObject = null;
         private bool includeInactive = false;
         private TextureFile.Format textureExtension = TextureFile.Format.TGA;
@@ -29,7 +29,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void OnGUI()
         {
-            settingsObject = settingsObject ?? CreateInstance<MeshCombineSettingsObject>();
+            settingsObject = settingsObject == null ? CreateInstance<MeshCombineSettingsObject>() : settingsObject;
             var settings = settingsObject.Context;
             var settingsSerializedObject = new SerializedObject(settingsObject);
 
@@ -39,7 +39,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 EditorGUILayout.BeginVertical("Box");
                 {
-                    targetPrefab = (GameObject)EditorGUILayout.ObjectField("Target Prefab:", targetPrefab, typeof(GameObject), true);
+                    targetHierarchy = (GameObject)EditorGUILayout.ObjectField("Target Hierarchy:", targetHierarchy, typeof(GameObject), true);
                     AutopopulateMeshFilters();
                 }
                 EditorGUILayout.EndVertical();
@@ -110,7 +110,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                     if (GUILayout.Button("Combine Mesh"))
                     {
-                        Save(MeshUtility.CombineModels(settings, targetPrefab.transform.worldToLocalMatrix));
+                        Save(MeshUtility.CombineModels(settings));
                     }
 
                     EditorGUILayout.Space();
@@ -151,9 +151,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var settings = settingsObject.Context;
             settings.MeshFilters.Clear();
 
-            if (targetPrefab != null)
+            if (targetHierarchy != null)
             {
-                var newMeshFilters = targetPrefab.GetComponentsInChildren<MeshFilter>(includeInactive);
+                var newMeshFilters = targetHierarchy.GetComponentsInChildren<MeshFilter>(includeInactive);
 
                 foreach (var meshFilter in newMeshFilters)
                 {
@@ -162,6 +162,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         settings.MeshFilters.Add(meshFilter);
                     }
                 }
+
+                settings.pivot = targetHierarchy.transform.worldToLocalMatrix;
             }
         }
 
@@ -195,10 +197,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 return;
             }
 
-            var path = AssetDatabase.GetAssetPath(targetPrefab);
-            path = string.IsNullOrEmpty(path) ? PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(targetPrefab) : path;
-            var directory = string.IsNullOrEmpty(path) ? string.Empty : Path.GetDirectoryName(path);
-            var filename = string.Format("{0}{1}", string.IsNullOrEmpty(path) ? "Mesh" : Path.GetFileNameWithoutExtension(path), "Combined");
+            var path = AssetDatabase.GetAssetPath(targetHierarchy);
+            path = string.IsNullOrEmpty(path) ? PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(targetHierarchy) : path;
+            var directory = string.IsNullOrEmpty(path) ? Application.dataPath : Path.GetDirectoryName(path);
+            var filename = string.Format("{0}{1}", string.IsNullOrEmpty(path) ? targetHierarchy.name : Path.GetFileNameWithoutExtension(path), "Combined");
 
             path = EditorUtility.SaveFilePanelInProject("Save Combined Mesh", filename, "prefab", "Please enter a file name.", directory);
 
