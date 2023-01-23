@@ -1,0 +1,35 @@
+{
+    "name": "Microsoft.MixedReality.GraphicsTools.Samples.ClippingPrimitives",
+    "rootNamespace": "Microsoft.MixedReality.GraphicsTools.Samples.ClippingPrimitives",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+     "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "12.1.0",
+            "define": "GT_USE_URP"
+        },
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "3.0.6",
+            "define": "GT_USE_TMP"
+        },
+        {
+            "name": "com.unity.ugui",
+            "expression": "1.0.0",
+            "define": "GT_USE_UGUI"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.4.0",
+            "define": "GT_USE_INPUT_SYSTEM"
+        }
+    ],
+    "noEngineReferences": false
+}
