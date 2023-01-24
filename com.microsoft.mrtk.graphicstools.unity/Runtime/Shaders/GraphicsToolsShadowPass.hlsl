@@ -4,7 +4,6 @@
 #ifndef GT_SHADOW_PASS
 #define GT_SHADOW_PASS
 
-
 #pragma vertex ShadowPassVertexStage
 #pragma fragment ShadowPassPixelStage
 
@@ -47,12 +46,12 @@
 /// </summary>
 struct ShadowPassAttributes
 {
-	float4 position : POSITION;
-	float4 texcoord : TEXCOORD0;
-	float4 texcoord1 : TEXCOORD1;
-	float4 texcoord2 : TEXCOORD2;
-	half3 normal : NORMAL;
-	UNITY_VERTEX_INPUT_INSTANCE_ID
+    float4 position : POSITION;
+    float4 texcoord : TEXCOORD0;
+    float4 texcoord1 : TEXCOORD1;
+    float4 texcoord2 : TEXCOORD2;
+    half3 normal : NORMAL;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 /// <summary>
@@ -60,50 +59,50 @@ struct ShadowPassAttributes
 /// </summary>
 struct ShadowPassVaryings
 {
-	float4 position : SV_POSITION;
-	float2 uv : TEXCOORD0;
-	half3 normal : NORMAL;
+    float4 position : SV_POSITION;
+    float2 uv : TEXCOORD0;
+    half3 normal : NORMAL;
 #if defined(_SCALE)
-	float3 scale : TEXCOORD3;
+    float3 scale : TEXCOORD3;
 #endif
 };
 
 float4 GT_GetShadowPositionHClip(ShadowPassAttributes input)
 {
-	float3 positionWS = TransformObjectToWorld(input.position.xyz);
+    float3 positionWS = TransformObjectToWorld(input.position.xyz);
 #if defined(_URP)
-	half3 normalWS = TransformObjectToWorldNormal(input.normal);
+    half3 normalWS = TransformObjectToWorldNormal(input.normal);
 #else
-	half3 normalWS = UnityObjectToWorldNormal(input.normal);
+    half3 normalWS = UnityObjectToWorldNormal(input.normal);
 #endif
 
-	GTMainLight light = GTGetMainLight();
+    GTMainLight light = GTGetMainLight();
 #if _CASTING_PUNCTUAL_LIGHT_SHADOW
-	float3 lightDirectionWS = normalize(light.direction - positionWS);
+    float3 lightDirectionWS = normalize(light.direction - positionWS);
 #else
-	float3 lightDirectionWS = light.direction;
+    float3 lightDirectionWS = light.direction;
 #endif
 
-	float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+    float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
 
 #if UNITY_REVERSED_Z
-	positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+    positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
 #else
-	positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+    positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
 #endif
-	
-	return positionCS;
+
+    return positionCS;
 }
 
 float3 GT_ApplyShadowBias(float3 positionWS, float3 normalWS, float3 lightDirection)
 {
-	float invNdotL = 1.0 - saturate(dot(lightDirection, normalWS));
-	float scale = invNdotL * _ShadowBias.y;
+    float invNdotL = 1.0 - saturate(dot(lightDirection, normalWS));
+    float scale = invNdotL * _ShadowBias.y;
 
-	// normal bias is negative since we want to apply an inset normal offset
-	positionWS = lightDirection * _ShadowBias.xxx + positionWS;
-	positionWS = normalWS * scale.xxx + positionWS;
-	return positionWS;
+    // normal bias is negative since we want to apply an inset normal offset
+    positionWS = lightDirection * _ShadowBias.xxx + positionWS;
+    positionWS = normalWS * scale.xxx + positionWS;
+    return positionWS;
 }
 
 /// <summary>
@@ -111,34 +110,34 @@ float3 GT_ApplyShadowBias(float3 positionWS, float3 normalWS, float3 lightDirect
 /// </summary>
 ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
 {
-	ShadowPassVaryings output;
-	
-	#if defined(_URP)
-		output.position = MetaVertexPosition(input.position, input.texcoord1.xy, input.texcoord2.xy, unity_LightmapST, unity_DynamicLightmapST);
-	#else
-		output.position = UnityMetaVertexPosition(input.position, input.texcoord1.xy, input.texcoord2.xy, unity_LightmapST, unity_DynamicLightmapST);
-		output.position = UnityObjectToClipPos(input.position);
-	#endif
-		
-	output.uv = TRANSFORM_TEX(input.texcoord, _MainTex);
-	output.position = GT_GetShadowPositionHClip(input);
-	
-	#if defined(_SCALE)
-		output.scale = GTGetWorldScale();
-	#endif
+    ShadowPassVaryings output;
 
-	half3 localNormal = input.normal;
+#if defined(_URP)
+    output.position = MetaVertexPosition(input.position, input.texcoord1.xy, input.texcoord2.xy, unity_LightmapST, unity_DynamicLightmapST);
+#else
+    output.position = UnityMetaVertexPosition(input.position, input.texcoord1.xy, input.texcoord2.xy, unity_LightmapST, unity_DynamicLightmapST);
+    output.position = UnityObjectToClipPos(input.position);
+#endif
 
-	#if defined(_NORMAL) || defined(_VERTEX_EXTRUSION)
-		#if defined(_URP)
-			half3 worldNormal = TransformObjectToWorldNormal(localNormal);
-		#else
-			half3 worldNormal = UnityObjectToWorldNormal(localNormal);
-		#endif
-	#endif
-	output.normal = localNormal;
-	
-	return output;
+    output.uv = TRANSFORM_TEX(input.texcoord, _MainTex);
+    output.position = GT_GetShadowPositionHClip(input);
+
+#if defined(_SCALE)
+    output.scale = GTGetWorldScale();
+#endif
+
+    half3 localNormal = input.normal;
+
+#if defined(_NORMAL) || defined(_VERTEX_EXTRUSION)
+#if defined(_URP)
+    half3 worldNormal = TransformObjectToWorldNormal(localNormal);
+#else
+    half3 worldNormal = UnityObjectToWorldNormal(localNormal);
+#endif
+#endif
+    output.normal = localNormal;
+
+    return output;
 }
 
 /// <summary>
@@ -146,31 +145,32 @@ ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
 /// </summary>
 half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
 {
-	half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+    half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+    half clipval = tex.a - _Cutoff;
+    
+    #if defined(_ROUND_CORNERS)
+        half2 distanceToEdge = abs(input.uv - half2(0.5, 0.5)) * 2;
 
-	#if defined(_ROUND_CORNERS)
-		half2 distanceToEdge = abs(input.uv - half2(0.5, 0.5)) * 2;
-		
-		half2 halfScale = input.scale.xy / 2;
-		half2 cornerPosition = distanceToEdge * halfScale;
+        half2 halfScale = input.scale.xy / 2;
+        half2 cornerPosition = distanceToEdge * halfScale;
 
-		// Store results from corner rounding
-		half currentCornerRadius;
-		half cornerCircleRadius;
-		half2 cornerCircleDistance;
+        // Store results from corner rounding
+        half currentCornerRadius;
+        half cornerCircleRadius;
+        half2 cornerCircleDistance;
+        half cornerClip;
 
-		half cornerClip;
+       RoundCorners(
+            cornerPosition.xy, input.uv.xy, input.scale.z, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
+            // The rest are written to...
+            currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
 
-	   RoundCorners(
-			cornerPosition.xy, input.uv.xy, input.scale.z, halfScale,
-		   _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
-			currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
+       clipval -= (1 - cornerClip);
+    #endif
 
-		clip(cornerClip - .5);
-	#else
-		clip(tex.a - _Cutoff);
-	#endif
-	return 0;
+    clip(clipval);
+
+    return 0;
 }
 
 #endif // GT_SHADOW_PASS

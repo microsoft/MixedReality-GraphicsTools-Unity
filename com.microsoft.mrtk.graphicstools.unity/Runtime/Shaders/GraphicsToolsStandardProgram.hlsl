@@ -516,8 +516,8 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
         half cornerClip;
         
         RoundCorners(
-            cornerPosition, input.uv.xy, input.scale.z, halfScale,
-            _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
+            cornerPosition.xy, input.uv.xy, input.scale.z, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
+            // The rest are written to...
             currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
     #endif
 
