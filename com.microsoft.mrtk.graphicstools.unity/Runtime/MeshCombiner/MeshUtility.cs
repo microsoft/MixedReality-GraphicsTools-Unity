@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
@@ -117,7 +120,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                                 var dimension = 4;
                                 normalTexture = new Texture2D(dimension, dimension);
                                 var normal = TextureUsageColorDefault[(int)usage];
-                                normalTexture.SetPixels(Enumerable.Repeat(new Color(1.0f, normal.g, 1.0f, normal.r), dimension * dimension).ToArray());
+                                normalTexture.SetPixels(Repeat(new Color(1.0f, normal.g, 1.0f, normal.r), dimension * dimension).ToArray());
                                 normalTexture.Apply();
                             }
 
@@ -212,7 +215,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     // Write the MeshID to each a UV channel.
                     ++meshID;
-                    combineInstance.mesh.SetUVs((int)settings.MeshIDUVChannel, Enumerable.Repeat(new Vector2(meshID, 0.0f), combineInstance.mesh.vertexCount).ToList());
+                    combineInstance.mesh.SetUVs((int)settings.MeshIDUVChannel, Repeat(new Vector2(meshID, 0.0f), combineInstance.mesh.vertexCount));
                 }
 
                 if (settings.RequiresMaterialData())
@@ -230,7 +233,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         if (settings.BakeMaterialColorIntoVertexColor)
                         {
                             // Write the material color to all vertex colors.
-                            combineInstance.mesh.colors = Enumerable.Repeat(material.color, combineInstance.mesh.vertexCount).ToArray();
+                            combineInstance.mesh.colors = Repeat(material.color, combineInstance.mesh.vertexCount).ToArray();
                         }
 
                         var textureSettingIndex = 0;
@@ -269,7 +272,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                                                                                    List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings)
         {
             var output = new List<MeshCombineResult.PropertyTexture2DID>();
-            bool[] uvsAltered = new bool[4] { false, false, false, false };
+            var uvsAltered = new bool[4] { false, false, false, false };
             var textureSettingIndex = 0;
 
             foreach (var textureSetting in settings.TextureSettings)
@@ -281,19 +284,41 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (mapping.Count != 0)
                 {
                     // Build a texture atlas of the accumulated textures.
-                    var textures = mapping.Keys.ToList();
+                    var textures = new Texture2D[mapping.Keys.Count];
+                    mapping.Keys.CopyTo(textures, 0);
 
-                    if (textures.Count > 1)
+                    if (textures.Length > 1)
                     {
                         var atlas = new Texture2D(textureSetting.MaxResolution, textureSetting.MaxResolution);
                         output.Add(new MeshCombineResult.PropertyTexture2DID() { Property = textureSetting.TextureProperty, Texture = atlas });
-                        var rects = atlas.PackTextures(textures.ToArray(), textureSetting.Padding, textureSetting.MaxResolution);
+
+#if UNITY_EDITOR
+                        // Cache the texture's readable state and mark all textures as readable (only works in editor).
+                        var readableState = new bool[mapping.Keys.Count];
+
+                        for (int i = 0; i < textures.Length; ++i)
+                        {
+                            readableState[i] = textures[i].isReadable;
+                            SetTextureReadable(textures[i], true);
+                        }
+#endif
+                        // PackTextures requires textures be readable. In editor we set this flag automatically.
+                        var rects = atlas.PackTextures(textures, textureSetting.Padding, textureSetting.MaxResolution);
+
+#if UNITY_EDITOR
+                        // Reset the texture's readable state (only works in editor).
+                        for (int i = 0; i < textures.Length; ++i)
+                        {
+                            SetTextureReadable(textures[i], readableState[i]);
+                        }
+#endif
+
                         PostprocessTexture(atlas, rects, textureSetting.Usage);
 
                         if (!uvsAltered[destChannel])
                         {
                             // Remap the current UVs to their respective rects in the texture atlas.
-                            for (var i = 0; i < textures.Count; ++i)
+                            for (var i = 0; i < textures.Length; ++i)
                             {
                                 var rect = rects[i];
 
@@ -414,6 +439,40 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             texture.SetPixels(pixels);
             texture.Apply();
+        }
+
+        private static List<T> Repeat<T>(T value, int count)
+        {
+            var output = new List<T>(count);
+
+            for (int i = 0; i < count; ++i)
+            {
+                output.Add(value);
+            }
+
+            return output;
+        }
+
+        private static void SetTextureReadable(Texture2D texture, bool isReadable)
+        {
+#if UNITY_EDITOR
+            if (texture != null)
+            {
+                var assetPath = AssetDatabase.GetAssetPath(texture);
+                var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+
+                if (importer != null)
+                {
+                    if (importer.isReadable != isReadable)
+                    {
+                        importer.isReadable = isReadable;
+
+                        AssetDatabase.ImportAsset(assetPath);
+                        AssetDatabase.Refresh();
+                    }
+                }
+            }
+#endif
         }
     }
 }
