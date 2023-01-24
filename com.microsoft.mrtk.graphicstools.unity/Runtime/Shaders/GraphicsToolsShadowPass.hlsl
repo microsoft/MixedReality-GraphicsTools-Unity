@@ -149,9 +149,9 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
     half clipval = tex.a - _Cutoff;
     
     #if defined(_ROUND_CORNERS)
-        half2 distanceToEdge = abs(input.uv - half2(0.5, 0.5)) * 2;
+        half2 distanceToEdge = abs(input.uv - half2(0.5h, 0.5h)) * 2.0h;
 
-        half2 halfScale = input.scale.xy / 2;
+        half2 halfScale = input.scale.xy * 0.5h;
         half2 cornerPosition = distanceToEdge * halfScale;
 
         // Store results from corner rounding
