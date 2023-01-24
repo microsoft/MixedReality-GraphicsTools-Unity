@@ -78,6 +78,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 public int MaxResolution = 2048;
                 [Range(0, 256)]
                 public int Padding = 4;
+                public bool OverridePaddingColor = false;
+                public Color PaddingColorOverride = TextureUsageColorDefault[0];
             }
 
             public List<TextureSetting> TextureSettings = new List<TextureSetting>()
@@ -313,7 +315,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         }
 #endif
 
-                        PostprocessTexture(atlas, rects, textureSetting.Usage);
+                        PostprocessTexture(atlas, rects, textureSetting);
 
                         if (!uvsAltered[destChannel])
                         {
@@ -393,7 +395,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             return output;
         }
 
-        private static void PostprocessTexture(Texture2D texture, Rect[] usedRects, MeshCombineSettings.TextureUsage usage)
+        private static void PostprocessTexture(Texture2D texture, Rect[] usedRects, MeshCombineSettings.TextureSetting settings)
         {
             var pixels = texture.GetPixels();
             var width = texture.width;
@@ -417,7 +419,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (usedPixel)
                     {
-                        if (usage == MeshCombineSettings.TextureUsage.Normal)
+                        if (settings.Usage == MeshCombineSettings.TextureUsage.Normal)
                         {
                             // Apply Unity's UnpackNormalDXT5nm method to go from DXTnm to RGB.
                             var c = pixels[(y * width) + x];
@@ -432,7 +434,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Unity's PackTextures method defaults to black for areas that do not contain texture data. Because Unity's material 
                         // system defaults to a white texture for color textures (and a 'suitable' normal for normal textures) that do not have texture 
                         // specified, we need to fill in areas of the atlas with appropriate defaults.
-                        pixels[(y * width) + x] = MeshCombineSettings.TextureUsageColorDefault[(int)usage];
+                        pixels[(y * width) + x] = settings.OverridePaddingColor ? settings.PaddingColorOverride : MeshCombineSettings.TextureUsageColorDefault[(int)settings.Usage];
                     }
                 }
             }

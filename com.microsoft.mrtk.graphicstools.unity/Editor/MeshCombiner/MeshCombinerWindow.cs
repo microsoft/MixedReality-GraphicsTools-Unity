@@ -31,7 +31,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private void OnGUI()
         {
-            if (settingsObject == null)
+            if (settingsObject == null || settingsSerializedObject == null)
             {
                 settingsObject = CreateInstance<MeshCombineSettingsObject>();
                 settingsSerializedObject = new SerializedObject(settingsObject);
