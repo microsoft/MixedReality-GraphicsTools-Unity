@@ -246,7 +246,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         decompressedTexture.SetPixels(pair.Texture.GetPixels());
                         decompressedTexture.Apply();
 
-                        DestroyImmediate(pair.Texture);
+                        // Don't destroy textures we don't own.
+                        if (pair.Texture != Texture2D.whiteTexture)
+                        {
+                            DestroyImmediate(pair.Texture);
+                        }
 
                         var textureData = TextureFile.Encode(decompressedTexture, textureExtension);
 
