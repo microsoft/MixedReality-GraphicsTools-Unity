@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -41,6 +42,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         [System.Serializable]
         public class MeshCombineSettings
         {
+            public Matrix4x4 pivot = Matrix4x4.identity;
+            public List<MeshFilter> MeshFilters = new List<MeshFilter>();
+
+            [Min(0)]
+            public int TargetLOD = 0;
+            public bool BakeMaterialColorIntoVertexColor = true;
+            public bool BakeMeshIDIntoUVChannel = true;
+
             public enum UVChannel
             {
                 UV0 = 0,
@@ -49,11 +58,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 UV3 = 3,
             }
 
-            public Matrix4x4 pivot = Matrix4x4.identity;
-            public List<MeshFilter> MeshFilters = new List<MeshFilter>();
-            public bool BakeMeshIDIntoUVChannel = true;
             public UVChannel MeshIDUVChannel = UVChannel.UV3;
-            public bool BakeMaterialColorIntoVertexColor = true;
 
             public enum TextureUsage
             {
@@ -132,7 +137,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        public static bool CanCombine(MeshFilter meshFilter)
+        public static bool CanCombine(MeshFilter meshFilter, int targetLOD)
         {
             if (meshFilter == null)
             {
@@ -155,6 +160,31 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 // Don't merge skinned meshes.
                 return false;
+            }
+
+            // Don't merge meshes from multiple LOD groups.
+            if (renderer != null)
+            {
+                var lodGroups = meshFilter.GetComponentsInParent<LODGroup>();
+
+                foreach (var lodGroup in lodGroups)
+                {
+                    var lods = lodGroup.GetLODs();
+
+                    for (int i = 0; i < lods.Length; ++i)
+                    {
+                        if (i == targetLOD)
+                        {
+                            continue;
+                        }
+
+                        // If this renderer is contained in a parent LOD group which is not being merged, ignore it.
+                        if (Array.Exists(lods[i].renderers, element => element == renderer))
+                        {
+                            return false;
+                        }
+                    }
+                }
             }
 
             return true;
@@ -205,13 +235,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             // Create a CombineInstance for each mesh filter.
             foreach (var meshFilter in settings.MeshFilters)
             {
-                if (!CanCombine(meshFilter))
+                if (!CanCombine(meshFilter, settings.TargetLOD))
                 {
                     continue;
                 }
 
                 var combineInstance = new CombineInstance();
-                combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : Object.Instantiate(meshFilter.sharedMesh) as Mesh;
+                combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh) as Mesh;
 
                 if (settings.BakeMeshIDIntoUVChannel)
                 {

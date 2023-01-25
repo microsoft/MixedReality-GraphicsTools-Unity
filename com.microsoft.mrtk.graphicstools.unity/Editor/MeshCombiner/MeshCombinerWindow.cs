@@ -11,10 +11,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     public class MeshCombinerWindow : EditorWindow
     {
         private GameObject targetHierarchy = null;
-        private MeshCombineSettingsObject settingsObject = null;
-        private SerializedObject settingsSerializedObject = null;
         private bool includeInactive = false;
         private TextureFile.Format textureExtension = TextureFile.Format.TGA;
+
+        private MeshCombineSettingsObject settingsObject = null;
+        private SerializedObject settingsSerializedObject = null;
+
         private Vector2 meshFilterScrollPosition = Vector2.zero;
         private Vector2 textureSettingsScrollPosition = Vector2.zero;
 
@@ -46,6 +48,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 EditorGUILayout.BeginVertical("Box");
                 {
                     targetHierarchy = (GameObject)EditorGUILayout.ObjectField("Target Hierarchy:", targetHierarchy, typeof(GameObject), true);
+                    settings.TargetLOD = EditorGUILayout.IntField("Target LOD", settings.TargetLOD);
+                    includeInactive = EditorGUILayout.Toggle("Include Inactive", includeInactive);
                     AutopopulateMeshFilters();
                 }
                 EditorGUILayout.EndVertical();
@@ -66,7 +70,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             EditorGUILayout.BeginVertical("Box");
             {
-                var combinableMeshCount = CountCombinableMeshes(settings);
+                var combinableMeshCount = settings.MeshFilters.Count;
                 var canCombineMeshes = combinableMeshCount >= 2;
 
                 GUI.enabled = canCombineMeshes;
@@ -77,7 +81,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     var previousLabelWidth = EditorGUIUtility.labelWidth;
                     EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth - 42;
-                    includeInactive = EditorGUILayout.Toggle("Include Inactive", includeInactive);
                     settings.BakeMaterialColorIntoVertexColor = EditorGUILayout.Toggle("Bake Material Color Into Vertex Color", settings.BakeMaterialColorIntoVertexColor);
                     settings.BakeMeshIDIntoUVChannel = EditorGUILayout.Toggle("Bake Mesh ID Into UV Channel", settings.BakeMeshIDIntoUVChannel);
                     EditorGUIUtility.labelWidth = previousLabelWidth;
@@ -137,21 +140,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             settingsSerializedObject.ApplyModifiedProperties();
         }
 
-        private static int CountCombinableMeshes(MeshUtility.MeshCombineSettings settings)
-        {
-            var count = 0;
-
-            foreach (var meshFilter in settings.MeshFilters)
-            {
-                if (MeshUtility.CanCombine(meshFilter))
-                {
-                    ++count;
-                }
-            }
-
-            return count;
-        }
-
         private void AutopopulateMeshFilters()
         {
             if (targetHierarchy != null)
@@ -161,7 +149,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 foreach (var meshFilter in newMeshFilters)
                 {
-                    if (MeshUtility.CanCombine(meshFilter))
+                    if (MeshUtility.CanCombine(meshFilter, settingsObject.Context.TargetLOD))
                     {
                         meshFilters.Add(meshFilter);
                     }
