@@ -245,21 +245,21 @@ Varyings VertexStage(Attributes input)
 
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
     output.uv = input.uv;
-
+    
 #if defined(_USE_WORLD_SCALE)
     output.scale.z = canvasScale;
- #else
+#else
     float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
 #endif
 
     if (abs(localNormal.x) == 1.0) // Y,Z plane.
     {
         output.scale.x = output.scale.z;
-        output.scale.y = output.scale.y;
+        //output.scale.y = output.scale.y;
     }
     else if (abs(localNormal.y) == 1.0) // X,Z plane.
     {
-        output.scale.x = output.scale.x;
+        //output.scale.x = output.scale.x;
         output.scale.y = output.scale.z;
     }
     // Else X,Y plane.

@@ -6,6 +6,7 @@
 
 #pragma vertex ShadowPassVertexStage
 #pragma fragment ShadowPassPixelStage
+#pragma shader_feature_local _USE_WORLD_SCALE
 
 /// <summary>
 /// Features.
@@ -23,17 +24,20 @@
 /// </summary>
 
 #if defined(_URP)
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
-#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 #else
-#include "UnityCG.cginc"
-#include "UnityMetaPass.cginc"
+    #include "UnityCG.cginc"
+    #include "UnityMetaPass.cginc"
 #endif
 
 #if defined(_ROUND_CORNERS)
-#define _SCALE
-#define _NORMAL
+    #define _NORMAL
+#endif
+
+#if defined(_VERTEX_EXTRUSION) || defined(_ROUND_CORNERS) || defined(_BORDER_LIGHT)
+    #define _SCALE
 #endif
 
 #include "GraphicsToolsCommon.hlsl"
@@ -62,34 +66,37 @@ struct ShadowPassVaryings
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD0;
     half3 normal : NORMAL;
-#if defined(_SCALE)
-    float3 scale : TEXCOORD3;
-#endif
+    
+    #if defined(_SCALE)
+        half3 scale : TEXCOORD3;
+    #endif
 };
 
 float4 GT_GetShadowPositionHClip(ShadowPassAttributes input)
 {
     float3 positionWS = TransformObjectToWorld(input.position.xyz);
-#if defined(_URP)
-    half3 normalWS = TransformObjectToWorldNormal(input.normal);
-#else
-    half3 normalWS = UnityObjectToWorldNormal(input.normal);
-#endif
+    
+    #if defined(_URP)
+        half3 normalWS = TransformObjectToWorldNormal(input.normal);
+    #else
+        half3 normalWS = UnityObjectToWorldNormal(input.normal);
+    #endif
 
     GTMainLight light = GTGetMainLight();
-#if _CASTING_PUNCTUAL_LIGHT_SHADOW
-    float3 lightDirectionWS = normalize(light.direction - positionWS);
-#else
-    float3 lightDirectionWS = light.direction;
-#endif
+    
+    #if _CASTING_PUNCTUAL_LIGHT_SHADOW
+        float3 lightDirectionWS = normalize(light.direction - positionWS);
+    #else
+        float3 lightDirectionWS = light.direction;
+    #endif
 
     float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
 
-#if UNITY_REVERSED_Z
-    positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
-#else
-    positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
-#endif
+    #if UNITY_REVERSED_Z
+        positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+    #else
+        positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+    #endif
 
     return positionCS;
 }
@@ -112,30 +119,56 @@ ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
 {
     ShadowPassVaryings output;
 
-#if defined(_URP)
-    output.position = MetaVertexPosition(input.position, input.texcoord1.xy, input.texcoord2.xy, unity_LightmapST, unity_DynamicLightmapST);
-#else
-    output.position = UnityMetaVertexPosition(input.position, input.texcoord1.xy, input.texcoord2.xy, unity_LightmapST, unity_DynamicLightmapST);
-    output.position = UnityObjectToClipPos(input.position);
-#endif
+    #if defined(_URP)
+        output.position = MetaVertexPosition(input.position, input.texcoord1.xy, input.texcoord2.xy, unity_LightmapST, unity_DynamicLightmapST);
+    #else
+        output.position = UnityMetaVertexPosition(input.position, input.texcoord1.xy, input.texcoord2.xy, unity_LightmapST, unity_DynamicLightmapST);
+        output.position = UnityObjectToClipPos(input.position);
+    #endif
 
     output.uv = TRANSFORM_TEX(input.texcoord, _MainTex);
     output.position = GT_GetShadowPositionHClip(input);
-
-#if defined(_SCALE)
-    output.scale = GTGetWorldScale();
-#endif
-
+    
+    //
+    // Normal
     half3 localNormal = input.normal;
 
-#if defined(_NORMAL) || defined(_VERTEX_EXTRUSION)
-#if defined(_URP)
-    half3 worldNormal = TransformObjectToWorldNormal(localNormal);
-#else
-    half3 worldNormal = UnityObjectToWorldNormal(localNormal);
-#endif
-#endif
+    #if defined(_NORMAL) || defined(_VERTEX_EXTRUSION)
+        #if defined(_URP)
+            half3 worldNormal = TransformObjectToWorldNormal(localNormal);
+        #else
+            half3 worldNormal = UnityObjectToWorldNormal(localNormal);
+        #endif
+    #endif
+            
     output.normal = localNormal;
+
+    //
+    // Scale
+    #if defined(_SCALE)
+        output.scale = GTGetWorldScale();
+        #if !defined(_USE_WORLD_SCALE)
+		    //output.scale.z = 1.0h;
+        //#else
+            float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
+        #endif
+        // 3D objects, like a cube, need correctly sized borders.
+        // Used for things like the bounding box in MRTKv2.
+        //if (abs(localNormal.x) == 1.0) // Y,Z plane.
+        //{
+        //    output.scale.x = output.scale.z;
+        //}
+        //else if (abs(localNormal.y) == 1.0) // X,Z plane.
+        //{
+        //    output.scale.y = output.scale.x;
+        //}
+        // Else X,Y plane.
+        #if !defined(_USE_WORLD_SCALE)
+            // Canvas not supported.
+            // output.scale.z = canvasScale;
+            output.scale.z = minScale;
+        #endif
+    #endif
 
     return output;
 }
@@ -165,10 +198,11 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
             // The rest are written to...
             currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
 
+       // Combine rounded corners with texture alpha
        clipval -= (1 - cornerClip);
-    #endif
 
-    clip(clipval);
+       clip(clipval);
+    #endif
 
     return 0;
 }
