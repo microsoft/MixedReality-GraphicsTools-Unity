@@ -1805,6 +1805,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6733848284075754097, guid: 6a33ff43b87206b4b9c7ec732cf9e6b1, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bd0b07fb586c5047b97fec504143604, type: 2}
     - target: {fileID: 6733848284512877314, guid: 6a33ff43b87206b4b9c7ec732cf9e6b1, type: 3}
       propertyPath: m_text
       value: Canvas UI Element Shadows
