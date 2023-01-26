@@ -4,6 +4,12 @@
 #ifndef GT_SHADOW_PASS
 #define GT_SHADOW_PASS
 
+// Used by GraphicsToolsLighting.hlsl to get light direction?
+#define _SHADOW_PASS
+
+// Uncomment to help with RenderDoc debugging.
+#pragma enable_d3d11_debug_symbols
+
 #pragma vertex ShadowPassVertexStage
 #pragma fragment ShadowPassPixelStage
 #pragma shader_feature_local _USE_WORLD_SCALE

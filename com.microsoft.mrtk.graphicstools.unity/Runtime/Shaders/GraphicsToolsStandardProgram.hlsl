@@ -158,22 +158,30 @@ Varyings VertexStage(Attributes input)
     float3 worldVertexPosition = mul(UNITY_MATRIX_M, vertexPosition).xyz;
 #endif
 
-#if defined(_SCALE)
-    output.scale = GTGetWorldScale();
-    float canvasScale = 1.0;
-#if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
-#if defined(_CANVAS_RENDERED)
-    canvasScale = min(min(output.scale.x, output.scale.y), output.scale.z);
-    output.scale.x *= input.uv2.x;
-    output.scale.y *= input.uv2.y;
-    output.scale.z *= input.uv3.x;
-#endif
-#endif
-//#if defined(_USE_WORLD_SCALE)
-//    output.scale.z = canvasScale;
+//#if defined(_SCALE)
+//    output.scale = GTGetWorldScale();
+//    float minScaleWS = 1.0;
+//#if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
+//#if defined(_CANVAS_RENDERED)
+//    minScaleWS = min(min(output.scale.x, output.scale.y), output.scale.z);
+//    output.scale.x *= input.uv2.x;
+//    output.scale.y *= input.uv2.y;
+//    output.scale.z *= input.uv3.x;
 //#endif
-#endif
+//#endif
+//#endif
 
+    #if defined(_SCALE)
+        output.scale = GTGetWorldScale();
+        half minScaleWS = min(min(output.scale.x, output.scale.y), output.scale.z);
+        // Scale XY is used by canvas
+    #if defined(_CANVAS_RENDERED)
+        output.scale.x *= input.uv2.x;
+        output.scale.y *= input.uv2.y;
+        output.scale.z = input.uv3.x;
+    #endif
+    #endif
+    
     half3 localNormal = input.normal;
 
 #if defined(_NORMAL) || defined(_VERTEX_EXTRUSION)
@@ -250,7 +258,7 @@ Varyings VertexStage(Attributes input)
     output.uv = input.uv;
     
 #if defined(_USE_WORLD_SCALE)
-    output.scale.z = canvasScale;
+    output.scale.z = minScaleWS;
 #else
     float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
 #endif
@@ -506,7 +514,6 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     distanceToEdge.x = abs(input.uv.x - 0.5h) * 2.0h;
     distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
 #endif
-
     
     #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
         half2 halfScale = input.scale.xy * 0.5;
