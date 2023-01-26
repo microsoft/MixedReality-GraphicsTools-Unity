@@ -165,7 +165,7 @@ ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
         //    output.scale.z = minScaleWS;
         //#endif
 
-        #if defined(_CANVAS_RENDERED)
+        //#if defined(_CANVAS_RENDERED)
             if (abs(localNormal.x) == 1.0) // Y,Z plane.
             {
                 output.scale.x = output.scale.z;
@@ -175,7 +175,7 @@ ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
                 output.scale.y = output.scale.x;
             }
             // Else X,Y plane.
-        #endif
+        //#endif
 
         #if defined(_USE_WORLD_SCALE)
             output.scale.z = 1;
