@@ -175,11 +175,11 @@ Varyings VertexStage(Attributes input)
         output.scale = GTGetWorldScale();
         half minScaleWS = min(min(output.scale.x, output.scale.y), output.scale.z);
         // Scale XY is used by canvas
-    #if defined(_CANVAS_RENDERED)
-        output.scale.x *= input.uv2.x;
-        output.scale.y *= input.uv2.y;
-        output.scale.z = input.uv3.x;
-    #endif
+        #if defined(_CANVAS_RENDERED)
+            output.scale.x *= input.uv2.x;
+            output.scale.y *= input.uv2.y;
+            output.scale.z = input.uv3.x;
+        #endif
     #endif
     
     half3 localNormal = input.normal;
@@ -259,9 +259,12 @@ Varyings VertexStage(Attributes input)
     
 #if defined(_USE_WORLD_SCALE)
     output.scale.z = minScaleWS;
-#else
-    float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
+    // XXX
+    //output.scale.z = 1;
+//#else
+//    float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
 #endif
+    
     #if defined(_CANVAS_RENDERED)
         if (abs(localNormal.x) == 1.0) // Y,Z plane.
         {
@@ -275,8 +278,11 @@ Varyings VertexStage(Attributes input)
         }
         // Else X,Y plane.
     #endif
-#if !defined(_USE_WORLD_SCALE)
-    output.scale.z = minScale;
+        
+#if defined(_USE_WORLD_SCALE)
+        output.scale.z = 1; 
+#else
+        output.scale.z = minScaleWS;
 #endif
 
 #elif defined(_UV)
@@ -517,13 +523,6 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     
     #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
         half2 halfScale = input.scale.xy * 0.5;
-        
-        // XXX
-#if defined(_USE_WORLD_SCALE)
-        //halfScale = half2(_RoundCornerRadius, _RoundCornerRadius) * half(.5);
-#endif
-        // XXX
-            
         half2 cornerPosition = distanceToEdge * halfScale;
         
         // Store results from corner rounding

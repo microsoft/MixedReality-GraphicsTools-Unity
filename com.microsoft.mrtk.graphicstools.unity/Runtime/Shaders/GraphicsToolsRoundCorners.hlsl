@@ -12,7 +12,7 @@ void RoundCorners(
     half minScaleWS,
     half2 halfScale,
     half edgeSmoothingValue, // * minScaleWS
-    half roundCornerRadius,
+    half roundCornerRadius, // why no *minScaleWS?
     half roundCornerMargin, // * minScaleWS
     out float currentCornerRadius,
     out float cornerCircleRadius, // * minScaleWS
@@ -23,6 +23,7 @@ void RoundCorners(
         #if !defined(_USE_WORLD_SCALE)
             currentCornerRadius = GTFindCornerRadius(st, clamp(roundCornerRadius, 0, .5);
         #endif
+            // BUG this writes over the above, no matter what!!!
         currentCornerRadius = GTFindCornerRadius(st, roundCornerRadius);
     #else 
         currentCornerRadius = roundCornerRadius;

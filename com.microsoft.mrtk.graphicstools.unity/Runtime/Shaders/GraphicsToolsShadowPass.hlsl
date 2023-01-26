@@ -161,9 +161,9 @@ ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
             output.scale.z = input.uv3.x;
         #endif
 
-        #if defined(_USE_WORLD_SCALE)
-            output.scale.z = minScaleWS;
-        #endif
+        //#if defined(_USE_WORLD_SCALE)
+        //    output.scale.z = minScaleWS;
+        //#endif
 
         #if defined(_CANVAS_RENDERED)
             if (abs(localNormal.x) == 1.0) // Y,Z plane.
@@ -177,8 +177,9 @@ ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
             // Else X,Y plane.
         #endif
 
-        // Scale Z is used by round corners to 
-        #if !defined(_USE_WORLD_SCALE)
+        #if defined(_USE_WORLD_SCALE)
+            output.scale.z = 1;
+        #else
             output.scale.z = minScaleWS;
         #endif
     #endif
@@ -205,9 +206,10 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
         half cornerClip;
 
         float minScaleWS = input.scale.z;
+        float rad = _RoundCornerRadius;
 
        RoundCorners(
-            cornerPosition.xy, input.uv.xy, minScaleWS, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
+            cornerPosition.xy, input.uv.xy, minScaleWS, halfScale, _EdgeSmoothingValue, rad, _RoundCornerMargin,
             // The rest are written to...
             currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
 
