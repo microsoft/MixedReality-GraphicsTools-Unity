@@ -39,9 +39,6 @@ void RoundCorners(
     
     cornerCircleDistance = halfScale - (roundCornerMargin * minScaleWS) - cornerCircleRadius;
 
-    // XXX
-    cornerCircleDistance = halfScale - (roundCornerMargin * 1) - cornerCircleRadius;
-    
     #if defined(_ROUND_CORNERS_HIDE_INTERIOR)
         cornerClip = (cornerClip < half(1.0)) ? cornerClip : half(0.0);
     #else

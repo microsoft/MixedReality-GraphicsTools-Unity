@@ -266,14 +266,10 @@ Varyings VertexStage(Attributes input)
             output.scale.y = output.scale.z;
         }
         // Else X,Y plane.
-    #endif
-        
-#if defined(_USE_WORLD_SCALE)
         output.scale.z = 1; 
-#else
+    #else
         output.scale.z = minScaleWS;
-#endif
-
+    #endif
 #elif defined(_UV)
     output.uv = TRANSFORM_TEX(input.uv, _MainTex);
 #endif
