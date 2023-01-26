@@ -49,6 +49,15 @@ inline float3 GTGetWorldScale()
     return scale;
 }
 
+inline float3 GTGetObjectScale()
+{
+    float3 scale;
+    scale.x = length(unity_ObjectToWorld._m00_m10_m20);
+    scale.y = length(unity_ObjectToWorld._m01_m11_m21);
+    scale.z = length(unity_ObjectToWorld._m02_m12_m22);
+    return scale;
+}
+
 inline float GTGetWorldScaleMinAxis()
 {
     float3 scale = GTGetWorldScale();

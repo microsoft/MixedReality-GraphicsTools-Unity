@@ -147,26 +147,33 @@ ShadowPassVaryings ShadowPassVertexStage(ShadowPassAttributes input)
     // Scale
     #if defined(_SCALE)
         output.scale = GTGetWorldScale();
-        #if !defined(_USE_WORLD_SCALE)
-		    //output.scale.z = 1.0h;
-        //#else
-            float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
+        half minScaleWS = min(min(output.scale.x, output.scale.y), output.scale.z);
+        // Scale XY is used by canvas
+        #if defined(_CANVAS_RENDERED)
+            output.scale.x *= input.uv2.x;
+            output.scale.y *= input.uv2.y;
+            output.scale.z = input.uv3.x;
         #endif
-        // 3D objects, like a cube, need correctly sized borders.
-        // Used for things like the bounding box in MRTKv2.
-        //if (abs(localNormal.x) == 1.0) // Y,Z plane.
-        //{
-        //    output.scale.x = output.scale.z;
-        //}
-        //else if (abs(localNormal.y) == 1.0) // X,Z plane.
-        //{
-        //    output.scale.y = output.scale.x;
-        //}
-        // Else X,Y plane.
+
+        #if defined(_USE_WORLD_SCALE)
+            output.scale.z = minScaleWS;
+        #endif
+
+        #if defined(_CANVAS_RENDERED)
+            if (abs(localNormal.x) == 1.0) // Y,Z plane.
+            {
+                output.scale.x = output.scale.z;
+            }
+            else if (abs(localNormal.y) == 1.0) // X,Z plane.
+            {
+                output.scale.y = output.scale.x;
+            }
+            // Else X,Y plane.
+        #endif
+
+        // Scale Z is used by round corners to 
         #if !defined(_USE_WORLD_SCALE)
-            // Canvas not supported.
-            // output.scale.z = canvasScale;
-            output.scale.z = minScale;
+            output.scale.z = minScaleWS;
         #endif
     #endif
 
@@ -182,24 +189,24 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
     half clipval = tex.a - _Cutoff;
     
     #if defined(_ROUND_CORNERS)
-        half2 distanceToEdge = abs(input.uv - half2(0.5h, 0.5h)) * 2.0h;
-
-        half2 halfScale = input.scale.xy * 0.5h;
+        half2 distanceToEdge = abs(input.uv - half2(0.5, 0.5)) * half(2.0);
+        half2 halfScale = input.scale.xy * half(0.5);
         half2 cornerPosition = distanceToEdge * halfScale;
-
         // Store results from corner rounding
-        half currentCornerRadius;
-        half cornerCircleRadius;
-        half2 cornerCircleDistance;
+        float currentCornerRadius;
+        float cornerCircleRadius;
+        float2 cornerCircleDistance;
         half cornerClip;
 
+        float minScaleWS = input.scale.z;
+
        RoundCorners(
-            cornerPosition.xy, input.uv.xy, input.scale.z, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
+            cornerPosition.xy, input.uv.xy, minScaleWS, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
             // The rest are written to...
             currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
 
        // Combine rounded corners with texture alpha
-       clipval -= (1 - cornerClip);
+       clipval -= (half(1.0) - cornerClip);
 
        clip(clipval);
     #endif

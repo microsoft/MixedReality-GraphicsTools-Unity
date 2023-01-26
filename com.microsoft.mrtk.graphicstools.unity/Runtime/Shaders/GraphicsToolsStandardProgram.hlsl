@@ -169,6 +169,9 @@ Varyings VertexStage(Attributes input)
     output.scale.z *= input.uv3.x;
 #endif
 #endif
+//#if defined(_USE_WORLD_SCALE)
+//    output.scale.z = canvasScale;
+//#endif
 #endif
 
     half3 localNormal = input.normal;
@@ -251,19 +254,19 @@ Varyings VertexStage(Attributes input)
 #else
     float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
 #endif
-
-    if (abs(localNormal.x) == 1.0) // Y,Z plane.
-    {
-        output.scale.x = output.scale.z;
-        //output.scale.y = output.scale.y;
-    }
-    else if (abs(localNormal.y) == 1.0) // X,Z plane.
-    {
-        //output.scale.x = output.scale.x;
-        output.scale.y = output.scale.z;
-    }
-    // Else X,Y plane.
-
+    #if defined(_CANVAS_RENDERED)
+        if (abs(localNormal.x) == 1.0) // Y,Z plane.
+        {
+            output.scale.x = output.scale.z;
+            //output.scale.y = output.scale.y;
+        }
+        else if (abs(localNormal.y) == 1.0) // X,Z plane.
+        {
+            //output.scale.x = output.scale.x;
+            output.scale.y = output.scale.z;
+        }
+        // Else X,Y plane.
+    #endif
 #if !defined(_USE_WORLD_SCALE)
     output.scale.z = minScale;
 #endif
@@ -507,16 +510,25 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     
     #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
         half2 halfScale = input.scale.xy * 0.5;
+        
+        // XXX
+#if defined(_USE_WORLD_SCALE)
+        //halfScale = half2(_RoundCornerRadius, _RoundCornerRadius) * half(.5);
+#endif
+        // XXX
+            
         half2 cornerPosition = distanceToEdge * halfScale;
         
         // Store results from corner rounding
-        half currentCornerRadius;
-        half cornerCircleRadius;
+        float currentCornerRadius;
+        float cornerCircleRadius;
         half2 cornerCircleDistance;
         half cornerClip;
+
+        float minScaleWS = input.scale.z;
         
         RoundCorners(
-            cornerPosition.xy, input.uv.xy, input.scale.z, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
+            cornerPosition.xy, input.uv.xy, minScaleWS, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
             // The rest are written to...
             currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
     #endif

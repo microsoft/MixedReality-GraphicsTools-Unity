@@ -9,19 +9,19 @@
 void RoundCorners(
     half2 cornerPosition,
     float2 st,
-    half zscale,
+    half minScaleWS,
     half2 halfScale,
-    half edgeSmoothingValue,
+    half edgeSmoothingValue, // * minScaleWS
     half roundCornerRadius,
-    half roundCornerMargin, 
-    out half currentCornerRadius,
-    out half cornerCircleRadius,
-    out half2 cornerCircleDistance,
+    half roundCornerMargin, // * minScaleWS
+    out float currentCornerRadius,
+    out float cornerCircleRadius, // * minScaleWS
+    out float2 cornerCircleDistance,
     out half cornerClip)
 {
     #if defined(_INDEPENDENT_CORNERS)
         #if !defined(_USE_WORLD_SCALE)
-            currentCornerRadius = GTFindCornerRadius(st, clamp(roundCornerRadius, 0, 0.5));
+            currentCornerRadius = GTFindCornerRadius(st, clamp(roundCornerRadius, 0, .5);
         #endif
         currentCornerRadius = GTFindCornerRadius(st, roundCornerRadius);
     #else 
@@ -29,17 +29,19 @@ void RoundCorners(
     #endif
 
     #if defined(_USE_WORLD_SCALE)
-        cornerCircleRadius = max(currentCornerRadius, GT_MIN_CORNER_VALUE) * zscale;
+        cornerCircleRadius = max(currentCornerRadius, GT_MIN_CORNER_VALUE);
     #else
-        cornerCircleRadius = saturate(max(currentCornerRadius - roundCornerMargin, GT_MIN_CORNER_VALUE)) * zscale;
+        cornerCircleRadius = saturate(max(currentCornerRadius - roundCornerMargin, GT_MIN_CORNER_VALUE));
     #endif
-
-    cornerCircleDistance = halfScale - (roundCornerMargin * zscale) - cornerCircleRadius;
+        
+    cornerCircleRadius *= minScaleWS;
+    
+    cornerCircleDistance = halfScale - (roundCornerMargin * minScaleWS) - cornerCircleRadius;
 
     #if defined(_ROUND_CORNERS_HIDE_INTERIOR)
-        cornerClip = (cornerClip < 1.0) ? cornerClip : 0.0;
+        cornerClip = (cornerClip < half(1.0)) ? cornerClip : half(0.0);
     #else
-        cornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, edgeSmoothingValue * zscale);
-    #endif
+    cornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, edgeSmoothingValue * minScaleWS);
+#endif
 }
 #endif
