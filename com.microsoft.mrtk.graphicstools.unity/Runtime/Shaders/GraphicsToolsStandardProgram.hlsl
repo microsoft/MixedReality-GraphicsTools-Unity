@@ -174,7 +174,6 @@ Varyings VertexStage(Attributes input)
     #if defined(_SCALE)
         output.scale = GTGetWorldScale();
         half minScaleWS = min(min(output.scale.x, output.scale.y), output.scale.z);
-        // Scale XY is used by canvas
         #if defined(_CANVAS_RENDERED)
             output.scale.x *= input.uv2.x;
             output.scale.y *= input.uv2.y;
@@ -257,27 +256,17 @@ Varyings VertexStage(Attributes input)
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
     output.uv = input.uv;
     
-//#if defined(_USE_WORLD_SCALE)
-//    output.scale.z = minScaleWS;
-//    // XXX
-//    //output.scale.z = 1;
-////#else
-////    float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
-//#endif
-    
-    //#if defined(_CANVAS_RENDERED)
+    #if defined(_USE_WORLD_SCALE)
         if (abs(localNormal.x) == 1.0) // Y,Z plane.
         {
             output.scale.x = output.scale.z;
-            //output.scale.y = output.scale.y;
         }
         else if (abs(localNormal.y) == 1.0) // X,Z plane.
         {
-            //output.scale.x = output.scale.x;
             output.scale.y = output.scale.z;
         }
         // Else X,Y plane.
-    //#endif
+    #endif
         
 #if defined(_USE_WORLD_SCALE)
         output.scale.z = 1; 
