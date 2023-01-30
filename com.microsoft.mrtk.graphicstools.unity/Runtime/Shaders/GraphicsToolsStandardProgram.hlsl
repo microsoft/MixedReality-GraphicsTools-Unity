@@ -507,19 +507,27 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
     
     #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
+    // share with shadow pass
         half2 halfScale = input.scale.xy * half(.5);
         half2 cornerPosition = distanceToEdge * halfScale;
         float minScaleWS = input.scale.z;
-
-        float currentCornerRadius = CurrentCornerRadius();
-
+        
+        
+#if defined(_INDEPENDENT_CORNERS) && !defined(_USE_WORLD_SCALE)
+        half radius = clamp(radius, half(0), half(.5));
+#else
+		half radius = _RoundCornerRadius;
+#endif
+        float currentCornerRadius = GTFindCornerRadius(input.uv.xy, radius);
+            
         float cornerCircleRadius = CornerCircleRadius(currentCornerRadius, _RoundCornerMargin);
         cornerCircleRadius *= minScaleWS;
 
-        half2 cornerCircleDistance = cornerCircleDistance = halfScale - (_RoundCornerMargin * minScaleWS) - cornerCircleRadius;
+        half2 cornerCircleDistance = halfScale - (_RoundCornerMargin * minScaleWS) - cornerCircleRadius;
 
         half smoothing = _EdgeSmoothingValue * minScaleWS;
         half cornerClip = CornerClip(cornerPosition, cornerCircleDistance, cornerCircleRadius, smoothing);
+    // end share with shadow pass
     #endif
 
     albedo *= input.color;

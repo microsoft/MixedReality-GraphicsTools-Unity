@@ -6,13 +6,13 @@
 
 #ifndef GT_ROUND_CORNERS
 #define GT_ROUND_CORNERS
-half CurrentCornerRadius()
+half CurrentCornerRadius(half2 uv)
 {
     #if defined(_INDEPENDENT_CORNERS)
         #if !defined(_USE_WORLD_SCALE)
-            return GTFindCornerRadius(input.uv.xy, clamp(_RoundCornerRadius, 0, .5));
+            return clamp(_RoundCornerRadius, half(0), half(.5);
         #endif
-        return GTFindCornerRadius(input.uv.xy, _RoundCornerRadius);
+        return GTFindCornerRadius(uv, _RoundCornerRadius);
     #else 
         return _RoundCornerRadius;
     #endif
