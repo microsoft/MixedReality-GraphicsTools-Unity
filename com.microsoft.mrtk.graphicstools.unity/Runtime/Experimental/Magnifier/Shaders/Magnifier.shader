@@ -11,7 +11,7 @@ Shader "Graphics Tools/Magnifier"
     {
         PackageRequirements
         {
-            "com.unity.render-pipelines.universal": "10.6.0"
+            "com.unity.render-pipelines.universal": "12.1.0"
         }
 
         Tags
