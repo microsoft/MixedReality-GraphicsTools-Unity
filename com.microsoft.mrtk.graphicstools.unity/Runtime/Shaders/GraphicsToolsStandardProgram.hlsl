@@ -507,23 +507,19 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
     
     #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
-
-        half2 halfScale = input.scale.xy * 0.5;
-        
+        half2 halfScale = input.scale.xy * half(.5);
         half2 cornerPosition = distanceToEdge * halfScale;
-        
-        // Store results from corner rounding
-        float currentCornerRadius;
-        float cornerCircleRadius;
-        half2 cornerCircleDistance;
-        half cornerClip;
-
         float minScaleWS = input.scale.z;
-        
-        RoundCorners(
-            cornerPosition.xy, input.uv.xy, minScaleWS, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
-            // The rest are written to...
-            currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
+
+        float currentCornerRadius = CurrentCornerRadius();
+
+        float cornerCircleRadius = CornerCircleRadius(currentCornerRadius, _RoundCornerMargin);
+        cornerCircleRadius *= minScaleWS;
+
+        half2 cornerCircleDistance = cornerCircleDistance = halfScale - (_RoundCornerMargin * minScaleWS) - cornerCircleRadius;
+
+        half smoothing = _EdgeSmoothingValue * minScaleWS;
+        half cornerClip = CornerClip(cornerPosition, cornerCircleDistance, cornerCircleRadius, smoothing);
     #endif
 
     albedo *= input.color;
