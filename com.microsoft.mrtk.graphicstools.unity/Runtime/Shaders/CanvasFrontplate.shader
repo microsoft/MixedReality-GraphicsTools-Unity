@@ -85,7 +85,7 @@ Properties {
 
 SubShader {
     Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
-    Blend One One
+    Blend[_SrcBlend][_DstBlend]
     Cull Off
     ZWrite[_ZWrite]
     ZTest[_ZTest]
