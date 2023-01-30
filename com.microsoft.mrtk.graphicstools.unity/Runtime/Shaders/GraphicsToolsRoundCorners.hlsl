@@ -37,43 +37,4 @@ half CornerClip(half2 position, half2 distance, half radius, half smoothing)
     #endif
     return result;
 }
-void RoundCorners(
-    half2 cornerPosition,
-    float2 st,
-    half minScaleWS,
-    half2 halfScale,
-    half edgeSmoothingValue, // * minScaleWS
-    half roundCornerRadius, // why no *minScaleWS?
-    half roundCornerMargin, // * minScaleWS
-    out float currentCornerRadius,
-    out float cornerCircleRadius, // * minScaleWS
-    out float2 cornerCircleDistance,
-    out half cornerClip)
-{
-    #if defined(_INDEPENDENT_CORNERS)
-        #if !defined(_USE_WORLD_SCALE)
-            currentCornerRadius = GTFindCornerRadius(st, clamp(roundCornerRadius, 0, .5);
-        #endif
-            // BUG this writes over the above, no matter what!!!
-        currentCornerRadius = GTFindCornerRadius(st, roundCornerRadius);
-    #else 
-        currentCornerRadius = roundCornerRadius;
-    #endif
-
-    #if defined(_USE_WORLD_SCALE)
-        cornerCircleRadius = max(currentCornerRadius, GT_MIN_CORNER_VALUE);
-    #else
-        cornerCircleRadius = saturate(max(currentCornerRadius - roundCornerMargin, GT_MIN_CORNER_VALUE));
-    #endif
-        
-    cornerCircleRadius *= minScaleWS;
-    
-    cornerCircleDistance = halfScale - (roundCornerMargin * minScaleWS) - cornerCircleRadius;
-
-    #if defined(_ROUND_CORNERS_HIDE_INTERIOR)
-        cornerClip = (cornerClip < half(1.0)) ? cornerClip : half(0.0);
-    #else
-        cornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, edgeSmoothingValue * minScaleWS);
-    #endif
-}
 #endif

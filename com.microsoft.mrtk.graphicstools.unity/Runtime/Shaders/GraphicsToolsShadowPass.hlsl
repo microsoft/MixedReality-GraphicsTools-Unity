@@ -190,20 +190,28 @@ half4 ShadowPassPixelStage(ShadowPassVaryings input) : SV_Target
     
     #if defined(_ROUND_CORNERS)
         half2 distanceToEdge = abs(input.uv - half2(0.5, 0.5)) * half(2.0);
-        half2 halfScale = input.scale.xy * half(0.5);
-        half2 cornerPosition = distanceToEdge * halfScale;
-        // Store results from corner rounding
-        float currentCornerRadius;
-        float cornerCircleRadius;
-        float2 cornerCircleDistance;
-        half cornerClip;
 
+        // share with shadow pass
+        half2 halfScale = input.scale.xy * half(.5);
+        half2 cornerPosition = distanceToEdge * halfScale;
         float minScaleWS = input.scale.z;
 
-        RoundCorners(
-            cornerPosition.xy, input.uv.xy, minScaleWS, halfScale, _EdgeSmoothingValue, _RoundCornerRadius, _RoundCornerMargin,
-            // The rest are written to...
-            currentCornerRadius, cornerCircleRadius, cornerCircleDistance, cornerClip);
+
+#if defined(_INDEPENDENT_CORNERS) && !defined(_USE_WORLD_SCALE)
+        half radius = clamp(radius, half(0), half(.5));
+#else
+        half radius = _RoundCornerRadius;
+#endif
+        float currentCornerRadius = GTFindCornerRadius(input.uv.xy, radius);
+
+        float cornerCircleRadius = CornerCircleRadius(currentCornerRadius, _RoundCornerMargin);
+        cornerCircleRadius *= minScaleWS;
+
+        half2 cornerCircleDistance = halfScale - (_RoundCornerMargin * minScaleWS) - cornerCircleRadius;
+
+        half smoothing = _EdgeSmoothingValue * minScaleWS;
+        half cornerClip = CornerClip(cornerPosition, cornerCircleDistance, cornerCircleRadius, smoothing);
+        // end share with shadow pass
 
        // Combine rounded corners with texture alpha
        clipval -= (half(1.0) - cornerClip);
