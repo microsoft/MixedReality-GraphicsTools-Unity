@@ -201,13 +201,12 @@ Shader "Graphics Tools/Standard"
 
             HLSLPROGRAM
         
-            // Uncomment to help with RenderDoc debugging.
-            #pragma enable_d3d11_debug_symbols
-
             #define _URP
             #define _SHADOW_PASS
 
             #pragma multi_compile_instancing
+        
+            #pragma shader_feature_local_fragment _CLIPPING_BORDER
 
             #include_with_pragmas "GraphicsToolsShadowPass.hlsl"
 

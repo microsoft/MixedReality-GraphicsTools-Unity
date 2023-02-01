@@ -157,26 +157,16 @@ Varyings VertexStage(Attributes input)
     float3 worldVertexPosition = mul(UNITY_MATRIX_M, vertexPosition).xyz;
 #endif
 
-//#if defined(_SCALE)
-//    output.scale = GTGetWorldScale();
-//    float minScaleWS = 1.0;
-//#if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
-//#if defined(_CANVAS_RENDERED)
-//    minScaleWS = min(min(output.scale.x, output.scale.y), output.scale.z);
-//    output.scale.x *= input.uv2.x;
-//    output.scale.y *= input.uv2.y;
-//    output.scale.z *= input.uv3.x;
-//#endif
-//#endif
-//#endif
-
     #if defined(_SCALE)
         output.scale = GTGetWorldScale();
         half minScaleWS = min(min(output.scale.x, output.scale.y), output.scale.z);
-        #if defined(_CANVAS_RENDERED)
-            output.scale.x *= input.uv2.x;
-            output.scale.y *= input.uv2.y;
-            output.scale.z = input.uv3.x;
+        
+        #if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
+            #if defined(_CANVAS_RENDERED)
+                output.scale.x *= input.uv2.x;
+                output.scale.y *= input.uv2.y;
+                output.scale.z = input.uv3.x;
+            #endif
         #endif
     #endif
     

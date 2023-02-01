@@ -8,7 +8,7 @@
 #define _SHADOW_PASS
 
 // Uncomment to help with RenderDoc debugging.
-#pragma enable_d3d11_debug_symbols
+// #pragma enable_d3d11_debug_symbols
 
 #pragma vertex ShadowPassVertexStage
 #pragma fragment ShadowPassPixelStage
@@ -17,10 +17,6 @@
 /// <summary>
 /// Features.
 /// </summary>
-
-//#pragma shader_feature EDITOR_VISUALIZATION
-//#pragma shader_feature_local_fragment _EMISSION
-//#pragma shader_feature_local _CHANNEL_MAP
 
 #pragma shader_feature_local _ROUND_CORNERS
 #pragma shader_feature_local_fragment _INDEPENDENT_CORNERS
@@ -106,6 +102,7 @@ float4 GT_GetShadowPositionHClip(ShadowPassAttributes input)
     return positionCS;
 }
 
+// FIXME: What is this method used for?
 float3 GT_ApplyShadowBias(float3 positionWS, float3 normalWS, float3 lightDirection)
 {
     float invNdotL = 1.0 - saturate(dot(lightDirection, normalWS));
