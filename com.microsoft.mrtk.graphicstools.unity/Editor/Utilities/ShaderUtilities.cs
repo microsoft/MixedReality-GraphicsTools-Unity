@@ -3,12 +3,14 @@
 
 using Microsoft.CSharp;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static UnityEditor.ShaderData;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
@@ -76,6 +78,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static readonly string TargetShaderNameBody = "{0}            return \"{1}\";";
         private static readonly string PropertyID = "{0}ID";
         private static readonly string FloatPostfix = "f";
+        private static readonly string PropertyHeader =
+@"
+           [Header(""{0}"")]";
 
         /// <summary>
         /// Creates a new component which contains serialized properties for each of the shader's exposed properties and methods to set and apply their state.
@@ -94,6 +99,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                 string name = ShaderUtil.GetPropertyName(shader, i);
                 string nameID = string.Format(PropertyID, name);
                 ShaderUtil.ShaderPropertyType type = ShaderUtil.GetPropertyType(shader, i);
+                string[] propertyAttributes = shader.GetPropertyAttributes(i);
+
+                string headerAttribute = Array.Find(propertyAttributes, isHeaderAttribute);
+                if (headerAttribute != null && headerAttribute != string.Empty)
+                {
+                    properties += Environment.NewLine;
+                    properties += string.Format(PropertyHeader, GetHeaderName(headerAttribute));
+                }
 
                 // Textures.
                 if (type == ShaderUtil.ShaderPropertyType.TexEnv)
@@ -399,6 +412,26 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static string RemoveWhitespace(string input)
         {
             return new string(input.ToCharArray().Where(c => !Char.IsWhiteSpace(c)).ToArray());
+        }
+
+        /// <summary>
+        /// Checks if string is a Header attribute
+        /// </summary>
+        private static bool isHeaderAttribute(string a)
+        {
+            // Regex to check if attribute is type, Header
+            return Regex.IsMatch(a, @"Header\(.*\)");
+        }
+
+        /// <summary>
+        /// Returns the Header name as a string
+        /// </summary>
+        private static string GetHeaderName(string headerAttribute)
+        {
+            int startPosition = headerAttribute.IndexOf("(") + 1;
+            int wordLength = headerAttribute.IndexOf(")", startPosition) - startPosition;
+
+            return headerAttribute.Substring(startPosition, wordLength);
         }
     }
 }
