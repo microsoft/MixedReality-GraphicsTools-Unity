@@ -12,198 +12,212 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     public class CanvasMaterialAnimatorCanvasGlow : CanvasMaterialAnimatorBase
     {
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Relative_To_Height_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Relative_To_Height_ID = Shader.PropertyToID("_Relative_To_Height_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Bevel_Radius_ = 0.05f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Bevel_Radius_ID = Shader.PropertyToID("_Bevel_Radius_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Line_Width_ = 0.03f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Line_Width_ID = Shader.PropertyToID("_Line_Width_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Outer_Fuzz_Start_ = 0.002f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Outer_Fuzz_Start_ID = Shader.PropertyToID("_Outer_Fuzz_Start_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Outer_Fuzz_End_ = 0.001f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Outer_Fuzz_End_ID = Shader.PropertyToID("_Outer_Fuzz_End_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Fixed_Unit_Multiplier_ = 1000f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Fixed_Unit_Multiplier_ID = Shader.PropertyToID("_Fixed_Unit_Multiplier_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Motion_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Motion_ID = Shader.PropertyToID("_Motion_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Max_Intensity_ = 0.5f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Max_Intensity_ID = Shader.PropertyToID("_Max_Intensity_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 5f)] public float _Intensity_Fade_In_Exponent_ = 2f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Intensity_Fade_In_Exponent_ID = Shader.PropertyToID("_Intensity_Fade_In_Exponent_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Color _Color_ = Color.white;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Color_ID = Shader.PropertyToID("_Color_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Color _Inner_Color_ = Color.white;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Inner_Color_ID = Shader.PropertyToID("_Inner_Color_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 9f)] public float _Blend_Exponent_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Blend_Exponent_ID = Shader.PropertyToID("_Blend_Exponent_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 5f)] public float _Falloff_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Falloff_ID = Shader.PropertyToID("_Falloff_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Bias_ = 0.5f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Bias_ID = Shader.PropertyToID("_Bias_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _SrcBlend = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _SrcBlendID = Shader.PropertyToID("_SrcBlend");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _DstBlend = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _DstBlendID = Shader.PropertyToID("_DstBlend");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 255f)] public float _StencilReference = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _StencilReferenceID = Shader.PropertyToID("_StencilReference");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _StencilComparison = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _StencilComparisonID = Shader.PropertyToID("_StencilComparison");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _StencilOperation = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _StencilOperationID = Shader.PropertyToID("_StencilOperation");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _ZTest = 4f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _ZTestID = Shader.PropertyToID("_ZTest");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _ZWrite = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _ZWriteID = Shader.PropertyToID("_ZWrite");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Texture2D _MainTex = null;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _MainTexID = Shader.PropertyToID("_MainTex");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Vector4 _ClipRect = Vector4.zero;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _ClipRectID = Shader.PropertyToID("_ClipRect");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Vector4 _ClipRectRadii = Vector4.zero;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _ClipRectRadiiID = Shader.PropertyToID("_ClipRectRadii");
+
+        [Header("Sizes")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Relative_To_Height_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Relative_To_Height_ID = Shader.PropertyToID("_Relative_To_Height_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Bevel_Radius_ = 0.05f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Bevel_Radius_ID = Shader.PropertyToID("_Bevel_Radius_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Line_Width_ = 0.03f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Line_Width_ID = Shader.PropertyToID("_Line_Width_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Outer_Fuzz_Start_ = 0.002f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Outer_Fuzz_Start_ID = Shader.PropertyToID("_Outer_Fuzz_Start_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Outer_Fuzz_End_ = 0.001f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Outer_Fuzz_End_ID = Shader.PropertyToID("_Outer_Fuzz_End_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Fixed_Unit_Multiplier_ = 1000f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Fixed_Unit_Multiplier_ID = Shader.PropertyToID("_Fixed_Unit_Multiplier_");
+
+        [Header("Animation")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Motion_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Motion_ID = Shader.PropertyToID("_Motion_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Max_Intensity_ = 0.5f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Max_Intensity_ID = Shader.PropertyToID("_Max_Intensity_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 5f)] public float _Intensity_Fade_In_Exponent_ = 2f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Intensity_Fade_In_Exponent_ID = Shader.PropertyToID("_Intensity_Fade_In_Exponent_");
+
+        [Header("Color")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Color _Color_ = Color.white;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Color_ID = Shader.PropertyToID("_Color_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Color _Inner_Color_ = Color.white;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Inner_Color_ID = Shader.PropertyToID("_Inner_Color_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 9f)] public float _Blend_Exponent_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Blend_Exponent_ID = Shader.PropertyToID("_Blend_Exponent_");
+
+        [Header("Inner Transition")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 5f)] public float _Falloff_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Falloff_ID = Shader.PropertyToID("_Falloff_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Bias_ = 0.5f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Bias_ID = Shader.PropertyToID("_Bias_");
+
+        [Header("Blending")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _SrcBlend = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _SrcBlendID = Shader.PropertyToID("_SrcBlend");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _DstBlend = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _DstBlendID = Shader.PropertyToID("_DstBlend");
+
+        [Header("Stencil")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 255f)] public float _StencilReference = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _StencilReferenceID = Shader.PropertyToID("_StencilReference");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _StencilComparison = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _StencilComparisonID = Shader.PropertyToID("_StencilComparison");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _StencilOperation = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _StencilOperationID = Shader.PropertyToID("_StencilOperation");
+
+        [Header("Depth")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _ZTest = 4f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _ZTestID = Shader.PropertyToID("_ZTest");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _ZWrite = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _ZWriteID = Shader.PropertyToID("_ZWrite");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Texture2D _MainTex = null;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _MainTexID = Shader.PropertyToID("_MainTex");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Vector4 _ClipRect = Vector4.zero;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _ClipRectID = Shader.PropertyToID("_ClipRect");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Vector4 _ClipRectRadii = Vector4.zero;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _ClipRectRadiiID = Shader.PropertyToID("_ClipRectRadii");
 
         /// <inheritdoc/>
         public override void InitializeFromMaterial(Material material)
