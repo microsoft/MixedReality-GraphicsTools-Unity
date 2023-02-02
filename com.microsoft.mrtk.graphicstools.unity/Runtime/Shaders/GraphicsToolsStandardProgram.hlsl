@@ -8,7 +8,7 @@
 #pragma fragment PixelStage
 
 // Comment in to help with RenderDoc debugging.
-#pragma enable_d3d11_debug_symbols
+ #pragma enable_d3d11_debug_symbols
 
 /// <summary>
 /// Features.
@@ -498,7 +498,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     distanceToEdge.x = abs(input.uv.x - 0.5h) * 2.0h;
     distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
 #endif
-    
+
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
     float2 halfScale = input.scale.xy * 0.5;
     float2 cornerPosition = distanceToEdge * halfScale;
