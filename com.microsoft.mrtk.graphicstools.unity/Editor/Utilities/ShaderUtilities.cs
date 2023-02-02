@@ -102,7 +102,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 string[] propertyAttributes = shader.GetPropertyAttributes(i);
 
                 string headerAttribute = Array.Find(propertyAttributes, isHeaderAttribute);
-                if (headerAttribute != null && headerAttribute != string.Empty)
+                if (!string.IsNullOrEmpty(headerAttribute))
                 {
                     properties += Environment.NewLine;
                     properties += string.Format(PropertyHeader, GetHeaderName(headerAttribute));
@@ -417,7 +417,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Checks if string is a Header attribute
         /// </summary>
-        private static bool isHeaderAttribute(string a)
+        private static bool IsHeaderAttribute(string a)
         {
             // Regex to check if attribute is type, Header
             return Regex.IsMatch(a, @"Header\(.*\)");
