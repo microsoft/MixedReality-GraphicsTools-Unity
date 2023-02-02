@@ -208,7 +208,7 @@ Shader "Graphics Tools/Standard"
         
             #pragma shader_feature_local_fragment _CLIPPING_BORDER
 
-            #include_with_pragmas "GraphicsToolsShadowPass.hlsl"
+            #include_with_pragmas "GraphicsToolsStandardProgram.hlsl"
 
             ENDHLSL
         }
