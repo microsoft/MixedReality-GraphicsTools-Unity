@@ -159,8 +159,7 @@ Varyings VertexStage(Attributes input)
 
     #if defined(_SCALE)
         output.scale = GTGetWorldScale();
-        half canvasScale = 1;
-
+    float canvasScale = 1.0;
         #if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
             #if defined(_CANVAS_RENDERED)
                 canvasScale = min(min(output.scale.x, output.scale.y), output.scale.z);
@@ -498,33 +497,37 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
     
     #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
-    // share with shadow pass
-        half2 halfScale = input.scale.xy * half(.5);
-        float minScaleWS = input.scale.z;
+    float2 halfScale = input.scale.xy * 0.5;
+    float2 cornerPosition = distanceToEdge * halfScale;
         
-#if defined(_INDEPENDENT_CORNERS) && !defined(_USE_WORLD_SCALE)
-        half radius = clamp(radius, half(0), half(.5));
-#else
-		half radius = _RoundCornerRadius;
+    half currentCornerRadius;
+
+    // Rounded corner clipping.
+#if defined(_ROUND_CORNERS)
+#if defined(_INDEPENDENT_CORNERS)
+#if !defined(_USE_WORLD_SCALE)
+    _RoundCornersRadius = clamp(_RoundCornersRadius, 0.0h, 0.5h);
 #endif
-        
-        float currentCornerRadius = GTFindCornerRadius(input.uv.xy, radius);
-            
+    currentCornerRadius = GTFindCornerRadius(input.uv.xy, _RoundCornersRadius);
+#else
+    currentCornerRadius = _RoundCornerRadius;
+#endif
+#else
+    currentCornerRadius = 0.0h;
+    _RoundCornerMargin = 0.0h;
+#endif
 #if defined(_USE_WORLD_SCALE)
-        float cornerCircleRadius = max(radius, GT_MIN_CORNER_VALUE);
+    float cornerCircleRadius = max(currentCornerRadius, GT_MIN_CORNER_VALUE) * input.scale.z;
 #else
-        float cornerCircleRadius = saturate(max(radius - _RoundCornerMargin, GT_MIN_CORNER_VALUE));
+    float cornerCircleRadius = saturate(max(currentCornerRadius - _RoundCornerMargin, GT_MIN_CORNER_VALUE)) * input.scale.z;
 #endif
-        cornerCircleRadius *= minScaleWS;
-
-        half2 cornerCircleDistance = halfScale - (_RoundCornerMargin * minScaleWS) - cornerCircleRadius;
-        
-        half smoothing = _EdgeSmoothingValue * minScaleWS;
-        
-        half2 cornerPosition = distanceToEdge * halfScale;
-
-        half cornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, smoothing);
-    // end share with shadow pass
+    float2 cornerCircleDistance = halfScale - (_RoundCornerMargin * input.scale.z) - cornerCircleRadius;
+#if defined(_ROUND_CORNERS)
+    float roundCornerClip = GTRoundCorners(cornerPosition, cornerCircleDistance, cornerCircleRadius, _EdgeSmoothingValue * input.scale.z);
+#if defined(_ROUND_CORNERS_HIDE_INTERIOR)
+    roundCornerClip = (roundCornerClip < 1.0) ? roundCornerClip : 0.0;
+#endif
+#endif
     #endif
 
     albedo *= input.color;
@@ -726,11 +729,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 
 #if defined(_ROUND_CORNERS)
 #if defined(_ALPHABLEND_TRANS_ON)
-    albedo *= cornerClip;
+    albedo *= roundCornerClip;
 #else
-    albedo.a *= cornerClip;
+    albedo.a *= roundCornerClip;
 #endif
-    pointToLight *= cornerClip;
+    pointToLight *= roundCornerClip;
 #endif
 
 #ifdef UNITY_UI_CLIP_RECT
