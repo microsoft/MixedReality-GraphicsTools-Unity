@@ -223,7 +223,7 @@ Shader "Graphics Tools/Standard"
             HLSLPROGRAM
 
             #define _URP
-        
+
             #include_with_pragmas "GraphicsToolsStandardMetaProgram.hlsl"
             
             ENDHLSL
