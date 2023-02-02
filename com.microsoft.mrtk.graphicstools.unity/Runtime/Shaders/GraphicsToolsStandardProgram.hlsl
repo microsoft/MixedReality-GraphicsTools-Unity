@@ -159,10 +159,10 @@ Varyings VertexStage(Attributes input)
 
     #if defined(_SCALE)
         output.scale = GTGetWorldScale();
-        half minScaleWS = min(min(output.scale.x, output.scale.y), output.scale.z);
-        
+        float canvasScale = 1.0;
         #if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
             #if defined(_CANVAS_RENDERED)
+                canvasScale = min(min(output.scale.x, output.scale.y), output.scale.z);
                 output.scale.x *= input.uv2.x;
                 output.scale.y *= input.uv2.y;
                 output.scale.z = input.uv3.x;
@@ -244,21 +244,20 @@ Varyings VertexStage(Attributes input)
 
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
     output.uv = input.uv;
-    
     #if defined(_USE_WORLD_SCALE)
-        if (abs(localNormal.x) == 1.0) // Y,Z plane.
-        {
-            output.scale.x = output.scale.z;
-        }
-        else if (abs(localNormal.y) == 1.0) // X,Z plane.
-        {
-            output.scale.y = output.scale.z;
-        }
-        // Else X,Y plane.
-        output.scale.z = 1; 
+        output.scale.z = canvasScale;
     #else
-        output.scale.z = minScaleWS;
+        output.scale.z = min(min(output.scale.x, output.scale.y), output.scale.z);
     #endif
+    if (abs(localNormal.x) == 1.0) // Y,Z plane.
+    {
+        output.scale.x = output.scale.z;
+    }
+    else if (abs(localNormal.y) == 1.0) // X,Z plane.
+    {
+        output.scale.y = output.scale.z;
+    }
+    // Else X,Y plane.
 #elif defined(_UV)
     output.uv = TRANSFORM_TEX(input.uv, _MainTex);
 #endif
@@ -503,7 +502,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_INDEPENDENT_CORNERS) && !defined(_USE_WORLD_SCALE)
         half radius = clamp(radius, half(0), half(.5));
 #else
-		half radius = _RoundCornerRadius;
+        half radius = _RoundCornerRadius;
 #endif
         
         float currentCornerRadius = GTFindCornerRadius(input.uv.xy, radius);
