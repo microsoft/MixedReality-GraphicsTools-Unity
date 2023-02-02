@@ -159,14 +159,14 @@ Varyings VertexStage(Attributes input)
 
     #if defined(_SCALE)
         output.scale = GTGetWorldScale();
-        half canvasScale = min(min(output.scale.x, output.scale.y), output.scale.z);
-        
+        half canvasScale = 1;
+
         #if !defined(_VERTEX_EXTRUSION_SMOOTH_NORMALS)
             #if defined(_CANVAS_RENDERED)
                 canvasScale = min(min(output.scale.x, output.scale.y), output.scale.z);
                 output.scale.x *= input.uv2.x;
                 output.scale.y *= input.uv2.y;
-                output.scale.z = input.uv3.x;
+                output.scale.z *= input.uv3.x;
             #endif
         #endif
     #endif
@@ -256,10 +256,11 @@ Varyings VertexStage(Attributes input)
     } // Else X,Y plane.
         
     #if defined(_USE_WORLD_SCALE)
-        output.scale.z = 1; 
+            output.scale.z = canvasScale;
     #else
-        output.scale.z = canvasScale;
+            output.scale.z = min(min(output.scale.x, output.scale.y), output.scale.z);
     #endif
+
 #elif defined(_UV)
     output.uv = TRANSFORM_TEX(input.uv, _MainTex);
 #endif
