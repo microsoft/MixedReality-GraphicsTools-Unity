@@ -3,14 +3,12 @@
 
 using Microsoft.CSharp;
 using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-using static UnityEditor.ShaderData;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
