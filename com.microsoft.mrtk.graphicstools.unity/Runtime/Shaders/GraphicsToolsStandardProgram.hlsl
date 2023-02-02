@@ -499,10 +499,10 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     distanceToEdge.y = abs(input.uv.y - 0.5h) * 2.0h;
 #endif
     
-    #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
+#if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
     float2 halfScale = input.scale.xy * 0.5;
     float2 cornerPosition = distanceToEdge * halfScale;
-        
+
     half currentCornerRadius;
 
     // Rounded corner clipping.
@@ -531,7 +531,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     roundCornerClip = (roundCornerClip < 1.0) ? roundCornerClip : 0.0;
 #endif
 #endif
-    #endif
+#endif
 
     albedo *= input.color;
 #if defined(_ADDITIVE_ON)
