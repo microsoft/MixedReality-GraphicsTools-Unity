@@ -749,7 +749,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 #endif
 
-#if defined(_ALPHA_CLIP) // XXX
+#if defined(_ALPHA_CLIP)
 #if !defined(_ALPHATEST_ON)
     _Cutoff = 0.5;
 #endif
