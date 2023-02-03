@@ -8,7 +8,7 @@
 #pragma fragment PixelStage
 
 // Comment in to help with RenderDoc debugging.
-//#pragma enable_d3d11_debug_symbols
+#pragma enable_d3d11_debug_symbols
 
 /// <summary>
 /// Features.
@@ -16,7 +16,7 @@
 
 #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
-#pragma shader_feature_local _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHABLEND_TRANS_ON _ADDITIVE_ON
+#pragma shader_feature_local _ _ALPHATEST_ON
 #pragma shader_feature_local _DISABLE_ALBEDO_MAP
 #pragma shader_feature_local_fragment _ _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 #pragma shader_feature_local _CHANNEL_MAP
@@ -34,6 +34,7 @@
 #pragma shader_feature_local _USE_WORLD_SCALE
 
 #if !defined(_SHADOW_PASS)
+#pragma shader_feature_local _ _ALPHABLEND_ON _ALPHABLEND_TRANS_ON _ADDITIVE_ON
 #pragma shader_feature_local _NORMAL_MAP
 #pragma shader_feature_local _EMISSION
 #pragma shader_feature_local _TRIPLANAR_MAPPING
@@ -258,9 +259,9 @@ Varyings VertexStage(Attributes input)
     } // Else X,Y plane.
         
     #if defined(_USE_WORLD_SCALE)
-            output.scale.z = canvasScale;
+        output.scale.z = canvasScale;
     #else
-            output.scale.z = min(min(output.scale.x, output.scale.y), output.scale.z);
+        output.scale.z = min(min(output.scale.x, output.scale.y), output.scale.z);
     #endif
 
 #elif defined(_UV)
@@ -748,7 +749,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #endif
 #endif
 
-#if defined(_ALPHA_CLIP)
+#if defined(_ALPHA_CLIP) // XXX
 #if !defined(_ALPHATEST_ON)
     _Cutoff = 0.5;
 #endif
