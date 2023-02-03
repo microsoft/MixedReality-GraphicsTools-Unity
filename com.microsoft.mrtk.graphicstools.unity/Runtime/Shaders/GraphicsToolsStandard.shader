@@ -191,7 +191,7 @@ Shader "Graphics Tools/Standard"
 
         Pass
         {
-            Name "GT_ShadowCaster"
+            Name "ShadowCaster"
             Tags{"LightMode" = "ShadowCaster"}
 
             ZWrite On
