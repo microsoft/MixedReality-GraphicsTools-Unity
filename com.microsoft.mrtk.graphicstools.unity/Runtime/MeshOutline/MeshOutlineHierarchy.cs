@@ -110,7 +110,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void AddMeshOutline(Renderer target)
         {
-            var meshOutline = target.gameObject.AddComponent<MeshOutline>();
+            var meshOutline = target.gameObject.EnsureComponent<MeshOutline>();
             meshOutline.CopyFrom(this);
             meshOutlines.Add(meshOutline);
         }

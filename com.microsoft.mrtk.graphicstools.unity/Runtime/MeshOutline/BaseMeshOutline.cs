@@ -8,6 +8,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// <summary>
     /// Abstract component to encapsulate common functionality around outline components. 
     /// </summary>
+    [DisallowMultipleComponent]
     public abstract class BaseMeshOutline : MonoBehaviour
     {
         /// <summary>
