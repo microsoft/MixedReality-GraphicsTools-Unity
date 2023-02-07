@@ -99,7 +99,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 ShaderUtil.ShaderPropertyType type = ShaderUtil.GetPropertyType(shader, i);
                 string[] propertyAttributes = shader.GetPropertyAttributes(i);
 
-                string headerAttribute = Array.Find(propertyAttributes, isHeaderAttribute);
+                string headerAttribute = Array.Find(propertyAttributes, IsHeaderAttribute);
                 if (!string.IsNullOrEmpty(headerAttribute))
                 {
                     properties += Environment.NewLine;
