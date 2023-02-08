@@ -14,8 +14,6 @@
 /// Features.
 /// </summary>
 
-#pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
-
 #pragma shader_feature_local _ _ALPHATEST_ON
 #pragma shader_feature_local _DISABLE_ALBEDO_MAP
 #pragma shader_feature_local_fragment _ _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A

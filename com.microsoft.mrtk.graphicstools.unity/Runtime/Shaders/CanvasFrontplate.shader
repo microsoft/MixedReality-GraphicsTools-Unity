@@ -113,7 +113,7 @@ SubShader {
     #pragma shader_feature_local _ _BLOB_ENABLE_2_
     #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
     #pragma multi_compile_local _ _UI_CLIP_RECT_ROUNDED _UI_CLIP_RECT_ROUNDED_INDEPENDENT
-    #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
+    //#pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
     #include "UnityCG.cginc"
     #include "GraphicsToolsCommon.hlsl"
