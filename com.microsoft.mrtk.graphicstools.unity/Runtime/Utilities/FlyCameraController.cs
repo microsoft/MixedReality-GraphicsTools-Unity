@@ -1,13 +1,17 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_INPUT_SYSTEM && ENABLE_INPUT_SYSTEM
+#define USE_INPUT_SYSTEM
+#endif
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
-#endif
+#endif // USE_INPUT_SYSTEM
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
@@ -24,7 +28,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             public void SetFromTransform(Transform t)
             {
                 Position = t.position;
-                Rotation = t.eulerAngles;
+                Vector3 euler = t.eulerAngles;
+                Rotation = new Vector3(euler.y, euler.x, euler.z);
             }
 
             public void Translate(Vector3 translation)
@@ -70,7 +75,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public bool InvertY = false;
 
         [Header("Other Settings")]
-        public bool showControlsText = true;
+        public bool showControlsText = false;
 
         private CameraState targetCameraState = new CameraState();
         private CameraState interpolatingCameraState = new CameraState();
@@ -101,11 +106,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (!XRDeviceIsPresent() && Application.isFocused)
             {
                 // Lock cursor when right mouse button pressed.
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
                 if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame)
 #else
                 if (Input.GetMouseButtonDown(1))
-#endif
+#endif // USE_INPUT_SYSTEM
                 {
                     Cursor.lockState = CursorLockMode.Locked;
 #if UNITY_EDITOR
@@ -114,11 +119,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 // Unlock when right mouse button released.
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
                 if (Mouse.current != null && Mouse.current.rightButton.wasReleasedThisFrame)
 #else
                 if (Input.GetMouseButtonUp(1))
-#endif
+#endif // USE_INPUT_SYSTEM
                 {
                     Cursor.lockState = CursorLockMode.None;
 #if UNITY_EDITOR
@@ -137,22 +142,22 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Vector3 translation = GetInputTranslationDirection() * dt;
 
                 // Speed up movement when shift key held.
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
                 if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
 #else
                 if (Input.GetKey(KeyCode.LeftShift))
-#endif
+#endif // USE_INPUT_SYSTEM
                 {
                     translation *= 10.0f;
                 }
 
                 // Modify movement by a boost factor (defined in Inspector and modified in play mode through the mouse scroll wheel).
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
                 Vector2 scroll = Mouse.current != null ? Mouse.current.scroll.ReadValue() : Vector2.zero;
                 Boost += scroll.y * dt;
 #else
                 Boost += Input.mouseScrollDelta.y * dt;
-#endif
+#endif // USE_INPUT_SYSTEM
                 Boost = Mathf.Clamp(Boost, MinBoost, MaxBoost);
 
                 translation *= Mathf.Pow(2.0f, Boost);
@@ -176,11 +181,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (!XRDeviceIsPresent() && showControlsText)
             {
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
                 bool gamepadPresent = Gamepad.current != null;
 #else
                 bool gamepadPresent = false;
-#endif
+#endif // USE_INPUT_SYSTEM
 
                 if (gamepadPresent)
                 {
@@ -216,23 +221,23 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             Vector2 direction = Vector3.zero;
 
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
             if (Mouse.current != null && Mouse.current.rightButton.isPressed)
 #else
             if (Input.GetMouseButton(1))
-#endif
+#endif // USE_INPUT_SYSTEM
             {
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
                 // Magical value to feel like the editor.
                 const float rotationScaler = 0.075f;
                 Vector2 delta = Mouse.current.delta.ReadValue() * rotationScaler; 
                 direction += new Vector2(delta.x, delta.y * (InvertY ? 1.0f : -1.0f));
 #else
                 direction += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y") * (InvertY ? 1.0f : -1.0f));
-#endif
+#endif // USE_INPUT_SYSTEM
             }
 
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
             if (Gamepad.current != null)
             {
                 // Magical value to feel like the editor.
@@ -245,10 +250,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                 direction += new Vector2(delta.x, delta.y * (InvertY ? 1.0f : -1.0f));
             }
 #else
-                // TODO - [Cameron-Micka] is is possible to query the right stick without setting up virtual axes in the legacy input system?
-#endif
+            // TODO - [Cameron-Micka] is is possible to query the right stick without setting up virtual axes in the legacy input system?
+#endif // USE_INPUT_SYSTEM
 
-                return direction;
+            return direction;
         }
 
         /// <summary>
@@ -258,7 +263,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             Vector3 direction = Vector3.zero;
 
-#if ENABLE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM
             if (Keyboard.current != null)
             {
                 if (Keyboard.current.wKey.isPressed) { direction += Vector3.forward; }
@@ -285,8 +290,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             direction.Normalize();
 
             direction += new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
-            
-#endif
+
+#endif // USE_INPUT_SYSTEM
 
             return direction;
         }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_UGUI
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -58,7 +59,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             new PulseState("_Use_Global_Right_Index_", "_Blob_Position_2_", "_Blob_Pulse_2_", "_Blob_Fade_2_")
         };
 
-        #region MonoBehaviour Implementation
+#region MonoBehaviour Implementation
 
         private void Start()
         {
@@ -108,7 +109,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        #endregion MonoBehaviour Implementation
+#endregion MonoBehaviour Implementation
 
         /// <summary>
         /// Starts the pulse animation at a position and index.
@@ -368,3 +369,4 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
     }
 }
+#endif // GT_USE_UGUI

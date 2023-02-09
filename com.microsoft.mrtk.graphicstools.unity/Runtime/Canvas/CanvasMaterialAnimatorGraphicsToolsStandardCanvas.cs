@@ -191,6 +191,14 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// <summary>
            /// Shader property.
            /// </summary>;
+           public float _NPR = 0f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _NPRID = Shader.PropertyToID("_NPR");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
            public float _SpecularHighlights = 1f;
            /// <summary>
            /// Shader property ID.
@@ -268,6 +276,14 @@ namespace Microsoft.MixedReality.GraphicsTools
            /// Shader property ID.
            /// </summary>
            public static int _VertexExtrusionSmoothNormalsID = Shader.PropertyToID("_VertexExtrusionSmoothNormals");
+           /// <summary>
+           /// Shader property.
+           /// </summary>;
+           public float _VertexExtrusionConstantWidth = 0f;
+           /// <summary>
+           /// Shader property ID.
+           /// </summary>
+           public static int _VertexExtrusionConstantWidthID = Shader.PropertyToID("_VertexExtrusionConstantWidth");
            /// <summary>
            /// Shader property.
            /// </summary>;
@@ -974,6 +990,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             _EnableSSAA = material.GetFloat(_EnableSSAAID);
             _MipmapBias = material.GetFloat(_MipmapBiasID);
             _DirectionalLight = material.GetFloat(_DirectionalLightID);
+            _NPR = material.GetFloat(_NPRID);
             _SpecularHighlights = material.GetFloat(_SpecularHighlightsID);
             _SphericalHarmonics = material.GetFloat(_SphericalHarmonicsID);
             _Reflections = material.GetFloat(_ReflectionsID);
@@ -984,6 +1001,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             _VertexExtrusion = material.GetFloat(_VertexExtrusionID);
             _VertexExtrusionValue = material.GetFloat(_VertexExtrusionValueID);
             _VertexExtrusionSmoothNormals = material.GetFloat(_VertexExtrusionSmoothNormalsID);
+            _VertexExtrusionConstantWidth = material.GetFloat(_VertexExtrusionConstantWidthID);
             _BlendedClippingWidth = material.GetFloat(_BlendedClippingWidthID);
             _ClippingBorder = material.GetFloat(_ClippingBorderID);
             _ClippingBorderWidth = material.GetFloat(_ClippingBorderWidthID);
@@ -1096,6 +1114,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_EnableSSAAID, _EnableSSAA);
             material.SetFloat(_MipmapBiasID, _MipmapBias);
             material.SetFloat(_DirectionalLightID, _DirectionalLight);
+            material.SetFloat(_NPRID, _NPR);
             material.SetFloat(_SpecularHighlightsID, _SpecularHighlights);
             material.SetFloat(_SphericalHarmonicsID, _SphericalHarmonics);
             material.SetFloat(_ReflectionsID, _Reflections);
@@ -1106,6 +1125,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_VertexExtrusionID, _VertexExtrusion);
             material.SetFloat(_VertexExtrusionValueID, _VertexExtrusionValue);
             material.SetFloat(_VertexExtrusionSmoothNormalsID, _VertexExtrusionSmoothNormals);
+            material.SetFloat(_VertexExtrusionConstantWidthID, _VertexExtrusionConstantWidth);
             material.SetFloat(_BlendedClippingWidthID, _BlendedClippingWidth);
             material.SetFloat(_ClippingBorderID, _ClippingBorder);
             material.SetFloat(_ClippingBorderWidthID, _ClippingBorderWidth);

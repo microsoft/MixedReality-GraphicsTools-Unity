@@ -26,5 +26,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Debug.Assert(primitive != null);
             return new Bounds(primitive.transform.position, primitive.Radii);
         }
+
+        [MenuItem("GameObject/Effects/Graphics Tools/Clipping Sphere")]
+        private static void CreateClippingSphere(MenuCommand menuCommand)
+        {
+            InspectorUtilities.CreateGameObjectFromMenu<ClippingSphere>(menuCommand);
+        }
     }
 }

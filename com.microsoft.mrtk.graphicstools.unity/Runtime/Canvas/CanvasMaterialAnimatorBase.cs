@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
+
+#if GT_USE_UGUI
+using UnityEngine.UI;
+#endif // GT_USE_UGUI
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
@@ -12,7 +15,10 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// The base class for all CanvasMaterialAnimators generated via Assets > Graphics Tools > Generate Canvas Material Animator.
     /// This behavior will expose all material properties of a Graphic's material so they can animated by Unity's animation system.
     /// </summary>
-    [ExecuteInEditMode, RequireComponent(typeof(Graphic))]
+    [ExecuteInEditMode]
+#if GT_USE_UGUI
+    [RequireComponent(typeof(Graphic))]
+#endif // GT_USE_UGUI
     public abstract class CanvasMaterialAnimatorBase : MonoBehaviour, IAnimationWindowPreview
     {
         /// <summary>
@@ -62,6 +68,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private Material previewMaterial = null;
 
+#if GT_USE_UGUI
         private Graphic graphic
         {
             get
@@ -76,10 +83,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         private Graphic cachedGraphic;
+#endif // GT_USE_UGUI
 
         private bool isInitialized = false;
+#if GT_USE_UGUI
         private Material currentMaterial = null;
         private Material sharedMaterial = null;
+#endif // GT_USE_UGUI
 
         #region MonoBehaviour Implementation
 
@@ -111,16 +121,18 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        #endregion MonoBehaviour Implementation
+#endregion MonoBehaviour Implementation
 
-        #region IAnimationWindowPreview Implementation
+#region IAnimationWindowPreview Implementation
 
         /// <summary>
         /// Notification callback when the Animation window starts previewing an AnimationClip.
         /// </summary>
         public void StartPreview()
         {
+#if GT_USE_UGUI
             previewMaterial = graphic.material;
+#endif // GT_USE_UGUI
         }
 
         /// <summary>
@@ -128,11 +140,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void StopPreview()
         {
+#if GT_USE_UGUI
             Terminate();
 
             graphic.material = previewMaterial;
             previewMaterial = null;
-
+#endif // GT_USE_UGUI
         }
 
         /// <summary>
@@ -152,15 +165,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             return inputPlayable;
         }
 
-        #endregion IAnimationWindowPreview Implementation
+#endregion IAnimationWindowPreview Implementation
 
-        #region BaseCanvasMaterialAnimator Implementation
+#region BaseCanvasMaterialAnimator Implementation
 
         /// <summary>
         /// Initializes all material properties based on the default material.
         /// </summary>
         private void Initialize()
         {
+#if GT_USE_UGUI
             Material material = graphic.material;
             sharedMaterial = material;
 
@@ -188,6 +202,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     Debug.LogErrorFormat("Failed to initialize CanvasMaterialAnimator. Expected shader {0} but using {1}.", GetTargetShaderName(), material.shader.name);
                 }
             }
+#endif // GT_USE_UGUI
         }
 
         /// <summary>
@@ -195,6 +210,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Terminate()
         {
+#if GT_USE_UGUI
             if (UseInstanceMaterials)
             {
                 if (currentMaterial != null)
@@ -217,6 +233,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             isInitialized = false;
+#endif
         }
 
         /// <summary>
@@ -224,6 +241,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void ApplyToMaterial()
         {
+#if GT_USE_UGUI
             if (!isInitialized)
             {
                 Initialize();
@@ -242,6 +260,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 ApplyToMaterial(material);
             }
+#endif
         }
 
         /// <summary>
@@ -250,10 +269,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void RestoreToSharedMaterial()
         {
+#if GT_USE_UGUI
             Terminate();
 
             graphic.material = sharedMaterial;
             sharedMaterial = null;
+#endif
         }
 
         /// <summary>
@@ -272,6 +293,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public abstract string GetTargetShaderName();
 
-        #endregion BaseCanvasMaterialAnimator Implementation
+#endregion BaseCanvasMaterialAnimator Implementation
     }
 }

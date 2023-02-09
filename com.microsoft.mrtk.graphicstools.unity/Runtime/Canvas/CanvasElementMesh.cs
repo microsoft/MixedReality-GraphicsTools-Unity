@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_UGUI
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -87,7 +88,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private List<UIVertex> uiVerticies = new List<UIVertex>();
         private List<int> uiIndices = new List<int>();
 
-        #region UIBehaviour Implementation
+#region UIBehaviour Implementation
 
 #if UNITY_EDITOR
         /// <summary>
@@ -116,9 +117,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             EnableVertexAttributes();
         }
 
-        #endregion UIBehaviour Implementation
+#endregion UIBehaviour Implementation
 
-        #region Graphic Implementation
+#region Graphic Implementation
 
         /// <inheritdoc/>
         public override Texture mainTexture
@@ -183,7 +184,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
         }
 
-        #endregion Graphic Implementation
+#endregion Graphic Implementation
 
         /// <summary>
         /// Determines if vertex attributes within the Mesh need to be re-cached.
@@ -297,3 +298,4 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
     }
 }
+#endif // GT_USE_UGUI
