@@ -13,8 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// This behavior is designed to be used in conjunction with the Graphics Tools/Standard shader. Limitations of this effect include it not working well 
     /// on objects which are not watertight (or required to be two sided) and depth sorting issues may occur on overlapping objects.
     /// </summary>
-    [RequireComponent(typeof(Renderer))]
-    [AddComponentMenu("Scripts/GraphicsTools/MeshOutline")]
+    [DisallowMultipleComponent, RequireComponent(typeof(Renderer)), AddComponentMenu("Scripts/GraphicsTools/MeshOutline")]
     public class MeshOutline : BaseMeshOutline
     {
         private const string vertexExtrusionKeyword = "_VERTEX_EXTRUSION";
