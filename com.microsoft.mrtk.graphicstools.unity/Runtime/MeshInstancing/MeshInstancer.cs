@@ -26,7 +26,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// The mesh to draw via Graphics.DrawMeshInstanced.
         /// </summary>
         [Header("Visuals"), Tooltip("The mesh to draw via Graphics.DrawMeshInstanced.")]
-        public Mesh InstanceMesh = null;
+        public UnityEngine.Mesh InstanceMesh = null;
 
         /// <summary>
         /// Which subset of the mesh to draw. This applies only to meshes that are composed of several materials.
@@ -543,7 +543,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            public void Draw(Mesh mesh, int submeshIndex, Material material, UnityEngine.Rendering.ShadowCastingMode shadowCastingMode, bool recieveShadows)
+            public void Draw(UnityEngine.Mesh mesh, int submeshIndex, Material material, UnityEngine.Rendering.ShadowCastingMode shadowCastingMode, bool recieveShadows)
             {
                 Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, recieveShadows);
             }
