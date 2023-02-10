@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CubeOutline
+  m_Name: Outline
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
   m_ShaderKeywords: _DISABLE_ALBEDO_MAP _SPECULAR_HIGHLIGHTS _USE_WORLD_SCALE _VERTEX_EXTRUSION
     _VERTEX_EXTRUSION_SMOOTH_NORMALS
