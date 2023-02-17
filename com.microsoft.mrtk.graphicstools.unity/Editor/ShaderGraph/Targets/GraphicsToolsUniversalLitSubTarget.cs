@@ -89,10 +89,10 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             var universalRPType = typeof(UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset);
             if (!context.HasCustomEditorForRenderPipeline(universalRPType))
             {
-                var gui = typeof(ShaderGraphLitGUI);
+                var gui = typeof(GraphicsToolsShaderGraphLitGUI);
 #if HAS_VFX_GRAPH
                 if (TargetsVFX())
-                    gui = typeof(VFXShaderGraphLitGUI);
+                    gui = typeof(GraphicsToolsVFXShaderGraphLitGUI);
 #endif
                 context.AddCustomEditorForRenderPipeline(gui.FullName, universalRPType);
             }
