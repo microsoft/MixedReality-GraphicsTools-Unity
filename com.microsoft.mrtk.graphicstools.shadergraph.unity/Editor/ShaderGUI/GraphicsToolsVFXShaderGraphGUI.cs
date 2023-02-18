@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if GT_USE_URP
 #if HAS_VFX_GRAPH
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
@@ -22,4 +21,3 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     }
 }
 #endif // HAS_VFX_GRAPH
-#endif // GT_USE_URP

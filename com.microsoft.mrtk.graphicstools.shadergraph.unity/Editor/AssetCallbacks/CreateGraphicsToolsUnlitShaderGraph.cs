@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if GT_USE_URP
 using System;
 using UnityEditor;
 using UnityEditor.Rendering.Universal.ShaderGraph;
@@ -11,18 +10,18 @@ using UnityEngine.Rendering;
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
-    /// GraphicsToolsUniversalLitSubTarget creation.
+    /// GraphicsToolsUniversalUnlitSubTarget creation.
     /// </summary>
-    static class CreateGraphicsToolsLitShaderGraph
+    static class CreateGraphicsToolsUnlitShaderGraph
     {
         /// <summary>
         /// Menu item to automatically create a shader graph with the correct sub target.
         /// </summary>
-        [MenuItem("Assets/Create/Shader Graph/GraphicsTools/URP/Lit Shader Graph", priority = CoreUtils.Priorities.assetsCreateShaderMenuPriority)]
-        public static void CreateGraphicsToolsLitGraph()
+        [MenuItem("Assets/Create/Shader Graph/GraphicsTools/URP/Unlit Shader Graph", priority = CoreUtils.Priorities.assetsCreateShaderMenuPriority + 1)]
+        public static void CreateGraphicsToolsUnlitGraph()
         {
             var target = (UniversalTarget)Activator.CreateInstance(typeof(UniversalTarget));
-            target.TrySetActiveSubTarget(typeof(GraphicsToolsUniversalLitSubTarget));
+            target.TrySetActiveSubTarget(typeof(GraphicsToolsUniversalUnlitSubTarget));
 
             var blockDescriptors = new[]
             {
@@ -30,15 +29,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 BlockFields.VertexDescription.Normal,
                 BlockFields.VertexDescription.Tangent,
                 BlockFields.SurfaceDescription.BaseColor,
-                BlockFields.SurfaceDescription.NormalTS,
-                BlockFields.SurfaceDescription.Metallic,
-                BlockFields.SurfaceDescription.Smoothness,
-                BlockFields.SurfaceDescription.Emission,
-                BlockFields.SurfaceDescription.Occlusion,
             };
 
             GraphUtil.CreateNewGraphWithOutputs(new[] { target }, blockDescriptors);
         }
     }
 }
-#endif // GT_USE_URP

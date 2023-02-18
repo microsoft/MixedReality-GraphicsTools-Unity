@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if GT_USE_URP
 using UnityEditor.Rendering.Universal.ShaderGraph;
 using UnityEditor.ShaderGraph;
 
@@ -117,4 +116,3 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
     }
 }
-#endif // GT_USE_URP

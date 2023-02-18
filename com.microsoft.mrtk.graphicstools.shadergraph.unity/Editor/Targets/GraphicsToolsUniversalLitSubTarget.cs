@@ -9,7 +9,6 @@
 // - New displayName
 // - Added m_OverrideBlendAlpha, m_SrcBlendAlpha, m_DstBlendAlpha properties
 
-#if GT_USE_URP
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -995,4 +994,3 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
 #endregion
     }
 }
-#endif // GT_USE_URP
