@@ -3,10 +3,13 @@
 // Unless expressly provided otherwise, the Software under this license is made available strictly on an “AS IS” BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
 
 // Graphics Tools Additions
+// - Changed UniversalLitSubTarget to GraphicsToolsUniversalLitSubTarget
 // - New kSourceCodeGuid
 // - New shaderID
-// - Added m_AlphaBlendOne
+// - New displayName
+// - Added m_OverrideBlendAlpha, m_SrcBlendAlpha, m_DstBlendAlpha properties
 
+#if GT_USE_URP
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -37,7 +40,13 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
         bool m_ClearCoat = false;
 
         [SerializeField]
-        bool m_AlphaBlendOne = true;
+        bool m_OverrideBlendAlpha = true;
+
+        [SerializeField]
+        Blend m_SrcBlendAlpha = Blend.One;
+
+        [SerializeField]
+        Blend m_DstBlendAlpha = Blend.One;
 
         public GraphicsToolsUniversalLitSubTarget()
         {
@@ -64,10 +73,22 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             set => m_ClearCoat = value;
         }
 
-        public bool alphaBlendOne
+        public bool overrideBlendAlpha
         {
-            get => m_AlphaBlendOne;
-            set => m_AlphaBlendOne = value;
+            get => m_OverrideBlendAlpha;
+            set => m_OverrideBlendAlpha = value;
+        }
+
+        public Blend srcBlendAlpha
+        {
+            get => m_SrcBlendAlpha;
+            set => m_SrcBlendAlpha = value;
+        }
+
+        public Blend dstBlendAlpha
+        {
+            get => m_DstBlendAlpha;
+            set => m_DstBlendAlpha = value;
         }
 
         private bool complexLit
@@ -98,8 +119,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             }
 
             // Process SubShaders
-            context.AddSubShader(PostProcessSubShader(SubShaders.LitComputeDotsSubShader(target, workflowMode, target.renderType, target.renderQueue, complexLit, alphaBlendOne)));
-            context.AddSubShader(PostProcessSubShader(SubShaders.LitGLESSubShader(target, workflowMode, target.renderType, target.renderQueue, complexLit, alphaBlendOne)));
+            context.AddSubShader(PostProcessSubShader(SubShaders.LitComputeDotsSubShader(target, workflowMode, target.renderType, target.renderQueue, complexLit, overrideBlendAlpha, srcBlendAlpha, dstBlendAlpha)));
+            context.AddSubShader(PostProcessSubShader(SubShaders.LitGLESSubShader(target, workflowMode, target.renderType, target.renderQueue, complexLit, overrideBlendAlpha, srcBlendAlpha, dstBlendAlpha)));
         }
 
         public override void ProcessPreviewMaterial(Material material)
@@ -238,15 +259,38 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 onChange();
             });
 
-            context.AddProperty("Alpha Blend One", new Toggle() { value = alphaBlendOne }, (evt) =>
+            context.AddProperty("Override Blend Alpha", new Toggle() { value = overrideBlendAlpha }, (evt) =>
             {
-                if (Equals(alphaBlendOne, evt.newValue))
+                if (Equals(overrideBlendAlpha, evt.newValue))
                     return;
 
-                registerUndo("Change Alpha Blend One");
-                alphaBlendOne = evt.newValue;
+                registerUndo("Change Override Blend Alpha");
+                overrideBlendAlpha = evt.newValue;
                 onChange();
             });
+
+            if (overrideBlendAlpha)
+            {
+                context.AddProperty("Source Blend Alpha", new EnumField(Blend.One) { value = srcBlendAlpha }, (evt) =>
+                {
+                    if (Equals(srcBlendAlpha, evt.newValue))
+                        return;
+
+                    registerUndo("Change Source Blend Alpha");
+                    srcBlendAlpha = (Blend)evt.newValue;
+                    onChange();
+                });
+
+                context.AddProperty("Destination Blend Alpha", new EnumField(Blend.One) { value = dstBlendAlpha }, (evt) =>
+                {
+                    if (Equals(dstBlendAlpha, evt.newValue))
+                        return;
+
+                    registerUndo("Change Destination Blend Alpha");
+                    dstBlendAlpha = (Blend)evt.newValue;
+                    onChange();
+                });
+            }
         }
 
         protected override int ComputeMaterialNeedsUpdateHash()
@@ -304,11 +348,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             return true;
         }
 
-        #region SubShader
+#region SubShader
         static class SubShaders
         {
             // SM 4.5, compute with dots instancing
-            public static SubShaderDescriptor LitComputeDotsSubShader(UniversalTarget target, WorkflowMode workflowMode, string renderType, string renderQueue, bool complexLit, bool alphaBlendOne)
+            public static SubShaderDescriptor LitComputeDotsSubShader(UniversalTarget target, WorkflowMode workflowMode, string renderType, string renderQueue, bool complexLit, bool overrideBlendAlpha, Blend alphaSrc, Blend alphaDst)
             {
                 SubShaderDescriptor result = new SubShaderDescriptor()
                 {
@@ -321,12 +365,12 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 };
 
                 if (complexLit)
-                    result.passes.Add(LitPasses.ForwardOnly(target, workflowMode, complexLit, CoreBlockMasks.Vertex, LitBlockMasks.FragmentComplexLit, CorePragmas.DOTSForward, alphaBlendOne));
+                    result.passes.Add(LitPasses.ForwardOnly(target, workflowMode, complexLit, CoreBlockMasks.Vertex, LitBlockMasks.FragmentComplexLit, CorePragmas.DOTSForward, overrideBlendAlpha, alphaSrc, alphaDst));
                 else
-                    result.passes.Add(LitPasses.Forward(target, workflowMode, CorePragmas.DOTSForward, alphaBlendOne));
+                    result.passes.Add(LitPasses.Forward(target, workflowMode, CorePragmas.DOTSForward, overrideBlendAlpha, alphaSrc, alphaDst));
 
                 if (!complexLit)
-                    result.passes.Add(LitPasses.GBuffer(target, workflowMode, alphaBlendOne));
+                    result.passes.Add(LitPasses.GBuffer(target, workflowMode, overrideBlendAlpha, alphaSrc, alphaDst));
 
                 // cull the shadowcaster pass if we know it will never be used
                 if (target.castShadows || target.allowMaterialOverride)
@@ -345,12 +389,12 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 result.passes.Add(PassVariant(CorePasses.SceneSelection(target), CorePragmas.DOTSDefault));
                 result.passes.Add(PassVariant(CorePasses.ScenePicking(target), CorePragmas.DOTSDefault));
 
-                result.passes.Add(PassVariant(LitPasses._2D(target, alphaBlendOne), CorePragmas.DOTSDefault));
+                result.passes.Add(PassVariant(LitPasses._2D(target, overrideBlendAlpha, alphaSrc, alphaDst), CorePragmas.DOTSDefault));
 
                 return result;
             }
 
-            public static SubShaderDescriptor LitGLESSubShader(UniversalTarget target, WorkflowMode workflowMode, string renderType, string renderQueue, bool complexLit, bool alphaBlendOne)
+            public static SubShaderDescriptor LitGLESSubShader(UniversalTarget target, WorkflowMode workflowMode, string renderType, string renderQueue, bool complexLit, bool overrideBlendAlpha, Blend alphaSrc, Blend alphaDst)
             {
                 // SM 2.0, GLES
 
@@ -368,9 +412,9 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 };
 
                 if (complexLit)
-                    result.passes.Add(LitPasses.ForwardOnly(target, workflowMode, complexLit, CoreBlockMasks.Vertex, LitBlockMasks.FragmentComplexLit, CorePragmas.Forward, alphaBlendOne));
+                    result.passes.Add(LitPasses.ForwardOnly(target, workflowMode, complexLit, CoreBlockMasks.Vertex, LitBlockMasks.FragmentComplexLit, CorePragmas.Forward, overrideBlendAlpha, alphaSrc, alphaDst));
                 else
-                    result.passes.Add(LitPasses.Forward(target, workflowMode, null, alphaBlendOne));
+                    result.passes.Add(LitPasses.Forward(target, workflowMode, null, overrideBlendAlpha, alphaSrc, alphaDst));
 
                 // cull the shadowcaster pass if we know it will never be used
                 if (target.castShadows || target.allowMaterialOverride)
@@ -389,14 +433,14 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 result.passes.Add(CorePasses.SceneSelection(target));
                 result.passes.Add(CorePasses.ScenePicking(target));
 
-                result.passes.Add(LitPasses._2D(target, alphaBlendOne));
+                result.passes.Add(LitPasses._2D(target, overrideBlendAlpha, alphaSrc, alphaDst));
 
                 return result;
             }
         }
-        #endregion
+#endregion
 
-        #region Passes
+#region Passes
         static class LitPasses
         {
             static void AddWorkflowModeControlToPass(ref PassDescriptor pass, UniversalTarget target, WorkflowMode workflowMode)
@@ -415,7 +459,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                     pass.defines.Add(LitKeywords.ReceiveShadowsOff, 1);
             }
 
-            public static PassDescriptor Forward(UniversalTarget target, WorkflowMode workflowMode, PragmaCollection pragmas, bool alphaBlendOne)
+            public static PassDescriptor Forward(UniversalTarget target, WorkflowMode workflowMode, PragmaCollection pragmas, bool overrideBlendAlpha, Blend alphaSrc, Blend alphaDst)
             {
                 var result = new PassDescriptor()
                 {
@@ -439,7 +483,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                     fieldDependencies = CoreFieldDependencies.Default,
 
                     // Conditional State
-                    renderStates = GraphicsToolsCoreRenderStates.UberSwitchedRenderState(target, alphaBlendOne),
+                    renderStates = GraphicsToolsCoreRenderStates.UberSwitchedRenderState(target, overrideBlendAlpha, alphaSrc, alphaDst),
                     pragmas = pragmas ?? CorePragmas.Forward,     // NOTE: SM 2.0 only GL
                     defines = new DefineCollection() { CoreDefines.UseFragmentFog },
                     keywords = new KeywordCollection() { LitKeywords.Forward },
@@ -463,7 +507,9 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 BlockFieldDescriptor[] vertexBlocks,
                 BlockFieldDescriptor[] pixelBlocks,
                 PragmaCollection pragmas,
-                bool alphaBlendOne)
+                bool overrideBlendAlpha,
+                Blend alphaSrc,
+                Blend alphaDst)
             {
                 var result = new PassDescriptor
                 {
@@ -487,7 +533,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                     fieldDependencies = CoreFieldDependencies.Default,
 
                     // Conditional State
-                    renderStates = GraphicsToolsCoreRenderStates.UberSwitchedRenderState(target, alphaBlendOne),
+                    renderStates = GraphicsToolsCoreRenderStates.UberSwitchedRenderState(target, overrideBlendAlpha, alphaSrc, alphaDst),
                     pragmas = pragmas,
                     defines = new DefineCollection() { CoreDefines.UseFragmentFog },
                     keywords = new KeywordCollection() { LitKeywords.Forward },
@@ -508,7 +554,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             }
 
             // Deferred only in SM4.5, MRT not supported in GLES2
-            public static PassDescriptor GBuffer(UniversalTarget target, WorkflowMode workflowMode, bool alphaBlendOne)
+            public static PassDescriptor GBuffer(UniversalTarget target, WorkflowMode workflowMode, bool overrideBlendAlpha, Blend alphaSrc, Blend alphaDst)
             {
                 var result = new PassDescriptor
                 {
@@ -531,7 +577,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                     fieldDependencies = CoreFieldDependencies.Default,
 
                     // Conditional State
-                    renderStates = GraphicsToolsCoreRenderStates.UberSwitchedRenderState(target, alphaBlendOne),
+                    renderStates = GraphicsToolsCoreRenderStates.UberSwitchedRenderState(target, overrideBlendAlpha, alphaSrc, alphaDst),
                     pragmas = CorePragmas.DOTSGBuffer,
                     defines = new DefineCollection() { CoreDefines.UseFragmentFog },
                     keywords = new KeywordCollection() { LitKeywords.GBuffer },
@@ -586,7 +632,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 return result;
             }
 
-            public static PassDescriptor _2D(UniversalTarget target, bool alphaBlendOne)
+            public static PassDescriptor _2D(UniversalTarget target, bool overrideBlendAlpha, Blend alphaSrc, Blend alphaDst)
             {
                 var result = new PassDescriptor()
                 {
@@ -607,7 +653,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                     fieldDependencies = CoreFieldDependencies.Default,
 
                     // Conditional State
-                    renderStates = GraphicsToolsCoreRenderStates.UberSwitchedRenderState(target, alphaBlendOne),
+                    renderStates = GraphicsToolsCoreRenderStates.UberSwitchedRenderState(target, overrideBlendAlpha, alphaSrc, alphaDst),
                     pragmas = CorePragmas.Instanced,
                     defines = new DefineCollection(),
                     keywords = new KeywordCollection(),
@@ -700,9 +746,9 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 return result;
             }
         }
-        #endregion
+#endregion
 
-        #region PortMasks
+#region PortMasks
         static class LitBlockMasks
         {
             public static readonly BlockFieldDescriptor[] FragmentLit = new BlockFieldDescriptor[]
@@ -745,9 +791,9 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 BlockFields.SurfaceDescription.AlphaClipThreshold,
             };
         }
-        #endregion
+#endregion
 
-        #region RequiredFields
+#region RequiredFields
         static class LitRequiredFields
         {
             public static readonly FieldCollection Forward = new FieldCollection()
@@ -794,9 +840,9 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 StructFields.Varyings.texCoord2,                        // LightCoord
             };
         }
-        #endregion
+#endregion
 
-        #region Defines
+#region Defines
         static class LitDefines
         {
             public static readonly KeywordDescriptor ClearCoat = new KeywordDescriptor()
@@ -819,9 +865,9 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 stages = KeywordShaderStage.Fragment
             };
         }
-        #endregion
+#endregion
 
-        #region Keywords
+#region Keywords
         static class LitKeywords
         {
             public static readonly KeywordDescriptor ReceiveShadowsOff = new KeywordDescriptor()
@@ -883,9 +929,9 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 { CoreKeywordDescriptors.DebugDisplay },
             };
         }
-        #endregion
+#endregion
 
-        #region Includes
+#region Includes
         static class LitIncludes
         {
             const string kShadows = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl";
@@ -946,7 +992,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 { k2DPass, IncludeLocation.Postgraph },
             };
         }
-        #endregion
+#endregion
     }
 }
-
+#endif // GT_USE_URP

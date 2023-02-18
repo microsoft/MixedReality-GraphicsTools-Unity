@@ -1,18 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_URP
 using UnityEditor.Rendering.Universal.ShaderGraph;
 using UnityEditor.ShaderGraph;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
-    /// TODO
+    /// Utility class to help set alpha blending states for GraphicsToolsUniversalLitSubTarget and GraphicsToolsUniversalUnlitSubTarget.
     /// </summary>
     static class GraphicsToolsCoreRenderStates
     {
         /// <summary>
-        /// TODO
+        /// Name of the alpha blending shader properties. (Matches other shaders in Graphics Tools.)
         /// </summary>
         public static class Property
         {
@@ -21,7 +22,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
 
         /// <summary>
-        /// TODO
+        /// Shaderlab property names.
         /// </summary>
         public static class Uniforms
         {
@@ -29,7 +30,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly string DstBlendAlpha = "[" + Property.DstBlendAlpha + "]";
         }
 
-        // used by lit/unlit subtargets
+        /// <summary>
+        /// Used by lit/unlit subtargets when allowMaterialOverride is false.
+        /// </summary>
         public static readonly RenderStateCollection MaterialControlledRenderStateAlpha = new RenderStateCollection
         {
             { RenderState.ZTest(CoreRenderStates.Uniforms.zTest) },
@@ -39,12 +42,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         };
 
         /// <summary>
-        /// TODO
+        /// Fork of CoreRenderStates.UberSwitchedRenderState to support configurable source and destination alpha blending state.
         /// </summary>
-        public static RenderStateCollection UberSwitchedRenderState(UniversalTarget target, bool alphaBlendOne)
+        public static RenderStateCollection UberSwitchedRenderState(UniversalTarget target, bool overrideBlendAlpha, Blend alphaSrc, Blend alphaDst)
         {
             if (target.allowMaterialOverride)
-                return alphaBlendOne ? MaterialControlledRenderStateAlpha : CoreRenderStates.MaterialControlledRenderState;
+                return overrideBlendAlpha ? MaterialControlledRenderStateAlpha : CoreRenderStates.MaterialControlledRenderState;
             else
             {
                 var result = new RenderStateCollection();
@@ -71,21 +74,21 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
                 else
                 {
-                    if (alphaBlendOne)
+                    if (overrideBlendAlpha)
                     {
                         switch (target.alphaMode)
                         {
                             case AlphaMode.Alpha:
-                                result.Add(RenderState.Blend(Blend.SrcAlpha, Blend.OneMinusSrcAlpha, Blend.One, Blend.One));
+                                result.Add(RenderState.Blend(Blend.SrcAlpha, Blend.OneMinusSrcAlpha, alphaSrc, alphaDst));
                                 break;
                             case AlphaMode.Premultiply:
-                                result.Add(RenderState.Blend(Blend.One, Blend.OneMinusSrcAlpha, Blend.One, Blend.One));
+                                result.Add(RenderState.Blend(Blend.One, Blend.OneMinusSrcAlpha, alphaSrc, alphaDst));
                                 break;
                             case AlphaMode.Additive:
-                                result.Add(RenderState.Blend(Blend.SrcAlpha, Blend.One, Blend.One, Blend.One));
+                                result.Add(RenderState.Blend(Blend.SrcAlpha, Blend.One, alphaSrc, alphaDst));
                                 break;
                             case AlphaMode.Multiply:
-                                result.Add(RenderState.Blend(Blend.DstColor, Blend.Zero, Blend.One, Blend.One));
+                                result.Add(RenderState.Blend(Blend.DstColor, Blend.Zero, alphaSrc, alphaDst));
                                 break;
                         }
                     }
@@ -114,3 +117,4 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
     }
 }
+#endif // GT_USE_URP

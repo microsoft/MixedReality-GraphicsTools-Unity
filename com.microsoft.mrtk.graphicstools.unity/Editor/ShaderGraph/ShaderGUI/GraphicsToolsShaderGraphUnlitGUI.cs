@@ -9,9 +9,9 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
-    /// Material GUI extension to the GraphicsToolsUniversalLitSubTarget.
+    /// Material GUI extension to the GraphicsToolsUniversalUnlitSubTarget.
     /// </summary>
-    class GraphicsToolsShaderGraphLitGUI : ShaderGraphLitGUI
+    class GraphicsToolsShaderGraphUnlitGUI : ShaderGraphUnlitGUI
     {
         protected MaterialProperty SrcBlendAlpha;
         protected MaterialProperty DstBlendAlpha;

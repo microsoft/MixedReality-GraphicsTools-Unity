@@ -1,17 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_URP
 #if HAS_VFX_GRAPH
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
+    /// <summary>
+    /// Material GUI extension to the GraphicsToolsUniversalLitSubTargetwith VFX Graph.
+    /// </summary>
     class GraphicsToolsVFXShaderGraphLitGUI : GraphicsToolsShaderGraphLitGUI
     {
         protected override uint materialFilter => uint.MaxValue & ~(uint)Expandable.SurfaceInputs;
     }
 
+    /// <summary>
+    /// Material GUI extension to the GraphicsToolsUniversalUnlitSubTarget with VFX Graph.
+    /// </summary>
     class GraphicsToolsVFXShaderGraphUnlitGUI : GraphicsToolsShaderGraphUnlitGUI
     {
         protected override uint materialFilter => uint.MaxValue & ~(uint)Expandable.SurfaceInputs;
     }
 }
-#endif
+#endif // HAS_VFX_GRAPH
+#endif // GT_USE_URP
