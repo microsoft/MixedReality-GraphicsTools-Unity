@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -90,7 +89,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 Debug.LogException(e);
                 EditorUtility.DisplayDialog("Failed to show samples",
-                            $"Showing samples failed.\n\nTry closing apps or windows that are currently using files within the \"~Samples\" folder.\n\nException: {e.Message}",
+                            $"Showing samples failed.\n\nTry closing apps or windows that are currently using files within the \"Samples~\" folder.\n\nException: {e.Message}",
                             "Ok");
             }
         }
