@@ -22,7 +22,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private static readonly string visibleSamplesPath = "../../com.microsoft.mrtk.graphicstools.unity/Samples";
         private static readonly string hiddenSamplesPath = "../../com.microsoft.mrtk.graphicstools.unity/Samples~";
-        private static readonly Regex quotesRegex = new Regex("(?<=\")(.*?)(?=\")");
 
         /// <summary>
         /// Performs one time initialization.
@@ -90,6 +89,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             catch (Exception e)
             {
                 Debug.LogException(e);
+                EditorUtility.DisplayDialog("Failed to show samples",
+                            $"Showing samples failed.\n\nTry closing apps or windows that are currently using files within the \"~Samples\" folder.\n\nException: {e.Message}",
+                            "Ok");
             }
         }
 
@@ -152,6 +154,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             catch (Exception e)
             {
                 Debug.LogException(e);
+                EditorUtility.DisplayDialog("Failed to hide samples", 
+                                            $"Hiding samples failed.\n\nTry closing apps or windows that are currently using files within the \"Samples\" folder.\n\nException: {e.Message}",
+                                            "Ok");
             }
         }
 
