@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.microsoft.mrtk.graphicstools.shadergraph.unity": {
+      "version": "file:../../com.microsoft.mrtk.graphicstools.shadergraph.unity",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.render-pipelines.universal": "12.1.7"
+      }
+    },
     "com.microsoft.mrtk.graphicstools.unity": {
       "version": "file:../../com.microsoft.mrtk.graphicstools.unity",
       "depth": 0,
