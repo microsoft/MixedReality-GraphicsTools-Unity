@@ -116,7 +116,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             GameObject gameObject = new GameObject(typeof(T).Name, typeof(T));
 
             // Ensure the game object gets re-parented to the active context.
-            // GameObjectUtility.SetParentAndAlign(gameObject, menuCommand.context as GameObject);
+            GameObjectUtility.SetParentAndAlign(gameObject, menuCommand.context as GameObject);
 
             // Register the creation in the undo system.
             Undo.RegisterCreatedObjectUndo(gameObject, "Create " + gameObject.name);
