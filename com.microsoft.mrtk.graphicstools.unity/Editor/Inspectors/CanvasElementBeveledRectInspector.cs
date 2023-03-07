@@ -16,7 +16,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/UI/Graphics Tools/Beveled Rect")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
-            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementBeveledRect>(menuCommand);
+            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementBeveledRect>(menuCommand, true);
 
             if (gameObject != null)
             {

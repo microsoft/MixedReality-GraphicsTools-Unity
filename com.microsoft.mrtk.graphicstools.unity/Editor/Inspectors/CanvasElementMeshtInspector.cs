@@ -15,7 +15,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/UI/Graphics Tools/Mesh")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
-            InspectorUtilities.CreateGameObjectFromMenu<CanvasElementMesh>(menuCommand);
+            InspectorUtilities.CreateGameObjectFromMenu<CanvasElementMesh>(menuCommand, true);
         }
     }
 }

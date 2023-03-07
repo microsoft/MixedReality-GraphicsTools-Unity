@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using UnityEditor;
 using UnityEditor.UI;
 using UnityEngine;
@@ -66,8 +67,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 gameObject.GetComponent<RectTransform>().anchoredPosition3D = Vector3.zero;
             }
 
-            Selection.activeObject = gameObject;
-
             return gameObject;
         }
 
@@ -111,7 +110,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Creates a new game object of type T as a child of the menu command.
         /// </summary>
-        public static GameObject CreateGameObjectFromMenu<T>(MenuCommand menuCommand) where T : MonoBehaviour
+        public static GameObject CreateGameObjectFromMenu<T>(MenuCommand menuCommand, Boolean hasCanvasParent = false) where T : MonoBehaviour
         {
             GameObject gameObject = new GameObject(typeof(T).Name, typeof(T));
 
@@ -121,7 +120,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             // Register the creation in the undo system.
             Undo.RegisterCreatedObjectUndo(gameObject, "Create " + gameObject.name);
 
-            return SetupCanvas(gameObject, menuCommand);
+            Selection.activeObject = gameObject;
+
+            if (hasCanvasParent)
+            {
+                return SetupCanvas(gameObject, menuCommand);
+            }
+
+            return gameObject;
         }
 
         /// <summary>
