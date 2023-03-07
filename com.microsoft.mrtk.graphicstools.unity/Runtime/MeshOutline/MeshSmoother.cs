@@ -2,8 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
+
+// WebGL doesn't support threaded operations.
+#if !UNITY_WEBGL
+using System.Threading.Tasks;
+#endif
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
@@ -81,6 +85,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// This method will not try and re-smooth meshes which have already been smoothed.
         /// </summary>
         /// <returns>A task which will complete once normal smoothing is finished.</returns>
+#if !UNITY_WEBGL
         public Task SmoothNormalsAsync()
         {
             UnityEngine.Mesh mesh;
@@ -102,6 +107,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 mesh.SetUVs(smoothNormalUVChannel, i.Result);
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
+#endif
 
         #region MonoBehaviour Implementation
 
