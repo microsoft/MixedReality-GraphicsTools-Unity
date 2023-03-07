@@ -27,7 +27,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Add canvas for a UI GameObject if none exists.
         /// </summary>
-        /// <returns></returns>
         private static GameObject SetupCanvas(GameObject gameObject, MenuCommand menuCommand)
         {
             // This is evil :)
