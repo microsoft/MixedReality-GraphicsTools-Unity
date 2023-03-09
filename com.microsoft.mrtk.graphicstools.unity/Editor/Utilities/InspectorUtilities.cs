@@ -109,7 +109,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Creates a new game object of type T as a child of the menu command.
         /// </summary>
-        public static GameObject CreateGameObjectFromMenu<T>(MenuCommand menuCommand, Boolean hasCanvasParent = false) where T : MonoBehaviour
+        public static GameObject CreateGameObjectFromMenu<T>(MenuCommand menuCommand, bool hasCanvasParent = false) where T : MonoBehaviour
         {
             GameObject gameObject = new GameObject(typeof(T).Name, typeof(T));
 
