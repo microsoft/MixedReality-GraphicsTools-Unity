@@ -129,16 +129,18 @@ namespace Microsoft.MixedReality.GraphicsTools
             ApplyStencilReference();
 
             // Add the outline material as another material pass.
-            var materials = new List<Material>(defaultMaterials);
+            var materials = new Material[UseStencilOutline ? defaultMaterials.Length + 2 : defaultMaterials.Length + 1];
+            defaultMaterials.CopyTo(materials, 0);
+            int nextFreeIdx = defaultMaterials.Length;
 
             if (UseStencilOutline)
             {
-                materials.Add(stencilWriteMaterial);
+                materials[nextFreeIdx++] = stencilWriteMaterial;
             }
 
-            materials.Add(outlineMaterial);
+            materials[nextFreeIdx] = outlineMaterial;
 
-            meshRenderer.materials = materials.ToArray();
+            meshRenderer.materials = materials;
         }
 
         /// <summary>
