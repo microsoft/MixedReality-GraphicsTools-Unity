@@ -47,8 +47,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             [Min(0)]
             public int TargetLOD = 0;
-            public bool BakeMaterialColorIntoVertexColor = true;
-            public bool BakeMeshIDIntoUVChannel = true;
+            public bool BakeMaterialColorIntoVertexColor = false;
+            public bool BakeMeshIDIntoUVChannel = false;
 
             public enum UVChannel
             {
@@ -233,75 +233,80 @@ namespace Microsoft.MixedReality.GraphicsTools
             var meshID = 0;
             var vertexCount = 0U;
 
-            // Create a CombineInstance for each mesh filter.
+            // Create a CombineInstance for each mesh filter and sub mesh.
             foreach (var meshFilter in settings.MeshFilters)
             {
+                ///  TODO - [Cameron-Micka] assume if submesh 0 is valid other submeshes are valid. Safe assumption?
                 if (!CanCombine(meshFilter, settings.TargetLOD))
                 {
                     continue;
                 }
 
-                var combineInstance = new CombineInstance();
-                combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh) as Mesh;
-
-                if (settings.BakeMeshIDIntoUVChannel)
+                for (int i = 0; i < meshFilter.sharedMesh.subMeshCount; ++i)
                 {
-                    // Write the MeshID to each a UV channel.
-                    ++meshID;
-                    combineInstance.mesh.SetUVs((int)settings.MeshIDUVChannel, Repeat(new Vector2(meshID, 0.0f), combineInstance.mesh.vertexCount));
-                }
+                    var combineInstance = new CombineInstance();
+                    combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh) as Mesh;
+                    combineInstance.subMeshIndex = i;
 
-                if (settings.RequiresMaterialData())
-                {
-                    Material material = null;
-                    var renderer = meshFilter.GetComponent<Renderer>();
-
-                    if (renderer != null)
+                    if (settings.BakeMeshIDIntoUVChannel)
                     {
-                        material = renderer.sharedMaterial;
+                        // Write the MeshID to each a UV channel.
+                        ++meshID;
+                        combineInstance.mesh.SetUVs((int)settings.MeshIDUVChannel, Repeat(new Vector2(meshID, 0.0f), combineInstance.mesh.vertexCount));
                     }
 
-                    if (material != null)
+                    if (settings.RequiresMaterialData())
                     {
-                        // The first valid material will become the default material used.
-                        if (defaultMaterial == null)
+                        Material material = null;
+                        var renderer = meshFilter.GetComponent<Renderer>();
+
+                        if (renderer != null)
                         {
-                            defaultMaterial = material;
+                            material = renderer.sharedMaterial;
                         }
 
-                        if (settings.BakeMaterialColorIntoVertexColor)
+                        if (material != null)
                         {
-                            // Write the material color to all vertex colors.
-                            combineInstance.mesh.colors = Repeat(material.color, combineInstance.mesh.vertexCount).ToArray();
-                        }
-
-                        var textureSettingIndex = 0;
-
-                        foreach (var textureSetting in settings.TextureSettings)
-                        {
-                            // Map textures to CombineInstances
-                            var texture = material.GetTexture(textureSetting.TextureProperty) as Texture2D;
-                            texture = texture ?? MeshCombineSettings.GetTextureUsageDefault(textureSetting.Usage);
-
-                            if (textureToCombineInstanceMappings[textureSettingIndex].TryGetValue(texture, out List<CombineInstance> combineInstanceMappings))
+                            // The first valid material will become the default material used.
+                            if (defaultMaterial == null)
                             {
-                                combineInstanceMappings.Add(combineInstance);
-                            }
-                            else
-                            {
-                                textureToCombineInstanceMappings[textureSettingIndex][texture] = new List<CombineInstance>(new CombineInstance[] { combineInstance });
+                                defaultMaterial = material;
                             }
 
-                            ++textureSettingIndex;
+                            if (settings.BakeMaterialColorIntoVertexColor)
+                            {
+                                // Write the material color to all vertex colors.
+                                combineInstance.mesh.colors = Repeat(material.color, combineInstance.mesh.vertexCount).ToArray();
+                            }
+
+                            var textureSettingIndex = 0;
+
+                            foreach (var textureSetting in settings.TextureSettings)
+                            {
+                                // Map textures to CombineInstances
+                                var texture = material.GetTexture(textureSetting.TextureProperty) as Texture2D;
+                                texture = texture ?? MeshCombineSettings.GetTextureUsageDefault(textureSetting.Usage);
+
+                                if (textureToCombineInstanceMappings[textureSettingIndex].TryGetValue(texture, out List<CombineInstance> combineInstanceMappings))
+                                {
+                                    combineInstanceMappings.Add(combineInstance);
+                                }
+                                else
+                                {
+                                    textureToCombineInstanceMappings[textureSettingIndex][texture] = new List<CombineInstance>(new CombineInstance[] { combineInstance });
+                                }
+
+                                ++textureSettingIndex;
+                            }
                         }
                     }
+
+                    combineInstance.transform = settings.pivot * meshFilter.gameObject.transform.localToWorldMatrix;
+                    vertexCount += (uint)combineInstance.mesh.vertexCount;
+
+                    combineInstances.Add(combineInstance);
+                    meshIDTable.Add(new MeshCombineResult.MeshID() { Mesh = meshFilter.sharedMesh, MeshFilterID = meshFilter.GetInstanceID(), VertexAttributeID = meshID });
                 }
-
-                combineInstance.transform = settings.pivot * meshFilter.gameObject.transform.localToWorldMatrix;
-                vertexCount += (uint)combineInstance.mesh.vertexCount;
-
-                combineInstances.Add(combineInstance);
-                meshIDTable.Add(new MeshCombineResult.MeshID() { Mesh = meshFilter.sharedMesh, MeshFilterID = meshFilter.GetInstanceID(), VertexAttributeID = meshID });
             }
 
             return vertexCount;
