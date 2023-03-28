@@ -47,7 +47,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Custom inspector for the ThemeCollection scriptable object. In the same file for portability.
     /// </summary>
     [CustomEditor(typeof(ThemeCollection))]
-    public class ThemeCollectionEditor : Editor
+    public class ThemeCollectionEditor : UnityEditor.Editor
     {
         // Table
         private SerializedProperty themeCount;
