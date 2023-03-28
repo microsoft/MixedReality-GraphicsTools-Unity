@@ -10,7 +10,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Component which can be used to render an outline around a hierarchy of mesh renderers using
     /// the <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/> component.
     /// </summary>
-    [AddComponentMenu("Scripts/GraphicsTools/MeshOutlineHierarchy")]
+    [DisallowMultipleComponent, AddComponentMenu("Scripts/GraphicsTools/MeshOutlineHierarchy")]
     public class MeshOutlineHierarchy : BaseMeshOutline
     {
         private List<MeshOutline> meshOutlines = null;
@@ -110,7 +110,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void AddMeshOutline(Renderer target)
         {
-            var meshOutline = target.gameObject.AddComponent<MeshOutline>();
+            var meshOutline = target.gameObject.EnsureComponent<MeshOutline>();
             meshOutline.CopyFrom(this);
             meshOutlines.Add(meshOutline);
         }

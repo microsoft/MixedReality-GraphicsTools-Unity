@@ -1,0 +1,31 @@
+{
+  "name": "com.microsoft.mrtk.graphicstools.shadergraph.unity",
+  "version": "0.5.6",
+  "displayName": "MRTK Graphics Tools Shader Graph",
+  "description": "Graphics tools and components for developing Mixed Reality applications in Unity Shader Graph.",
+  "msftFeatureCategory": "MRTK3",
+  "unity": "2021.3",
+  "author": "Microsoft",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/MixedReality-GraphicsTools-Unity"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/MixedReality-GraphicsTools-Unity/issues"
+  },
+  "keywords": [
+    "microsoft",
+    "mixed",
+    "reality",
+    "hololens",
+    "ar",
+    "vr",
+    "xr",
+    "graphics",
+    "shaders"
+  ],
+  "dependencies": {
+    "com.unity.render-pipelines.universal": "12.1.7"
+  }
+}
