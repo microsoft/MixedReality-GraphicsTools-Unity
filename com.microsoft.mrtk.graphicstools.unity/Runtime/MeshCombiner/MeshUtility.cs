@@ -197,21 +197,21 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             var combineInstances = new List<CombineInstance>();
             var meshIDTable = new List<MeshCombineResult.MeshID>();
-
             var textureToCombineInstanceMappings = new List<Dictionary<Texture2D, List<CombineInstance>>>(settings.TextureSettings.Count);
+            Material defaultMaterial = null;
 
             foreach (var textureSetting in settings.TextureSettings)
             {
                 textureToCombineInstanceMappings.Add(new Dictionary<Texture2D, List<CombineInstance>>());
             }
 
-            var vertexCount = GatherCombineData(settings, combineInstances, meshIDTable, textureToCombineInstanceMappings);
+            var vertexCount = GatherCombineData(settings, combineInstances, meshIDTable, textureToCombineInstanceMappings, ref defaultMaterial);
 
             if (vertexCount != 0)
             {
                 output.TextureTable = CombineTextures(settings, textureToCombineInstanceMappings);
                 output.Mesh = CombineMeshes(combineInstances, vertexCount);
-                output.Material = CombineMaterials(settings, output.TextureTable);
+                output.Material = new Material(defaultMaterial);
                 output.MeshIDTable = meshIDTable;
             }
             else
@@ -227,7 +227,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static uint GatherCombineData(MeshCombineSettings settings,
                                              List<CombineInstance> combineInstances,
                                              List<MeshCombineResult.MeshID> meshIDTable,
-                                             List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings)
+                                             List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings, 
+                                             ref Material defaultMaterial)
         {
             var meshID = 0;
             var vertexCount = 0U;
@@ -262,6 +263,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (material != null)
                     {
+                        // The first valid material will become the default material used.
+                        if (defaultMaterial == null)
+                        {
+                            defaultMaterial = material;
+                        }
+
                         if (settings.BakeMaterialColorIntoVertexColor)
                         {
                             // Write the material color to all vertex colors.
@@ -390,37 +397,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             var output = new Mesh();
             output.indexFormat = (vertexCount >= ushort.MaxValue) ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
             output.CombineMeshes(combineInstances.ToArray(), true, true, false);
-
-            return output;
-        }
-
-        private static Material CombineMaterials(MeshCombineSettings settings, List<MeshCombineResult.PropertyTexture2DID> textureTable)
-        {
-            var output = new Material(StandardShaderUtility.GraphicsToolsStandardShader);
-
-            if (settings.BakeMaterialColorIntoVertexColor)
-            {
-                output.EnableKeyword("_VERTEX_COLORS");
-                output.SetFloat("_VertexColors", 1.0f);
-            }
-
-            var textureSettingIndex = 0;
-
-            foreach (var pair in textureTable)
-            {
-                if (pair.Texture != null)
-                {
-                    output.SetTexture(pair.Property, pair.Texture);
-
-                    if (settings.TextureSettings[textureSettingIndex].Usage == MeshCombineSettings.TextureUsage.Normal)
-                    {
-                        output.EnableKeyword("_NORMAL_MAP");
-                        output.SetFloat("_EnableNormalMap", 1.0f);
-                    }
-                }
-
-                ++textureSettingIndex;
-            }
 
             return output;
         }
