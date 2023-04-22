@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if UNITY_2021_2_OR_NEWER
                             AssetDatabase.SaveAssetIfDirty(material);
 #else
- AssetDatabase.SaveAssets();
+ AssetDatabase.SaveAssets();
 #endif
  }
                         else
