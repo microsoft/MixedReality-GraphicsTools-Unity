@@ -28,14 +28,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             RGBAverage = 4
         }
 
-        private enum TextureFormat
-        {
-            TGA = 0,
-            PNG = 1,
-            JPG = 2
-        }
-
-        private static readonly string[] textureExtensions = new string[] { "tga", "png", "jpg" };
         private const float defaultUniformValue = -0.01f;
 
         private Texture2D metallicMap;
@@ -51,7 +43,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private Channel smoothnessMapChannel = Channel.Alpha;
         private float smoothnessUniform = defaultUniformValue;
         private Material standardMaterial;
-        private TextureFormat textureFormat = TextureFormat.TGA;
+        private TextureFile.Format textureFormat = TextureFile.Format.TGA;
 
         private const string StandardShaderName = "Standard";
         private const string StandardRoughnessShaderName = "Standard (Roughness setup)";
@@ -113,7 +105,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             GUILayout.Label("Export", EditorStyles.boldLabel);
 
-            textureFormat = (TextureFormat)EditorGUILayout.EnumPopup("Texture Format", textureFormat);
+            textureFormat = (TextureFile.Format)EditorGUILayout.EnumPopup("Texture Format", textureFormat);
 
             if (GUILayout.Button("Save Channel Map"))
             {
@@ -193,25 +185,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             RenderTexture.ReleaseTemporary(renderTexture);
 
             // Save the texture to disk.
-            string filename = string.Format("{0}{1}.{2}", GetChannelMapName(textures), "_Channel", textureExtensions[(int)textureFormat]);
-            string path = EditorUtility.SaveFilePanel("Save Channel Map", "", filename, textureExtensions[(int)textureFormat]);
+            string filename = string.Format("{0}{1}.{2}", GetChannelMapName(textures), "_Channel", TextureFile.GetExtension(textureFormat));
+            string path = EditorUtility.SaveFilePanel("Save Channel Map", "", filename, TextureFile.GetExtension(textureFormat));
 
             if (path.Length != 0)
             {
-                byte[] textureData = null;
-
-                switch (textureFormat)
-                {
-                    case TextureFormat.TGA:
-                        textureData = channelMap.EncodeToTGA();
-                        break;
-                    case TextureFormat.PNG:
-                        textureData = channelMap.EncodeToPNG();
-                        break;
-                    case TextureFormat.JPG:
-                        textureData = channelMap.EncodeToJPG();
-                        break;
-                }
+                byte[] textureData = TextureFile.Encode(channelMap, textureFormat);
 
                 if (textureData != null)
                 {

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_UGUI
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -133,7 +134,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        #region override methods
+#region override methods
         /// <summary>
         /// Ensures the canvas generates required vertex attributes.
         /// </summary>
@@ -183,9 +184,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             SetMaterialDirty();
         }
 
-        #endregion
+#endregion
 
-        #region private methods
+#region private methods
 
         private UIVertex vert = new UIVertex();
         private Vector2 uvOrigin = Vector2.zero;
@@ -354,6 +355,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 vh.AddTriangle(i0, i1, i2);
             }
         }
-        #endregion
+#endregion
     }
 }
+#endif // GT_USE_UGUI

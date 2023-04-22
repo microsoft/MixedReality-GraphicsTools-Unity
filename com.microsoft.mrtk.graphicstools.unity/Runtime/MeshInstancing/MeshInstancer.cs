@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
+
+// WebGL doesn't support threaded operations.
+#if !UNITY_WEBGL
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+#endif
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
@@ -26,7 +29,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// The mesh to draw via Graphics.DrawMeshInstanced.
         /// </summary>
         [Header("Visuals"), Tooltip("The mesh to draw via Graphics.DrawMeshInstanced.")]
-        public Mesh InstanceMesh = null;
+        public UnityEngine.Mesh InstanceMesh = null;
 
         /// <summary>
         /// Which subset of the mesh to draw. This applies only to meshes that are composed of several materials.
@@ -461,8 +464,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             public Matrix4x4[] Matricies = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
             public MaterialPropertyBlock Properties = new MaterialPropertyBlock();
             public ParallelUpdate[] ParallelUpdates = new ParallelUpdate[UNITY_MAX_INSTANCE_COUNT];
+#if UNITY_WEBGL
+            public List<RaycastHit> RaycastHits = new List<RaycastHit>();
+#else
             public ConcurrentBag<RaycastHit> RaycastHits = new ConcurrentBag<RaycastHit>();
-
+#endif
             private Matrix4x4[] matrixScratchBuffer = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
 
             private InstanceBucket() { }
@@ -480,7 +486,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
-                    Properties.SetFloatArray(property.Key, Enumerable.Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT).ToArray());
+                    Properties.SetFloatArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
                 }
             }
 
@@ -488,7 +494,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
-                    Properties.SetVectorArray(property.Key, Enumerable.Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT).ToArray());
+                    Properties.SetVectorArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
                 }
             }
 
@@ -496,7 +502,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
-                    Properties.SetMatrixArray(property.Key, Enumerable.Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT).ToArray());
+                    Properties.SetMatrixArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
                 }
             }
 
@@ -543,9 +549,21 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            public void Draw(Mesh mesh, int submeshIndex, Material material, UnityEngine.Rendering.ShadowCastingMode shadowCastingMode, bool recieveShadows)
+            public void Draw(UnityEngine.Mesh mesh, int submeshIndex, Material material, UnityEngine.Rendering.ShadowCastingMode shadowCastingMode, bool recieveShadows)
             {
                 Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, recieveShadows);
+            }
+
+            private static T[] Repeat<T>(T element, int count)
+            {
+                var output = new T[count];
+
+                for (int i = 0; i < count; ++i)
+                {
+                    output[i] = element;
+                }
+
+                return output;
             }
 
             private static bool RaycastSphere(Ray ray, Vector3 center, float radius)
@@ -737,8 +755,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // WebGL doesn't support threaded operations.
 #if UNITY_WEBGL
-            processorCount = 1;
-#endif
+          foreach (InstanceBucket bucket in instanceBuckets)
+          {
+              if (RaycastInstances)
+              {
+                  bucket.RaycastHits = new List<RaycastHit>();
+                  bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, DeferredRayQuery, 0, bucket.InstanceCount);
+              }
+              else
+              {
+                  bucket.UpdateJob(deltaTime, localToWorld, 0, bucket.InstanceCount);
+              }
+          };
+#else
             // We are on a single processor machine, so best to not multi-thread.
             if (processorCount == 1 || DisableParallelUpdate)
             {
@@ -814,6 +843,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                 });
             }
+#endif // UNITY_WEBGL
 
             if (DisplayUpdateTime)
             {

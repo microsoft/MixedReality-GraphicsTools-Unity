@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_UGUI
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -99,5 +100,5 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             mask.padding = oldPadding;
         }
     }
-
 }
+#endif // GT_USE_UGUI

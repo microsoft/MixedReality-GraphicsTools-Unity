@@ -48,7 +48,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             using (var check = new EditorGUI.ChangeCheckScope())
             {
-                DrawReadonlyPropertyField(m_Script);
+                InspectorUtilities.DrawReadonlyPropertyField(m_Script);
 
                 if (HasNoRenderers(previousRenderers))
                 {
@@ -56,7 +56,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
                 else
                 {
-                    DrawReadonlyPropertyField(applyToSharedMaterial);
+                    InspectorUtilities.DrawReadonlyPropertyField(applyToSharedMaterial);
                 }
 
                 DrawPropertiesExcluding(serializedObject, nameof(m_Script), nameof(applyToSharedMaterial));
@@ -97,13 +97,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 clippingPrimitive.AddMaterial(material);
             }
-        }
-
-        private static void DrawReadonlyPropertyField(SerializedProperty property, params GUILayoutOption[] options)
-        {
-            GUI.enabled = false;
-            EditorGUILayout.PropertyField(property, options);
-            GUI.enabled = true;
         }
 
         private static bool HasNoRenderers(IEnumerable<Renderer> renderers)

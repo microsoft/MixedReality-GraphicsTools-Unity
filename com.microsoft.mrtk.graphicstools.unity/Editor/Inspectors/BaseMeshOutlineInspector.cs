@@ -108,7 +108,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <inheritdoc />
         public override void OnInspectorGUI()
         {
-            DrawReadonlyPropertyField(m_Script);
+            InspectorUtilities.DrawReadonlyPropertyField(m_Script);
 
             EditorGUI.BeginChangeCheck();
 
@@ -304,13 +304,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
 
             return true;
-        }
-
-        private static void DrawReadonlyPropertyField(SerializedProperty property, params GUILayoutOption[] options)
-        {
-            GUI.enabled = false;
-            EditorGUILayout.PropertyField(property, options);
-            GUI.enabled = true;
         }
     }
 }

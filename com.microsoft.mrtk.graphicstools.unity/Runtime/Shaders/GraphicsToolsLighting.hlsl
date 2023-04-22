@@ -25,7 +25,7 @@ GTMainLight GTGetMainLight(float4 shadowCoord)
     {
 #endif
     GTMainLight light;
-#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT)
+#if defined(_DIRECTIONAL_LIGHT) || defined(_DISTANT_LIGHT) || defined(_SHADOW_PASS)
 #if defined(_DISTANT_LIGHT)
     light.direction = _DistantLightData[0].xyz;
     light.color = _DistantLightData[1].xyz;

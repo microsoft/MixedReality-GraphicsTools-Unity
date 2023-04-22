@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if GT_USE_UGUI
 using UnityEditor;
 using UnityEditor.UI;
 
@@ -16,7 +17,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/UI/Graphics Tools/Fast Rect Mask")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
-            InspectorUtilities.CreateGameObjectFromMenu<RectMask2DFast>(menuCommand);
+            InspectorUtilities.CreateGameObjectFromMenu<RectMask2DFast>(menuCommand, true);
         }
     }
 }
+#endif // GT_USE_UGUI

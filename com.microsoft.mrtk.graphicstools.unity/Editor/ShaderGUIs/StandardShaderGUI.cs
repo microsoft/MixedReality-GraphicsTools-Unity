@@ -114,7 +114,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public static readonly string lightModeLitDirectional = "_DIRECTIONAL_LIGHT";
             public static readonly string lightModeLitDistant = "_DISTANT_LIGHT";
             public static readonly GUIContent nonPhotorealisticRendering = new GUIContent("Non-Photorealistic Rendering","Non-Photorealistic Rendering");
-            public static readonly GUIContent receiveShadow = new GUIContent("Receive Shadow(URP Only)");
             public static readonly GUIContent specularHighlights = new GUIContent("Specular Highlights", "Calculate Specular Highlights");
             public static readonly GUIContent sphericalHarmonics = new GUIContent("Spherical Harmonics", "Read From Spherical Harmonics Data for Ambient Light");
             public static readonly GUIContent reflections = new GUIContent("Reflections", "Calculate Glossy Reflections");
@@ -236,7 +235,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected MaterialProperty specularHighlights;
         protected MaterialProperty sphericalHarmonics;
         protected MaterialProperty nonPhotorealisticRendering;
-        protected MaterialProperty receiveShadow;
         protected MaterialProperty reflections;
         protected MaterialProperty rimLight;
         protected MaterialProperty rimColor;
@@ -352,7 +350,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             specularHighlights = FindProperty("_SpecularHighlights", props);
             sphericalHarmonics = FindProperty("_SphericalHarmonics", props);
             nonPhotorealisticRendering = FindProperty("_NPR", props);
-            receiveShadow = FindProperty("_ReceiveShadow", props);
             reflections = FindProperty("_Reflections", props);
             rimLight = FindProperty("_RimLight", props);
             rimColor = FindProperty("_RimColor", props);
@@ -727,7 +724,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 materialEditor.ShaderProperty(specularHighlights, Styles.specularHighlights, 2);
                 materialEditor.ShaderProperty(sphericalHarmonics, Styles.sphericalHarmonics, 2);
                 materialEditor.ShaderProperty(nonPhotorealisticRendering, Styles.nonPhotorealisticRendering, 2);
-                materialEditor.ShaderProperty(receiveShadow, Styles.receiveShadow, 2);
             }
 
             materialEditor.ShaderProperty(reflections, Styles.reflections);
@@ -898,10 +894,31 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
                 }
             }
+            
+            if (!PropertyEnabled(roundCorners) && PropertyEnabled(borderLight))
+            {
+                materialEditor.ShaderProperty(edgeSmoothingMode, Styles.edgeSmoothingMode, 2);
+
+                switch ((EdgeSmoothingMode)edgeSmoothingMode.floatValue)
+                {
+                    default:
+                    case EdgeSmoothingMode.Manual:
+                    {
+                        material.DisableKeyword(Styles.edgeSmoothingModeAutomaticName);
+                        materialEditor.ShaderProperty(edgeSmoothingValue, Styles.edgeSmoothingValue, 3);
+                    }
+                        break;
+                    case EdgeSmoothingMode.Automatic:
+                    {
+                        material.EnableKeyword(Styles.edgeSmoothingModeAutomaticName);
+                    }
+                        break;
+                }
+            }
 
             if (PropertyEnabled(hoverLight) || PropertyEnabled(proximityLight) || PropertyEnabled(borderLight))
             {
-                materialEditor.ShaderProperty(fluentLightIntensity, Styles.fluentLightIntensity);
+                materialEditor.ShaderProperty(fluentLightIntensity, Styles.fluentLightIntensity, 2);
             }
 
             materialEditor.ShaderProperty(roundCorners, Styles.roundCorners);
@@ -948,9 +965,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
             }
 
-            if (PropertyEnabled(roundCorners) || PropertyEnabled(borderLight))
+            if (PropertyEnabled(roundCorners))
             {
-                materialEditor.ShaderProperty(edgeSmoothingMode, Styles.edgeSmoothingMode);
+                materialEditor.ShaderProperty(edgeSmoothingMode, Styles.edgeSmoothingMode, 2);
 
                 switch ((EdgeSmoothingMode)edgeSmoothingMode.floatValue)
                 {
@@ -958,7 +975,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     case EdgeSmoothingMode.Manual:
                         {
                             material.DisableKeyword(Styles.edgeSmoothingModeAutomaticName);
-                            materialEditor.ShaderProperty(edgeSmoothingValue, Styles.edgeSmoothingValue, 2);
+                            materialEditor.ShaderProperty(edgeSmoothingValue, Styles.edgeSmoothingValue, 3);
                         }
                         break;
                     case EdgeSmoothingMode.Automatic:
@@ -1339,3 +1356,4 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
     }
 }
+

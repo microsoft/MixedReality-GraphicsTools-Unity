@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.﻿
 
+#if GT_USE_UGUI
 using UnityEditor;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/UI/Graphics Tools/Rounded Rect")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
-            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementRoundedRect>(menuCommand);
+            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementRoundedRect>(menuCommand, true);
 
             if (gameObject != null)
             {
@@ -29,3 +30,4 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
     }
 }
+#endif // GT_USE_UGUI
