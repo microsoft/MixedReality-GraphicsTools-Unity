@@ -92,7 +92,36 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 Debug.LogException(e);
             }
         }
+        /// <summary>
+        /// Generates a material for GraphicsToolsStandardShader in the Project window.
+        /// </summary>
+        [MenuItem("Assets/Create/Material(Graphics Tools)", false, 1)]
+        public static void CreateGraphicsToolsMaterial()
+        {
+            var directory = AssetDatabase.GetAssetPath(Selection.activeObject);
+            Material material = new Material(Shader.Find("Graphics Tools/Standard"));
+            if (string.IsNullOrEmpty(directory))
+            {
+                directory = "Assets";
+            }
 
+            var extension = Path.GetExtension(directory);
+
+            if (!string.IsNullOrEmpty(extension))
+            {
+                var filename = Path.GetFileName(directory);
+                var startIndex = directory.LastIndexOf(filename) - 1;
+                var count = filename.Length + 1;
+                directory = directory.Remove(startIndex, count);
+            }
+
+            var path = directory + "/" + "NewGraphicsToolsMaterial.mat";
+            var uniquePath = AssetDatabase.GenerateUniqueAssetPath(path);
+            AssetDatabase.CreateAsset(material, uniquePath);
+            AssetDatabase.SaveAssets();
+            Selection.activeObject = material;
+        }
+        
         /// <summary>
         /// Menu item validation.
         /// </summary>
