@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -153,6 +154,15 @@ namespace Microsoft.MixedReality.GraphicsTools
                     processedMeshes.Remove(sharedMesh);
                 }
             }
+        }
+
+        /// <summary>
+        /// Clean up dictionary before quit play mode if enabled Reload Domain
+        /// More information: https://docs.unity3d.com/Manual/DomainReloading.html
+        /// </summary>
+        private void OnApplicationQuit()
+        {
+            processedMeshes.Clear();
         }
 
         #endregion MonoBehaviour Implementation
