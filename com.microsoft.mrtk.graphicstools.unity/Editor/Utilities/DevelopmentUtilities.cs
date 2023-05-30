@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,7 +21,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
         private static readonly string visibleSamplesPath = "../../com.microsoft.mrtk.graphicstools.unity/Samples";
         private static readonly string hiddenSamplesPath = "../../com.microsoft.mrtk.graphicstools.unity/Samples~";
-        private static readonly Regex quotesRegex = new Regex("(?<=\")(.*?)(?=\")");
 
         /// <summary>
         /// Performs one time initialization.
@@ -90,12 +88,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             catch (Exception e)
             {
                 Debug.LogException(e);
+                EditorUtility.DisplayDialog("Failed to show samples",
+                            $"Showing samples failed.\n\nTry closing apps or windows that are currently using files within the \"Samples~\" folder.\n\nException: {e.Message}",
+                            "Ok");
             }
         }
         /// <summary>
         /// Generates a material for GraphicsToolsStandardShader in the Project window.
         /// </summary>
-        [MenuItem("Assets/Create/Material(Graphics Tools)", false, 1)]
+        [MenuItem("Assets/Create/Graphics Tools/Material", false, 1)]
         public static void CreateGraphicsToolsMaterial()
         {
             var directory = AssetDatabase.GetAssetPath(Selection.activeObject);
@@ -121,7 +122,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             AssetDatabase.SaveAssets();
             Selection.activeObject = material;
         }
-        
         /// <summary>
         /// Menu item validation.
         /// </summary>
@@ -181,6 +181,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             catch (Exception e)
             {
                 Debug.LogException(e);
+                EditorUtility.DisplayDialog("Failed to hide samples", 
+                                            $"Hiding samples failed.\n\nTry closing apps or windows that are currently using files within the \"Samples\" folder.\n\nException: {e.Message}",
+                                            "Ok");
             }
         }
 
@@ -301,3 +304,4 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
     }
 }
+

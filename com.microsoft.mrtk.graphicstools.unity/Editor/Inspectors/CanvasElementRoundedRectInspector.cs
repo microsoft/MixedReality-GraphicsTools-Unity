@@ -16,7 +16,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/UI/Graphics Tools/Rounded Rect")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
-            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementRoundedRect>(menuCommand);
+            GameObject gameObject = InspectorUtilities.CreateGameObjectFromMenu<CanvasElementRoundedRect>(menuCommand, true);
 
             if (gameObject != null)
             {

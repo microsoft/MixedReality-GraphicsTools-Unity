@@ -15,7 +15,6 @@ namespace Microsoft.MixedReality.GraphicsTools
     class AcrylicBlurRenderPass : ScriptableRenderPass
     {   
         public bool setMaterialTexture = false;
-        private RenderTargetIdentifier cameraTarget;
         private string profilerLabel;
         private RenderTargetHandle target1;
         private RenderTargetHandle target2;
@@ -45,11 +44,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             blur = _blur;
             blurFilter = _blurFilter;
-        }
-
-        public void Initialize(RenderTargetIdentifier _cameraTarget)
-        {
-            cameraTarget = _cameraTarget;
         }
 
         private Vector4 info = Vector4.zero;
@@ -100,22 +94,23 @@ namespace Microsoft.MixedReality.GraphicsTools
             cmd.Clear();
 
             var handle = providedTexture==null ? target1.Identifier() : providedTexture;
+            var renderer = renderingData.cameraData.renderer;
 
             cmd.SetGlobalVector("_AcrylicInfo", info);
 
             if (downSample == 1)
             {
-                cmd.Blit(cameraTarget, handle);
+                cmd.Blit(renderer.cameraColorTarget, handle);
             }
             else if (downSample == 2)
             {
                 cmd.SetGlobalVector("_AcrylicBlurOffset", Vector2.zero);
-                LocalBlit(cmd, cameraTarget, handle, blurMaterial);
+                LocalBlit(cmd, renderer.cameraColorTarget, handle, blurMaterial);
             }
             else
             {
                 cmd.SetGlobalVector("_AcrylicBlurOffset", 0.25f * pixelSize);
-                LocalBlit(cmd, cameraTarget, handle, blurMaterial);
+                LocalBlit(cmd, renderer.cameraColorTarget, handle, blurMaterial);
             }
 
             if (blur)

@@ -142,7 +142,7 @@ Shader "Graphics Tools/Standard"
     {
         PackageRequirements
         {
-            "com.unity.render-pipelines.universal": "10.6.0"
+            "com.unity.render-pipelines.universal": "12.1.0"
         }
 
         Tags
@@ -181,7 +181,32 @@ Shader "Graphics Tools/Standard"
 
             #pragma multi_compile_instancing
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
+            #pragma shader_feature_local_fragment _CLIPPING_BORDER
+
+            #include_with_pragmas "GraphicsToolsStandardProgram.hlsl"
+
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+            Cull[_CullMode]
+
+            HLSLPROGRAM
+        
+            #define _URP
+            #define _SHADOW_PASS
+
+            #pragma multi_compile_instancing
+        
             #pragma shader_feature_local_fragment _CLIPPING_BORDER
 
             #include_with_pragmas "GraphicsToolsStandardProgram.hlsl"
@@ -244,6 +269,7 @@ Shader "Graphics Tools/Standard"
 
             #pragma multi_compile_instancing
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
 
             #pragma shader_feature_local_fragment _CLIPPING_BORDER
 

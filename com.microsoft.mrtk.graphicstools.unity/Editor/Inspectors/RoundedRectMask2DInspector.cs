@@ -36,7 +36,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         [MenuItem("GameObject/UI/Graphics Tools/Rounded Rect Mask")]
         private static void CreateCanvasElement(MenuCommand menuCommand)
         {
-            InspectorUtilities.CreateGameObjectFromMenu<RoundedRectMask2D>(menuCommand);
+            InspectorUtilities.CreateGameObjectFromMenu<RoundedRectMask2D>(menuCommand, true);
         }
 
         /// <inheritdoc/>

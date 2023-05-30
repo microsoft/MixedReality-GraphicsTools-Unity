@@ -13,8 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// This behavior is designed to be used in conjunction with the Graphics Tools/Standard shader. Limitations of this effect include it not working well 
     /// on objects which are not watertight (or required to be two sided) and depth sorting issues may occur on overlapping objects.
     /// </summary>
-    [RequireComponent(typeof(Renderer))]
-    [AddComponentMenu("Scripts/GraphicsTools/MeshOutline")]
+    [DisallowMultipleComponent, RequireComponent(typeof(Renderer)), AddComponentMenu("Scripts/GraphicsTools/MeshOutline")]
     public class MeshOutline : BaseMeshOutline
     {
         private const string vertexExtrusionKeyword = "_VERTEX_EXTRUSION";
@@ -130,16 +129,18 @@ namespace Microsoft.MixedReality.GraphicsTools
             ApplyStencilReference();
 
             // Add the outline material as another material pass.
-            var materials = new List<Material>(defaultMaterials);
+            var materials = new Material[UseStencilOutline ? defaultMaterials.Length + 2 : defaultMaterials.Length + 1];
+            defaultMaterials.CopyTo(materials, 0);
+            int nextFreeIdx = defaultMaterials.Length;
 
             if (UseStencilOutline)
             {
-                materials.Add(stencilWriteMaterial);
+                materials[nextFreeIdx++] = stencilWriteMaterial;
             }
 
-            materials.Add(outlineMaterial);
+            materials[nextFreeIdx] = outlineMaterial;
 
-            meshRenderer.materials = materials.ToArray();
+            meshRenderer.materials = materials;
         }
 
         /// <summary>

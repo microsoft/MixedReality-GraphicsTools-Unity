@@ -12,302 +12,320 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     public class CanvasMaterialAnimatorCanvasBeveled : CanvasMaterialAnimatorBase
     {
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 2f)] public float _Sun_Intensity_ = 0.75f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Sun_Intensity_ID = Shader.PropertyToID("_Sun_Intensity_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Sun_Theta_ = 0.73f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Sun_Theta_ID = Shader.PropertyToID("_Sun_Theta_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Sun_Phi_ = 0.48f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Sun_Phi_ID = Shader.PropertyToID("_Sun_Phi_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Indirect_Diffuse_ = 0.51f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Indirect_Diffuse_ID = Shader.PropertyToID("_Indirect_Diffuse_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Color _Albedo_ = Color.white;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Albedo_ID = Shader.PropertyToID("_Albedo_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 5f)] public float _Specular_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Specular_ID = Shader.PropertyToID("_Specular_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 10f)] public float _Shininess_ = 10f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Shininess_ID = Shader.PropertyToID("_Shininess_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Sharpness_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Sharpness_ID = Shader.PropertyToID("_Sharpness_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Subsurface_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Subsurface_ID = Shader.PropertyToID("_Subsurface_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 2f)] public float _Reflection_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Reflection_ID = Shader.PropertyToID("_Reflection_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Fresnel_Disabled_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Fresnel_Disabled_ID = Shader.PropertyToID("_Fresnel_Disabled_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Front_Reflect_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Front_Reflect_ID = Shader.PropertyToID("_Front_Reflect_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Edge_Reflect_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Edge_Reflect_ID = Shader.PropertyToID("_Edge_Reflect_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 10f)] public float _Power_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Power_ID = Shader.PropertyToID("_Power_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Sky_Enabled_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Sky_Enabled_ID = Shader.PropertyToID("_Sky_Enabled_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Color _Sky_Color_ = Color.white;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Sky_Color_ID = Shader.PropertyToID("_Sky_Color_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Color _Horizon_Color_ = Color.white;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Horizon_Color_ID = Shader.PropertyToID("_Horizon_Color_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Color _Ground_Color_ = Color.white;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Ground_Color_ID = Shader.PropertyToID("_Ground_Color_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 10f)] public float _Horizon_Power_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Horizon_Power_ID = Shader.PropertyToID("_Horizon_Power_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Mapped_Environment_Enabled_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Mapped_Environment_Enabled_ID = Shader.PropertyToID("_Mapped_Environment_Enabled_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Cubemap _Reflection_Map_ = null;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Reflection_Map_ID = Shader.PropertyToID("_Reflection_Map_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Cubemap _Indirect_Environment_ = null;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Indirect_Environment_ID = Shader.PropertyToID("_Indirect_Environment_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Decal_Enable_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Decal_Enable_ID = Shader.PropertyToID("_Decal_Enable_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Texture2D _Decal_ = null;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Decal_ID = Shader.PropertyToID("_Decal_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Vector4 _Decal_Scale_XY_ = Vector4.zero;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Decal_Scale_XY_ID = Shader.PropertyToID("_Decal_Scale_XY_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Decal_Front_Only_ = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Decal_Front_Only_ID = Shader.PropertyToID("_Decal_Front_Only_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _Iridescence_Enabled_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Iridescence_Enabled_ID = Shader.PropertyToID("_Iridescence_Enabled_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 1f)] public float _Iridescence_Intensity_ = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Iridescence_Intensity_ID = Shader.PropertyToID("_Iridescence_Intensity_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Texture2D _Iridescence_Texture_ = null;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _Iridescence_Texture_ID = Shader.PropertyToID("_Iridescence_Texture_");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _ZTest = 4f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _ZTestID = Shader.PropertyToID("_ZTest");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _ZWrite = 1f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _ZWriteID = Shader.PropertyToID("_ZWrite");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           [Range(0f, 255f)] public float _StencilReference = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _StencilReferenceID = Shader.PropertyToID("_StencilReference");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _StencilComparison = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _StencilComparisonID = Shader.PropertyToID("_StencilComparison");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public float _StencilOperation = 0f;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _StencilOperationID = Shader.PropertyToID("_StencilOperation");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Texture2D _MainTex = null;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _MainTexID = Shader.PropertyToID("_MainTex");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Vector4 _ClipRect = Vector4.zero;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _ClipRectID = Shader.PropertyToID("_ClipRect");
-           /// <summary>
-           /// Shader property.
-           /// </summary>;
-           public Vector4 _ClipRectRadii = Vector4.zero;
-           /// <summary>
-           /// Shader property ID.
-           /// </summary>
-           public static int _ClipRectRadiiID = Shader.PropertyToID("_ClipRectRadii");
+
+        [Header("Sun")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 2f)] public float _Sun_Intensity_ = 0.75f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Sun_Intensity_ID = Shader.PropertyToID("_Sun_Intensity_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Sun_Theta_ = 0.73f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Sun_Theta_ID = Shader.PropertyToID("_Sun_Theta_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Sun_Phi_ = 0.48f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Sun_Phi_ID = Shader.PropertyToID("_Sun_Phi_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Indirect_Diffuse_ = 0.51f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Indirect_Diffuse_ID = Shader.PropertyToID("_Indirect_Diffuse_");
+
+        [Header("Diffuse And Specular")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Color _Albedo_ = Color.white;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Albedo_ID = Shader.PropertyToID("_Albedo_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 5f)] public float _Specular_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Specular_ID = Shader.PropertyToID("_Specular_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 10f)] public float _Shininess_ = 10f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Shininess_ID = Shader.PropertyToID("_Shininess_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Sharpness_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Sharpness_ID = Shader.PropertyToID("_Sharpness_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Subsurface_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Subsurface_ID = Shader.PropertyToID("_Subsurface_");
+
+        [Header("Reflection")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 2f)] public float _Reflection_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Reflection_ID = Shader.PropertyToID("_Reflection_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Fresnel_Disabled_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Fresnel_Disabled_ID = Shader.PropertyToID("_Fresnel_Disabled_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Front_Reflect_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Front_Reflect_ID = Shader.PropertyToID("_Front_Reflect_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Edge_Reflect_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Edge_Reflect_ID = Shader.PropertyToID("_Edge_Reflect_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 10f)] public float _Power_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Power_ID = Shader.PropertyToID("_Power_");
+
+        [Header("Sky Environment")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Sky_Enabled_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Sky_Enabled_ID = Shader.PropertyToID("_Sky_Enabled_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Color _Sky_Color_ = Color.white;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Sky_Color_ID = Shader.PropertyToID("_Sky_Color_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Color _Horizon_Color_ = Color.white;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Horizon_Color_ID = Shader.PropertyToID("_Horizon_Color_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Color _Ground_Color_ = Color.white;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Ground_Color_ID = Shader.PropertyToID("_Ground_Color_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 10f)] public float _Horizon_Power_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Horizon_Power_ID = Shader.PropertyToID("_Horizon_Power_");
+
+        [Header("Mapped Environment")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Mapped_Environment_Enabled_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Mapped_Environment_Enabled_ID = Shader.PropertyToID("_Mapped_Environment_Enabled_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Cubemap _Reflection_Map_ = null;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Reflection_Map_ID = Shader.PropertyToID("_Reflection_Map_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Cubemap _Indirect_Environment_ = null;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Indirect_Environment_ID = Shader.PropertyToID("_Indirect_Environment_");
+
+        [Header("Decal Texture")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Decal_Enable_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Decal_Enable_ID = Shader.PropertyToID("_Decal_Enable_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Texture2D _Decal_ = null;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Decal_ID = Shader.PropertyToID("_Decal_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Vector4 _Decal_Scale_XY_ = Vector4.zero;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Decal_Scale_XY_ID = Shader.PropertyToID("_Decal_Scale_XY_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Decal_Front_Only_ = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Decal_Front_Only_ID = Shader.PropertyToID("_Decal_Front_Only_");
+
+        [Header("Iridescence")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _Iridescence_Enabled_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Iridescence_Enabled_ID = Shader.PropertyToID("_Iridescence_Enabled_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 1f)] public float _Iridescence_Intensity_ = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Iridescence_Intensity_ID = Shader.PropertyToID("_Iridescence_Intensity_");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Texture2D _Iridescence_Texture_ = null;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _Iridescence_Texture_ID = Shader.PropertyToID("_Iridescence_Texture_");
+
+        [Header("Depth")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _ZTest = 4f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _ZTestID = Shader.PropertyToID("_ZTest");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _ZWrite = 1f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _ZWriteID = Shader.PropertyToID("_ZWrite");
+
+        [Header("Stencil")]
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        [Range(0f, 255f)] public float _StencilReference = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _StencilReferenceID = Shader.PropertyToID("_StencilReference");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _StencilComparison = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _StencilComparisonID = Shader.PropertyToID("_StencilComparison");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public float _StencilOperation = 0f;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _StencilOperationID = Shader.PropertyToID("_StencilOperation");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Texture2D _MainTex = null;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _MainTexID = Shader.PropertyToID("_MainTex");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Vector4 _ClipRect = Vector4.zero;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _ClipRectID = Shader.PropertyToID("_ClipRect");
+        /// <summary>
+        /// Shader property.
+        /// </summary>;
+        public Vector4 _ClipRectRadii = Vector4.zero;
+        /// <summary>
+        /// Shader property ID.
+        /// </summary>
+        public static int _ClipRectRadiiID = Shader.PropertyToID("_ClipRectRadii");
 
         /// <inheritdoc/>
         public override void InitializeFromMaterial(Material material)

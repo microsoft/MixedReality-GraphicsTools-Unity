@@ -14,39 +14,41 @@
 /// Features.
 /// </summary>
 
-#pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
-
-#pragma shader_feature_local _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHABLEND_TRANS_ON _ADDITIVE_ON
+#pragma shader_feature_local _ _ALPHATEST_ON
 #pragma shader_feature_local _DISABLE_ALBEDO_MAP
 #pragma shader_feature_local_fragment _ _METALLIC_TEXTURE_ALBEDO_CHANNEL_A _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 #pragma shader_feature_local _CHANNEL_MAP
-#pragma shader_feature_local _NORMAL_MAP
-#pragma shader_feature_local _EMISSION
-#pragma shader_feature_local _TRIPLANAR_MAPPING
-#pragma shader_feature_local _LOCAL_SPACE_TRIPLANAR_MAPPING
-#pragma shader_feature_local_fragment _USE_SSAA
 #pragma shader_feature_local _ _DIRECTIONAL_LIGHT _DISTANT_LIGHT
-#pragma shader_feature_local _NON_PHOTOREALISTIC
-#pragma shader_feature_local_fragment _SPECULAR_HIGHLIGHTS
-#pragma shader_feature_local _SPHERICAL_HARMONICS
-#pragma shader_feature_local _REFLECTIONS
-#pragma shader_feature_local _RIM_LIGHT
 #pragma shader_feature_local _VERTEX_COLORS
 #pragma shader_feature_local _VERTEX_EXTRUSION
 #pragma shader_feature_local_vertex _VERTEX_EXTRUSION_SMOOTH_NORMALS
 #pragma shader_feature_local_vertex _VERTEX_EXTRUSION_CONSTANT_WIDTH
 #pragma shader_feature_local _NEAR_PLANE_FADE
 #pragma shader_feature_local_vertex _NEAR_LIGHT_FADE
+#pragma shader_feature_local _ROUND_CORNERS
+#pragma shader_feature_local_fragment _INDEPENDENT_CORNERS
+#pragma shader_feature_local_fragment _ROUND_CORNERS_HIDE_INTERIOR
+#pragma shader_feature_local_fragment _ _EDGE_SMOOTHING_AUTOMATIC
+#pragma shader_feature_local _USE_WORLD_SCALE
+
+#if !defined(_SHADOW_PASS)
+#pragma shader_feature_local _ _ALPHABLEND_ON _ALPHABLEND_TRANS_ON _ADDITIVE_ON
+#pragma shader_feature_local _NORMAL_MAP
+#pragma shader_feature_local _EMISSION
+#pragma shader_feature_local _TRIPLANAR_MAPPING
+#pragma shader_feature_local _LOCAL_SPACE_TRIPLANAR_MAPPING
+#pragma shader_feature_local_fragment _USE_SSAA
+#pragma shader_feature_local _NON_PHOTOREALISTIC
+#pragma shader_feature_local_fragment _SPECULAR_HIGHLIGHTS
+#pragma shader_feature_local _SPHERICAL_HARMONICS
+#pragma shader_feature_local _REFLECTIONS
+#pragma shader_feature_local _RIM_LIGHT
 #pragma shader_feature_local _HOVER_LIGHT
 #pragma shader_feature_local_fragment _HOVER_COLOR_OVERRIDE
 #pragma shader_feature_local _PROXIMITY_LIGHT
 #pragma shader_feature_local_fragment _PROXIMITY_LIGHT_COLOR_OVERRIDE
 #pragma shader_feature_local_fragment _PROXIMITY_LIGHT_SUBTRACTIVE
 #pragma shader_feature_local _PROXIMITY_LIGHT_TWO_SIDED
-#pragma shader_feature_local _ROUND_CORNERS
-#pragma shader_feature_local_fragment _INDEPENDENT_CORNERS
-#pragma shader_feature_local_fragment _ROUND_CORNERS_HIDE_INTERIOR
-#pragma shader_feature_local_fragment _ _EDGE_SMOOTHING_AUTOMATIC
 #pragma shader_feature_local _BORDER_LIGHT
 #pragma shader_feature_local_fragment _ _BORDER_LIGHT_USES_HOVER_COLOR _BORDER_LIGHT_USES_COLOR _BORDER_LIGHT_USES_GRADIENT
 #pragma shader_feature_local_fragment _BORDER_LIGHT_REPLACES_ALBEDO
@@ -55,7 +57,7 @@
 #pragma shader_feature_local _ _IRIDESCENCE _GRADIENT_FOUR_POINT _GRADIENT_LINEAR
 #pragma shader_feature_local _ENVIRONMENT_COLORING
 #pragma shader_feature_local _ _BLUR_TEXTURE _BLUR_TEXTURE_2 _BLUR_TEXTURE_PREBAKED_BACKGROUND
-#pragma shader_feature_local _USE_WORLD_SCALE
+#endif
 
 /// <summary>
 ///  Defines and includes.
@@ -169,7 +171,7 @@ Varyings VertexStage(Attributes input)
 #endif
 #endif
 #endif
-
+    
     half3 localNormal = input.normal;
 
 #if defined(_NORMAL) || defined(_VERTEX_EXTRUSION)
@@ -244,28 +246,21 @@ Varyings VertexStage(Attributes input)
 
 #if defined(_BORDER_LIGHT) || defined(_ROUND_CORNERS)
     output.uv = input.uv;
-
-#if defined(_USE_WORLD_SCALE)
-    output.scale.z = canvasScale;
- #else
-    float minScale = min(min(output.scale.x, output.scale.y), output.scale.z);
-#endif
-
+    
     if (abs(localNormal.x) == 1.0) // Y,Z plane.
     {
         output.scale.x = output.scale.z;
-        output.scale.y = output.scale.y;
     }
     else if (abs(localNormal.y) == 1.0) // X,Z plane.
     {
-        output.scale.x = output.scale.x;
         output.scale.y = output.scale.z;
-    }
-    // Else X,Y plane.
-
-#if !defined(_USE_WORLD_SCALE)
-    output.scale.z = minScale;
-#endif
+    } // Else X,Y plane.
+        
+    #if defined(_USE_WORLD_SCALE)
+        output.scale.z = canvasScale;
+    #else
+        output.scale.z = min(min(output.scale.x, output.scale.y), output.scale.z);
+    #endif
 
 #elif defined(_UV)
     output.uv = TRANSFORM_TEX(input.uv, _MainTex);
@@ -516,7 +511,7 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     _RoundCornersRadius = clamp(_RoundCornersRadius, 0.0h, 0.5h);
 #endif
     currentCornerRadius = GTFindCornerRadius(input.uv.xy, _RoundCornersRadius);
-#else 
+#else
     currentCornerRadius = _RoundCornerRadius;
 #endif
 #else
@@ -763,6 +758,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     albedo.a = 1.0;
 #endif
 
+#if defined(_SHADOW_PASS)
+	// Return early to avoid unnecessary calculations for shadow pass.
+    return 0;
+#endif
+    
     // Final lighting mix.
     half4 output = albedo;
 
