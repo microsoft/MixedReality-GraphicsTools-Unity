@@ -16,7 +16,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         [System.Serializable]
         public class MeshCombineResult
         {
-            public Mesh Mesh = null;
+            public UnityEngine.Mesh Mesh = null;
             public Material Material = null;
 
             [System.Serializable]
@@ -31,7 +31,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             [System.Serializable]
             public struct MeshID
             {
-                public Mesh Mesh;
+                public UnityEngine.Mesh Mesh;
                 public int MeshFilterID;
                 public int VertexAttributeID;
             }
@@ -245,7 +245,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 for (int i = 0; i < meshFilter.sharedMesh.subMeshCount; ++i)
                 {
                     var combineInstance = new CombineInstance();
-                    combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh) as Mesh;
+                    combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh) as UnityEngine.Mesh;
                     combineInstance.subMeshIndex = i;
 
                     if (settings.BakeMeshIDIntoUVChannel)
@@ -397,9 +397,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             return output;
         }
 
-        private static Mesh CombineMeshes(List<CombineInstance> combineInstances, uint vertexCount)
+        private static UnityEngine.Mesh CombineMeshes(List<CombineInstance> combineInstances, uint vertexCount)
         {
-            var output = new Mesh();
+            var output = new UnityEngine.Mesh();
             output.indexFormat = (vertexCount >= ushort.MaxValue) ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
             output.CombineMeshes(combineInstances.ToArray(), true, true, false);
 
