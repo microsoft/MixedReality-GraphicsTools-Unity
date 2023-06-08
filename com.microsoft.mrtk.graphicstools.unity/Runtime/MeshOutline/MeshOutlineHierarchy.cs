@@ -13,6 +13,19 @@ namespace Microsoft.MixedReality.GraphicsTools
     [DisallowMultipleComponent, AddComponentMenu("Scripts/GraphicsTools/MeshOutlineHierarchy")]
     public class MeshOutlineHierarchy : BaseMeshOutline
     {
+        public enum ExclusionMode
+        {
+            None,
+            Tag,
+            NameStartsWith,
+            NameContains,
+        }
+
+        [Tooltip("Whether and how to exclude child objects from the outline hierarchy.")]
+        [SerializeField, HideInInspector] private ExclusionMode exclusionMode = ExclusionMode.None;
+        [SerializeField, HideInInspector] private string exclusionString = string.Empty;
+        [SerializeField, HideInInspector] private string exclusionTag = "Untagged";
+
         private List<MeshOutline> meshOutlines = null;
 
         #region MonoBehaviour Implementation
@@ -110,6 +123,31 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void AddMeshOutline(Renderer target)
         {
+            switch (exclusionMode)
+            {
+                case ExclusionMode.None:
+                default:
+                    break;
+                case ExclusionMode.NameStartsWith:
+                    if (target.name.StartsWith(exclusionString))
+                    {
+                        return;
+                    }
+                    break;
+                case ExclusionMode.NameContains:
+                    if (target.name.Contains(exclusionString))
+                    {
+                        return;
+                    }
+                    break;
+                case ExclusionMode.Tag:
+                    if (target.CompareTag(exclusionTag))
+                    {
+                        return;
+                    }
+                    break;
+            }
+
             var meshOutline = target.gameObject.EnsureComponent<MeshOutline>();
             meshOutline.CopyFrom(this);
             meshOutlines.Add(meshOutline);
