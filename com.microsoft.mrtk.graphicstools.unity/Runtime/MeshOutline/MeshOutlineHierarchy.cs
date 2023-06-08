@@ -22,9 +22,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         [Tooltip("Whether and how to exclude child objects from the outline hierarchy.")]
-        [SerializeField] private ExclusionMode exclusionMode = ExclusionMode.None;
-        [Tooltip("The string used to exclude child objects.")]
-        [SerializeField] private string exclusionString = string.Empty;
+        [SerializeField, HideInInspector] private ExclusionMode exclusionMode = ExclusionMode.None;
+        [SerializeField, HideInInspector] private string exclusionString = string.Empty;
+        [SerializeField, HideInInspector] private string exclusionTag = "Untagged";
 
         private List<MeshOutline> meshOutlines = null;
 
@@ -141,7 +141,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                     break;
                 case ExclusionMode.Tag:
-                    if (target.CompareTag(exclusionString))
+                    if (target.CompareTag(exclusionTag))
                     {
                         return;
                     }
