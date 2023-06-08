@@ -230,7 +230,6 @@ GameObject:
   - component: {fileID: 35881080}
   - component: {fileID: 35881079}
   - component: {fileID: 35881078}
-  - component: {fileID: 35881081}
   m_Layer: 0
   m_Name: Cube (5)
   m_TagString: Untagged
@@ -316,25 +315,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 35881076}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &35881081
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 35881076}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90adb44e17279dc4db8f0fc595f1f52f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMaterial: {fileID: 2100000, guid: 64966245830e6fc4db39182643a585f5, type: 2}
-  outlineWidth: 0.01
-  autoAssignRenderQueue: 1
-  useStencilOutline: 1
-  stencilWriteMaterial: {fileID: 2100000, guid: e0b5a1d086d77324883f0647894d4ca3, type: 2}
-  outlineOffset: 0
-  stencilReference: 1
 --- !u!1 &56962999
 GameObject:
   m_ObjectHideFlags: 0
@@ -840,6 +820,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 412510436}
+  - component: {fileID: 412510437}
   m_Layer: 0
   m_Name: Pile
   m_TagString: Untagged
@@ -870,6 +851,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &412510437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412510435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea163a8ce5691714b9307076f7565488, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMaterial: {fileID: 2100000, guid: 64966245830e6fc4db39182643a585f5, type: 2}
+  outlineWidth: 0.01
+  autoAssignRenderQueue: 1
+  useStencilOutline: 1
+  stencilWriteMaterial: {fileID: 2100000, guid: e0b5a1d086d77324883f0647894d4ca3, type: 2}
+  outlineOffset: 0
+  stencilReference: 1
+  exclusionMode: 3
+  exclusionString: Ignore
+  exclusionTag: Untagged
 --- !u!1 &447649099
 GameObject:
   m_ObjectHideFlags: 0
@@ -1542,7 +1545,6 @@ GameObject:
   - component: {fileID: 682711937}
   - component: {fileID: 682711936}
   - component: {fileID: 682711935}
-  - component: {fileID: 682711938}
   m_Layer: 0
   m_Name: Cube (2)
   m_TagString: Untagged
@@ -1628,25 +1630,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 682711933}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &682711938
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 682711933}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90adb44e17279dc4db8f0fc595f1f52f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMaterial: {fileID: 2100000, guid: 64966245830e6fc4db39182643a585f5, type: 2}
-  outlineWidth: 0.01
-  autoAssignRenderQueue: 1
-  useStencilOutline: 1
-  stencilWriteMaterial: {fileID: 2100000, guid: e0b5a1d086d77324883f0647894d4ca3, type: 2}
-  outlineOffset: 0
-  stencilReference: 1
 --- !u!1 &690467226
 GameObject:
   m_ObjectHideFlags: 0
@@ -1961,7 +1944,7 @@ GameObject:
   - component: {fileID: 953093793}
   - component: {fileID: 953093792}
   m_Layer: 0
-  m_Name: Cube (7)
+  m_Name: Cube (7) Ignore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2207,6 +2190,9 @@ MonoBehaviour:
   stencilWriteMaterial: {fileID: 2100000, guid: 570a4daf09fdbdd469f0c733562acc53, type: 2}
   outlineOffset: 0
   stencilReference: 1
+  exclusionMode: 0
+  exclusionString: 
+  exclusionTag: Untagged
 --- !u!4 &1005175212
 Transform:
   m_ObjectHideFlags: 0
@@ -2326,6 +2312,9 @@ MonoBehaviour:
   stencilWriteMaterial: {fileID: 2100000, guid: e0b5a1d086d77324883f0647894d4ca3, type: 2}
   outlineOffset: 0
   stencilReference: 1
+  exclusionMode: 0
+  exclusionString: 
+  exclusionTag: Untagged
 --- !u!135 &1111783015
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2677,7 +2666,6 @@ GameObject:
   - component: {fileID: 1184618941}
   - component: {fileID: 1184618940}
   - component: {fileID: 1184618939}
-  - component: {fileID: 1184618942}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -2763,25 +2751,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1184618937}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1184618942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1184618937}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90adb44e17279dc4db8f0fc595f1f52f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMaterial: {fileID: 2100000, guid: 64966245830e6fc4db39182643a585f5, type: 2}
-  outlineWidth: 0.01
-  autoAssignRenderQueue: 1
-  useStencilOutline: 1
-  stencilWriteMaterial: {fileID: 2100000, guid: e0b5a1d086d77324883f0647894d4ca3, type: 2}
-  outlineOffset: 0
-  stencilReference: 1
 --- !u!1 &1291965184
 GameObject:
   m_ObjectHideFlags: 0
@@ -2846,6 +2815,9 @@ MonoBehaviour:
   stencilWriteMaterial: {fileID: 2100000, guid: 3340e1bb7d5382744b5139541ff71fd5, type: 2}
   outlineOffset: 0.02
   stencilReference: 1
+  exclusionMode: 0
+  exclusionString: 
+  exclusionTag: Untagged
 --- !u!95 &1375632144
 Animator:
   serializedVersion: 5
@@ -2942,7 +2914,7 @@ GameObject:
   - component: {fileID: 1484847402}
   - component: {fileID: 1484847401}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Cube Ignore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3039,7 +3011,7 @@ GameObject:
   - component: {fileID: 1485852425}
   - component: {fileID: 1485852424}
   m_Layer: 0
-  m_Name: Cube (6)
+  m_Name: Cube (6) Ignore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3342,7 +3314,6 @@ GameObject:
   - component: {fileID: 1724959208}
   - component: {fileID: 1724959207}
   - component: {fileID: 1724959206}
-  - component: {fileID: 1724959209}
   m_Layer: 0
   m_Name: Cube (3)
   m_TagString: Untagged
@@ -3428,25 +3399,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1724959204}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1724959209
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1724959204}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90adb44e17279dc4db8f0fc595f1f52f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMaterial: {fileID: 2100000, guid: 64966245830e6fc4db39182643a585f5, type: 2}
-  outlineWidth: 0.01
-  autoAssignRenderQueue: 1
-  useStencilOutline: 1
-  stencilWriteMaterial: {fileID: 2100000, guid: e0b5a1d086d77324883f0647894d4ca3, type: 2}
-  outlineOffset: 0
-  stencilReference: 1
 --- !u!1 &1739654134
 GameObject:
   m_ObjectHideFlags: 0
@@ -3819,7 +3771,6 @@ GameObject:
   - component: {fileID: 2094587600}
   - component: {fileID: 2094587599}
   - component: {fileID: 2094587598}
-  - component: {fileID: 2094587601}
   m_Layer: 0
   m_Name: Cube (4)
   m_TagString: Untagged
@@ -3905,25 +3856,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2094587596}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &2094587601
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2094587596}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90adb44e17279dc4db8f0fc595f1f52f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMaterial: {fileID: 2100000, guid: 64966245830e6fc4db39182643a585f5, type: 2}
-  outlineWidth: 0.01
-  autoAssignRenderQueue: 1
-  useStencilOutline: 1
-  stencilWriteMaterial: {fileID: 2100000, guid: e0b5a1d086d77324883f0647894d4ca3, type: 2}
-  outlineOffset: 0
-  stencilReference: 1
 --- !u!1 &2118705362
 GameObject:
   m_ObjectHideFlags: 0

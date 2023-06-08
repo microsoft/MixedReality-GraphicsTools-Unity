@@ -13,6 +13,9 @@ namespace Microsoft.MixedReality.GraphicsTools
     [DisallowMultipleComponent, AddComponentMenu("Scripts/GraphicsTools/MeshOutlineHierarchy")]
     public class MeshOutlineHierarchy : BaseMeshOutline
     {
+        /// <summary>
+        /// Defines how to exclude objects from the outline hierarchy.
+        /// </summary>
         public enum ExclusionMode
         {
             None,
@@ -21,7 +24,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             NameContains,
         }
 
-        [Tooltip("Whether and how to exclude child objects from the outline hierarchy.")]
+        [Tooltip("Whether and how to exclude objects from the outline hierarchy.")]
         [SerializeField, HideInInspector] private ExclusionMode exclusionMode = ExclusionMode.None;
         [SerializeField, HideInInspector] private string exclusionString = string.Empty;
         [SerializeField, HideInInspector] private string exclusionTag = "Untagged";
