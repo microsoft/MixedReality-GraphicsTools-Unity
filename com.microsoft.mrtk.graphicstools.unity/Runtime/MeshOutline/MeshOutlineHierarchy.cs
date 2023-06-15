@@ -24,12 +24,67 @@ namespace Microsoft.MixedReality.GraphicsTools
             NameContains,
         }
 
-        [Tooltip("Whether and how to exclude objects from the outline hierarchy.")]
-        [SerializeField, HideInInspector] private ExclusionMode exclusionMode = ExclusionMode.None;
-        [SerializeField, HideInInspector] private string exclusionString = string.Empty;
-        [SerializeField, HideInInspector] private string exclusionTag = "Untagged";
+        /// <summary>
+        /// Whether and how to exclude objects from the outline hierarchy.
+        /// </summary>
+        public ExclusionMode Exclusion
+        {
+            get { return exclusionMode; }
+            set
+            {
+                if (exclusionMode != value)
+                {
+                    exclusionMode = value;
+                    Refresh();
+                }
+            }
+        }
 
-        private List<MeshOutline> meshOutlines = null;
+        [Tooltip("Whether and how to exclude objects from the outline hierarchy.")]
+        [SerializeField, HideInInspector] 
+        private ExclusionMode exclusionMode = ExclusionMode.None;
+
+        /// <summary>
+        /// When exclusionMode is set to "NameStartsWith" or "NameContains" what string to match against.
+        /// </summary>
+        public string ExclusionString
+        {
+            get { return exclusionString; }
+            set
+            {
+                if (exclusionString != value)
+                {
+                    exclusionString = value;
+                    Refresh();
+                }
+            }
+        }
+
+        [Tooltip("When exclusionMode is set to \"NameStartsWith\" or \"NameContains\" what string to match against.")]
+        [SerializeField, HideInInspector] 
+        private string exclusionString = string.Empty;
+
+        /// <summary>
+        /// When exclusionMode is set to "NameStartsWith" or "NameContains" what string to match against.
+        /// </summary>
+        public string ExclusionTag
+        {
+            get { return exclusionTag; }
+            set
+            {
+                if (exclusionTag != value)
+                {
+                    exclusionTag = value;
+                    Refresh();
+                }
+            }
+        }
+
+        [Tooltip("When exclusionMode is set to \"Tag\" what tag to compare against.")]
+        [SerializeField, HideInInspector] 
+        private string exclusionTag = "Untagged";
+
+        private List<MeshOutline> meshOutlines = new List<MeshOutline>();
 
         #region MonoBehaviour Implementation
 
@@ -38,21 +93,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Awake()
         {
-            meshOutlines = new List<MeshOutline>();
-
-            var meshRenderers = GetComponentsInChildren<MeshRenderer>();
-
-            for (int i = 0; i < meshRenderers.Length; ++i)
-            {
-                AddMeshOutline(meshRenderers[i]);
-            }
-
-            var skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
-
-            for (int i = 0; i < skinnedMeshRenderers.Length; ++i)
-            {
-                AddMeshOutline(skinnedMeshRenderers[i]);
-            }
+            Create();
         }
 
         /// <summary>
@@ -88,10 +129,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnDestroy()
         {
-            foreach (var meshOutline in meshOutlines)
-            {
-                Destroy(meshOutline);
-            }
+            Clear();
         }
 
         #endregion MonoBehaviour Implementation
@@ -123,6 +161,48 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         #endregion BaseMeshOutline Implementation
+
+        /// <summary>
+        /// Removes and re-adds all <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/> this component has created.
+        /// </summary>
+        public void Refresh()
+        {
+            Clear();
+            Create();
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Microsoft.MixedReality.GraphicsTools.MeshOutline"/> component on each child MeshRenderer/SkinnedMeshRenderer.
+        /// </summary>
+        private void Create()
+        {
+            var meshRenderers = GetComponentsInChildren<MeshRenderer>();
+
+            for (int i = 0; i < meshRenderers.Length; ++i)
+            {
+                AddMeshOutline(meshRenderers[i]);
+            }
+
+            var skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+
+            for (int i = 0; i < skinnedMeshRenderers.Length; ++i)
+            {
+                AddMeshOutline(skinnedMeshRenderers[i]);
+            }
+        }
+
+        /// <summary>
+        /// Removes any components this component has created.
+        /// </summary>
+        private void Clear()
+        {
+            foreach (var meshOutline in meshOutlines)
+            {
+                Destroy(meshOutline);
+            }
+
+            meshOutlines.Clear();
+        }
 
         private void AddMeshOutline(Renderer target)
         {
@@ -158,14 +238,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void ApplyToChildren()
         {
-            if (meshOutlines != null)
+            foreach (var meshOutline in meshOutlines)
             {
-                foreach (var meshOutline in meshOutlines)
+                if (meshOutline != null)
                 {
-                    if (meshOutline != null)
-                    {
-                        meshOutline.CopyFrom(this);
-                    }
+                    meshOutline.CopyFrom(this);
                 }
             }
         }

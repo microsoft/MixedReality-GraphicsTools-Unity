@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using UnityEditor;
+using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
@@ -11,6 +12,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     [CustomEditor(typeof(MeshOutlineHierarchy), true), CanEditMultipleObjects]
     public class MeshOutlineHierarchyInspector : BaseMeshOutlineInspector
     {
+        private MeshOutlineHierarchy instance;
         private SerializedProperty exclusionMode;
         private SerializedProperty exclusionString;
         private SerializedProperty exclusionTag;
@@ -18,6 +20,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         protected override void OnEnable()
         {
             base.OnEnable();
+            instance = target as MeshOutlineHierarchy;
             exclusionMode = serializedObject.FindProperty(nameof(exclusionMode));
             exclusionString = serializedObject.FindProperty(nameof(exclusionString));
             exclusionTag = serializedObject.FindProperty(nameof(exclusionTag));
@@ -51,6 +54,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
+
+                if (Application.isPlaying && instance != null)
+                {
+                    instance.Refresh();
+                }
             }
         }
     }
