@@ -92,7 +92,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             { "_StencilOperation", new MaterialValue((float)UnityEngine.Rendering.StencilOp.Replace, true) },
         };
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             instance = target as BaseMeshOutline;
             m_Script = serializedObject.FindProperty("m_Script");

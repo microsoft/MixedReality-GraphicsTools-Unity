@@ -174,6 +174,38 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return Directory.Exists(path) && !IsDirectoryEmpty(path);
         }
 
+        /// <summary>
+        /// Generates a material for Graphics Tools Standard shader..
+        /// </summary>
+        [MenuItem("Assets/Create/Graphics Tools/Material", false, 1)]
+        public static void CreateGraphicsToolsMaterial()
+        {
+            var directory = AssetDatabase.GetAssetPath(Selection.activeObject);
+            Material material = new Material(StandardShaderUtility.GraphicsToolsStandardShader);
+
+            if (string.IsNullOrEmpty(directory))
+            {
+                directory = "Assets";
+            }
+
+            var extension = Path.GetExtension(directory);
+
+            if (!string.IsNullOrEmpty(extension))
+            {
+                var filename = Path.GetFileName(directory);
+                var startIndex = directory.LastIndexOf(filename) - 1;
+                var count = filename.Length + 1;
+                directory = directory.Remove(startIndex, count);
+            }
+
+            var path = directory + "/" + "NewGraphicsToolsMaterial.mat";
+            var uniquePath = AssetDatabase.GenerateUniqueAssetPath(path);
+            AssetDatabase.CreateAsset(material, uniquePath);
+            AssetDatabase.SaveAssets();
+            Selection.activeObject = material;
+        }
+
+
         // Only show these menu items in the URP since built-in and HDRP have their own mipmap debug visualizers. 
 #if GT_USE_URP
         /// <summary>
@@ -276,3 +308,4 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
     }
 }
+
