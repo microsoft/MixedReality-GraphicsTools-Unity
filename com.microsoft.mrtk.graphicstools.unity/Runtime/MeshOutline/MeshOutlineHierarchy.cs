@@ -129,7 +129,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnDestroy()
         {
-            Clear();
+            // Don't use DestroyImmediate on the same object in OnDisable or OnDestroy.
+            Clear(false);
         }
 
         #endregion MonoBehaviour Implementation
@@ -167,7 +168,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public void Refresh()
         {
-            Clear();
+            Clear(true);
             Create();
         }
 
@@ -194,11 +195,18 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Removes any components this component has created.
         /// </summary>
-        private void Clear()
+        private void Clear(bool destroyImmediately)
         {
-            foreach (var meshOutline in meshOutlines)
+            for (int i = 0; i < meshOutlines.Count; ++i)
             {
-                Destroy(meshOutline);
+                if (destroyImmediately)
+                {
+                    DestroyImmediate(meshOutlines[i]);
+                }
+                else
+                {
+                    Destroy(meshOutlines[i]);
+                }
             }
 
             meshOutlines.Clear();
