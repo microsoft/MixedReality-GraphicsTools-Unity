@@ -3,6 +3,10 @@
 
 using UnityEngine;
 
+#if GT_USE_XRI
+using UnityEngine.XR.Interaction.Toolkit;
+#endif
+
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
@@ -39,6 +43,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         protected virtual void OnEnable()
         {
             AddLight();
+            Application.onBeforeRender += UpdateLightsCallback;
         }
 
         /// <summary>
@@ -46,6 +51,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         protected virtual void OnDisable()
         {
+            Application.onBeforeRender -= UpdateLightsCallback;
             RemoveLight();
             UpdateLights(true);
         }
@@ -66,10 +72,16 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 #endif // UNITY_EDITOR
 
+        // Retained for breaking change purposes
+        protected virtual void LateUpdate() { }
+
         /// <summary>
-        /// Lights are updated from late updated to ensure other behaviors have had a chance to move the lights.
+        /// Lights are updated in Application.onBeforeRender to ensure other behaviors have had a chance to move the lights.
         /// </summary>
-        protected virtual void LateUpdate()
+#if GT_USE_XRI
+        [BeforeRenderOrder(XRInteractionUpdateOrder.k_BeforeRenderLineVisual)]
+#endif
+        protected virtual void UpdateLightsCallback()
         {
             UpdateLights();
         }
