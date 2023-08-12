@@ -7,6 +7,9 @@ using UnityEngine.Rendering.Universal;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
+    /// <summary>
+    /// Does the buffer come from the camera or custom type.
+    /// </summary>
     public enum BufferType
     {
         CameraColor,
@@ -15,14 +18,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 
     /// <summary>
     /// Forked from: https://github.com/Unity-Technologies/UniversalRenderingExamples/tree/master/Assets/Scripts/Runtime/RenderPasses
-    /// Performs fullscreen blit via a custom Render Pass
+    /// Performs a fullscreen blit via a custom render feature.
     /// </summary>
     public class DrawFullscreenFeature : ScriptableRendererFeature
     {
-        [System.Serializable]
         /// <summary>
-        /// Class <c>Settings</c> outlines controls for the Render Feature
+        /// Render feature configuration settings.
         /// </summary>
+        [System.Serializable]
         public class Settings
         {
             public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
@@ -33,45 +36,34 @@ namespace Microsoft.MixedReality.GraphicsTools
             public BufferType DestinationType = BufferType.CameraColor;
             public string SourceTextureId = "_SourceTexture";
             public string DestinationTextureId = "_DestinationTexture";
+            public FilterMode FilterMode = FilterMode.Point;
             public bool RestoreCameraColorTarget = true;
         }
 
         /// <summary>
-        /// Defines a new Settings class
+        /// Render feature configuration settings.
         /// </summary>
         public Settings settings = new Settings();
+
         private DrawFullscreenPass blitPass;
 
-        /// <summary>
-        /// Method <c>Create</c> creates the render pass.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Create()
         {
             blitPass = new DrawFullscreenPass(name);
-            blitPass.FilterMode = FilterMode.Bilinear;
         }
 
-        /// <summary>
-        /// Method <c>AddRenderPasses</c> calls the custom render pass.
-        /// </summary>
+        /// <inheritdoc/>
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             if (settings.BlitMaterial == null)
             {
-                Debug.LogWarningFormat("Missing Blit Material. {0} blit pass will not execute. Check for missing reference in the assigned renderer.", GetType().Name);
+                Debug.LogWarningFormat($"{nameof(DrawFullscreenFeature)} is missing a blit material and will not be queued.");
                 return;
             }
 
             blitPass.renderPassEvent = settings.renderPassEvent;
             blitPass.Settings = settings;
-
-            // Previously, URP would force rendering to go through an intermediate renderer if the Renderer had any Renderer Features active. On some platforms, this has
-            // significant performance implications. Due to that, Renderer Features are now expected to declare their inputs using ScriptableRenderPass.ConfigureInput.
-            // This information is used to decide automatically whether rendering via an intermediate texture is necessary.
-            if (settings.SourceType == BufferType.CameraColor)
-            {
-                blitPass.ConfigureInput(ScriptableRenderPassInput.Color);
-            }
 
             renderer.EnqueuePass(blitPass);
         }

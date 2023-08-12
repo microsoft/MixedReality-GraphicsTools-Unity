@@ -104,6 +104,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif
         private LayerMask previousOpaqueLayerMask;
         private LayerMask previousTransparentLayerMask;
+        private IntermediateTextureMode previousIntermediateTextureMode;
 
         private void Reset()
         {
@@ -121,7 +122,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (rendererData != null)
                 {
+                    // Previously, URP would force rendering to go through an intermediate renderer if the Renderer had any Renderer Features active. On some platforms, this has
+                    // significant performance implications so we only want to enable this when we need it (which we do for magnification).
+                    previousIntermediateTextureMode = rendererData.intermediateTextureMode;
+                    rendererData.intermediateTextureMode = IntermediateTextureMode.Always;
+
                     CreateRendererFeatures();
+
                     initialized = true;
                 }
 
@@ -151,6 +158,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                     rendererData.opaqueLayerMask = previousOpaqueLayerMask;
                     rendererData.transparentLayerMask = previousTransparentLayerMask;
                 }
+
+                // Reset the intermediate texture mode.
+                rendererData.intermediateTextureMode = previousIntermediateTextureMode;
 
                 rendererData.SetDirty();
 
