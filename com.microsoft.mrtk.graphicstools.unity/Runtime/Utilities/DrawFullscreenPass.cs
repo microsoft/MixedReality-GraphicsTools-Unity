@@ -15,12 +15,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     class DrawFullscreenPass : ScriptableRenderPass
     { 
         ///<summary>
-        ///Declares a filtering mode enum for  the source and destination render textures during blit
-        ///</summary>
-        public FilterMode FilterMode { get; set; }
-
-        ///<summary>
-        ///A set of outlined controls for performing a fullscreen blit via this render pass
+        /// Pass configuration settings.
         ///</summary>
         public DrawFullscreenFeature.Settings Settings;
 
@@ -35,16 +30,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         private string profilerTag;
 
         ///<summary>
-        /// Assigns tag to the CMD buffer for this render pass
+        /// Constructor.
         ///</summary>
         public DrawFullscreenPass(string tag)
         {
             profilerTag = tag;
         }
 
-        ///<summary>
-        /// Extracts the camera's view as a render texture in order for it to be assigned to the material of the fullscreen mesh
-        ///</summary>
+        /// <inheritdoc/>
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             RenderTextureDescriptor blitTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
@@ -63,14 +56,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             else
             {
                 sourceId = Shader.PropertyToID(Settings.SourceTextureId);
-                cmd.GetTemporaryRT(sourceId, blitTargetDescriptor, FilterMode);
+                cmd.GetTemporaryRT(sourceId, blitTargetDescriptor, Settings.FilterMode);
                 source = new RenderTargetIdentifier(sourceId);
             }
 
             if (isSourceAndDestinationSameTarget)
             {
                 destinationId = temporaryRTId;
-                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, FilterMode);
+                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, Settings.FilterMode);
                 destination = new RenderTargetIdentifier(destinationId);
             }
             else if (Settings.DestinationType == BufferType.CameraColor)
@@ -81,7 +74,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             else
             {
                 destinationId = Shader.PropertyToID(Settings.DestinationTextureId);
-                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, FilterMode);
+                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, Settings.FilterMode);
                 destination = new RenderTargetIdentifier(destinationId);
             }
 
@@ -93,17 +86,17 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
 
-            bool isXR = renderingData.cameraData.xrRendering;
+            bool useDrawProceduleBlit = renderingData.cameraData.xrRendering;
 
             // Can't read and write to same color target, create a temp render target to blit.
             if (isSourceAndDestinationSameTarget)
             {
-                Blit(cmd, source, destination, Settings.BlitMaterial, Settings.BlitMaterialPassIndex, isXR);
-                Blit(cmd, destination, source, Settings.BlitMaterial, 0, isXR);
+                Blit(cmd, source, destination, Settings.BlitMaterial, Settings.BlitMaterialPassIndex, useDrawProceduleBlit);
+                Blit(cmd, destination, source, Settings.BlitMaterial, 0, useDrawProceduleBlit);
             }
             else
             {
-                Blit(cmd, source, destination, Settings.BlitMaterial, Settings.BlitMaterialPassIndex, isXR);
+                Blit(cmd, source, destination, Settings.BlitMaterial, Settings.BlitMaterialPassIndex, useDrawProceduleBlit);
             }
 
             if (Settings.RestoreCameraColorTarget)
@@ -125,22 +118,42 @@ namespace Microsoft.MixedReality.GraphicsTools
                 cmd.ReleaseTemporaryRT(sourceId);
         }
 
-        // URP Blit() doesn't currently work with multiview.
-        private void Blit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material material, int pass, bool isXR)
+        private struct ShaderPropertyId
         {
-            if (isXR)
+            public static readonly int sourceTex = Shader.PropertyToID("_SourceTex");
+            public static readonly int scaleBias = Shader.PropertyToID("_ScaleBias");
+            public static readonly int scaleBiasRt = Shader.PropertyToID("_ScaleBiasRt");
+        }
+
+        /// <summary>
+        /// Fork of the internal UnityEngine.Rendering.Universal.RenderingUtils.Blit method.
+        /// </summary>
+        private static void Blit(CommandBuffer cmd,
+                         RenderTargetIdentifier source,
+                         RenderTargetIdentifier destination,
+                         Material material,
+                         int passIndex = 0,
+                         bool useDrawProcedural = false,
+                         RenderBufferLoadAction colorLoadAction = RenderBufferLoadAction.Load,
+                         RenderBufferStoreAction colorStoreAction = RenderBufferStoreAction.Store,
+                         RenderBufferLoadAction depthLoadAction = RenderBufferLoadAction.Load,
+                         RenderBufferStoreAction depthStoreAction = RenderBufferStoreAction.Store)
+        {
+            cmd.SetGlobalTexture(ShaderPropertyId.sourceTex, source);
+            if (useDrawProcedural)
             {
                 Vector4 scaleBias = new Vector4(1, 1, 0, 0);
                 Vector4 scaleBiasRt = new Vector4(1, 1, 0, 0);
-                cmd.SetGlobalVector("_ScaleBias", scaleBias);
-                cmd.SetGlobalVector("_ScaleBiasRt", scaleBiasRt);
-                cmd.SetRenderTarget(target);
-                cmd.DrawProcedural(Matrix4x4.identity, material, pass, MeshTopology.Quads, 4, 1, null);
+                cmd.SetGlobalVector(ShaderPropertyId.scaleBias, scaleBias);
+                cmd.SetGlobalVector(ShaderPropertyId.scaleBiasRt, scaleBiasRt);
+                cmd.SetRenderTarget(new RenderTargetIdentifier(destination, 0, CubemapFace.Unknown, -1),
+                    colorLoadAction, colorStoreAction, depthLoadAction, depthStoreAction);
+                cmd.DrawProcedural(Matrix4x4.identity, material, passIndex, MeshTopology.Quads, 4, 1, null);
             }
             else
             {
-                cmd.SetRenderTarget(target);
-                cmd.Blit(source, BuiltinRenderTextureType.CurrentActive, material, pass);
+                cmd.SetRenderTarget(destination, colorLoadAction, colorStoreAction, depthLoadAction, depthStoreAction);
+                cmd.Blit(source, BuiltinRenderTextureType.CurrentActive, material, passIndex);
             }
         }
     }
