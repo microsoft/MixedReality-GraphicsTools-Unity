@@ -3,10 +3,8 @@
 
 #if GT_USE_URP
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
-using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace Microsoft.MixedReality.GraphicsTools
@@ -118,7 +116,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (!initialized)
             {
-                InitializeRendererData();
+                rendererData = URPUtility.GetRendererData(rendererIndex);
 
                 if (rendererData != null)
                 {
@@ -171,25 +169,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         public void ApplyMagnification()
         {
             Shader.SetGlobalFloat(MagnificationPropertyName, 1.0f - Magnification);
-        }
-
-        private void InitializeRendererData()
-        {
-            var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
-
-            if (pipeline == null)
-            {
-                Debug.LogWarning("Universal Render Pipeline not found");
-            }
-            else
-            {
-                FieldInfo propertyInfo = pipeline.GetType().GetField("m_RendererDataList", BindingFlags.Instance | BindingFlags.NonPublic);
-#if UNITY_2021_2_OR_NEWER
-                rendererData = ((ScriptableRendererData[])propertyInfo?.GetValue(pipeline))?[rendererIndex] as UniversalRendererData;
-#else
-                rendererData = ((ScriptableRendererData[])propertyInfo?.GetValue(pipeline))?[rendererIndex] as ForwardRendererData;
-#endif
-            }
         }
 
         private void CreateRendererFeatures()
