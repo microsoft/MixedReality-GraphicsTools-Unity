@@ -183,7 +183,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (inLensMode && Camera.main != null)
             {
-                Vector3 wldpos = Camera.main.ScreenToViewportPoint(Input.mousePosition);
+                Vector3 viewportPosition = Camera.main.ScreenToViewportPoint(Input.mousePosition);
                 Vector4 Mousewldpos = new Vector4(wldpos.x, wldpos.y, 0, 0);
                 Shader.SetGlobalVector("_MousePos", Mousewldpos);
             }
