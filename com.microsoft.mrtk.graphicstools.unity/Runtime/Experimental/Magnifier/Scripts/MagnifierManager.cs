@@ -3,10 +3,8 @@
 
 #if GT_USE_URP
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
-using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace Microsoft.MixedReality.GraphicsTools
@@ -135,7 +133,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (!initialized)
             {
-                InitializeRendererData();
+                rendererData = URPUtility.GetRendererData(rendererIndex);
 
                 if (rendererData != null)
                 {
