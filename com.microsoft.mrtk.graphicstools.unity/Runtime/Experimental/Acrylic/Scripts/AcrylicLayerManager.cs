@@ -4,7 +4,6 @@
 #if GT_USE_URP
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -14,16 +13,15 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// <summary>
     /// Manages creating and updating blurred background maps for use with the acrylic material.
     /// </summary>
-    [ExecuteInEditMode]
     public class AcrylicLayerManager : MonoBehaviour
     {
-     
         private static AcrylicLayerManager instance;
 
         public static AcrylicLayerManager Instance
         {
             get { return instance; }
         }
+
         [Experimental]
         [Tooltip("Whether this platforms supports creating a blurred acrylic map")]
         [SerializeField]
@@ -155,18 +153,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             private set { layers = value; }
         }
 
-        [Header("Editor Only")]
-
-#pragma warning disable 414
-        [Tooltip("Enable all acrylic layers on start.")]
-        [SerializeField]
-        private bool enableLayersOnStart = false;
-
-        [Tooltip("When the capture framebuffer method is used, keep layers on after playing in editor.")]
-        [SerializeField]
-        private bool retainInEditor = false;
-#pragma warning restore 414
-
 #region private properties
 
         private List<AcrylicLayer> layerData = new List<AcrylicLayer>();
@@ -180,24 +166,24 @@ namespace Microsoft.MixedReality.GraphicsTools
         private const string namePrefix = "AcrylicBlur";
         private bool ExecuteBeforeRenderAdded = false;
         private Coroutine updateRoutine = null;
+        private IntermediateTextureMode previousIntermediateTextureMode;
 
-#endregion
+        #endregion
 
-#region Monobehavior methods
+        #region Monobehavior methods
 
         private void OnDestroy()
         {
+            // Reset the intermediate texture mode.
+            if (rendererData != null)
+            {
+                rendererData.intermediateTextureMode = previousIntermediateTextureMode;
+            }
+
             switch (captureMethod)
             {
                 case AcrylicMethod.CopyFramebuffer:
                     RemoveAllLayers();
-#if UNITY_EDITOR
-                    if (retainInEditor)
-                    {
-                        AddLayersAsPersistent();
-                        return;
-                    }
-#endif
                     break;
 
                 case AcrylicMethod.RenderToTexture:
@@ -237,12 +223,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (AcrylicSupported)
             {
                 Initialize();
-#if UNITY_EDITOR
-                if (enableLayersOnStart)
-                {
-                    AddAllLayers();
-                }
-#endif
             }
         }
 
@@ -295,7 +275,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             return (i >= 0 && i < layerData.Count && layerData[i].activeCount > 0 && rendererData != null);
         }
 
-
         public bool AcrylicActive
         {
             get
@@ -336,12 +315,20 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (!initialized && AcrylicSupported)
             {
                 initialized = true;
-                InitializeRendererData();
+                rendererData = URPUtility.GetRendererData(rendererIndex);
+
                 if (rendererData != null)
                 {
                     RemoveExistingAcrylicPasses();
+
+                    // Previously, URP would force rendering to go through an intermediate renderer if the Renderer had any Renderer Features active. On some platforms, this has
+                    // significant performance implications so we only want to enable this when we need it (which we do for magnification).
+                    previousIntermediateTextureMode = rendererData.intermediateTextureMode;
+                    rendererData.intermediateTextureMode = IntermediateTextureMode.Always;
                 }
+
                 CreateLayers();
+
                 if (captureMethod == AcrylicMethod.RenderToTexture)
                 {
                     ExecuteBeforeRenderAdded = true;
@@ -385,16 +372,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private AcrylicLayer CreateLayer(AcrylicLayer.Settings settings, int index)
         {
-            AcrylicLayer layer = new AcrylicLayer(targetCamera, settings, index, _24BitDepthBuffer ? 24 : 16, filterMethod==BlurMethod.Dual, kawaseFilterMaterial, dualFilterMaterial);
+            AcrylicLayer layer = new AcrylicLayer(targetCamera, settings, index, _24BitDepthBuffer ? 24 : 16, filterMethod == BlurMethod.Dual, kawaseFilterMaterial, dualFilterMaterial);
             if (captureMethod == AcrylicMethod.CopyFramebuffer)
             {
                 layer.CreateRendererFeatures();
-#if UNITY_EDITOR
-                if (retainInEditor)
-                {
-                    layer.MakeFeaturesPersistent(rendererData);
-                }
-#endif
             }
             return layer;
         }
@@ -406,27 +387,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 AddActiveLayers();
         }
 
-        private void InitializeRendererData()
-        {
-            var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
-            if (pipeline == null)
-            {
-                Debug.LogWarning("Universal Render Pipeline not found.  Acrylic material maps will not be available.");
-            } 
-            else 
-            {
-                FieldInfo propertyInfo = pipeline.GetType().GetField("m_RendererDataList", BindingFlags.Instance | BindingFlags.NonPublic);
-#if UNITY_2021_2_OR_NEWER
-                rendererData = ((ScriptableRendererData[])propertyInfo?.GetValue(pipeline))?[rendererIndex] as UniversalRendererData;
-#else
-                rendererData = ((ScriptableRendererData[])propertyInfo?.GetValue(pipeline))?[rendererIndex] as ForwardRendererData;
-#endif
-            }
-        }
-
         private void RemoveExistingAcrylicPasses()
         {
-            List<UnityEngine.Rendering.Universal.ScriptableRendererFeature> passes = rendererData.rendererFeatures;
+            List<ScriptableRendererFeature> passes = rendererData.rendererFeatures;
             for (int i = passes.Count - 1; i >= 0; i--)
             {
                 if (passes[i].name.Contains("Acrylic"))
@@ -437,15 +400,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                     rendererData.rendererFeatures.Remove(passes[i]);
                 }
             }
-        }
-
-        private bool AnyLayersActive()
-        {
-            for (int i = 0; i < layerData.Count; i++)
-            {
-                if (layerData[i].activeCount > 0) return true;
-            }
-            return false;
         }
 
         private bool AnyLayersNeedUpdating()
@@ -503,7 +457,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private IEnumerator UpdateRoutine()
         {
-            //while (AnyLayersActive())
             while (AnyLayersNeedUpdating())
             {
                 bool updateActiveFeatures = false;
@@ -561,16 +514,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             for (int i = 0; i < layerData.Count; i++)
             {
                 layerData[i].RemoveLayerRendererFeatures(rendererData);
-            }
-        }
-
-        private void AddLayersAsPersistent()
-        {
-            if (captureMethod != AcrylicMethod.CopyFramebuffer) return;
-
-            for (int i = 0; i < layerData.Count; i++)
-            {
-                layerData[i].AddLayerRendererFeatures(rendererData, true);
             }
         }
 #endregion
