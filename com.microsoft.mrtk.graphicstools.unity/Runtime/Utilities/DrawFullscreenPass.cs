@@ -51,7 +51,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (Settings.SourceType == BufferType.CameraColor)
             {
                 sourceId = -1;
-                source = renderer.cameraColorTarget;
+                source = renderer.cameraColorTargetHandle;
             }
             else
             {
@@ -69,7 +69,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             else if (Settings.DestinationType == BufferType.CameraColor)
             {
                 destinationId = -1;
-                destination = renderer.cameraColorTarget;
+                destination = renderer.cameraColorTargetHandle;
             }
             else
             {
@@ -78,7 +78,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 destination = new RenderTargetIdentifier(destinationId);
             }
 
-            cameraColorTarget = renderer.cameraColorTarget;
+            cameraColorTarget = renderer.cameraColorTargetHandle;
         }
 
         /// <inheritdoc/>

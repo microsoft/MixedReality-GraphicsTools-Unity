@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
+///  TODO - [Cameron-Micka] remove obsolete API.
+#pragma warning disable 0618
+
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
