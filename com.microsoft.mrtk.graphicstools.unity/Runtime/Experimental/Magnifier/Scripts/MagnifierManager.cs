@@ -19,8 +19,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("Scaler of the magnification.")]
         [SerializeField, Range(0.0f, 1.0f)]
         private float magnification = 0.7f;
-        [SerializeField]
-        private Vector2 mousepos;
+
         // Scaler of the magnification.
         public float Magnification
         {
@@ -56,7 +55,17 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         [Tooltip("Is the magnifier in lens mode? i.e is moving based on the position of the mouse cursor")]
         [SerializeField]
-        public bool inLensMode = false;
+        private bool inLensMode = false;
+
+        public bool InLensMode
+        {
+            get => inLensMode;
+            set
+            {
+                inLensMode = value;
+                GetMousePos();
+            }
+        }
 
         [Tooltip("The name of the render feature to add the Draw Fullscreen Feature after (or before) to enforce custom sorting. Adds to the end of the render feature list when empty.")]
         public string targetDrawFullscreenFeatureName = string.Empty;
@@ -84,6 +93,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         [Tooltip("When a Target Draw Objects Feature Name is specified, should it be added before or after the feature in the list?")]
         public AddMode targetDrawObjectsFeatureAddMode = AddMode.After;
+
+        [Tooltip("Tracked mouse position shader property")]
+        private static readonly int mousePosID = Shader.PropertyToID("MagnifierCenter");
 
         [SerializeField]
         private RenderObjects.RenderObjectsSettings renderObjectsSettings = new RenderObjects.RenderObjectsSettings()
@@ -178,19 +190,29 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             Shader.SetGlobalFloat(MagnificationPropertyName, 1.0f - Magnification);
         }
+
         public void GetMousePos()
         {
-            if (inLensMode)
+            if (inLensMode&&Camera.main != null)
             {
-                Vector3 wldpos = Camera.main.ScreenToViewportPoint(Input.mousePosition);
-                Vector4 Mousewldpos = new Vector4(wldpos.x, wldpos.y, 0, 0);
-                Shader.SetGlobalVector("_MousePos", Mousewldpos);
+                Vector3 cursorPosition;
+#if USE_INPUT_SYSTEM
+            Vector2 position2D = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+            cursorPosition = new Vector3(position2D.x, position2D.y, 0.0f);
+#else
+                cursorPosition = Input.mousePosition;
+#endif // USE_INPUT_SYSTEM
+
+                Vector3 viewportPostion = Camera.main.ScreenToViewportPoint(cursorPosition);
+                Vector4 viewportPostion4 = new Vector4(viewportPostion.x, viewportPostion.y, 0, 0);
+                Shader.SetGlobalVector(mousePosID, viewportPostion4);
             }
             else
             {
-                Shader.SetGlobalVector("_MousePos", new Vector4(0.5f,0.5f,0,0));
+                Shader.SetGlobalVector(mousePosID, new Vector4(0.5f,0.5f,0,0));
             }   
         }
+
         private void Update()
         {
             if(inLensMode)
@@ -199,6 +221,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
            
         }
+
         private void InitializeRendererData()
         {
             var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
