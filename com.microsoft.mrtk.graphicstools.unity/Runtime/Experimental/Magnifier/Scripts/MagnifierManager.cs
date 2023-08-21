@@ -178,6 +178,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             Shader.SetGlobalFloat(MagnificationPropertyName, 1.0f - Magnification);
         }
+
         public void GetMousePos()
         {
             if (inLensMode)
