@@ -191,6 +191,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Shader.SetGlobalVector("_MousePos", new Vector4(0.5f,0.5f,0,0));
             }   
         }
+
         private void Update()
         {
             if(inLensMode)
