@@ -19,7 +19,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("Scaler of the magnification.")]
         [SerializeField, Range(0.0f, 1.0f)]
         private float magnification = 0.7f;
-
+        [SerializeField]
+        private Vector2 mousepos;
         // Scaler of the magnification.
         public float Magnification
         {
@@ -52,6 +53,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("Should a DrawFullscreenFeature feature be automatically added?")]
         [SerializeField]
         private bool AutoAddDrawFullscreenFeature = true;
+
+        [Tooltip("Is the magnifier in lens mode? i.e is moving based on the position of the mouse cursor")]
+        [SerializeField]
+        public bool inLensMode = false;
 
         [Tooltip("The name of the render feature to add the Draw Fullscreen Feature after (or before) to enforce custom sorting. Adds to the end of the render feature list when empty.")]
         public string targetDrawFullscreenFeatureName = string.Empty;
@@ -133,6 +138,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 ApplyMagnification();
+                GetMousePos();
             }
         }
 
@@ -172,7 +178,27 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             Shader.SetGlobalFloat(MagnificationPropertyName, 1.0f - Magnification);
         }
-
+        public void GetMousePos()
+        {
+            if (inLensMode)
+            {
+                Vector3 wldpos = Camera.main.ScreenToViewportPoint(Input.mousePosition);
+                Vector4 Mousewldpos = new Vector4(wldpos.x, wldpos.y, 0, 0);
+                Shader.SetGlobalVector("_MousePos", Mousewldpos);
+            }
+            else
+            {
+                Shader.SetGlobalVector("_MousePos", new Vector4(0.5f,0.5f,0,0));
+            }   
+        }
+        private void Update()
+        {
+            if(inLensMode)
+            {
+              GetMousePos();
+            }
+           
+        }
         private void InitializeRendererData()
         {
             var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);

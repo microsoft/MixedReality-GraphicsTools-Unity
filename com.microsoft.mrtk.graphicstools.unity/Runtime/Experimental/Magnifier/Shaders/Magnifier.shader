@@ -6,6 +6,7 @@ Shader "Graphics Tools/Magnifier"
     Properties
     { 
         [ShowAsVector2]  Center("Center", Vector) = (0.5,0.5,0,0)
+         
     }
     SubShader
     {
@@ -48,6 +49,7 @@ Shader "Graphics Tools/Magnifier"
             
             half MagnifierMagnification;
             float2 Center;
+            float4 _MousePos;
            
             TEXTURE2D_X(MagnifierTexture);
             SAMPLER(samplerMagnifierTexture);
@@ -71,11 +73,13 @@ Shader "Graphics Tools/Magnifier"
             half4 frag(v2f i) : SV_Target
             {               
                 float2 normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(i.vertex);
-
-                float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);              
-
+    
+                float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);    
+   
+                Center = _MousePos;
+    
                 float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, MagnifierMagnification, Center);
-               
+    
                 float4 output = SAMPLE_TEXTURE2D_X(MagnifierTexture, samplerMagnifierTexture, zoomedUv);
                                 
                 return output;
