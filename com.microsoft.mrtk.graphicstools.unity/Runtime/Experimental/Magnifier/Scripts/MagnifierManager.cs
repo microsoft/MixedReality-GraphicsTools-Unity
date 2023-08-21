@@ -193,7 +193,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public void GetMousePos()
         {
-            if (inLensMode&&Camera.main != null)
+            if (inLensMode && Camera.main != null)
             {
                 Vector3 cursorPosition;
 #if USE_INPUT_SYSTEM
@@ -219,9 +219,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
               GetMousePos();
             }
-           
         }
-
+        
         private void InitializeRendererData()
         {
             var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
