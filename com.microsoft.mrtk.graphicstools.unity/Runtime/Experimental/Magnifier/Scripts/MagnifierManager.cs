@@ -181,7 +181,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public void GetMousePos()
         {
-            if (inLensMode)
+            if (inLensMode && Camera.main != null)
             {
                 Vector3 wldpos = Camera.main.ScreenToViewportPoint(Input.mousePosition);
                 Vector4 Mousewldpos = new Vector4(wldpos.x, wldpos.y, 0, 0);
