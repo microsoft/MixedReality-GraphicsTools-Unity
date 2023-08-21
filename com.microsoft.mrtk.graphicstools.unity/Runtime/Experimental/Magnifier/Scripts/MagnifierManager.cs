@@ -197,7 +197,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
               GetMousePos();
             }
-           
         }
         private void InitializeRendererData()
         {
