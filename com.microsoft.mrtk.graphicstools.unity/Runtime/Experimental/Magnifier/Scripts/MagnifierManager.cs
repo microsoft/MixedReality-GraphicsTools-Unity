@@ -198,6 +198,7 @@ namespace Microsoft.MixedReality.GraphicsTools
               GetMousePos();
             }
         }
+        
         private void InitializeRendererData()
         {
             var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
