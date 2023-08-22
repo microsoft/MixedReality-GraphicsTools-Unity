@@ -61,7 +61,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             set
             {
                 inLensMode = value;
-                GetMousePos();
+                ApplyMagnifierCenter();
             }
         }
 
@@ -92,8 +92,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("When a Target Draw Objects Feature Name is specified, should it be added before or after the feature in the list?")]
         public AddMode targetDrawObjectsFeatureAddMode = AddMode.After;
 
-        [Tooltip("Tracked mouse position shader property")]
-        private static readonly int mousePosID = Shader.PropertyToID("MagnifierCenter");
+        private static readonly int magnifierCenterID = Shader.PropertyToID("MagnifierCenter");
 
         [SerializeField]
         private RenderObjects.RenderObjectsSettings renderObjectsSettings = new RenderObjects.RenderObjectsSettings()
@@ -148,7 +147,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 ApplyMagnification();
-                GetMousePos();
+                ApplyMagnifierCenter();
             }
         }
 
@@ -189,7 +188,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             Shader.SetGlobalFloat(MagnificationPropertyName, 1.0f - Magnification);
         }
 
-        public void GetMousePos()
+        private void ApplyMagnifierCenter()
         {
             if (inLensMode && Camera.main != null)
             {
@@ -203,19 +202,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 Vector3 viewportPostion = Camera.main.ScreenToViewportPoint(cursorPosition);
                 Vector4 viewportPostion4 = new Vector4(viewportPostion.x, viewportPostion.y, 0, 0);
-                Shader.SetGlobalVector(mousePosID, viewportPostion4);
+                Shader.SetGlobalVector(magnifierCenterID, viewportPostion4);
             }
             else
             {
-                Shader.SetGlobalVector(mousePosID, new Vector4(0.5f, 0.5f, 0, 0));
+                Shader.SetGlobalVector(magnifierCenterID, new Vector4(0.5f, 0.5f, 0, 0));
             }
         }
 
         private void Update()
         {
-            if (inLensMode)
+            if (InLensMode)
             {
-                GetMousePos();
+                ApplyMagnifierCenter();
             }
         }
 

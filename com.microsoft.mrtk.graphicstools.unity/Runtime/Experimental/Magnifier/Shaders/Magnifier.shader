@@ -38,7 +38,7 @@ Shader "Graphics Tools/Magnifier"
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f  //vertex to fragment
+            struct v2f
             {
                 float4 vertex : SV_POSITION;
 
@@ -51,7 +51,7 @@ Shader "Graphics Tools/Magnifier"
             TEXTURE2D_X(MagnifierTexture);
             SAMPLER(samplerMagnifierTexture);
 
-            float2 zoomIn(float2 uv, float zoomAmount, float2 zoomCenter)
+            float2 ZoomIn(float2 uv, float zoomAmount, float2 zoomCenter)
             {
                 return ((uv - zoomCenter) * zoomAmount) + zoomCenter;
             }
@@ -70,14 +70,10 @@ Shader "Graphics Tools/Magnifier"
             half4 frag(v2f i) : SV_Target
             {
                 float2 normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(i.vertex);
-
                 float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);
+                float2 zoomedUv = ZoomIn(normalizedScreenSpaceUVStereo, MagnifierMagnification, MagnifierCenter.xy);
 
-                float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, MagnifierMagnification, MagnifierCenter.xy);
-
-                float4 output = SAMPLE_TEXTURE2D_X(MagnifierTexture, samplerMagnifierTexture, zoomedUv);
-
-                return output;
+                return SAMPLE_TEXTURE2D_X(MagnifierTexture, samplerMagnifierTexture, zoomedUv);
             }
            ENDHLSL
         }
