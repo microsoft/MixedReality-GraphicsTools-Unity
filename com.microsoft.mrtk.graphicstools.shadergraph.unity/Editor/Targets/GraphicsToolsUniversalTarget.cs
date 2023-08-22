@@ -30,6 +30,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
 
         /// <summary>
+        /// Used by lit/unlit subtargets when allowMaterialOverride is true.
+        /// </summary>
+        public static readonly RenderStateCollection MaterialControlledRenderState = new RenderStateCollection
+        {
+            { RenderState.ZTest(CoreRenderStates.Uniforms.zTest) },
+            { RenderState.ZWrite(CoreRenderStates.Uniforms.zWrite) },
+            { RenderState.Cull(CoreRenderStates.Uniforms.cullMode) },
+            { RenderState.Blend(CoreRenderStates.Uniforms.srcBlend, CoreRenderStates.Uniforms.dstBlend) },
+        };
+
+        /// <summary>
         /// Used by lit/unlit subtargets when allowMaterialOverride is false.
         /// </summary>
         public static readonly RenderStateCollection MaterialControlledRenderStateAlpha = new RenderStateCollection
@@ -43,10 +54,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <summary>
         /// Fork of CoreRenderStates.UberSwitchedRenderState to support configurable source and destination alpha blending state.
         /// </summary>
-        public static RenderStateCollection UberSwitchedRenderState(UniversalTarget target, bool overrideBlendAlpha, Blend alphaSrc, Blend alphaDst)
+        public static RenderStateCollection UberSwitchedRenderState(UniversalTarget target, bool blendModePreserveSpecular = false, bool overrideBlendAlpha = false, Blend alphaSrc = Blend.One, Blend alphaDst = Blend.One)
         {
             if (target.allowMaterialOverride)
-                return overrideBlendAlpha ? MaterialControlledRenderStateAlpha : CoreRenderStates.MaterialControlledRenderState;
+                return overrideBlendAlpha ? MaterialControlledRenderStateAlpha : MaterialControlledRenderState;
             else
             {
                 var result = new RenderStateCollection();
@@ -73,18 +84,21 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
                 else
                 {
+                    // Lift alpha multiply from ROP to shader in preserve spec for different diffuse and specular blends.
+                    Blend blendSrcRGB = blendModePreserveSpecular ? Blend.One : Blend.SrcAlpha;
+
                     if (overrideBlendAlpha)
                     {
                         switch (target.alphaMode)
                         {
                             case AlphaMode.Alpha:
-                                result.Add(RenderState.Blend(Blend.SrcAlpha, Blend.OneMinusSrcAlpha, alphaSrc, alphaDst));
+                                result.Add(RenderState.Blend(blendSrcRGB, Blend.OneMinusSrcAlpha, alphaSrc, alphaDst));
                                 break;
                             case AlphaMode.Premultiply:
                                 result.Add(RenderState.Blend(Blend.One, Blend.OneMinusSrcAlpha, alphaSrc, alphaDst));
                                 break;
                             case AlphaMode.Additive:
-                                result.Add(RenderState.Blend(Blend.SrcAlpha, Blend.One, alphaSrc, alphaDst));
+                                result.Add(RenderState.Blend(blendSrcRGB, Blend.One, alphaSrc, alphaDst));
                                 break;
                             case AlphaMode.Multiply:
                                 result.Add(RenderState.Blend(Blend.DstColor, Blend.Zero, alphaSrc, alphaDst));
@@ -96,16 +110,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         switch (target.alphaMode)
                         {
                             case AlphaMode.Alpha:
-                                result.Add(RenderState.Blend(Blend.SrcAlpha, Blend.OneMinusSrcAlpha, Blend.One, Blend.OneMinusSrcAlpha));
+                                result.Add(RenderState.Blend(blendSrcRGB, Blend.OneMinusSrcAlpha, Blend.One, Blend.OneMinusSrcAlpha));
                                 break;
                             case AlphaMode.Premultiply:
                                 result.Add(RenderState.Blend(Blend.One, Blend.OneMinusSrcAlpha, Blend.One, Blend.OneMinusSrcAlpha));
                                 break;
                             case AlphaMode.Additive:
-                                result.Add(RenderState.Blend(Blend.SrcAlpha, Blend.One, Blend.One, Blend.One));
+                                result.Add(RenderState.Blend(blendSrcRGB, Blend.One, Blend.One, Blend.One));
                                 break;
                             case AlphaMode.Multiply:
-                                result.Add(RenderState.Blend(Blend.DstColor, Blend.Zero));
+                                result.Add(RenderState.Blend(Blend.DstColor, Blend.Zero, Blend.Zero, Blend.One)); // Multiply RGB only, keep A
                                 break;
                         }
                     }

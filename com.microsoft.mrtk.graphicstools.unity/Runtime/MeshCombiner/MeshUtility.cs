@@ -236,7 +236,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             // Create a CombineInstance for each mesh filter and sub mesh.
             foreach (var meshFilter in settings.MeshFilters)
             {
-                ///  TODO - [Cameron-Micka] assume if submesh 0 is valid other submeshes are valid. Safe assumption?
+                /// TODO - [Cameron-Micka] assume if submesh 0 is valid other submeshes are valid. Safe assumption?
                 if (!CanCombine(meshFilter, settings.TargetLOD))
                 {
                     continue;
