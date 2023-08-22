@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
+/// TODO - [Cameron-Micka] remove obsolete API.
+#pragma warning disable 0618
+
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
@@ -51,7 +54,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (Settings.SourceType == BufferType.CameraColor)
             {
                 sourceId = -1;
-                source = renderer.cameraColorTargetHandle;
+                source = renderer.cameraColorTarget;
             }
             else
             {
@@ -69,7 +72,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             else if (Settings.DestinationType == BufferType.CameraColor)
             {
                 destinationId = -1;
-                destination = renderer.cameraColorTargetHandle;
+                destination = renderer.cameraColorTarget;
             }
             else
             {
@@ -78,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 destination = new RenderTargetIdentifier(destinationId);
             }
 
-            cameraColorTarget = renderer.cameraColorTargetHandle;
+            cameraColorTarget = renderer.cameraColorTarget;
         }
 
         /// <inheritdoc/>

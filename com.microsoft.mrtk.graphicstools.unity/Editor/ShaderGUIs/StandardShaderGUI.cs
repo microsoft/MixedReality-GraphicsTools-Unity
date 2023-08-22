@@ -781,7 +781,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="material">Current material in use.</param>
         protected void FluentOptions(MaterialEditor materialEditor, Material material)
         {
-            ///  TODO - [Cameron-Micka] this function has grown quite large. Might make sense to break up into more logical sections?
+            /// TODO - [Cameron-Micka] this function has grown quite large. Might make sense to break up into more logical sections?
             EditorGUILayout.Space();
             GUILayout.Label(Styles.fluentOptionsTitle, EditorStyles.boldLabel);
             RenderingMode mode = (RenderingMode)renderingMode.floatValue;
@@ -837,7 +837,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 materialEditor.ShaderProperty(borderColorMode, Styles.borderColorMode, 2);
 
-                ///  TODO - [Cameron-Micka] Could switch to using the KeywordEnum property drawer in the future.
+                /// TODO - [Cameron-Micka] Could switch to using the KeywordEnum property drawer in the future.
                 switch ((BorderColorMode)borderColorMode.floatValue)
                 {
                     default:
