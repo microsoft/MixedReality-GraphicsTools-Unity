@@ -51,6 +51,20 @@ namespace Microsoft.MixedReality.GraphicsTools
         [SerializeField]
         private bool AutoAddDrawFullscreenFeature = true;
 
+        [Tooltip("Is the magnifier in lens mode? i.e is moving based on the position of the mouse cursor")]
+        [SerializeField]
+        private bool inLensMode = false;
+
+        public bool InLensMode
+        {
+            get => inLensMode;
+            set
+            {
+                inLensMode = value;
+                ApplyMagnifierCenter();
+            }
+        }
+
         [Tooltip("The name of the render feature to add the Draw Fullscreen Feature after (or before) to enforce custom sorting. Adds to the end of the render feature list when empty.")]
         public string targetDrawFullscreenFeatureName = string.Empty;
 
@@ -77,6 +91,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         [Tooltip("When a Target Draw Objects Feature Name is specified, should it be added before or after the feature in the list?")]
         public AddMode targetDrawObjectsFeatureAddMode = AddMode.After;
+
+        private static readonly int magnifierCenterID = Shader.PropertyToID("MagnifierCenter");
 
         [SerializeField]
         private RenderObjects.RenderObjectsSettings renderObjectsSettings = new RenderObjects.RenderObjectsSettings()
@@ -131,6 +147,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 ApplyMagnification();
+                ApplyMagnifierCenter();
             }
         }
 
@@ -169,6 +186,36 @@ namespace Microsoft.MixedReality.GraphicsTools
         public void ApplyMagnification()
         {
             Shader.SetGlobalFloat(MagnificationPropertyName, 1.0f - Magnification);
+        }
+
+        private void ApplyMagnifierCenter()
+        {
+            if (inLensMode && Camera.main != null)
+            {
+                Vector3 cursorPosition;
+#if USE_INPUT_SYSTEM
+                Vector2 position2D = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+                cursorPosition = new Vector3(position2D.x, position2D.y, 0.0f);
+#else
+                cursorPosition = Input.mousePosition;
+#endif // USE_INPUT_SYSTEM
+
+                Vector3 viewportPostion = Camera.main.ScreenToViewportPoint(cursorPosition);
+                Vector4 viewportPostion4 = new Vector4(viewportPostion.x, viewportPostion.y, 0, 0);
+                Shader.SetGlobalVector(magnifierCenterID, viewportPostion4);
+            }
+            else
+            {
+                Shader.SetGlobalVector(magnifierCenterID, new Vector4(0.5f, 0.5f, 0, 0));
+            }
+        }
+
+        private void Update()
+        {
+            if (InLensMode)
+            {
+                ApplyMagnifierCenter();
+            }
         }
 
         private void CreateRendererFeatures()
