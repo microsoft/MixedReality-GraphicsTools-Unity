@@ -195,8 +195,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 Vector3 cursorPosition;
 #if USE_INPUT_SYSTEM
-            Vector2 position2D = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
-            cursorPosition = new Vector3(position2D.x, position2D.y, 0.0f);
+                Vector2 position2D = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+                cursorPosition = new Vector3(position2D.x, position2D.y, 0.0f);
 #else
                 cursorPosition = Input.mousePosition;
 #endif // USE_INPUT_SYSTEM
@@ -207,34 +207,15 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             else
             {
-                Shader.SetGlobalVector(mousePosID, new Vector4(0.5f,0.5f,0,0));
-            }   
+                Shader.SetGlobalVector(mousePosID, new Vector4(0.5f, 0.5f, 0, 0));
+            }
         }
 
         private void Update()
         {
-            if(inLensMode)
+            if (inLensMode)
             {
-              GetMousePos();
-            }
-        }
-        
-        private void InitializeRendererData()
-        {
-            var pipeline = ((UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline);
-
-            if (pipeline == null)
-            {
-                Debug.LogWarning("Universal Render Pipeline not found");
-            }
-            else
-            {
-                FieldInfo propertyInfo = pipeline.GetType().GetField("m_RendererDataList", BindingFlags.Instance | BindingFlags.NonPublic);
-#if UNITY_2021_2_OR_NEWER
-                rendererData = ((ScriptableRendererData[])propertyInfo?.GetValue(pipeline))?[rendererIndex] as UniversalRendererData;
-#else
-                rendererData = ((ScriptableRendererData[])propertyInfo?.GetValue(pipeline))?[rendererIndex] as ForwardRendererData;
-#endif
+                GetMousePos();
             }
         }
 

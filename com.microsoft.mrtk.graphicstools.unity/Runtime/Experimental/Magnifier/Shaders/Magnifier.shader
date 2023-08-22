@@ -4,8 +4,7 @@
 Shader "Graphics Tools/Magnifier"
 {
     Properties
-    { 
-         
+    {
     }
     SubShader
     {
@@ -45,14 +44,13 @@ Shader "Graphics Tools/Magnifier"
 
                 UNITY_VERTEX_OUTPUT_STEREO
             };
-            
+
             half MagnifierMagnification;
             float4 MagnifierCenter;
-           
-           
+
             TEXTURE2D_X(MagnifierTexture);
             SAMPLER(samplerMagnifierTexture);
-           
+
             float2 zoomIn(float2 uv, float zoomAmount, float2 zoomCenter)
             {
                 return ((uv - zoomCenter) * zoomAmount) + zoomCenter;
@@ -70,15 +68,15 @@ Shader "Graphics Tools/Magnifier"
             }
 
             half4 frag(v2f i) : SV_Target
-            {               
+            {
                 float2 normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(i.vertex);
-    
-                float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);    
-    
+
+                float2 normalizedScreenSpaceUVStereo = UnityStereoTransformScreenSpaceTex(normalizedScreenSpaceUV);
+
                 float2 zoomedUv = zoomIn(normalizedScreenSpaceUVStereo, MagnifierMagnification, MagnifierCenter.xy);
-    
+
                 float4 output = SAMPLE_TEXTURE2D_X(MagnifierTexture, samplerMagnifierTexture, zoomedUv);
-                                
+
                 return output;
             }
            ENDHLSL
