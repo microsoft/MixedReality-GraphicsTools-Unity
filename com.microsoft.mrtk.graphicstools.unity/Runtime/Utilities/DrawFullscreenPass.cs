@@ -6,9 +6,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-/// TODO - [Cameron-Micka] remove obsolete API.
-#pragma warning disable 0618
-
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
@@ -22,6 +19,88 @@ namespace Microsoft.MixedReality.GraphicsTools
         ///</summary>
         public DrawFullscreenFeature.Settings Settings;
 
+#if UNITY_2022_1_OR_NEWER
+        private RTHandle source;
+        private RTHandle destination;
+
+        private bool isSourceAndDestinationSameTarget;
+        private string profilerTag;
+
+        ///<summary>
+        /// Constructor.
+        ///</summary>
+        public DrawFullscreenPass(string tag)
+        {
+            profilerTag = tag;
+        }
+
+        /// <inheritdoc/>
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            RenderTextureDescriptor blitTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
+            blitTargetDescriptor.depthBufferBits = 0;
+
+            isSourceAndDestinationSameTarget = Settings.SourceType == Settings.DestinationType &&
+                (Settings.SourceType == BufferType.CameraColor || Settings.SourceTextureId == Settings.DestinationTextureId);
+
+            if (Settings.SourceType == BufferType.CameraColor)
+            {
+                source = renderingData.cameraData.renderer.cameraColorTargetHandle;
+            }
+            else
+            {
+                RenderingUtils.ReAllocateIfNeeded(ref source, blitTargetDescriptor, Settings.FilterMode,
+                                                  TextureWrapMode.Clamp, name: Settings.SourceTextureId);
+            }
+
+            if (isSourceAndDestinationSameTarget)
+            {
+                RenderingUtils.ReAllocateIfNeeded(ref destination, blitTargetDescriptor, Settings.FilterMode,
+                                                  TextureWrapMode.Clamp, name: "_TempRT");
+            }
+            else if (Settings.DestinationType == BufferType.CameraColor)
+            {
+                destination = renderingData.cameraData.renderer.cameraColorTargetHandle;
+            }
+            else
+            {
+                RenderingUtils.ReAllocateIfNeeded(ref destination, blitTargetDescriptor, Settings.FilterMode,
+                                                  TextureWrapMode.Clamp, name: Settings.DestinationTextureId);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        {
+            CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
+
+            // Can't read and write to same color target, create a temp render target to blit.
+            if (isSourceAndDestinationSameTarget)
+            {
+                Blitter.BlitCameraTexture(cmd, source, destination, Settings.BlitMaterial, Settings.BlitMaterialPassIndex);
+                Blitter.BlitCameraTexture(cmd, destination, source, Settings.BlitMaterial, 0);
+            }
+            else
+            {
+                Blitter.BlitCameraTexture(cmd, source, destination, Settings.BlitMaterial, Settings.BlitMaterialPassIndex);
+            }
+
+            cmd.SetGlobalTexture(Settings.DestinationTextureId, destination);
+
+            context.ExecuteCommandBuffer(cmd);
+            CommandBufferPool.Release(cmd);
+        }
+
+        /// <summary>
+        /// Unsure when this is called? This is the only resource I could find to dispose of RTHandles.
+        /// https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@14.0/manual/upgrade-guide-2022-1.html
+        /// </summary>
+        private void Dispose()
+        {
+            source?.Release();
+            destination?.Release();
+        }
+#else
         private RenderTargetIdentifier source;
         private RenderTargetIdentifier destination;
         private RenderTargetIdentifier cameraColorTarget;
@@ -159,6 +238,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 cmd.Blit(source, BuiltinRenderTextureType.CurrentActive, material, passIndex);
             }
         }
+#endif // UNITY_2022_1_OR_NEWER
     }
 }
 #endif // GT_USE_URP
