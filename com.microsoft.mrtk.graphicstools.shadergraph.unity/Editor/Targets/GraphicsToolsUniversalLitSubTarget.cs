@@ -122,10 +122,10 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             var universalRPType = typeof(UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset);
             if (!context.HasCustomEditorForRenderPipeline(universalRPType))
             {
-                var gui = typeof(ShaderGraphLitGUI);
+                var gui = typeof(GraphicsToolsShaderGraphLitGUI);
 #if HAS_VFX_GRAPH
                 if (TargetsVFX())
-                    gui = typeof(VFXShaderGraphLitGUI);
+                    gui = typeof(GraphicsToolsVFXShaderGraphLitGUI);
 #endif
                 context.AddCustomEditorForRenderPipeline(gui.FullName, universalRPType);
             }
@@ -219,6 +219,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 collector.AddFloatProperty(Property.BlendModePreserveSpecular, blendModePreserveSpecular ? 1.0f : 0.0f);
                 collector.AddFloatProperty(Property.SrcBlend, 1.0f);    // always set by material inspector, ok to have incorrect values here
                 collector.AddFloatProperty(Property.DstBlend, 0.0f);    // always set by material inspector, ok to have incorrect values here
+                collector.AddFloatProperty(GraphicsToolsCoreRenderStates.Property.SrcBlendAlpha, 1.0f);    // always set by material inspector, ok to have incorrect values here
+                collector.AddFloatProperty(GraphicsToolsCoreRenderStates.Property.DstBlendAlpha, 1.0f);    // always set by material inspector, ok to have incorrect values here
                 collector.AddToggleProperty(Property.ZWrite, (target.surfaceType == SurfaceType.Opaque));
                 collector.AddFloatProperty(Property.ZWriteControl, (float)target.zWriteControl);
                 collector.AddFloatProperty(Property.ZTest, (float)target.zTestMode);    // ztest mode is designed to directly pass as ztest
