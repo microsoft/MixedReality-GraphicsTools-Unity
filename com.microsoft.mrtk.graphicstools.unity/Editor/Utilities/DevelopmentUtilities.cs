@@ -19,7 +19,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         private static bool isInitialized = false;
         private static bool isPackageMutable = false;
 
-        private static readonly string visibleSamplesPath = "../../com.microsoft.mrtk.graphicstools.unity/Samples";
+        private static readonly string visibleSamplesPath = "../../com.microsoft.mrtk.graphicstools.unity/Runtime/Samples";
         private static readonly string hiddenSamplesPath = "../../com.microsoft.mrtk.graphicstools.unity/Samples~";
 
         /// <summary>
