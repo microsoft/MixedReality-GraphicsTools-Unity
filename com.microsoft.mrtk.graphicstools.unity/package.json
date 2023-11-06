@@ -1,10 +1,12 @@
 {
   "name": "com.microsoft.mrtk.graphicstools.unity",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "displayName": "MRTK Graphics Tools",
   "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
+  "documentationUrl": "https://aka.ms/mrtk3graphics",
   "msftFeatureCategory": "MRTK3",
   "unity": "2021.3",
+  "unityRelease": "26f1",
   "author": "Microsoft",
   "license": "MIT",
   "repository": {
@@ -49,17 +51,17 @@
     {
       "displayName": "Acrylic (Experimental)",
       "description": "Examples of how the acrylic effect can be utilized to give materials a translucent/frosted glass look.",
-      "path": "Samples~/Experimental/Acrylic"
+      "path": "Samples~/Acrylic"
     },
     {
       "displayName": "Canvas Shadow (Experimental)",
       "description": "Demonstrates how to add a procedural drop shadow on a canvas.",
-      "path": "Samples~/Experimental/CanvasShadow"
+      "path": "Samples~/CanvasShadow"
     },
     {
       "displayName": "Magnifier (Experimental)",
       "description": "Demonstrates magnification in a stereoscopic rendering setup.",
-      "path": "Samples~/Experimental/Magnifier"
+      "path": "Samples~/Magnifier"
     },
     {
       "displayName": "Clipping Primitives",
