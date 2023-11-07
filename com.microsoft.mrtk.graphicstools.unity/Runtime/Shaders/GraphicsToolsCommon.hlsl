@@ -151,8 +151,7 @@ inline float GTPointVsRoundedBox(in float2 position, in float2 cornerCircleDista
 
 inline float FilterDistance(in float distance)
 {
-    float2 filterWidth = length(float2(ddx(distance), ddy(distance)));
-    float pixelDistance = distance / length(filterWidth);
+    float pixelDistance = distance / fwidth(distance);
 
 #if defined(_INDEPENDENT_CORNERS) || defined(_UI_CLIP_RECT_ROUNDED_INDEPENDENT)
     // To avoid artifacts at discontinuities in the SDF distance increase the pixel width.
