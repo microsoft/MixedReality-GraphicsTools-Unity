@@ -494,6 +494,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 else if (oldShader.name.Contains("Universal Render Pipeline/Lit"))
                 {
                     normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
+                    emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
                 }
 
             }
