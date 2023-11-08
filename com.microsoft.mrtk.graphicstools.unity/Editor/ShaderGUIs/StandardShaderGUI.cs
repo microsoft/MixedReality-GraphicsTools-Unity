@@ -491,6 +491,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     rimLighting = GetFloatProperty(material, "_UseRimLighting");
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                 }
+                else if (oldShader.name.Contains("Universal Render Pipeline/Lit"))
+                {
+                    normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
+                }
+
             }
 
             base.AssignNewShaderToMaterial(material, oldShader, newShader);
