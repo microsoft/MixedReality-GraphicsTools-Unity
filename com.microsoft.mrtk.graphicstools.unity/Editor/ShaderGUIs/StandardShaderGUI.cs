@@ -495,6 +495,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
                     emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
+                    reflections = GetFloatProperty(material, "_EnvironmentReflections");
+
                 }
 
             }
