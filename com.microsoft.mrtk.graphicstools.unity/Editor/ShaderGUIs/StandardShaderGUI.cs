@@ -497,6 +497,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
                     reflections = GetFloatProperty(material, "_EnvironmentReflections");
                     specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
+                    smoothness = GetFloatProperty(material, "_Smoothness");
+                    
 
                 }
 
