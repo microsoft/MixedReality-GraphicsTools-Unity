@@ -23,9 +23,7 @@ Material:
   m_Name: Standard
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_ValidKeywords:
-  - _ENVIRONMENTREFLECTIONS_OFF
   - _NORMALMAP
-  - _SPECULARHIGHLIGHTS_OFF
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -157,7 +155,7 @@ Material:
     - _EnvironmentColorIntensity: 0.5
     - _EnvironmentColorThreshold: 1.5
     - _EnvironmentColoring: 0
-    - _EnvironmentReflections: 0
+    - _EnvironmentReflections: 1
     - _Fade: 1
     - _FadeBeginDistance: 0.85
     - _FadeCompleteDistance: 0.5
@@ -189,7 +187,7 @@ Material:
     - _ProximityLightTwoSided: 0
     - _QueueOffset: 6
     - _ReceiveShadows: 1
-    - _Reflections: 0
+    - _Reflections: 1
     - _RenderQueueOverride: -1
     - _RimLight: 0
     - _RimPower: 0.25
@@ -197,9 +195,10 @@ Material:
     - _RoundCornerRadius: 0.25
     - _RoundCorners: 0
     - _RoundCornersHideInterior: 0
+    - _Shininess: 0.078125
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
-    - _SpecularHighlights: 0
+    - _SpecularHighlights: 1
     - _SphericalHarmonics: 0
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
