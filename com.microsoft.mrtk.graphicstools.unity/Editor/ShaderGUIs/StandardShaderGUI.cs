@@ -498,7 +498,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     reflections = GetFloatProperty(material, "_EnvironmentReflections");
                     specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
                     smoothness = GetFloatProperty(material, "_Smoothness");
-                    
+                    textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
+
 
                 }
 
