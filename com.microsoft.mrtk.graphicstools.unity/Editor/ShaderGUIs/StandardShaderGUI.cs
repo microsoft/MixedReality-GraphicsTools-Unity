@@ -462,6 +462,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             // Cache old shader properties with potentially different names than the new shader.
             float? smoothness = GetFloatProperty(material, "_Glossiness");
             float? metallic = GetFloatProperty(material, "_Metallic");
+            float? alphaClip = GetFloatProperty(material, "_AlphaClip");
             float? diffuse = GetFloatProperty(material, "_UseDiffuse");
             float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
             float? normalMap = null;
@@ -501,6 +502,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     smoothness = GetFloatProperty(material, "_Smoothness");
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                     metallic = GetFloatProperty(material, "_Metallic");
+                    alphaClip = GetFloatProperty(material, "_AlphaClip");
                 }
 
             }
@@ -509,8 +511,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             // Apply old shader properties to the new shader.
             SetShaderFeatureActive(material, null, "_Smoothness", smoothness);
-
             SetShaderFeatureActive(material, null, "_Metallic", metallic);
+            SetShaderFeatureActive(material, null, "_AlphaClip", alphaClip);
 
             if (!newShaderIsStandardCanvas)
             {
