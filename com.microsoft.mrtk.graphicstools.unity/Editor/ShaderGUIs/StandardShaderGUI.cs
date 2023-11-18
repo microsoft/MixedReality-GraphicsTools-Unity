@@ -502,7 +502,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                     metallic = GetFloatProperty(material, "_Metallic");
 
-
                 }
 
             }
