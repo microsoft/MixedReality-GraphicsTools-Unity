@@ -504,6 +504,29 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     metallic = GetFloatProperty(material, "_Metallic");
                     alphaClip = GetFloatProperty(material, "_AlphaClip");
                 }
+                else if(oldShader.name.Contains("Universal Render Pipeline/Unlit"))
+                {
+                    alphaClip = GetFloatProperty(material, "_AlphaClip");
+                    textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
+                }
+                else if (oldShader.name.Contains("Universal Render Pipeline/Simple Lit"))
+                {
+                    normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
+                    alphaClip = GetFloatProperty(material, "_AlphaClip");
+                    smoothness = GetFloatProperty(material, "_Smoothness");
+                    emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
+                }
+                else if (oldShader.name.Contains("Universal Render Pipeline/Complex Lit"))
+                {
+                    alphaClip = GetFloatProperty(material, "_AlphaClip");
+                    normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
+                    smoothness = GetFloatProperty(material, "_Smoothness");
+                    textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
+                    metallic = GetFloatProperty(material, "_Metallic");
+                    specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
+                    reflections = GetFloatProperty(material, "_EnvironmentReflections");
+                    emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
+                }
 
             }
 
@@ -526,7 +549,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 material.SetTexture("_NormalMap", normalMapTexture);
             }
-            
+
             SetShaderFeatureActive(material, null, "_NormalMapScale", normalMapScale);
 
             if (emissionMapTexture)
