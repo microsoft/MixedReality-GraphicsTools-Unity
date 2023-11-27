@@ -493,7 +493,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     rimLighting = GetFloatProperty(material, "_UseRimLighting");
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                 }
-                else if (oldShader.name.Contains("Universal Render Pipeline/Lit"))
+                else if (oldShader.name.Contains("Universal Render Pipeline/Lit") || oldShader.name.Contains("Universal Render Pipeline/Unlit") || oldShader.name.Contains("Universal Render Pipeline/Simple Lit") || oldShader.name.Contains("Universal Render Pipeline/Complex Lit"))
                 {
                     normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
                     emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
@@ -504,19 +504,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     metallic = GetFloatProperty(material, "_Metallic");
                     alphaClip = GetFloatProperty(material, "_AlphaClip");
                 }
-                else if(oldShader.name.Contains("Universal Render Pipeline/Unlit"))
+                /*else if(oldShader.name.Contains("Universal Render Pipeline/Unlit"))
                 {
                     alphaClip = GetFloatProperty(material, "_AlphaClip");
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
-                }
-                else if (oldShader.name.Contains("Universal Render Pipeline/Simple Lit"))
+                }*/
+                /*else if (oldShader.name.Contains("Universal Render Pipeline/Simple Lit"))
                 {
                     normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
                     alphaClip = GetFloatProperty(material, "_AlphaClip");
                     smoothness = GetFloatProperty(material, "_Smoothness");
                     emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
-                }
-                else if (oldShader.name.Contains("Universal Render Pipeline/Complex Lit"))
+                }*/
+               /* else if (oldShader.name.Contains("Universal Render Pipeline/Complex Lit"))
                 {
                     alphaClip = GetFloatProperty(material, "_AlphaClip");
                     normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
@@ -526,7 +526,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
                     reflections = GetFloatProperty(material, "_EnvironmentReflections");
                     emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
-                }
+                }*/
 
             }
 
