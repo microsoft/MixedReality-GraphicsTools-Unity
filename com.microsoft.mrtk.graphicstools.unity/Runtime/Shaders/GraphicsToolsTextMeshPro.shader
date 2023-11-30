@@ -106,6 +106,7 @@ SubShader {
         #pragma fragment PixShader
         #pragma shader_feature_local __ OUTLINE_ON
         #pragma shader_feature_local __ UNDERLAY_ON UNDERLAY_INNER
+        #pragma shader_feature_local __ MULTISAMPLE_ON
 
         #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
         #pragma multi_compile_local _ _UI_CLIP_RECT_ROUNDED _UI_CLIP_RECT_ROUNDED_INDEPENDENT
@@ -323,13 +324,30 @@ CBUFFER_END
             return output;
         }
 
+        float4 Tex2DMultisample(sampler2D tex, float2 uv)
+        {
+            float2 dx = ddx(uv) * 0.25;
+            float2 dy = ddy(uv) * 0.25;
+
+            float4 sample0 = tex2D(tex, uv + dx + dy);
+            float4 sample1 = tex2D(tex, uv + dx - dy);
+            float4 sample2 = tex2D(tex, uv - dx + dy);
+            float4 sample3 = tex2D(tex, uv - dx - dy);
+        
+            return (sample0 + sample1 + sample2 + sample3) * 0.25;
+        }
 
         // PIXEL SHADER
         fixed4 PixShader(pixel_t input) : SV_Target
         {
             UNITY_SETUP_INSTANCE_ID(input);
             
+            #if MULTISAMPLE_ON
+            half d = Tex2DMultisample(_MainTex, input.texcoord0.xy).a * input.param.x;
+            #else
             half d = tex2D(_MainTex, input.texcoord0.xy).a * input.param.x;
+            #endif
+
             half4 c = input.faceColor * saturate(d - input.param.w);
 
             #ifdef OUTLINE_ON

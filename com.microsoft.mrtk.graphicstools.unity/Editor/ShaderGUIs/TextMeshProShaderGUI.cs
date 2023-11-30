@@ -16,6 +16,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     {
         private static bool doMode = true;
 
+        private static readonly ShaderFeature s_MultiSampleFeature = new()
+        {
+            label = new GUIContent("Multisample"),
+            undoLabel = "Multisample",
+            keywords = new[] { "MULTISAMPLE_ON" },
+            keywordLabels = new[] { new GUIContent("Off"), new GUIContent("On") }
+        };
+
         /// <inheritdoc/>
         protected override void DoGUI()
         {
@@ -27,6 +35,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             EndPanel();
 
             base.DoGUI();
+
+            // Do Popup was behaving oddly, default to doing it more manually
+            s_MultiSampleFeature.ReadState(m_Material);
+            bool newValue = EditorGUILayout.Toggle("Multisample", s_MultiSampleFeature.Active);
+            s_MultiSampleFeature.SetActive(newValue, m_Material);
         }
 
         /// <inheritdoc/>
