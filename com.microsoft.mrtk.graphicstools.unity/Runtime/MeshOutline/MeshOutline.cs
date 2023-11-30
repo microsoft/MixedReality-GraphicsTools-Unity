@@ -19,7 +19,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private const string vertexExtrusionKeyword = "_VERTEX_EXTRUSION";
         private const string vertexExtrusionSmoothNormalsKeyword = "_VERTEX_EXTRUSION_SMOOTH_NORMALS";
 
-        private Renderer meshRenderer = null;
+        private Renderer baseRenderer = null;
         private int stencilReferenceID = Shader.PropertyToID("_StencilReference");
         private int vertexExtrusionValueID = Shader.PropertyToID("_VertexExtrusionValue");
         private Material[] defaultMaterials = null;
@@ -38,8 +38,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Debug.LogWarning($"{this.GetType()} is not supported on this type of renderer.");
             }
 
-            meshRenderer = GetComponent<Renderer>();
-            defaultMaterials = meshRenderer.sharedMaterials;
+            baseRenderer = GetComponent<Renderer>();
+            defaultMaterials = baseRenderer.sharedMaterials;
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnDisable()
         {
-            meshRenderer.materials = defaultMaterials;
+            baseRenderer.materials = defaultMaterials;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (enabled == false ||
                 gameObject.activeInHierarchy == false ||
-                meshRenderer == null ||
+                baseRenderer == null ||
                 outlineMaterial == null)
             {
                 return;
@@ -140,7 +140,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             materials[nextFreeIdx] = outlineMaterial;
 
-            meshRenderer.materials = materials;
+            HandleMultipleSubMeshes();
+
+            baseRenderer.materials = materials;
         }
 
         /// <summary>
@@ -237,6 +239,41 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             return max;
+        }
+
+        /// <summary>
+        /// Creates and adds a SubMeshDescriptor which covers the entire mesh.
+        /// This ensures that the outline material is applied to the entire mesh.
+        /// </summary>
+        private void HandleMultipleSubMeshes()
+        {
+            Mesh mesh = null;
+
+            if (baseRenderer is SkinnedMeshRenderer skinnedMeshRenderer)
+            {
+                mesh = skinnedMeshRenderer.sharedMesh;
+            }
+            else if (baseRenderer is MeshRenderer meshRenderer)
+            {
+                mesh = meshRenderer.GetComponent<MeshFilter>().sharedMesh;
+            }
+
+            if (mesh != null)
+            {
+                var meshSubMeshCount = mesh.subMeshCount;
+                if (meshSubMeshCount > 1)
+                {
+                    var subMeshes = new SubMeshDescriptor[meshSubMeshCount + 1];
+                    for (int i = 0; i < meshSubMeshCount; i++)
+                    {
+                        var subMesh = mesh.GetSubMesh(i);
+                        subMeshes[i] = subMesh;
+                    }
+                    var lastMesh = subMeshes[meshSubMeshCount - 1];
+                    subMeshes[meshSubMeshCount] = new SubMeshDescriptor(0, lastMesh.indexStart + lastMesh.indexCount);
+                    mesh.SetSubMeshes(subMeshes, MeshUpdateFlags.DontRecalculateBounds);
+                }
+            }
         }
     }
 }
