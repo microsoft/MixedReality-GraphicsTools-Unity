@@ -117,7 +117,7 @@ SubShader {
     #pragma multi_compile_local _ _UI_CLIP_RECT_ROUNDED _UI_CLIP_RECT_ROUNDED_INDEPENDENT
 
     #include "UnityCG.cginc"
-    #include "../../../Shaders/GraphicsToolsCommon.hlsl"
+    #include "Packages/com.microsoft.mrtk.graphicstools.unity/Runtime/Shaders/GraphicsToolsCommon.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
     half4 _Base_Color_;

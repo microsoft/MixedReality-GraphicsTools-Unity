@@ -15,16 +15,24 @@ MonoBehaviour:
   version: 5
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: MagnifierBorder
   m_Shader: {fileID: 4800000, guid: c331f6c43a2ef0945864cb668f2653c9, type: 3}
-  m_ShaderKeywords: _ALPHABLEND_ON _BORDER_LIGHT _BORDER_LIGHT_OPAQUE _BORDER_LIGHT_REPLACES_ALBEDO
-    _BORDER_LIGHT_USES_GRADIENT _DISABLE_ALBEDO_MAP _EDGE_SMOOTHING_AUTOMATIC _GRADIENT_FOUR_POINT
-    _ROUND_CORNERS _SPECULAR_HIGHLIGHTS _SPECULAR_SETUP _USE_WORLD_SCALE
+  m_ValidKeywords:
+  - _ALPHABLEND_ON
+  - _BORDER_LIGHT_OPAQUE
+  - _BORDER_LIGHT_REPLACES_ALBEDO
+  - _BORDER_LIGHT_USES_GRADIENT
+  - _DISABLE_ALBEDO_MAP
+  - _ROUND_CORNERS
+  - _SPECULAR_HIGHLIGHTS
+  - _USE_WORLD_SCALE
+  m_InvalidKeywords:
+  - _SPECULAR_SETUP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -110,6 +118,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlbedoAlphaMode: 0
     - _AlbedoAssignedAtRuntime: 0
@@ -121,7 +130,7 @@ Material:
     - _BlurMode: 0
     - _BlurTextureIntensity: 1
     - _BorderColorMode: 3
-    - _BorderLight: 1
+    - _BorderLight: 0
     - _BorderLightOpaque: 1
     - _BorderLightOpaqueAlpha: 0.5
     - _BorderLightReplacesAlbedo: 1
@@ -142,8 +151,8 @@ Material:
     - _DirectionalLight: 0
     - _DstBlend: 10
     - _DstBlendAlpha: 1
-    - _EdgeSmoothingMode: 1
-    - _EdgeSmoothingValue: 0.002
+    - _EdgeSmoothingMode: 0
+    - _EdgeSmoothingValue: 0.05
     - _EnableChannelMap: 0
     - _EnableEmission: 0
     - _EnableHoverColorOverride: 0
@@ -166,7 +175,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _GradientAngle: 45
-    - _GradientMode: 2
+    - _GradientMode: 0
     - _HoverLight: 0
     - _IndependentCorners: 0
     - _InnerGlow: 0
@@ -192,8 +201,8 @@ Material:
     - _RenderQueueOverride: -1
     - _RimLight: 0
     - _RimPower: 0.25
-    - _RoundCornerMargin: 0.01
-    - _RoundCornerRadius: 0.01
+    - _RoundCornerMargin: 0.05
+    - _RoundCornerRadius: 0.05
     - _RoundCorners: 1
     - _RoundCornersHideInterior: 0
     - _Smoothness: 0.5
@@ -226,7 +235,7 @@ Material:
     - _BlurBackgroundRect: {r: 0, g: 0, b: 1, a: 1}
     - _BorderColor: {r: 1, g: 1, b: 1, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.19999996, b: 0, a: 1}
-    - _Color: {r: 0, g: 0, b: 0, a: 0}
+    - _Color: {r: 0, g: 0, b: 0, a: 0.5019608}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
