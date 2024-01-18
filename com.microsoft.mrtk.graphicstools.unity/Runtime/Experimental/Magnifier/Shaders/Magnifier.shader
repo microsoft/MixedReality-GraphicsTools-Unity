@@ -51,7 +51,6 @@ Shader "Graphics Tools/Magnifier"
             struct appdata
             {
                 float4 vertex : POSITION;
-                half3 normal : NORMAL;
                 float2 uv0 : TEXCOORD0;
 
                 UNITY_VERTEX_INPUT_INSTANCE_ID
