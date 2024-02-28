@@ -671,17 +671,6 @@ CBUFFER_END
     }
     //BLOCK_END Blob_Fragment
 
-    //BLOCK_BEGIN Scale_RGB 267
-
-    void Scale_RGB_B267(
-        half4 Color,
-        half Scalar,
-        out half4 Result    )
-    {
-        Result = float4(Scalar,Scalar,Scalar,1) * Color;
-    }
-    //BLOCK_END Scale_RGB
-
     //BLOCK_BEGIN Round_Rect_Fragment 277
 
     void Round_Rect_Fragment_B277(
@@ -772,8 +761,7 @@ CBUFFER_END
         // Multiply (#274)
         half Product_Q274 = Proximity_Q295 * Inside_Line_Q277;
 
-        half4 Result_Q267;
-        Scale_RGB_B267(_Edge_Color_,Product_Q274,Result_Q267);
+        half4 Result_Q267 = _Edge_Color_ * Product_Q274;
 
         // Add_Colors (#285)
         half4 Sum_Q285 = Blob_Color_Q284 + Blob_Color_Q283 + Result_Q267;
