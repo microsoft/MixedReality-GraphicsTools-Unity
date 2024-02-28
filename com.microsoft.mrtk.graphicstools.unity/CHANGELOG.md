@@ -4,6 +4,18 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.6.9] - 2024-02-27
+
+### Changed
+
+- Fix shader include issue with embedded packages.
+
+## [0.6.8] - 2024-02-16
+
+### Changed
+
+- Updated CanvasFrontplate shader to apply edge outline mask to alpha channel
+
 ## [0.6.7] - 2024-01-18
 
 ### Changed
