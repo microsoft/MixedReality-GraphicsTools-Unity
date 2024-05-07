@@ -19,7 +19,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     {   
         public bool setMaterialTexture = false;
         private string profilerLabel;
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
         private RTHandle target1;
         private RTHandle target2;
 #else
@@ -96,7 +96,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
         private static RenderTargetIdentifier GetIdentifier(RTHandle target)
         {
             return Shader.PropertyToID(target.name);
@@ -117,7 +117,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             var handle = providedTexture==null ? GetIdentifier(target1) : providedTexture;
             var renderer = renderingData.cameraData.renderer;
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
             var colorTargetHandle = renderer.cameraColorTargetHandle;
 #else
             var colorTargetHandle = renderer.cameraColorTarget;
@@ -198,7 +198,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             target2 = rttmp;
         }
 
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
         private void ConfigureTempRenderTarget(ref RTHandle target, string id, int width, int height, int slices, CommandBuffer cmd)
         {
             target = RTHandles.Alloc(id, name: id);
