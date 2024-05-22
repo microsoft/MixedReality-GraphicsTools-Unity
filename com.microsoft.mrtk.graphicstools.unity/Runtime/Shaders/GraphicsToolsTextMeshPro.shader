@@ -18,14 +18,14 @@
 Shader "Graphics Tools/Text Mesh Pro" {
 
 Properties {
-    [HDR] _FaceColor      ("Face Color", Color) = (1,1,1,1)
+    _FaceColor      ("Face Color", Color) = (1,1,1,1)
     _FaceDilate           ("Face Dilate", Range(-1,1)) = 0
 
-    [HDR] _OutlineColor   ("Outline Color", Color) = (0,0,0,1)
+    _OutlineColor   ("Outline Color", Color) = (0,0,0,1)
     _OutlineWidth         ("Outline Thickness", Range(0,1)) = 0
     _OutlineSoftness      ("Outline Softness", Range(0,1)) = 0
 
-    [HDR] _UnderlayColor  ("Border Color", Color) = (0,0,0,.5)
+    _UnderlayColor  ("Border Color", Color) = (0,0,0,.5)
     _UnderlayOffsetX      ("Border OffsetX", Range(-1,1)) = 0
     _UnderlayOffsetY      ("Border OffsetY", Range(-1,1)) = 0
     _UnderlayDilate       ("Border Dilate", Range(-1,1)) = 0
@@ -217,7 +217,11 @@ CBUFFER_END
             float4    vertex            : POSITION;
             float3    normal            : NORMAL;
             fixed4    color            : COLOR;
+#if UNITY_VERSION >= 202300 // Unity 6 (2023)+
+            float4	texcoord0		: TEXCOORD0;
+#else
             float2    texcoord0        : TEXCOORD0;
+#endif
             float2    texcoord1        : TEXCOORD1;
         };
 
@@ -239,6 +243,11 @@ CBUFFER_END
 #endif
         };
 
+#if UNITY_VERSION >= 202300 // Unity 6 (2023)+
+		float _UIMaskSoftnessX;
+        float _UIMaskSoftnessY;
+        int _UIVertexColorAlwaysGammaSpace;
+#endif
 
         pixel_t VertShader(vertex_t input)
         {
@@ -249,7 +258,11 @@ CBUFFER_END
             UNITY_TRANSFER_INSTANCE_ID(input, output);
             UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
             
+#if UNITY_VERSION >= 202300 // Unity 6 (2023)+
+            float bold = step(input.texcoord0.w, 0);
+#else
             float bold = step(input.texcoord1.y, 0);
+#endif
 
             float4 vert = input.vertex;
             vert.x += _VertexOffsetX;
@@ -260,7 +273,11 @@ CBUFFER_END
             pixelSize /= float2(_ScaleX, _ScaleY) * abs(mul((float2x2)UNITY_MATRIX_P, _ScreenParams.xy));
             
             float scale = rsqrt(dot(pixelSize, pixelSize));
+#if UNITY_VERSION >= 202300 // Unity 6 (2023)+
+            scale *= abs(input.texcoord0.w) * _GradientScale * (_Sharpness + 1);
+#else
             scale *= abs(input.texcoord1.y) * _GradientScale * (_Sharpness + 1);
+#endif
             if(UNITY_MATRIX_P[3][3] == 0) scale = lerp(abs(scale) * (1 - _PerspectiveFilter), scale, abs(dot(UnityObjectToWorldNormal(input.normal.xyz), normalize(WorldSpaceViewDir(vert)))));
 
             float weight = lerp(_WeightNormal, _WeightBold, bold) / 4.0;
@@ -272,6 +289,12 @@ CBUFFER_END
             float bias = (0.5 - weight) * scale - 0.5;
             float outline = _OutlineWidth * _ScaleRatioA * 0.5 * scale;
 
+#if UNITY_VERSION >= 202300 // Unity 6 (2023)+
+            if (_UIVertexColorAlwaysGammaSpace && !IsGammaSpace())
+            {
+                input.color.rgb = UIGammaToLinear(input.color.rgb);
+            }
+#endif
             float opacity = input.color.a;
             #if (UNDERLAY_ON | UNDERLAY_INNER)
             opacity = 1.0;
@@ -312,7 +335,13 @@ CBUFFER_END
             output.outlineColor = outlineColor;
             output.texcoord0 = float4(input.texcoord0.x, input.texcoord0.y, maskUV.x, maskUV.y);
             output.param = half4(scale, bias - outline, bias + outline, bias);
-            output.mask = vert;//half4(vert.xy * 2 - clampedRect.xy - clampedRect.zw, 0.25 / (0.25 * half2(_MaskSoftnessX, _MaskSoftnessY) + pixelSize.xy));
+            output.mask = vert;
+// #if UNITY_VERSION >= 202300 // Unity 6 (2023)+
+//             const half2 maskSoftness = half2(max(_UIMaskSoftnessX, _MaskSoftnessX), max(_UIMaskSoftnessY, _MaskSoftnessY));
+//             output.mask = half4(vert.xy * 2 - clampedRect.xy - clampedRect.zw, 0.25 / (0.25 * maskSoftness + pixelSize.xy));
+// #else
+//             output.mask = half4(vert.xy * 2 - clampedRect.xy - clampedRect.zw, 0.25 / (0.25 * half2(_MaskSoftnessX, _MaskSoftnessY) + pixelSize.xy));
+// #endif
             #if (UNDERLAY_ON || UNDERLAY_INNER)
             output.texcoord1 = float4(input.texcoord0 + layerOffset, input.color.a, 0);
             output.underlayParam = half2(layerScale, layerBias);
