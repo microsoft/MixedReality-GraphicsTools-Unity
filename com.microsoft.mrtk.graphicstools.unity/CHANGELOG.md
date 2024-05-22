@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.7.0] - 2024-05-07
+
+### Changed
+
+- Fixed Unity 2023 compilation errors.
+
 ## [0.6.9] - 2024-02-27
 
 ### Changed
