@@ -2,7 +2,7 @@
   "dependencies": {
     "com.microsoft.mrtk.graphicstools.shadergraph.unity": "file:../../com.microsoft.mrtk.graphicstools.shadergraph.unity",
     "com.microsoft.mrtk.graphicstools.unity": "file:../../com.microsoft.mrtk.graphicstools.unity",
-    "com.unity.asset-store-validation": "0.2.1",
+    "com.unity.asset-store-validation": "0.5.1",
     "com.unity.ide.visualstudio": "2.0.17",
     "com.unity.ide.vscode": "1.2.5",
     "com.unity.inputsystem": "1.4.4",
