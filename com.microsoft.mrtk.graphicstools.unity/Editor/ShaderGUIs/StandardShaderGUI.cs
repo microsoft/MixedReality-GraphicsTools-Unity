@@ -461,6 +461,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             // Cache old shader properties with potentially different names than the new shader.
             float? smoothness = GetFloatProperty(material, "_Glossiness");
+            float? metallic = GetFloatProperty(material, "_Metallic");
+            float? alphaClip = GetFloatProperty(material, "_AlphaClip");
             float? diffuse = GetFloatProperty(material, "_UseDiffuse");
             float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
             float? normalMap = null;
@@ -491,12 +493,49 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     rimLighting = GetFloatProperty(material, "_UseRimLighting");
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                 }
+                else if (oldShader.name.Contains("Universal Render Pipeline/Lit") || oldShader.name.Contains("Universal Render Pipeline/Unlit") || oldShader.name.Contains("Universal Render Pipeline/Simple Lit") || oldShader.name.Contains("Universal Render Pipeline/Complex Lit"))
+                {
+                    normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
+                    emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
+                    reflections = GetFloatProperty(material, "_EnvironmentReflections");
+                    specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
+                    smoothness = GetFloatProperty(material, "_Smoothness");
+                    textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
+                    metallic = GetFloatProperty(material, "_Metallic");
+                    alphaClip = GetFloatProperty(material, "_AlphaClip");
+                }
+                /*else if(oldShader.name.Contains("Universal Render Pipeline/Unlit"))
+                {
+                    alphaClip = GetFloatProperty(material, "_AlphaClip");
+                    textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
+                }*/
+                /*else if (oldShader.name.Contains("Universal Render Pipeline/Simple Lit"))
+                {
+                    normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
+                    alphaClip = GetFloatProperty(material, "_AlphaClip");
+                    smoothness = GetFloatProperty(material, "_Smoothness");
+                    emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
+                }*/
+               /* else if (oldShader.name.Contains("Universal Render Pipeline/Complex Lit"))
+                {
+                    alphaClip = GetFloatProperty(material, "_AlphaClip");
+                    normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
+                    smoothness = GetFloatProperty(material, "_Smoothness");
+                    textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
+                    metallic = GetFloatProperty(material, "_Metallic");
+                    specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
+                    reflections = GetFloatProperty(material, "_EnvironmentReflections");
+                    emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
+                }*/
+
             }
 
             base.AssignNewShaderToMaterial(material, oldShader, newShader);
 
             // Apply old shader properties to the new shader.
             SetShaderFeatureActive(material, null, "_Smoothness", smoothness);
+            SetShaderFeatureActive(material, null, "_Metallic", metallic);
+            SetShaderFeatureActive(material, null, "_AlphaClip", alphaClip);
 
             if (!newShaderIsStandardCanvas)
             {
@@ -510,7 +549,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 material.SetTexture("_NormalMap", normalMapTexture);
             }
-            
+
             SetShaderFeatureActive(material, null, "_NormalMapScale", normalMapScale);
 
             if (emissionMapTexture)
