@@ -27,6 +27,11 @@
         },
         {
             "name": "com.unity.ugui",
+            "expression": "2.0.0",
+            "define": "GT_USE_TMP"
+        },
+        {
+            "name": "com.unity.ugui",
             "expression": "1.0.0",
             "define": "GT_USE_UGUI"
         },
