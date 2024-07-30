@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.7.2] - 2024-07-26
+
+### Changed
+
+- Added a pre-initialization event to the AcrylicLayerManager.
+
 ## [0.7.1] - 2024-05-22
 
 ### Changed
