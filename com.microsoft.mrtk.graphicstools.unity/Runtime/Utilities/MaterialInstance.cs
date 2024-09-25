@@ -51,6 +51,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             Material output = new Material(source);
+            output.CopyPropertiesFromMaterial(source);
             output.name += InstancePostfix;
 
             return output;
