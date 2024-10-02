@@ -95,8 +95,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Start()
         {
-#if UNITY_2023_1_OR_NEWER
-            SubsystemManager.GetSubsystems(xrDisplaySubsystems);
+#if UNITY_6000_0_OR_NEWER
+			SubsystemManager.GetSubsystems(xrDisplaySubsystems);
 #else
             SubsystemManager.GetInstances(xrDisplaySubsystems);
 #endif

@@ -20,10 +20,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             renderPassEvent = settings.RenderPassEvent;
         }
 
-        /// <summary>
-        /// Queues a ClearRenderTarget command based on the pass settings.
-        /// </summary>
-        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+		/// <summary>
+		/// Queues a ClearRenderTarget command based on the pass settings.
+		/// </summary>
+#if UNITY_6000_0_OR_NEWER
+		[System.Obsolete]
+#endif
+		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             CommandBuffer cmd = CommandBufferPool.Get();
 

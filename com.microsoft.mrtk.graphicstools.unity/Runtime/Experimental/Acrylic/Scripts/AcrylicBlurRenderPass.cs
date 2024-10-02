@@ -56,7 +56,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private Vector4 info = Vector4.zero;
 
-        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+#if UNITY_6000_0_OR_NEWER
+		[System.Obsolete]
+#endif
+		public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
             int width = cameraTextureDescriptor.width / downSample;
             int height = cameraTextureDescriptor.height / downSample;
@@ -110,7 +113,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 #endif
 
-        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+#if UNITY_6000_0_OR_NEWER
+		[System.Obsolete]
+#endif
+		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             CommandBuffer cmd = CommandBufferPool.Get(profilerLabel);
             cmd.Clear();
