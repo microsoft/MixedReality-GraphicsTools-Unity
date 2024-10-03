@@ -34,11 +34,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             profilerTag = tag;
         }
 
-		/// <inheritdoc/>
+        /// <inheritdoc/>
 #if UNITY_6000_0_OR_NEWER
-		[System.Obsolete]
+        [System.Obsolete]
 #endif
-		public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             RenderTextureDescriptor blitTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
             blitTargetDescriptor.depthBufferBits = 0;
@@ -72,11 +72,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-		/// <inheritdoc/>
+        /// <inheritdoc/>
 #if UNITY_6000_0_OR_NEWER
-		[System.Obsolete]
+        [System.Obsolete]
 #endif
-		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
 

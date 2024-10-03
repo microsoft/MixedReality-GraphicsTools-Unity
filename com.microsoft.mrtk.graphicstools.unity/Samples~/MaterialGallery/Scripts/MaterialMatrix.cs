@@ -53,12 +53,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MaterialGallery
             if (useDefaultMaterial)
             {
 #if UNITY_6000_0_OR_NEWER
-				if (lastRenderPipelineAsset != GraphicsSettings.defaultRenderPipeline)
+                if (lastRenderPipelineAsset != GraphicsSettings.defaultRenderPipeline)
 #else
-				if (lastRenderPipelineAsset != GraphicsSettings.renderPipelineAsset)
+                if (lastRenderPipelineAsset != GraphicsSettings.renderPipelineAsset)
 #endif
-				{
-					BuildMatrix();
+                {
+                    BuildMatrix();
                 }
             }
         }
@@ -88,11 +88,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MaterialGallery
             if (useDefaultMaterial)
             {
 #if UNITY_6000_0_OR_NEWER
-				lastRenderPipelineAsset = GraphicsSettings.defaultRenderPipeline;
+                lastRenderPipelineAsset = GraphicsSettings.defaultRenderPipeline;
 #else
-				lastRenderPipelineAsset = GraphicsSettings.renderPipelineAsset;
+                lastRenderPipelineAsset = GraphicsSettings.renderPipelineAsset;
 #endif
-				if (lastRenderPipelineAsset != null)
+                if (lastRenderPipelineAsset != null)
                 {
                     currentMaterial = lastRenderPipelineAsset.defaultMaterial;
                 }
