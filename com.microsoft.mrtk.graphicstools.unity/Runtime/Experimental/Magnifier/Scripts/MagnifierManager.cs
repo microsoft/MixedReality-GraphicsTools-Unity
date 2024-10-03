@@ -4,7 +4,9 @@
 #if GT_USE_URP
 using System.Collections.Generic;
 using UnityEngine;
+#if !UNITY_6000_0_OR_NEWER
 using UnityEngine.Experimental.Rendering.Universal;
+#endif
 using UnityEngine.Rendering.Universal;
 
 namespace Microsoft.MixedReality.GraphicsTools

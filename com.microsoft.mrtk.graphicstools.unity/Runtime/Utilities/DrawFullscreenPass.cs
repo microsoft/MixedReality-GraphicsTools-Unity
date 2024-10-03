@@ -35,6 +35,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <inheritdoc/>
+#if UNITY_6000_0_OR_NEWER
+        [System.Obsolete]
+#endif
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             RenderTextureDescriptor blitTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
@@ -70,6 +73,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <inheritdoc/>
+#if UNITY_6000_0_OR_NEWER
+        [System.Obsolete]
+#endif
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
