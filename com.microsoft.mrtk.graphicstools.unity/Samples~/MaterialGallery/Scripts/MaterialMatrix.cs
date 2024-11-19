@@ -52,7 +52,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MaterialGallery
             // Poll for when the render pipeline changes.
             if (useDefaultMaterial)
             {
+#if UNITY_6000_0_OR_NEWER
+                if (lastRenderPipelineAsset != GraphicsSettings.defaultRenderPipeline)
+#else
                 if (lastRenderPipelineAsset != GraphicsSettings.renderPipelineAsset)
+#endif
                 {
                     BuildMatrix();
                 }
@@ -83,8 +87,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Samples.MaterialGallery
 
             if (useDefaultMaterial)
             {
+#if UNITY_6000_0_OR_NEWER
+                lastRenderPipelineAsset = GraphicsSettings.defaultRenderPipeline;
+#else
                 lastRenderPipelineAsset = GraphicsSettings.renderPipelineAsset;
-
+#endif
                 if (lastRenderPipelineAsset != null)
                 {
                     currentMaterial = lastRenderPipelineAsset.defaultMaterial;
