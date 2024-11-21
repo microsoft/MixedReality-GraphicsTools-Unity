@@ -230,10 +230,8 @@ CBUFFER_END
         out float3 ScreenPos    )
     {
         float4 screenPos = ComputeScreenPos(mul(UNITY_MATRIX_VP, float4(Position, 1)));
-        #if defined(UNITY_UV_STARTS_AT_TOP)
-                screenPos.y = unity_OrthoParams.w ? 1.0 - screenPos.y : screenPos.y;
-        #else
-                screenPos.y = unity_OrthoParams.w ? screenPos.y : 1.0 - screenPos.y;
+        #if !UNITY_UV_STARTS_AT_TOP
+                screenPos.y = 1.0 - screenPos.y;
         #endif
         ScreenPos = float3(screenPos.x,screenPos.y,screenPos.w);
     }
