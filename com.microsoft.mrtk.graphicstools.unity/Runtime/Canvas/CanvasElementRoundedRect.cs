@@ -11,7 +11,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Procedurally generates a 3D rounded rect mesh to be rendered within a UnityUI canvas.
     /// </summary>
     [RequireComponent(typeof(CanvasRenderer))]
-    public class CanvasElementRoundedRect : MaskableGraphic
+    public class CanvasElementRoundedRect : RawImage
     {
         [Tooltip("Specifies the corner radius of the rounded rect in world units. Should be less than half the width or height.")]
         [SerializeField]
@@ -78,8 +78,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-
-#region override methods
+        #region override methods
         /// <summary>
         /// Ensures the canvas generates required vertex attributes.
         /// </summary>
@@ -159,21 +158,24 @@ namespace Microsoft.MixedReality.GraphicsTools
             float v1 = radius / (max.y - min.y);
             float v2 = 1.0f - v1;
 
-            int i10 = AddVertex(vh, x1, min.y, u1, 0.0f, Vector3.forward, Vector3.down);
-            int i20 = AddVertex(vh, x2, min.y, u2, 0.0f, Vector3.forward, Vector3.down);
+            // Color the rounded quad so the sillhouette is white, but the center is black 
+            // We use this later for anti-aliasing in the shader...
 
-            int i01 = AddVertex(vh, min.x, y1, 0.0f, v1, Vector3.forward, Vector3.left);
-            int i11 = AddVertex(vh, x1, y1, u1, v1);
-            int i21 = AddVertex(vh, x2, y1, u2, v1);
-            int i31 = AddVertex(vh, max.x, y1, 1.0f, v1, Vector3.forward, Vector3.right);
+            int i10 = AddVertex(vh, x1, min.y, u1, 0.0f, Vector3.forward, Vector3.down, 1);
+            int i20 = AddVertex(vh, x2, min.y, u2, 0.0f, Vector3.forward, Vector3.down, 1);
 
-            int i02 = AddVertex(vh, min.x, y2, 0.0f, v2, Vector3.forward, Vector3.left);
-            int i12 = AddVertex(vh, x1, y2, u1, v2);
-            int i22 = AddVertex(vh, x2, y2, u2, v2);
-            int i32 = AddVertex(vh, max.x, y2, 1.0f, v2, Vector3.forward, Vector3.right);
+            int i01 = AddVertex(vh, min.x, y1, 0.0f, v1, Vector3.forward, Vector3.left, 1);
+            int i11 = AddVertex(vh, x1, y1, u1, v1, 0);
+            int i21 = AddVertex(vh, x2, y1, u2, v1, 0);
+            int i31 = AddVertex(vh, max.x, y1, 1.0f, v1, Vector3.forward, Vector3.right, 1);
 
-            int i13 = AddVertex(vh, x1, max.y, u1, 1.0f, Vector3.forward, Vector3.up);
-            int i23 = AddVertex(vh, x2, max.y, u2, 1.0f, Vector3.forward, Vector3.up);
+            int i02 = AddVertex(vh, min.x, y2, 0.0f, v2, Vector3.forward, Vector3.left, 1);
+            int i12 = AddVertex(vh, x1, y2, u1, v2, 0);
+            int i22 = AddVertex(vh, x2, y2, u2, v2, 0);
+            int i32 = AddVertex(vh, max.x, y2, 1.0f, v2, Vector3.forward, Vector3.right, 1);
+
+            int i13 = AddVertex(vh, x1, max.y, u1, 1.0f, Vector3.forward, Vector3.up, 1);
+            int i23 = AddVertex(vh, x2, max.y, u2, 1.0f, Vector3.forward, Vector3.up, 1);
 
             AddQuad(vh, i10, i20, i11, i21);
             AddQuad(vh, i01, i11, i02, i12);
@@ -192,14 +194,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             AddCorner(vh, new Vector2(x2, y2), i22, i32, i23, rx, radius, Vector2.right, Vector2.up, new Vector2(u2, v2), u1, v1);
         }
 
-        private int AddVertex(VertexHelper vh, float x, float y, float u, float v, Vector3 normal, Vector3 tangent)
+        private int AddVertex(VertexHelper vh, float x, float y, float u, float v, Vector3 normal, Vector3 tangent, float edgeDistance)
         {
             int ix = vh.currentVertCount;
 
             vert.color = this.color;
 
             vert.position = new Vector3(x, y, Mathf.Max(0.0f, thickness));
-            vert.uv0 = new Vector2(u, v);
+            vert.uv0 = new Vector4(u, v, thickness == 0 ? edgeDistance : 0, 0); // edge distance doesn't work when thick
             vert.normal = normal;
             if (SmoothEdges)
             {
@@ -221,9 +223,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             return ix;
         }
 
-        private int AddVertex(VertexHelper vh, float x, float y, float u, float v)
+        private int AddVertex(VertexHelper vh, float x, float y, float u, float v, float edgeDistance)
         {
-            return AddVertex(vh, x, y, u, v, Vector3.forward, Vector3.forward);
+            return AddVertex(vh, x, y, u, v, Vector3.forward, Vector3.forward, edgeDistance);
         }
 
         private void AddQuad(VertexHelper vh, int v00, int v10, int v01, int v11)
@@ -252,10 +254,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (thickness != 0.0f)
             {
                 vh.PopulateUIVertex(ref vert, i0);
-                int j0 = AddVertex(vh, vert.position.x, vert.position.y, vert.uv0.x, vert.uv0.y, normal0, Vector3.forward);
+                int j0 = AddVertex(vh, vert.position.x, vert.position.y, vert.uv0.x, vert.uv0.y, normal0, Vector3.forward, 0);
 
                 vh.PopulateUIVertex(ref vert, i1);
-                int j1 = AddVertex(vh, vert.position.x, vert.position.y, vert.uv0.x, vert.uv0.y, normal1, Vector3.forward);
+                int j1 = AddVertex(vh, vert.position.x, vert.position.y, vert.uv0.x, vert.uv0.y, normal1, Vector3.forward, 0);
 
                 vh.AddTriangle(j0, j1 + 1, j1);
                 vh.AddTriangle(j0, j0 + 1, j1 + 1);
@@ -289,8 +291,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 Vector2 tangent = (newp+lastp)*0.5f - center;
 
-                int ix0 = AddVertex(vh, lastp.x, lastp.y, lastuv.x, lastuv.y, Vector3.forward, tangent);
-                int ix1 = AddVertex(vh, newp.x, newp.y, newuv.x, newuv.y, Vector3.forward, tangent);
+                int ix0 = AddVertex(vh, lastp.x, lastp.y, lastuv.x, lastuv.y, Vector3.forward, tangent, 1);
+                int ix1 = AddVertex(vh, newp.x, newp.y, newuv.x, newuv.y, Vector3.forward, tangent, 1);
 
                 AddTriangle(vh, centerix, ix0, ix1);
                 AddEdge(vh, ix0, ix1, lastp-center, newp-center);
@@ -316,7 +318,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 tangent = newp - center;
 
-                int ix = AddVertex(vh, newp.x, newp.y, newuv.x, newuv.y, Vector3.forward, tangent);
+                int ix = AddVertex(vh, newp.x, newp.y, newuv.x, newuv.y, Vector3.forward, tangent, 1);
                 AddTriangle(vh, centerix, lastix, ix);
                 AddEdge(vh, lastix, ix, lastTangent, tangent);
                 lastix = ix;
