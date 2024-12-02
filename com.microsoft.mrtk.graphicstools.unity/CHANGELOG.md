@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.1] - 2024-12-02
+
+### Changed
+
+- Added support for Unity URP SSAO's "Depth normal" mode.
+
 ## [0.8.0] - 2024-11-21
 
 ### Changed
