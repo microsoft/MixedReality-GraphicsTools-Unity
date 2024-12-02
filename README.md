@@ -19,13 +19,13 @@ Graphics Tools is normally ingested as a Unity [package](https://docs.unity3d.co
 
     ![Package Manager Add](README/PackageManagerAdd.png)
 
-3. Paste *https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#v0.4.0* into the text field and click `"Add"`
+3. Paste *https://github.com/microsoft/MixedReality-GraphicsTools-Unity.git?path=/com.microsoft.mrtk.graphicstools.unity#v0.8.0* into the text field and click `"Add"`
 
     ![Package Manager Paste](README/PackageManagerPaste.png)
 
 4. Graphics Tools will now be installed within your Unity project as an immutable package within the project's `Packages` folder named `MRTK Graphics Tools`.
 
-It is advised you use a specific release of the Graphics Tools package to ensure your project is locked to a stable release. Release version 0.4.0 is suggested in step three above. You can also pull another version, specific branch, or git commit hash by altering the URL as demonstrated below:
+It is advised you use a specific release of the Graphics Tools package to ensure your project is locked to a stable release. Release version 0.8.0 is suggested in step three above. You can also pull another version, specific branch, or git commit hash by altering the URL as demonstrated below:
 
 | Syntax           | URL example                                                                                                                                               |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|

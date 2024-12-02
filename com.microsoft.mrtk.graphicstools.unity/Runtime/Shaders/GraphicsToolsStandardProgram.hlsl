@@ -133,6 +133,10 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+#ifdef _SCREEN_SPACE_OCCLUSION
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/AmbientOcclusion.hlsl"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
+#endif
 #else
 #include "UnityCG.cginc"
 #include "UnityStandardConfig.cginc"
@@ -801,6 +805,12 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     half3 reflection = GTGlossyEnvironmentReflection(reflectVector, GTPerceptualSmoothnessToPerceptualRoughness(_Smoothness), occlusion);
     output.rgb = (albedo.rgb * 0.5h) + (reflection * (_Smoothness + _Metallic) * 0.5h);
 #endif
+        
+#if defined(_SCREEN_SPACE_OCCLUSION)
+    float2 normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.position);
+    AmbientOcclusionFactor aoFactor = GetScreenSpaceAmbientOcclusion(normalizedScreenSpaceUV);
+    output.rgb *= aoFactor.directAmbientOcclusion;
+#endif
 
     // Fresnel lighting.
 #if defined(_RIM_LIGHT)
@@ -836,7 +846,6 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
                               incident.y * incident.y * _EnvironmentColorY +
                               incident.z * incident.z * _EnvironmentColorZ;
     output.rgb += environmentColor * max(0.0, dot(incident, worldNormal) + _EnvironmentColorThreshold) * _EnvironmentColorIntensity;
-
 #endif
 
 #if defined(_NEAR_PLANE_FADE)

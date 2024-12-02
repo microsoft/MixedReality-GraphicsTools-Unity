@@ -4,6 +4,18 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.0] - 2024-11-21
+
+### Changed
+
+- Added scalable shader graphs support and improved backplate shaders.
+
+## [0.7.3] - 2024-10-202
+
+### Changed
+
+- Fixed APIs deprecated in Unity 6 and ensured that the newly created MaterialInstances inherit all properties from the source material.
+
 ## [0.7.2] - 2024-07-26
 
 ### Changed

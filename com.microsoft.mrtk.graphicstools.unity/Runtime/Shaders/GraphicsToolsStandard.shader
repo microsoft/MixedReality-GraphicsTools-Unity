@@ -182,6 +182,7 @@ Shader "Graphics Tools/Standard"
             #pragma multi_compile_instancing
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 
             #pragma shader_feature_local_fragment _CLIPPING_BORDER
 
@@ -227,6 +228,124 @@ Shader "Graphics Tools/Standard"
 
             #include_with_pragmas "GraphicsToolsStandardMetaProgram.hlsl"
             
+            ENDHLSL
+        }
+        
+        // From Packages/com.unity.render-pipelines.universal/Shader/Lit.hlsl
+        Pass
+        {
+            Name "DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
+
+            // -------------------------------------
+            // Render State Commands
+            ZWrite On
+            ColorMask R
+            Cull[_Cull]
+
+            HLSLPROGRAM
+#if UNITY_VERSION >= 202230
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+#else
+            #pragma target 2.0
+#endif
+
+            // -------------------------------------
+            // Shader Stages
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _ALPHATEST_ON
+            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+#if UNITY_VERSION >= 202200
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+#endif
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+#if UNITY_VERSION >= 202230
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+#else
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+#endif
+
+            // -------------------------------------
+            // Includes
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
+            ENDHLSL
+        }
+        
+        // From Packages/com.unity.render-pipelines.universal/Shader/Lit.hlsl
+        // This pass is used when drawing to a _CameraNormalsTexture texture
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
+
+            // -------------------------------------
+            // Render State Commands
+            ZWrite On
+            Cull[_Cull]
+
+            HLSLPROGRAM
+#if UNITY_VERSION >= 202230
+            #pragma target 2.0
+#else
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+#endif
+
+            // -------------------------------------
+            // Shader Stages
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _PARALLAXMAP
+            #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
+            #pragma shader_feature_local _ALPHATEST_ON
+            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+#if UNITY_VERSION >= 202200
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+#endif
+#if UNITY_VERSION >= 202230
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+#endif
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+#if UNITY_VERSION >= 202230
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+#else
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+#endif
+
+            // -------------------------------------
+            // Includes
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitDepthNormalsPass.hlsl"
             ENDHLSL
         }
     }
