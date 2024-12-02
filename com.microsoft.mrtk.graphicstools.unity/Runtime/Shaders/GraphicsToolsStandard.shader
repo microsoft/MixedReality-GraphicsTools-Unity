@@ -191,6 +191,7 @@ Shader "Graphics Tools/Standard"
             ENDHLSL
         }
 
+        // Shadow casting pass.
         Pass
         {
             Name "ShadowCaster"
@@ -231,6 +232,7 @@ Shader "Graphics Tools/Standard"
             ENDHLSL
         }
         
+        // Depth pass.
         // From Packages/com.unity.render-pipelines.universal/Shader/Lit.hlsl
         Pass
         {
@@ -286,8 +288,8 @@ Shader "Graphics Tools/Standard"
             ENDHLSL
         }
         
+        // This pass is used when drawing to a _CameraNormalsTexture texture.
         // From Packages/com.unity.render-pipelines.universal/Shader/Lit.hlsl
-        // This pass is used when drawing to a _CameraNormalsTexture texture
         Pass
         {
             Name "DepthNormals"
