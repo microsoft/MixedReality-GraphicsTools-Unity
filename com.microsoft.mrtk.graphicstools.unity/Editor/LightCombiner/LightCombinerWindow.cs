@@ -60,7 +60,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		{
 			var watch = System.Diagnostics.Stopwatch.StartNew();
 
-			// Get the active scene
+			// Get the active scene.
 			var currentScene = SceneManager.GetActiveScene();
 			var currentScenePath = currentScene.path;
 
@@ -70,14 +70,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				return;
 			}
 
-			// Generate a new path for the duplicated scene
+			// Generate a new path for the duplicated scene.
 			var newScenePath = Path.Combine(Path.GetDirectoryName(currentScenePath), Path.GetFileNameWithoutExtension(currentScenePath) + "_Copy.unity");
 
-			// Copy the scene file
 			if (AssetDatabase.CopyAsset(currentScenePath, newScenePath))
 			{
-				// Open the duplicated scene
 				EditorSceneManager.OpenScene(newScenePath);
+
+				currentScene = SceneManager.GetActiveScene();
+				CombineLighting(currentScene);
 			}
 			else
 			{
@@ -85,6 +86,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			}
 
 			Debug.LogFormat("LightCombinerWindow.Save took {0} ms.", watch.ElapsedMilliseconds);
+		}
+
+		private void CombineLighting(Scene scene)
+		{
+
 		}
 	}
 }
