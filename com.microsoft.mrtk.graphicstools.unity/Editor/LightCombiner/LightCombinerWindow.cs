@@ -81,6 +81,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 				currentScene = SceneManager.GetActiveScene();
 				CombineLighting(currentScene);
+
+				Lightmapping.Clear();
+				EditorSceneManager.SaveScene(currentScene);
 			}
 			else
 			{
@@ -119,14 +122,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 							continue;
 						}
 
-						var duplicateMaterial = DuplicateMaterial(renderer.sharedMaterials[i], workingDirectory);
-						renderer.sharedMaterials[i] = duplicateMaterial;
-
 						// Combine the the main texture and lightmap textures.
 						// First determine the size of the combined texture.
-						var mainTexture = duplicateMaterial.mainTexture as Texture2D;
-						var mainTextureScale = duplicateMaterial.mainTextureScale;
-						var mainTextureOffset = duplicateMaterial.mainTextureScale;
+						var mainTexture = renderer.sharedMaterials[i].mainTexture as Texture2D;
+						var mainTextureScale = renderer.sharedMaterials[i].mainTextureScale;
+						var mainTextureOffset = renderer.sharedMaterials[i].mainTextureScale;
 						var mainTextureSize = GetScaledTextureSize(mainTexture, mainTextureScale);
 
 						var lightmapTexture = LightmapSettings.lightmaps[renderer.lightmapIndex].lightmapColor;
@@ -138,15 +138,46 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						combinedSize.Width = Mathf.Max(mainTextureSize.Width, lightmapSize.Width);
 						combinedSize.Height = Mathf.Max(mainTextureSize.Height, lightmapSize.Height);
 
-						// Create a new texture to store the combined texture.
-						var combinedTexture = new Texture2D(combinedSize.Width, combinedSize.Height, TextureFormat.RGBA32, false);
-	
+						// Use the GPU to perform the combination.
+						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
+
+						if (mainTexture != null)
+						{
+							lightCombiner.SetTexture("_AlbedoMap", mainTexture);
+							lightCombiner.SetVector("_MetallicMapChannel", new Vector4(mainTextureScale.x, mainTextureScale.y, mainTextureOffset.x, mainTextureOffset.y));
+						}
+
+						lightCombiner.SetTexture("_LightMap", mainTexture);
+						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y, lightmapOffset.x, lightmapOffset.y));
+
+						var renderTexture = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+						Graphics.Blit(null, renderTexture, lightCombiner);
+						DestroyImmediate(lightCombiner);
+
+						// Save the last render texture to disk.
+						RenderTexture previous = RenderTexture.active;
+						RenderTexture.active = renderTexture;
+						var combinedTexture = new Texture2D(combinedSize.Width, combinedSize.Height);
+						combinedTexture.ReadPixels(new Rect(0.0f, 0.0f, combinedSize.Width, combinedSize.Height), 0, 0);
+						combinedTexture.Apply();
+						RenderTexture.active = previous;
+						RenderTexture.ReleaseTemporary(renderTexture);
+						var combinedTextureAsset = SaveTexture(combinedTexture, workingDirectory, renderer.gameObject.name);
+						DestroyImmediate(combinedTexture);
+
+						// Apply to a duplicated material.
+						var duplicateMaterial = DuplicateAndSaveMaterial(renderer.sharedMaterials[i], workingDirectory);
+						duplicateMaterial.mainTexture = combinedTextureAsset;
+						duplicateMaterial.mainTextureScale = new Vector2(1.0f, 1.0f);
+						duplicateMaterial.mainTextureOffset = new Vector2(0.0f, 0.0f);
+						renderer.sharedMaterials[i] = duplicateMaterial;
+						EditorUtility.SetDirty(duplicateMaterial);
 					}
 				}
 			}
 		}
 
-		private Material DuplicateMaterial(Material originalMaterial, string workingDirectory)
+		private static Material DuplicateAndSaveMaterial(Material originalMaterial, string workingDirectory)
 		{
 			var path = AssetDatabase.GetAssetPath(originalMaterial);
 			var newPath = Path.Combine(workingDirectory, Path.GetFileNameWithoutExtension(path) + $"_{kWorkingDirectoryPostfix}.mat");
@@ -154,7 +185,23 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			AssetDatabase.CreateAsset(newMaterial, newPath);
 			AssetDatabase.SaveAssets();
 
-			return newMaterial;
+			return AssetDatabase.LoadAssetAtPath<Material>(newPath);
+		}
+
+		private static Texture2D SaveTexture(Texture2D texture, string workingDirectory, string fileName)
+		{
+			var textureData = TextureFile.Encode(texture, TextureFile.Format.PNG);
+
+			if (textureData == null)
+			{
+				return null;
+			}
+
+			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.png"));
+			File.WriteAllBytes(path, textureData);
+			AssetDatabase.Refresh();
+
+			return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
 		}
 
 		private static TextureSize GetScaledTextureSize(Texture2D texture, Vector2 scale)
