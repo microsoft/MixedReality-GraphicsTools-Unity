@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
@@ -83,7 +84,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				currentScene = SceneManager.GetActiveScene();
 				CombineLighting(currentScene);
 
+				Lightmapping.ClearLightingDataAsset();
 				Lightmapping.Clear();
+
 				EditorSceneManager.SaveScene(currentScene);
 			}
 			else
@@ -115,7 +118,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						continue;
 					}
 
-					// Duplicate the mesh and swap uv0 with uv1.
+					// If the mesh has a second UV set, then duplicate the mesh and swap uv0 with uv1.
 					var meshFilter = renderer.GetComponent<MeshFilter>();
 
 					if (meshFilter == null || meshFilter.sharedMesh == null)
@@ -123,19 +126,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						continue;
 					}
 
-					var originalMesh = meshFilter.sharedMesh;
-					var uv0 = originalMesh.uv;
+					var originalMesh = meshFilter.mesh;
 					var uv1 = originalMesh.uv2;
 
-					if (uv1 == null || uv1.Length == 0)
+					if (uv1 != null && uv1.Length != 0)
 					{
-						continue;
-					}
+						var uv0 = originalMesh.uv;
 
-					var newMesh = Instantiate(originalMesh);
-					newMesh.uv = uv1;
-					newMesh.uv2 = null;
-					meshFilter.mesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
+						var newMesh = Instantiate(originalMesh);
+						newMesh.uv = uv1;
+						newMesh.uv2 = null;
+						meshFilter.mesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
+					}
 
 					// For now duplicate all materials (later only do this if required).
 					var materials = renderer.materials;
@@ -147,12 +149,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 							continue;
 						}
 
-						// Combine the the main texture and lightmap textures.
+						// Combine the the albedo texture and lightmap texture.
 						// First determine the size of the combined texture.
-						var mainTexture = materials[i].mainTexture as Texture2D;
-						var mainTextureScale = materials[i].mainTextureScale;
-						var mainTextureOffset = materials[i].mainTextureScale;
-						var mainTextureSize = GetScaledTextureSize(mainTexture, mainTextureScale);
+						var albedoTexture = materials[i].mainTexture as Texture2D;
+						var albedoTextureScale = materials[i].mainTextureScale;
+						var albedoTextureOffset = materials[i].mainTextureOffset;
+						var albedoTextureSize = GetScaledTextureSize(albedoTexture, albedoTextureScale);
 
 						var lightmapTexture = LightmapSettings.lightmaps[renderer.lightmapIndex].lightmapColor;
 						var lightmapScale = new Vector2(renderer.lightmapScaleOffset.x, renderer.lightmapScaleOffset.y);
@@ -160,23 +162,36 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						var lightmapSize = GetScaledTextureSize(lightmapTexture, lightmapScale);
 
 						TextureSize combinedSize;
-						combinedSize.Width = Mathf.Max(mainTextureSize.Width, lightmapSize.Width);
-						combinedSize.Height = Mathf.Max(mainTextureSize.Height, lightmapSize.Height);
+						combinedSize.Width = Mathf.Max(albedoTextureSize.Width, lightmapSize.Width);
+						combinedSize.Height = Mathf.Max(albedoTextureSize.Height, lightmapSize.Height);
 
-						// Use the GPU to perform the combination.
+						// Use the GPU to perform the texture combination.
+						var renderTexture = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+
+						CommandBuffer cb = new CommandBuffer();
+
+						cb.SetRenderTarget(renderTexture);
+						cb.SetProjectionMatrix(Matrix4x4.Ortho(0, 1, 0, 1, -100, 100));
+						cb.ClearRenderTarget(true, true, Color.black);
+
 						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
 
-						if (mainTexture != null)
+						if (albedoTexture != null)
 						{
-							lightCombiner.SetTexture("_AlbedoMap", mainTexture);
-							lightCombiner.SetVector("_AlbedoMapScaleOffset", new Vector4(mainTextureScale.x, mainTextureScale.y, mainTextureOffset.x, mainTextureOffset.y));
+							lightCombiner.SetTexture("_AlbedoMap", albedoTexture);
+							lightCombiner.SetVector("_AlbedoMapScaleOffset", new Vector4(albedoTextureScale.x, albedoTextureScale.y,
+																						 albedoTextureOffset.x, albedoTextureOffset.y));
 						}
 
-						lightCombiner.SetTexture("_LightMap", mainTexture);
-						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y, lightmapOffset.x, lightmapOffset.y));
+						lightCombiner.SetTexture("_LightMap", lightmapTexture);
+						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
+																					lightmapOffset.x, lightmapOffset.y));
 
-						var renderTexture = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
-						Graphics.Blit(null, renderTexture, lightCombiner);
+						cb.DrawMesh(originalMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
+						cb.Blit(null, renderTexture, lightCombiner, lightCombiner.FindPass("Lightmap"));
+	
+						Graphics.ExecuteCommandBuffer(cb);
+
 						DestroyImmediate(lightCombiner);
 
 						// Save the last render texture to disk.
