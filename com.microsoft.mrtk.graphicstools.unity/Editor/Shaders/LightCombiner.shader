@@ -54,8 +54,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			{
 				half4 output;
 
-				output = tex2D(_AlbedoMap, i.uv  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw);
-				// TODO lightmap combine.
+				//output = tex2D(_AlbedoMap, i.uv  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw);
+				output = tex2D(_LightMap, i.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw);
 
 				return output;
 			}

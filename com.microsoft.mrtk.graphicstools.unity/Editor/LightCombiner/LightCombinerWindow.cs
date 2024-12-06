@@ -5,6 +5,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
@@ -114,19 +115,43 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						continue;
 					}
 
-					// For now duplicate all materials (later only do this if required).
-					for (int i = 0; i < renderer.sharedMaterials.Length; ++i)
+					// Duplicate the mesh and swap uv0 with uv1.
+					var meshFilter = renderer.GetComponent<MeshFilter>();
+
+					if (meshFilter == null || meshFilter.sharedMesh == null)
 					{
-						if (renderer.sharedMaterials[i] == null)
+						continue;
+					}
+
+					var originalMesh = meshFilter.sharedMesh;
+					var uv0 = originalMesh.uv;
+					var uv1 = originalMesh.uv2;
+
+					if (uv1 == null || uv1.Length == 0)
+					{
+						continue;
+					}
+
+					var newMesh = Instantiate(originalMesh);
+					newMesh.uv = uv1;
+					newMesh.uv2 = null;
+					meshFilter.mesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
+
+					// For now duplicate all materials (later only do this if required).
+					var materials = renderer.materials;
+
+					for (int i = 0; i < materials.Length; ++i)
+					{
+						if (materials[i] == null)
 						{
 							continue;
 						}
 
 						// Combine the the main texture and lightmap textures.
 						// First determine the size of the combined texture.
-						var mainTexture = renderer.sharedMaterials[i].mainTexture as Texture2D;
-						var mainTextureScale = renderer.sharedMaterials[i].mainTextureScale;
-						var mainTextureOffset = renderer.sharedMaterials[i].mainTextureScale;
+						var mainTexture = materials[i].mainTexture as Texture2D;
+						var mainTextureScale = materials[i].mainTextureScale;
+						var mainTextureOffset = materials[i].mainTextureScale;
 						var mainTextureSize = GetScaledTextureSize(mainTexture, mainTextureScale);
 
 						var lightmapTexture = LightmapSettings.lightmaps[renderer.lightmapIndex].lightmapColor;
@@ -144,7 +169,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						if (mainTexture != null)
 						{
 							lightCombiner.SetTexture("_AlbedoMap", mainTexture);
-							lightCombiner.SetVector("_MetallicMapChannel", new Vector4(mainTextureScale.x, mainTextureScale.y, mainTextureOffset.x, mainTextureOffset.y));
+							lightCombiner.SetVector("_AlbedoMapScaleOffset", new Vector4(mainTextureScale.x, mainTextureScale.y, mainTextureOffset.x, mainTextureOffset.y));
 						}
 
 						lightCombiner.SetTexture("_LightMap", mainTexture);
@@ -166,26 +191,35 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						DestroyImmediate(combinedTexture);
 
 						// Apply to a duplicated material.
-						var duplicateMaterial = DuplicateAndSaveMaterial(renderer.sharedMaterials[i], workingDirectory);
+						var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, renderer.gameObject.name);
 						duplicateMaterial.mainTexture = combinedTextureAsset;
 						duplicateMaterial.mainTextureScale = new Vector2(1.0f, 1.0f);
 						duplicateMaterial.mainTextureOffset = new Vector2(0.0f, 0.0f);
-						renderer.sharedMaterials[i] = duplicateMaterial;
-						EditorUtility.SetDirty(duplicateMaterial);
+						materials[i] = duplicateMaterial;
 					}
+
+					renderer.materials = materials;
 				}
 			}
 		}
 
-		private static Material DuplicateAndSaveMaterial(Material originalMaterial, string workingDirectory)
+		private static Mesh SaveMesh(Mesh mesh, string workingDirectory, string fileName)
 		{
-			var path = AssetDatabase.GetAssetPath(originalMaterial);
-			var newPath = Path.Combine(workingDirectory, Path.GetFileNameWithoutExtension(path) + $"_{kWorkingDirectoryPostfix}.mat");
-			var newMaterial = new Material(originalMaterial);
-			AssetDatabase.CreateAsset(newMaterial, newPath);
+			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.asset"));
+			AssetDatabase.CreateAsset(mesh, path);
 			AssetDatabase.SaveAssets();
 
-			return AssetDatabase.LoadAssetAtPath<Material>(newPath);
+			return mesh;
+		}
+
+		private static Material DuplicateAndSaveMaterial(Material originalMaterial, string workingDirectory, string fileName)
+		{
+			var material = new Material(originalMaterial);
+			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.mat"));
+			AssetDatabase.CreateAsset(material, path);
+			AssetDatabase.SaveAssets();
+
+			return material;
 		}
 
 		private static Texture2D SaveTexture(Texture2D texture, string workingDirectory, string fileName)
