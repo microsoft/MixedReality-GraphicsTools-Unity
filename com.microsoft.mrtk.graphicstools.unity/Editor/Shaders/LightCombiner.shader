@@ -19,6 +19,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 		{
 			Name "Albedo"
 
+			Cull Off
+
 			HLSLPROGRAM
 
 			#pragma vertex VertexStage
@@ -31,6 +33,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			{
 				float4 vertex : POSITION;
 				float2 uv : TEXCOORD0;
+				float2 uv1 : TEXCOORD1;
 			};
 
 			struct v2f
@@ -47,7 +50,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			{
 				v2f o;
 				o.vertex = float4(v.uv * 2 - 1, 0, 1);
-				o.uv = v.uv;
+				o.uv = v.uv1;
 
 				return o;
 			}
@@ -55,6 +58,9 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			half4 PixelStage(v2f i) : SV_Target
 			{
 				half4 output = half4(1, 0, 0, 1);
+
+				float2 albedoUV = i.uv  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw;
+				output = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, albedoUV);
 
 				return output;
 			}
@@ -65,6 +71,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 		Pass
 		{
 			Name "Lightmap"
+
+			Blend DstColor Zero
 
 			HLSLPROGRAM
 
@@ -86,9 +94,6 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 				float2 uv : TEXCOORD0;
 			};
 
-			// TEXTURE2D(_AlbedoMap);
-			// SAMPLER(sampler_AlbedoMap);
-			// half4 _AlbedoMapScaleOffset;
 			TEXTURE2D(_LightMap);
 			SAMPLER(sampler_LightMap);
 			half4 _LightMapScaleOffset;
@@ -105,9 +110,6 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			half4 PixelStage(v2f i) : SV_Target
 			{
 				half4 output = half4(0, 0, 0, 1);
-
-				// float2 albedoUV = i.uv  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw;
-				// output = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, albedoUV);
 
 				float2 lightmapUV = i.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
 #ifdef UNITY_LIGHTMAP_FULL_HDR

@@ -5,7 +5,6 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
@@ -13,6 +12,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
 	public class LightCombinerWindow : EditorWindow
 	{
+		private enum CombineMode
+		{
+			AlbedoAndLightmap,
+			Albedo,
+			Lightmap
+		}
+
+		private CombineMode combineMode = CombineMode.AlbedoAndLightmap;
 		private string errorText = null;
 
 		private const string kWorkingDirectoryPostfix = "LightCombined";
@@ -31,7 +38,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			EditorGUILayout.BeginVertical("Box");
 			{
 				GUILayout.Label("Export Options", EditorStyles.boldLabel);
-				// TODO
+
+				combineMode = (CombineMode)EditorGUILayout.EnumPopup("Combine Mode", combineMode);
 			}
 			EditorGUILayout.EndVertical();
 
@@ -54,7 +62,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				}
 				else
 				{
-					EditorGUILayout.HelpBox("TODO", MessageType.Info);
+					EditorGUILayout.HelpBox("I'm a friendly help message.", MessageType.Info);
 				}
 			}
 			EditorGUILayout.EndVertical();
@@ -172,7 +180,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 						cb.SetRenderTarget(renderTexture);
 						cb.SetProjectionMatrix(Matrix4x4.Ortho(0, 1, 0, 1, -100, 100));
-						cb.ClearRenderTarget(true, true, Color.black);
+						cb.ClearRenderTarget(true, true, Color.white);
 
 						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
 
@@ -187,9 +195,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
 																					lightmapOffset.x, lightmapOffset.y));
 
-						cb.DrawMesh(originalMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
-						cb.Blit(null, renderTexture, lightCombiner, lightCombiner.FindPass("Lightmap"));
-	
+						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Albedo)
+						{
+							cb.DrawMesh(originalMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
+						}
+
+						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Lightmap)
+						{
+							cb.Blit(null, renderTexture, lightCombiner, lightCombiner.FindPass("Lightmap"));
+						}
+
 						Graphics.ExecuteCommandBuffer(cb);
 
 						DestroyImmediate(lightCombiner);
