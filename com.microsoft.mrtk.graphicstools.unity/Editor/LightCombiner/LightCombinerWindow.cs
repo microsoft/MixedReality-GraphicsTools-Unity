@@ -19,8 +19,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			Lightmap
 		}
 
+		// Settings.
 		private CombineMode combineMode = CombineMode.AlbedoAndLightmap;
 		private float textureScalar = 2.0f;
+		private bool exportHDR = true;
+
 		private string errorText = null;
 
 		private const string kWorkingDirectoryPostfix = "LightCombined";
@@ -42,6 +45,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 				combineMode = (CombineMode)EditorGUILayout.EnumPopup("Combine Mode", combineMode);
 				textureScalar = EditorGUILayout.FloatField("Texture Scalar", textureScalar);
+				exportHDR = EditorGUILayout.Toggle("HDR", exportHDR);
 			}
 			EditorGUILayout.EndVertical();
 
@@ -176,7 +180,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						combinedSize.Height = (int)(Mathf.Max(albedoTextureSize.Height, lightmapSize.Height) * textureScalar);
 
 						// Use the GPU to perform the texture combination.
-						var renderTexture = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+						var renderTexture = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Linear);
 
 						CommandBuffer cb = new CommandBuffer();
 
@@ -214,12 +218,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						// Save the last render texture to disk.
 						RenderTexture previous = RenderTexture.active;
 						RenderTexture.active = renderTexture;
-						var combinedTexture = new Texture2D(combinedSize.Width, combinedSize.Height);
+						var combinedTexture = new Texture2D(combinedSize.Width, combinedSize.Height, TextureFormat.RGBAFloat, true, true);
 						combinedTexture.ReadPixels(new Rect(0.0f, 0.0f, combinedSize.Width, combinedSize.Height), 0, 0);
 						combinedTexture.Apply();
 						RenderTexture.active = previous;
 						RenderTexture.ReleaseTemporary(renderTexture);
-						var combinedTextureAsset = SaveTexture(combinedTexture, workingDirectory, renderer.gameObject.name);
+						var combinedTextureAsset = SaveTexture(combinedTexture, workingDirectory, renderer.gameObject.name, exportHDR);
 						DestroyImmediate(combinedTexture);
 
 						// Apply to a duplicated material.
@@ -254,16 +258,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			return material;
 		}
 
-		private static Texture2D SaveTexture(Texture2D texture, string workingDirectory, string fileName)
+		private static Texture2D SaveTexture(Texture2D texture, string workingDirectory, string fileName, bool exportHDR)
 		{
-			var textureData = TextureFile.Encode(texture, TextureFile.Format.PNG);
+			var textureData = exportHDR ? ImageConversion.EncodeToEXR(texture, Texture2D.EXRFlags.CompressZIP) :
+										  TextureFile.Encode(texture, TextureFile.Format.PNG); ;
 
 			if (textureData == null)
 			{
 				return null;
 			}
 
-			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.png"));
+			var extension = exportHDR ? ".exr" : ".png";
+			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}{extension}"));
 			File.WriteAllBytes(path, textureData);
 			AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
 
