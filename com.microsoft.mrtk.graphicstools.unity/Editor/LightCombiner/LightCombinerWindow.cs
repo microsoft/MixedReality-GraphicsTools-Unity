@@ -20,6 +20,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		}
 
 		private CombineMode combineMode = CombineMode.AlbedoAndLightmap;
+		private float textureScalar = 2.0f;
 		private string errorText = null;
 
 		private const string kWorkingDirectoryPostfix = "LightCombined";
@@ -40,6 +41,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				GUILayout.Label("Export Options", EditorStyles.boldLabel);
 
 				combineMode = (CombineMode)EditorGUILayout.EnumPopup("Combine Mode", combineMode);
+				textureScalar = EditorGUILayout.FloatField("Texture Scalar", textureScalar);
 			}
 			EditorGUILayout.EndVertical();
 
@@ -143,7 +145,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 						var newMesh = Instantiate(originalMesh);
 						newMesh.uv = uv1;
-						newMesh.uv2 = null;
+						newMesh.uv2 = uv0;
 						meshFilter.mesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
 					}
 
@@ -170,8 +172,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						var lightmapSize = GetScaledTextureSize(lightmapTexture, lightmapScale);
 
 						TextureSize combinedSize;
-						combinedSize.Width = Mathf.Max(albedoTextureSize.Width, lightmapSize.Width);
-						combinedSize.Height = Mathf.Max(albedoTextureSize.Height, lightmapSize.Height);
+						combinedSize.Width = (int)(Mathf.Max(albedoTextureSize.Width, lightmapSize.Width) * textureScalar);
+						combinedSize.Height = (int)(Mathf.Max(albedoTextureSize.Height, lightmapSize.Height) * textureScalar);
 
 						// Use the GPU to perform the texture combination.
 						var renderTexture = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
@@ -197,7 +199,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Albedo)
 						{
-							cb.DrawMesh(originalMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
+							cb.DrawMesh(meshFilter.mesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
 						}
 
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Lightmap)
@@ -263,7 +265,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.png"));
 			File.WriteAllBytes(path, textureData);
-			AssetDatabase.Refresh();
+			AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+
+			TextureImporter textureImporter = AssetImporter.GetAtPath(path) as TextureImporter;
+
+			if (textureImporter == null)
+			{
+				return null;
+			}
+
+			// Saving texture data in linear color space.
+			textureImporter.sRGBTexture = false;
+
+			AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
 
 			return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
 		}
@@ -271,7 +285,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		private static TextureSize GetScaledTextureSize(Texture2D texture, Vector2 scale)
 		{
 			const int minTextureSize = 2;
-			const int maxTextureSize = 4096;
+			const int maxTextureSize = 2048;
 
 			TextureSize output;
 

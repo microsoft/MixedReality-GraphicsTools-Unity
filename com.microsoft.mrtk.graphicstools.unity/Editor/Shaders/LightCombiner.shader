@@ -39,7 +39,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			struct v2f
 			{
 				float4 vertex : SV_POSITION;
-				float2 uv : TEXCOORD0;
+				float2 uv1 : TEXCOORD0;
 			};
 
 			TEXTURE2D(_AlbedoMap);
@@ -49,8 +49,10 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			v2f VertexStage(appdata v)
 			{
 				v2f o;
-				o.vertex = float4(v.uv * 2 - 1, 0, 1);
-				o.uv = v.uv1;
+				float2 uv = v.uv;
+				uv.y = 1 - uv.y;
+				o.vertex = float4(uv * 2 - 1, 0, 1);
+				o.uv1 = v.uv1;
 
 				return o;
 			}
@@ -59,7 +61,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			{
 				half4 output = half4(1, 0, 0, 1);
 
-				float2 albedoUV = i.uv  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw;
+				float2 albedoUV = i.uv1  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw;
 				output = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, albedoUV);
 
 				return output;
