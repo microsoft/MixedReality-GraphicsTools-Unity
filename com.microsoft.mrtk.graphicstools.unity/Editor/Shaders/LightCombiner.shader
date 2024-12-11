@@ -8,8 +8,12 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 {
 	Properties
 	{
+		_AlbedoColor("Albedo Color", Color) = (1.0, 1.0, 1.0, 1.0)
 		_AlbedoMap("Albedo Map", 2D) = "white" {}
 		_AlbedoMapScaleOffset("Albedo Map Scale Offset", Vector)  = (1, 1, 0, 0)
+
+		_RemappedAlbedoMap("Remapped Albedo Map", 2D) = "white" {}
+		_RemappedAlbedoMapScaleOffset("Remapped Albedo Map Scale Offset", Vector)  = (1, 1, 0, 0)
 		_LightMap("Light Map", 2D) = "black" {}
 		_LightMapScaleOffset("Light Map Scale Offset", Vector)  = (1, 1, 0, 0)
 	}
@@ -59,12 +63,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			half4 PixelStage(v2f i) : SV_Target
 			{
-				half4 output = half4(1, 0, 0, 1);
-
 				float2 albedoUV = i.uv1  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw;
-				output = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, albedoUV);
-
-				return output;
+				return SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, albedoUV);
 			}
 
 			ENDHLSL
@@ -73,8 +73,6 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 		Pass
 		{
 			Name "Lightmap"
-
-			Blend DstColor Zero
 
 			HLSLPROGRAM
 
@@ -96,6 +94,10 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 				float2 uv : TEXCOORD0;
 			};
 
+			half4 _AlbedoColor;
+			TEXTURE2D(_RemappedAlbedoMap);
+			SAMPLER(sampler_RemappedAlbedoMap);
+			half4 _RemappedAlbedoMapScaleOffset;
 			TEXTURE2D(_LightMap);
 			SAMPLER(sampler_LightMap);
 			half4 _LightMapScaleOffset;
@@ -111,17 +113,13 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			half4 PixelStage(v2f i) : SV_Target
 			{
-				half4 output = half4(0, 0, 0, 1);
+				float2 remappedAlbedoUV = i.uv  * _RemappedAlbedoMapScaleOffset.xy + _RemappedAlbedoMapScaleOffset.zw;
+				half4 albedo = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, remappedAlbedoUV);
 
 				float2 lightmapUV = i.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
-#ifdef UNITY_LIGHTMAP_FULL_HDR
-				output.rgb = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;
-#else
-				half4 decodeInstructions = half4(LIGHTMAP_HDR_MULTIPLIER, LIGHTMAP_HDR_EXPONENT, 0.0h, 0.0h);
-				float4 encodedIlluminance = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgba;
-				output.rgb = DecodeLightmap(encodedIlluminance, decodeInstructions);
-#endif
-				return output;
+				half3 lightmap = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;
+
+				return half4(_AlbedoColor.rgb * albedo.rgb * lightmap.rgb, _AlbedoColor.a * albedo.a);
 			}
 
 			ENDHLSL

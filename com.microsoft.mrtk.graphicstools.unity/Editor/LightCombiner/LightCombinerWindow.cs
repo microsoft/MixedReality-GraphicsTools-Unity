@@ -22,7 +22,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		// Settings.
 		private CombineMode combineMode = CombineMode.AlbedoAndLightmap;
 		private float textureScalar = 2.0f;
-		private bool exportHDR = true;
+		private bool exportHDR = false;
 
 		private string errorText = null;
 
@@ -140,7 +140,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						continue;
 					}
 
-					var originalMesh = meshFilter.mesh;
+					var originalMesh = meshFilter.sharedMesh;
 					var uv1 = originalMesh.uv2;
 
 					if (uv1 != null && uv1.Length != 0)
@@ -150,7 +150,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						var newMesh = Instantiate(originalMesh);
 						newMesh.uv = uv1;
 						newMesh.uv2 = uv0;
-						meshFilter.mesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
+						meshFilter.sharedMesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
 					}
 
 					// For now duplicate all materials (later only do this if required).
@@ -180,15 +180,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						combinedSize.Height = (int)(Mathf.Max(albedoTextureSize.Height, lightmapSize.Height) * textureScalar);
 
 						// Use the GPU to perform the texture combination.
-						var renderTexture = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Linear);
+						var outputRT = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Linear);
+						var remappedAlbedoRT = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Linear);
 
 						CommandBuffer cb = new CommandBuffer();
 
-						cb.SetRenderTarget(renderTexture);
+						cb.SetRenderTarget(outputRT);
 						cb.SetProjectionMatrix(Matrix4x4.Ortho(0, 1, 0, 1, -100, 100));
 						cb.ClearRenderTarget(true, true, Color.white);
 
 						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
+						lightCombiner.SetColor("_AlbedoColor", materials[i].color);
 
 						if (albedoTexture != null)
 						{
@@ -197,37 +199,43 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 																						 albedoTextureOffset.x, albedoTextureOffset.y));
 						}
 
+						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Albedo)
+						{
+							cb.DrawMesh(meshFilter.sharedMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
+
+							cb.Blit(BuiltinRenderTextureType.CurrentActive, remappedAlbedoRT);
+							lightCombiner.SetTexture("_RemappedAlbedoMap", remappedAlbedoRT);
+						}
+
 						lightCombiner.SetTexture("_LightMap", lightmapTexture);
 						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
 																					lightmapOffset.x, lightmapOffset.y));
 
-						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Albedo)
-						{
-							cb.DrawMesh(meshFilter.mesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
-						}
-
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Lightmap)
 						{
-							cb.Blit(null, renderTexture, lightCombiner, lightCombiner.FindPass("Lightmap"));
+							cb.Blit(null, outputRT, lightCombiner, lightCombiner.FindPass("Lightmap"));
 						}
 
 						Graphics.ExecuteCommandBuffer(cb);
 
-						DestroyImmediate(lightCombiner);
-
-						// Save the last render texture to disk.
+						// Save the active render texture to disk.
 						RenderTexture previous = RenderTexture.active;
-						RenderTexture.active = renderTexture;
-						var combinedTexture = new Texture2D(combinedSize.Width, combinedSize.Height, TextureFormat.RGBAFloat, true, true);
+						RenderTexture.active = outputRT;
+						var combinedTexture = new Texture2D(combinedSize.Width, combinedSize.Height, TextureFormat.RGBAFloat, false, true);
 						combinedTexture.ReadPixels(new Rect(0.0f, 0.0f, combinedSize.Width, combinedSize.Height), 0, 0);
 						combinedTexture.Apply();
 						RenderTexture.active = previous;
-						RenderTexture.ReleaseTemporary(renderTexture);
 						var combinedTextureAsset = SaveTexture(combinedTexture, workingDirectory, renderer.gameObject.name, exportHDR);
+
+						// Cleanup resources.
 						DestroyImmediate(combinedTexture);
+						DestroyImmediate(lightCombiner);
+						RenderTexture.ReleaseTemporary(remappedAlbedoRT);
+						RenderTexture.ReleaseTemporary(outputRT);
 
 						// Apply to a duplicated material.
 						var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, renderer.gameObject.name);
+						duplicateMaterial.color = Color.white;
 						duplicateMaterial.mainTexture = combinedTextureAsset;
 						duplicateMaterial.mainTextureScale = new Vector2(1.0f, 1.0f);
 						duplicateMaterial.mainTextureOffset = new Vector2(0.0f, 0.0f);
@@ -237,13 +245,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					renderer.materials = materials;
 				}
 			}
+
+			AssetDatabase.SaveAssets();
 		}
 
 		private static Mesh SaveMesh(Mesh mesh, string workingDirectory, string fileName)
 		{
 			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.asset"));
 			AssetDatabase.CreateAsset(mesh, path);
-			AssetDatabase.SaveAssets();
 
 			return mesh;
 		}
@@ -253,22 +262,31 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			var material = new Material(originalMaterial);
 			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.mat"));
 			AssetDatabase.CreateAsset(material, path);
-			AssetDatabase.SaveAssets();
 
 			return material;
 		}
 
 		private static Texture2D SaveTexture(Texture2D texture, string workingDirectory, string fileName, bool exportHDR)
 		{
-			var textureData = exportHDR ? ImageConversion.EncodeToEXR(texture, Texture2D.EXRFlags.CompressZIP) :
-										  TextureFile.Encode(texture, TextureFile.Format.PNG); ;
+			byte[] textureData = null;
+			string extension = null;
+
+			if (exportHDR)
+			{
+				textureData = ImageConversion.EncodeToEXR(texture, Texture2D.EXRFlags.CompressZIP);
+				extension = ".exr";
+			}
+			else
+			{
+				textureData = ImageConversion.EncodeArrayToPNG(texture.GetRawTextureData(), texture.graphicsFormat, (uint)texture.width, (uint)texture.height);
+				extension = ".png";
+			}
 
 			if (textureData == null)
 			{
 				return null;
 			}
 
-			var extension = exportHDR ? ".exr" : ".png";
 			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}{extension}"));
 			File.WriteAllBytes(path, textureData);
 			AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
