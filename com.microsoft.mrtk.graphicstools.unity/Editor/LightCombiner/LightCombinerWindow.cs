@@ -23,6 +23,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		private CombineMode combineMode = CombineMode.AlbedoAndLightmap;
 		private float textureScalar = 2.0f;
 		private bool exportHDR = false;
+		private TextureImporterCompression textureCompression = TextureImporterCompression.CompressedHQ;
 
 		private string errorText = null;
 
@@ -46,6 +47,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				combineMode = (CombineMode)EditorGUILayout.EnumPopup("Combine Mode", combineMode);
 				textureScalar = EditorGUILayout.FloatField("Texture Scalar", textureScalar);
 				exportHDR = EditorGUILayout.Toggle("HDR", exportHDR);
+				textureCompression = (TextureImporterCompression)EditorGUILayout.EnumPopup("Compression Mode", textureCompression);
 			}
 			EditorGUILayout.EndVertical();
 
@@ -213,6 +215,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
 																					lightmapOffset.x, lightmapOffset.y));
 
+						if (!exportHDR)
+						{
+							lightCombiner.EnableKeyword("CONVERT_TO_SRGB");
+						}
+
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Lightmap)
 						{
 							cb.Blit(null, outputRT, lightCombiner, lightCombiner.FindPass("Lightmap"));
@@ -227,7 +234,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						combinedTexture.ReadPixels(new Rect(0.0f, 0.0f, combinedSize.Width, combinedSize.Height), 0, 0);
 						combinedTexture.Apply();
 						RenderTexture.active = previous;
-						var combinedTextureAsset = SaveTexture(combinedTexture, workingDirectory, renderer.gameObject.name, exportHDR);
+						var combinedTextureAsset = SaveTexture(combinedTexture, workingDirectory, renderer.gameObject.name, exportHDR, textureCompression);
 
 						// Cleanup resources.
 						DestroyImmediate(combinedTexture);
@@ -268,7 +275,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			return material;
 		}
 
-		private static Texture2D SaveTexture(Texture2D texture, string workingDirectory, string fileName, bool exportHDR)
+		private static Texture2D SaveTexture(Texture2D texture, string workingDirectory, string fileName, bool exportHDR, TextureImporterCompression textureCompression)
 		{
 			byte[] textureData = null;
 			string extension = null;
@@ -301,9 +308,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				return null;
 			}
 
-			// Saving texture data in linear color space.
-			textureImporter.sRGBTexture = false;
-			textureImporter.textureCompression = TextureImporterCompression.CompressedHQ; // TODO, why does this make glTFast export darker textures?
+			textureImporter.textureCompression = textureCompression;
 
 			AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
 

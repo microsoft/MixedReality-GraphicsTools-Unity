@@ -76,6 +76,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			HLSLPROGRAM
 
+			#pragma multi_compile _ CONVERT_TO_SRGB
+
 			#pragma vertex VertexStage
 			#pragma fragment PixelStage
 
@@ -119,7 +121,11 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 				float2 lightmapUV = i.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
 				half3 lightmap = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;
 
-				return half4(_AlbedoColor.rgb * albedo.rgb * lightmap.rgb, _AlbedoColor.a * albedo.a);
+				half4 output = half4(_AlbedoColor.rgb * albedo.rgb * lightmap.rgb, _AlbedoColor.a * albedo.a);
+#if CONVERT_TO_SRGB
+				output.rgb = LinearToSRGB(output.rgb);
+#endif
+				return output;
 			}
 
 			ENDHLSL
