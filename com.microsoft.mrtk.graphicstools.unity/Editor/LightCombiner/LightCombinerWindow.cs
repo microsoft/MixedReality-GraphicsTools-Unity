@@ -154,7 +154,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					}
 
 					// For now duplicate all materials (later only do this if required).
-					var materials = renderer.materials;
+					var materials = renderer.sharedMaterials;
 
 					for (int i = 0; i < materials.Length; ++i)
 					{
@@ -192,6 +192,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
 						lightCombiner.SetColor("_AlbedoColor", materials[i].color);
 
+						// First pass, render the albedo in uv0 space.
 						if (albedoTexture != null)
 						{
 							lightCombiner.SetTexture("_AlbedoMap", albedoTexture);
@@ -207,6 +208,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 							lightCombiner.SetTexture("_RemappedAlbedoMap", remappedAlbedoRT);
 						}
 
+						// Second pass, blit the lightmap onto the albedo.
 						lightCombiner.SetTexture("_LightMap", lightmapTexture);
 						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
 																					lightmapOffset.x, lightmapOffset.y));
@@ -242,7 +244,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						materials[i] = duplicateMaterial;
 					}
 
-					renderer.materials = materials;
+					renderer.sharedMaterials = materials;
 				}
 			}
 
@@ -284,6 +286,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 			if (textureData == null)
 			{
+				Debug.LogError($"Failed to encode texture \"{texture.name}\" to \"{extension}\".");
 				return null;
 			}
 
@@ -300,6 +303,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 			// Saving texture data in linear color space.
 			textureImporter.sRGBTexture = false;
+			textureImporter.textureCompression = TextureImporterCompression.CompressedHQ; // TODO, why does this make glTFast export darker textures?
 
 			AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
 
