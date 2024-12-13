@@ -9,13 +9,15 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 	Properties
 	{
 		_AlbedoColor("Albedo Color", Color) = (1.0, 1.0, 1.0, 1.0)
-		_AlbedoMap("Albedo Map", 2D) = "white" {}
+		_AlbedoMap("Albedo", 2D) = "white" {}
 		_AlbedoMapScaleOffset("Albedo Map Scale Offset", Vector)  = (1, 1, 0, 0)
 
-		_RemappedAlbedoMap("Remapped Albedo Map", 2D) = "white" {}
-		_RemappedAlbedoMapScaleOffset("Remapped Albedo Map Scale Offset", Vector)  = (1, 1, 0, 0)
+		_RemappedAlbedoMap("Remapped Albedo", 2D) = "white" {}
+		_RemappedAlbedoMaskMap("Remapped Albedo Mask", 2D) = "black" {}
+		_AlbedoMapSize("Albedo Map Size", Vector)  = (256, 256, 0, 0)
 		_LightMap("Light Map", 2D) = "black" {}
 		_LightMapScaleOffset("Light Map Scale Offset", Vector)  = (1, 1, 0, 0)
+		_DilationSteps("Dilation Steps", Float) = 16
 	}
 	SubShader
 	{
@@ -26,6 +28,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			Cull Off
 
 			HLSLPROGRAM
+
+			#pragma multi_compile _ GENERATE_MASK
 
 			#pragma vertex VertexStage
 			#pragma fragment PixelStage
@@ -48,6 +52,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			TEXTURE2D(_AlbedoMap);
 			SAMPLER(sampler_AlbedoMap);
+
 			half4 _AlbedoMapScaleOffset;
 
 			v2f VertexStage(appdata v)
@@ -63,8 +68,12 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			half4 PixelStage(v2f i) : SV_Target
 			{
+#if GENERATE_MASK
+				return half4(1, 1, 1, 1);
+#else
 				float2 albedoUV = i.uv1  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw;
 				return SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, albedoUV);
+#endif
 			}
 
 			ENDHLSL
@@ -77,6 +86,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			HLSLPROGRAM
 
 			#pragma multi_compile _ CONVERT_TO_SRGB
+			#pragma multi_compile _ DILATE
 
 			#pragma vertex VertexStage
 			#pragma fragment PixelStage
@@ -97,12 +107,20 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			};
 
 			half4 _AlbedoColor;
+
 			TEXTURE2D(_RemappedAlbedoMap);
 			SAMPLER(sampler_RemappedAlbedoMap);
-			half4 _RemappedAlbedoMapScaleOffset;
+
+			TEXTURE2D(_RemappedAlbedoMaskMap);
+			SAMPLER(sampler_RemappedAlbedoMaskMap);
+
+			half4 _AlbedoMapSize;
+
 			TEXTURE2D(_LightMap);
 			SAMPLER(sampler_LightMap);
+
 			half4 _LightMapScaleOffset;
+			float _DilationSteps;
 
 			v2f VertexStage(appdata v)
 			{
@@ -113,10 +131,67 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 				return o;
 			}
 
+			// Based on this technique: https://shaderbits.com/blog/uv-dilation
+			float3 UVPositionalDilation(float2 uv)
+			{
+				float texelsize = 1 / min(_AlbedoMapSize.x, _AlbedoMapSize.y);
+				float minDistance = 10000000;
+				float2 offsets[8] = {float2(-1,0), float2(1,0), float2(0,1), float2(0,-1), 
+									 float2(-1,1), float2(1,1), float2(1,-1), float2(-1,-1)};
+				
+				float3 sampleMask = SAMPLE_TEXTURE2D(_RemappedAlbedoMaskMap, sampler_RemappedAlbedoMaskMap, uv).rgb;
+				float3 currentMinSample = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, uv).rgb;
+				
+				if (sampleMask.r == 0 && sampleMask.g == 0 && sampleMask.b == 0)
+				{
+					int i = 0;
+					[loop]
+					while (i < _DilationSteps)
+					{ 
+						++i;
+						int j = 0;
+						while (j < 8)
+						{
+							float2 currentUV = uv + offsets[j] * texelsize * i;
+							float3 offsetSampleMask = SAMPLE_TEXTURE2D(_RemappedAlbedoMaskMap, sampler_RemappedAlbedoMaskMap, currentUV).rgb;
+							float3 offsetSample = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, currentUV).rgb;
+
+							if (offsetSampleMask.r != 0 || offsetSampleMask.g != 0 || offsetSampleMask.b != 0)
+							{
+								float currentDistance = length(uv - currentUV);
+				
+								if (currentDistance < minDistance)
+								{
+									float2 projectUV = currentUV + offsets[j] * texelsize * i * 0.25;
+									float3 directionMask = SAMPLE_TEXTURE2D(_RemappedAlbedoMaskMap, sampler_RemappedAlbedoMaskMap, projectUV).rgb;
+									float3 direction = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, projectUV).rgb;
+									minDistance = currentDistance;
+				
+									if (directionMask.r != 0 || directionMask.g != 0 || directionMask.b != 0)
+									{
+										float3 delta = offsetSample - direction;
+										currentMinSample = offsetSample + delta * 4;
+									}
+									else
+									{
+										currentMinSample = offsetSample;
+									}
+								}
+							}
+							++j;
+						}
+					}
+				}
+				
+				return currentMinSample;
+			}
+
 			half4 PixelStage(v2f i) : SV_Target
 			{
-				float2 remappedAlbedoUV = i.uv  * _RemappedAlbedoMapScaleOffset.xy + _RemappedAlbedoMapScaleOffset.zw;
-				half4 albedo = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, remappedAlbedoUV);
+				half4 albedo = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, i.uv);
+#if DILATE
+				albedo = half4(UVPositionalDilation(i.uv), albedo.a);
+#endif
 
 				float2 lightmapUV = i.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
 				half3 lightmap = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;

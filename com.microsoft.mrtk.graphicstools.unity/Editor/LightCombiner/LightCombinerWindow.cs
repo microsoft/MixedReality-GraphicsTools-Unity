@@ -24,6 +24,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		private float textureScalar = 2.0f;
 		private bool exportHDR = false;
 		private TextureImporterCompression textureCompression = TextureImporterCompression.CompressedHQ;
+		private int textureDilationSteps = 16;
 
 		private string errorText = null;
 
@@ -48,6 +49,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				textureScalar = EditorGUILayout.FloatField("Texture Scalar", textureScalar);
 				exportHDR = EditorGUILayout.Toggle("HDR", exportHDR);
 				textureCompression = (TextureImporterCompression)EditorGUILayout.EnumPopup("Compression Mode", textureCompression);
+				textureDilationSteps = EditorGUILayout.IntSlider("Dilation Steps", textureDilationSteps, 0, 256);
 			}
 			EditorGUILayout.EndVertical();
 
@@ -91,7 +93,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			}
 
 			// Generate a new path for the duplicated scene.
-			var newScenePath = Path.Combine(Path.GetDirectoryName(currentScenePath), Path.GetFileNameWithoutExtension(currentScenePath) + $"_{kWorkingDirectoryPostfix}.unity");
+			var newScenePath = Path.Combine(Path.GetDirectoryName(currentScenePath), 
+											Path.GetFileNameWithoutExtension(currentScenePath) + $"_{kWorkingDirectoryPostfix}.unity");
 
 			if (AssetDatabase.CopyAsset(currentScenePath, newScenePath))
 			{
@@ -182,19 +185,22 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						combinedSize.Height = (int)(Mathf.Max(albedoTextureSize.Height, lightmapSize.Height) * textureScalar);
 
 						// Use the GPU to perform the texture combination.
-						var outputRT = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Linear);
-						var remappedAlbedoRT = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Linear);
+						var format = RenderTextureFormat.DefaultHDR;
+						var colorSpace = RenderTextureReadWrite.Linear;
+						var outputRT = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, format, colorSpace);
+						var remappedAlbedoRT = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, format, colorSpace);
+						var remappedAlbedoMaskRT = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, format, colorSpace);
 
 						CommandBuffer cb = new CommandBuffer();
 
 						cb.SetRenderTarget(outputRT);
 						cb.SetProjectionMatrix(Matrix4x4.Ortho(0, 1, 0, 1, -100, 100));
-						cb.ClearRenderTarget(true, true, Color.white);
+
+						cb.ClearRenderTarget(true, true, new Color(1, 1, 1, 0));
 
 						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
 						lightCombiner.SetColor("_AlbedoColor", materials[i].color);
 
-						// First pass, render the albedo in uv0 space.
 						if (albedoTexture != null)
 						{
 							lightCombiner.SetTexture("_AlbedoMap", albedoTexture);
@@ -202,15 +208,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 																						 albedoTextureOffset.x, albedoTextureOffset.y));
 						}
 
+						// First pass, render the albedo in uv0 space and blit it to a render target.
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Albedo)
 						{
 							cb.DrawMesh(meshFilter.sharedMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
-
 							cb.Blit(BuiltinRenderTextureType.CurrentActive, remappedAlbedoRT);
 							lightCombiner.SetTexture("_RemappedAlbedoMap", remappedAlbedoRT);
 						}
 
-						// Second pass, blit the lightmap onto the albedo.
 						lightCombiner.SetTexture("_LightMap", lightmapTexture);
 						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
 																					lightmapOffset.x, lightmapOffset.y));
@@ -220,8 +225,22 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 							lightCombiner.EnableKeyword("CONVERT_TO_SRGB");
 						}
 
+						if (textureDilationSteps > 0)
+						{
+							lightCombiner.EnableKeyword("DILATE");
+							lightCombiner.SetFloat("_DilationSteps", textureDilationSteps);
+						}
+
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Lightmap)
 						{
+							// Second pass, render a albedo mask and blit it to a render target.
+							cb.ClearRenderTarget(true, true, new Color(0, 0, 0, 0));
+							lightCombiner.EnableKeyword("GENERATE_ALBEDO_MASK");
+							cb.DrawMesh(meshFilter.sharedMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
+							cb.Blit(BuiltinRenderTextureType.CurrentActive, remappedAlbedoMaskRT);
+							lightCombiner.SetTexture("_RemappedAlbedoMaskMap", remappedAlbedoMaskRT);
+
+							// Third pass, blit the lightmap onto the albedo.
 							cb.Blit(null, outputRT, lightCombiner, lightCombiner.FindPass("Lightmap"));
 						}
 
