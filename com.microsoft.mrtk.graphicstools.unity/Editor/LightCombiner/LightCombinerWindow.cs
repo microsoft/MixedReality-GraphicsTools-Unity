@@ -26,6 +26,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		private TextureImporterCompression textureCompression = TextureImporterCompression.CompressedHQ;
 		private int textureDilationSteps = 16;
 
+		private string infoText = "I'm a friendly help message.";
 		private string errorText = null;
 
 		private const string kWorkingDirectoryPostfix = "LightCombined";
@@ -72,7 +73,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				}
 				else
 				{
-					EditorGUILayout.HelpBox("I'm a friendly help message.", MessageType.Info);
+					EditorGUILayout.HelpBox(infoText, MessageType.Info);
 				}
 			}
 			EditorGUILayout.EndVertical();
@@ -113,7 +114,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				errorText = "Failed to duplicate the scene.";
 			}
 
-			Debug.LogFormat("LightCombinerWindow.Save took {0} ms.", watch.ElapsedMilliseconds);
+			var seconds = watch.ElapsedMilliseconds / 1000.0f;
+			infoText = $"LightCombinerWindow.Save took {seconds} s.";
+			Debug.Log(infoText);
 		}
 
 		private struct TextureSize
@@ -131,6 +134,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			{
 				foreach (var renderer in rootObject.GetComponentsInChildren<Renderer>())
 				{
+					// Is the renderer active?
+					if (!renderer.gameObject.activeInHierarchy || !renderer.enabled)
+					{
+						continue;
+					}
+
 					// Does the renderer use a lightmap?
 					if (renderer.lightmapIndex < 0 || renderer.sharedMaterials.Length == 0)
 					{
