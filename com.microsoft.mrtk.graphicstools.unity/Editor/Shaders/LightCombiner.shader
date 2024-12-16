@@ -194,7 +194,14 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 #endif
 
 				float2 lightmapUV = i.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
+
+#ifdef UNITY_LIGHTMAP_FULL_HDR
 				half3 lightmap = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;
+#else
+				half4 decodeInstructions = half4(LIGHTMAP_HDR_MULTIPLIER, LIGHTMAP_HDR_EXPONENT, 0.0h, 0.0h);
+				float4 encodedIlluminance = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgba;
+				half3 lightmap = DecodeLightmap(encodedIlluminance, decodeInstructions);
+#endif
 
 				half4 output = half4(_AlbedoColor.rgb * albedo.rgb * lightmap.rgb, _AlbedoColor.a * albedo.a);
 #if CONVERT_TO_SRGB
