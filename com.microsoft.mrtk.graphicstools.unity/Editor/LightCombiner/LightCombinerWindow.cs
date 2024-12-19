@@ -201,11 +201,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						var remappedAlbedoMaskRT = RenderTexture.GetTemporary(combinedSize.Width, combinedSize.Height, 0, format, colorSpace);
 
 						CommandBuffer cb = new CommandBuffer();
-
-						cb.SetRenderTarget(outputRT);
 						cb.SetProjectionMatrix(Matrix4x4.Ortho(0, 1, 0, 1, -100, 100));
-
-						cb.ClearRenderTarget(true, true, new Color(1, 1, 1, 0));
 
 						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
 						lightCombiner.SetColor("_AlbedoColor", materials[i].color);
@@ -217,11 +213,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 																						 albedoTextureOffset.x, albedoTextureOffset.y));
 						}
 
-						// First pass, render the albedo in uv0 space and blit it to a render target.
+						// First pass, render the albedo in uv0 space.
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Albedo)
 						{
+							cb.SetRenderTarget(remappedAlbedoRT);
+							cb.ClearRenderTarget(true, true, new Color(0, 0, 0, 0));
 							cb.DrawMesh(meshFilter.sharedMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
-							cb.Blit(BuiltinRenderTextureType.CurrentActive, remappedAlbedoRT);
 							lightCombiner.SetTexture("_RemappedAlbedoMap", remappedAlbedoRT);
 						}
 
@@ -242,30 +239,26 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Lightmap)
 						{
-							// Second pass, render a albedo mask and blit it to a render target.
+							// Second pass, render a albedo mask.
+							cb.SetRenderTarget(remappedAlbedoMaskRT);
 							cb.ClearRenderTarget(true, true, new Color(0, 0, 0, 0));
-							lightCombiner.EnableKeyword("GENERATE_ALBEDO_MASK");
-							cb.DrawMesh(meshFilter.sharedMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
-							cb.Blit(BuiltinRenderTextureType.CurrentActive, remappedAlbedoMaskRT);
+							cb.DrawMesh(meshFilter.sharedMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("AlbedoMask"));
 							lightCombiner.SetTexture("_RemappedAlbedoMaskMap", remappedAlbedoMaskRT);
 
 							// Third pass, blit the lightmap onto the albedo.
 							cb.Blit(null, outputRT, lightCombiner, lightCombiner.FindPass("Lightmap"));
 						}
 
+						cb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+
 						Graphics.ExecuteCommandBuffer(cb);
 
 						// Save the active render texture to disk.
-						RenderTexture previous = RenderTexture.active;
-						RenderTexture.active = outputRT;
-						var combinedTexture = new Texture2D(combinedSize.Width, combinedSize.Height, TextureFormat.RGBAFloat, false, true);
-						combinedTexture.ReadPixels(new Rect(0.0f, 0.0f, combinedSize.Width, combinedSize.Height), 0, 0);
-						combinedTexture.Apply();
-						RenderTexture.active = previous;
-						var combinedTextureAsset = SaveTexture(combinedTexture, workingDirectory, renderer.gameObject.name, exportHDR, textureCompression);
+						var combinedTextureAsset = SaveRenderTexture(outputRT, combinedSize, workingDirectory, renderer.gameObject.name, exportHDR, textureCompression);
+						//SaveRenderTexture(remappedAlbedoRT, combinedSize, workingDirectory, renderer.gameObject.name + "AlbedoRemap", exportHDR, textureCompression); // DEBUG
+						//SaveRenderTexture(remappedAlbedoMaskRT, combinedSize, workingDirectory, renderer.gameObject.name + "AlbedoMask", exportHDR, textureCompression); // DEBUG
 
 						// Cleanup resources.
-						DestroyImmediate(combinedTexture);
 						DestroyImmediate(lightCombiner);
 						RenderTexture.ReleaseTemporary(remappedAlbedoRT);
 						RenderTexture.ReleaseTemporary(outputRT);
@@ -297,14 +290,28 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		private static Material DuplicateAndSaveMaterial(Material originalMaterial, string workingDirectory, string fileName)
 		{
 			var material = new Material(originalMaterial);
+
+			// Baked lit shaders appear darker after conversion. TODO, figure out why?
+			if (material.shader == Shader.Find("Universal Render Pipeline/Baked Lit"))
+			{
+				material.shader = Shader.Find("Universal Render Pipeline/Unlit");
+			}
+
 			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.mat"));
 			AssetDatabase.CreateAsset(material, path);
 
 			return material;
 		}
 
-		private static Texture2D SaveTexture(Texture2D texture, string workingDirectory, string fileName, bool exportHDR, TextureImporterCompression textureCompression)
+		private static Texture2D SaveRenderTexture(RenderTexture renderTexture, TextureSize size, string workingDirectory, string fileName, bool exportHDR, TextureImporterCompression textureCompression)
 		{
+			RenderTexture previous = RenderTexture.active;
+			RenderTexture.active = renderTexture;
+			var texture = new Texture2D(size.Width, size.Height, TextureFormat.RGBAFloat, false, true);
+			texture.ReadPixels(new Rect(0.0f, 0.0f, size.Width, size.Height), 0, 0);
+			texture.Apply();
+			RenderTexture.active = previous;
+
 			byte[] textureData = null;
 			string extension = null;
 
@@ -324,6 +331,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				Debug.LogError($"Failed to encode texture \"{texture.name}\" to \"{extension}\".");
 				return null;
 			}
+
+			DestroyImmediate(texture);
 
 			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}{extension}"));
 			File.WriteAllBytes(path, textureData);

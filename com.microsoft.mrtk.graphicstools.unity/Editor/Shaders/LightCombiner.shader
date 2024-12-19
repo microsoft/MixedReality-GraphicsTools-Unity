@@ -29,8 +29,6 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile _ GENERATE_MASK
-
 			#pragma vertex VertexStage
 			#pragma fragment PixelStage
 
@@ -68,12 +66,51 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			half4 PixelStage(v2f i) : SV_Target
 			{
-#if GENERATE_MASK
-				return half4(1, 1, 1, 1);
-#else
 				float2 albedoUV = i.uv1  * _AlbedoMapScaleOffset.xy + _AlbedoMapScaleOffset.zw;
 				return SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, albedoUV);
-#endif
+			}
+
+			ENDHLSL
+		}
+
+		Pass
+		{
+			Name "AlbedoMask"
+
+			Cull Off
+
+			HLSLPROGRAM
+
+			#pragma vertex VertexStage
+			#pragma fragment PixelStage
+
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+			};
+
+			struct v2f
+			{
+				float4 vertex : SV_POSITION;
+			};
+
+			v2f VertexStage(appdata v)
+			{
+				v2f o;
+				float2 uv = v.uv;
+				uv.y = 1 - uv.y;
+				o.vertex = float4(uv * 2 - 1, 0, 1);
+
+				return o;
+			}
+
+			half4 PixelStage(v2f i) : SV_Target
+			{
+				return half4(1, 0, 0, 1);
 			}
 
 			ENDHLSL
@@ -85,8 +122,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile _ CONVERT_TO_SRGB
-			#pragma multi_compile _ DILATE
+			#pragma multi_compile_local _ CONVERT_TO_SRGB
+			#pragma multi_compile_local _ DILATE
 
 			#pragma vertex VertexStage
 			#pragma fragment PixelStage
@@ -142,7 +179,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 				float3 sampleMask = SAMPLE_TEXTURE2D(_RemappedAlbedoMaskMap, sampler_RemappedAlbedoMaskMap, uv).rgb;
 				float3 currentMinSample = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, uv).rgb;
 				
-				if (sampleMask.r == 0 && sampleMask.g == 0 && sampleMask.b == 0)
+				if (sampleMask.r == 0)
 				{
 					int i = 0;
 					[loop]
@@ -156,7 +193,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 							float3 offsetSampleMask = SAMPLE_TEXTURE2D(_RemappedAlbedoMaskMap, sampler_RemappedAlbedoMaskMap, currentUV).rgb;
 							float3 offsetSample = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, currentUV).rgb;
 
-							if (offsetSampleMask.r != 0 || offsetSampleMask.g != 0 || offsetSampleMask.b != 0)
+							if (offsetSampleMask.r != 0)
 							{
 								float currentDistance = length(uv - currentUV);
 				
@@ -189,13 +226,13 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			half4 PixelStage(v2f i) : SV_Target
 			{
 				half4 albedo = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, i.uv);
-#if DILATE
+#if defined(DILATE)
 				albedo = half4(UVPositionalDilation(i.uv), albedo.a);
 #endif
 
 				float2 lightmapUV = i.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
 
-#ifdef UNITY_LIGHTMAP_FULL_HDR
+#if defined(UNITY_LIGHTMAP_FULL_HDR)
 				half3 lightmap = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;
 #else
 				half4 decodeInstructions = half4(LIGHTMAP_HDR_MULTIPLIER, LIGHTMAP_HDR_EXPONENT, 0.0h, 0.0h);
@@ -204,7 +241,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 #endif
 
 				half4 output = half4(_AlbedoColor.rgb * albedo.rgb * lightmap.rgb, _AlbedoColor.a * albedo.a);
-#if CONVERT_TO_SRGB
+#if defined(CONVERT_TO_SRGB)
 				output.rgb = LinearToSRGB(output.rgb);
 #endif
 				return output;
