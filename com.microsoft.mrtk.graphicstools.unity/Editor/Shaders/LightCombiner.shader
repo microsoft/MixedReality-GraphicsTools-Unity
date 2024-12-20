@@ -52,12 +52,12 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			SAMPLER(sampler_AlbedoMap);
 
 			half4 _AlbedoMapScaleOffset;
+			half4 _LightMapScaleOffset;
 
 			v2f VertexStage(appdata v)
 			{
 				v2f o;
-				float2 uv = v.uv;
-				uv.y = 1 - uv.y;
+				float2 uv = v.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
 				o.vertex = float4(uv * 2 - 1, 0, 1);
 				o.uv1 = v.uv1;
 
@@ -98,11 +98,12 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 				float4 vertex : SV_POSITION;
 			};
 
+			half4 _LightMapScaleOffset;
+
 			v2f VertexStage(appdata v)
 			{
 				v2f o;
-				float2 uv = v.uv;
-				uv.y = 1 - uv.y;
+				float2 uv = v.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
 				o.vertex = float4(uv * 2 - 1, 0, 1);
 
 				return o;
@@ -225,12 +226,14 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			half4 PixelStage(v2f i) : SV_Target
 			{
-				half4 albedo = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, i.uv);
+				float2 albedoUV = i.uv;
+				albedoUV.y = 1.0 - albedoUV.y;
+				half4 albedo = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, albedoUV);
 #if defined(DILATE)
-				albedo = half4(UVPositionalDilation(i.uv), albedo.a);
+				albedo = half4(UVPositionalDilation(albedoUV), albedo.a);
 #endif
 
-				float2 lightmapUV = i.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
+				float2 lightmapUV = i.uv;//  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
 
 #if defined(UNITY_LIGHTMAP_FULL_HDR)
 				half3 lightmap = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;

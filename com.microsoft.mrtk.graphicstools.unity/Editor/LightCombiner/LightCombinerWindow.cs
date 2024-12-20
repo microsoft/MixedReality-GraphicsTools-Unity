@@ -12,6 +12,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
 	public class LightCombinerWindow : EditorWindow
 	{
+		// Export settings.
+		private float textureScalar = 2.0f;
+		private bool exportHDR = false;
+		private TextureImporterCompression textureCompression = TextureImporterCompression.CompressedHQ;
+		private int textureDilationSteps = 16;
+
 		private enum CombineMode
 		{
 			AlbedoAndLightmap,
@@ -19,12 +25,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			Lightmap
 		}
 
-		// Settings.
+		// Debug settings.
 		private CombineMode combineMode = CombineMode.AlbedoAndLightmap;
-		private float textureScalar = 2.0f;
-		private bool exportHDR = false;
-		private TextureImporterCompression textureCompression = TextureImporterCompression.CompressedHQ;
-		private int textureDilationSteps = 16;
+		private bool saveIntermediateTextures = false;
 
 		private string infoText = "I'm a friendly help message.";
 		private string errorText = null;
@@ -51,6 +54,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				exportHDR = EditorGUILayout.Toggle("HDR", exportHDR);
 				textureCompression = (TextureImporterCompression)EditorGUILayout.EnumPopup("Compression Mode", textureCompression);
 				textureDilationSteps = EditorGUILayout.IntSlider("Dilation Steps", textureDilationSteps, 0, 256);
+			}
+			EditorGUILayout.BeginVertical("Box");
+			{
+				GUILayout.Label("Debug Options", EditorStyles.boldLabel);
+
+				combineMode = (CombineMode)EditorGUILayout.EnumPopup("Combine Mode", combineMode);
+				saveIntermediateTextures = EditorGUILayout.Toggle("Save Intermediate Textures", saveIntermediateTextures);
 			}
 			EditorGUILayout.EndVertical();
 
@@ -189,9 +199,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						var lightmapOffset = new Vector2(renderer.lightmapScaleOffset.z, renderer.lightmapScaleOffset.w);
 						var lightmapSize = GetScaledTextureSize(lightmapTexture, lightmapScale);
 
+						// TODO, fix calculation. Also, if UVs are inside 0-1 space go back to old way of combining before this commit.
 						TextureSize combinedSize;
-						combinedSize.Width = (int)(Mathf.Max(albedoTextureSize.Width, lightmapSize.Width) * textureScalar);
-						combinedSize.Height = (int)(Mathf.Max(albedoTextureSize.Height, lightmapSize.Height) * textureScalar);
+						combinedSize.Width = lightmapTexture.width;// (int)(Mathf.Max(albedoTextureSize.Width, lightmapSize.Width) * textureScalar);
+						combinedSize.Height = lightmapTexture.height;// (int)(Mathf.Max(albedoTextureSize.Height, lightmapSize.Height) * textureScalar);
 
 						// Use the GPU to perform the texture combination.
 						var format = RenderTextureFormat.DefaultHDR;
@@ -213,6 +224,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 																						 albedoTextureOffset.x, albedoTextureOffset.y));
 						}
 
+						lightCombiner.SetTexture("_LightMap", lightmapTexture);
+						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
+																					lightmapOffset.x, lightmapOffset.y));
+
 						// First pass, render the albedo in uv0 space.
 						if (combineMode == CombineMode.AlbedoAndLightmap || combineMode == CombineMode.Albedo)
 						{
@@ -221,10 +236,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 							cb.DrawMesh(meshFilter.sharedMesh, Matrix4x4.identity, lightCombiner, i, lightCombiner.FindPass("Albedo"));
 							lightCombiner.SetTexture("_RemappedAlbedoMap", remappedAlbedoRT);
 						}
-
-						lightCombiner.SetTexture("_LightMap", lightmapTexture);
-						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
-																					lightmapOffset.x, lightmapOffset.y));
 
 						if (!exportHDR)
 						{
@@ -255,8 +266,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 						// Save the active render texture to disk.
 						var combinedTextureAsset = SaveRenderTexture(outputRT, combinedSize, workingDirectory, renderer.gameObject.name, exportHDR, textureCompression);
-						//SaveRenderTexture(remappedAlbedoRT, combinedSize, workingDirectory, renderer.gameObject.name + "AlbedoRemap", exportHDR, textureCompression); // DEBUG
-						//SaveRenderTexture(remappedAlbedoMaskRT, combinedSize, workingDirectory, renderer.gameObject.name + "AlbedoMask", exportHDR, textureCompression); // DEBUG
+
+						if (saveIntermediateTextures)
+						{
+							SaveRenderTexture(remappedAlbedoRT, combinedSize, workingDirectory, renderer.gameObject.name + "AlbedoRemap", exportHDR, textureCompression); // DEBUG
+							SaveRenderTexture(remappedAlbedoMaskRT, combinedSize, workingDirectory, renderer.gameObject.name + "AlbedoMask", exportHDR, textureCompression); // DEBUG
+						}
 
 						// Cleanup resources.
 						DestroyImmediate(lightCombiner);
@@ -267,8 +282,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, renderer.gameObject.name);
 						duplicateMaterial.color = Color.white;
 						duplicateMaterial.mainTexture = combinedTextureAsset;
-						duplicateMaterial.mainTextureScale = new Vector2(1.0f, 1.0f);
-						duplicateMaterial.mainTextureOffset = new Vector2(0.0f, 0.0f);
+						duplicateMaterial.mainTextureScale = lightmapScale;
+						duplicateMaterial.mainTextureOffset = lightmapOffset;
 						materials[i] = duplicateMaterial;
 					}
 
