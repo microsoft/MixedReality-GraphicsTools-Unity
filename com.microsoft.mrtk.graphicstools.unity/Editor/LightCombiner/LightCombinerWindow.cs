@@ -49,12 +49,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			{
 				GUILayout.Label("Export Options", EditorStyles.boldLabel);
 
-				combineMode = (CombineMode)EditorGUILayout.EnumPopup("Combine Mode", combineMode);
 				textureScalar = EditorGUILayout.FloatField("Texture Scalar", textureScalar);
 				exportHDR = EditorGUILayout.Toggle("HDR", exportHDR);
 				textureCompression = (TextureImporterCompression)EditorGUILayout.EnumPopup("Compression Mode", textureCompression);
 				textureDilationSteps = EditorGUILayout.IntSlider("Dilation Steps", textureDilationSteps, 0, 256);
 			}
+			EditorGUILayout.EndVertical();
+
 			EditorGUILayout.BeginVertical("Box");
 			{
 				GUILayout.Label("Debug Options", EditorStyles.boldLabel);
