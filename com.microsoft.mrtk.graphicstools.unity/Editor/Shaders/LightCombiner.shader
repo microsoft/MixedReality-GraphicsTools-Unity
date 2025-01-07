@@ -29,6 +29,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			HLSLPROGRAM
 
+			#pragma multi_compile_local _ USE_LIGHTMAP_SCALE_OFFSET
+
 			#pragma vertex VertexStage
 			#pragma fragment PixelStage
 
@@ -57,7 +59,12 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			v2f VertexStage(appdata v)
 			{
 				v2f o;
+#if defined(USE_LIGHTMAP_SCALE_OFFSET)
 				float2 uv = v.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
+#else
+				float2 uv = v.uv;
+				uv.y = 1 - uv.y;
+#endif
 				o.vertex = float4(uv * 2 - 1, 0, 1);
 				o.uv1 = v.uv1;
 
@@ -81,6 +88,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			HLSLPROGRAM
 
+			#pragma multi_compile_local _ USE_LIGHTMAP_SCALE_OFFSET
+
 			#pragma vertex VertexStage
 			#pragma fragment PixelStage
 
@@ -103,7 +112,12 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			v2f VertexStage(appdata v)
 			{
 				v2f o;
+#if defined(USE_LIGHTMAP_SCALE_OFFSET)
 				float2 uv = v.uv  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
+#else
+				float2 uv = v.uv;
+				uv.y = 1 - uv.y;
+#endif
 				o.vertex = float4(uv * 2 - 1, 0, 1);
 
 				return o;
@@ -123,6 +137,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			HLSLPROGRAM
 
+			#pragma multi_compile_local _ USE_LIGHTMAP_SCALE_OFFSET
 			#pragma multi_compile_local _ CONVERT_TO_SRGB
 			#pragma multi_compile_local _ DILATE
 
@@ -188,6 +203,8 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 					{ 
 						++i;
 						int j = 0;
+						
+						[loop]
 						while (j < 8)
 						{
 							float2 currentUV = uv + offsets[j] * texelsize * i;
@@ -227,13 +244,19 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 			half4 PixelStage(v2f i) : SV_Target
 			{
 				float2 albedoUV = i.uv;
+#if defined(USE_LIGHTMAP_SCALE_OFFSET)
 				albedoUV.y = 1.0 - albedoUV.y;
+#endif
 				half4 albedo = SAMPLE_TEXTURE2D(_RemappedAlbedoMap, sampler_RemappedAlbedoMap, albedoUV);
 #if defined(DILATE)
 				albedo = half4(UVPositionalDilation(albedoUV), albedo.a);
 #endif
 
-				float2 lightmapUV = i.uv;//  * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
+#if defined(USE_LIGHTMAP_SCALE_OFFSET)
+				float2 lightmapUV = i.uv;
+#else
+				float2 lightmapUV = i.uv * _LightMapScaleOffset.xy + _LightMapScaleOffset.zw;
+#endif
 
 #if defined(UNITY_LIGHTMAP_FULL_HDR)
 				half3 lightmap = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;

@@ -178,6 +178,20 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						meshFilter.sharedMesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
 					}
 
+					// Check if the lightmap UVs are outside the normal 0-1 space. If so, we need to combine textures in lightmap space.
+					bool normalizedUVs = true;
+					var lightmapUVs = meshFilter.sharedMesh.uv;
+
+					foreach (var uv in lightmapUVs)
+					{
+						var epsilon = 0.001f;
+						if (uv.x < (0.0f - epsilon) || uv.x > (1.0f + epsilon) ||
+							uv.y < (0.0f - epsilon) || uv.y > (1.0f + epsilon))
+						{
+							normalizedUVs = false;
+						}
+					}
+
 					// For now duplicate all materials (later only do this if required).
 					var materials = renderer.sharedMaterials;
 
@@ -200,10 +214,18 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						var lightmapOffset = new Vector2(renderer.lightmapScaleOffset.z, renderer.lightmapScaleOffset.w);
 						var lightmapSize = GetScaledTextureSize(lightmapTexture, lightmapScale);
 
-						// TODO, fix calculation. Also, if UVs are inside 0-1 space go back to old way of combining before this commit.
 						TextureSize combinedSize;
-						combinedSize.Width = lightmapTexture.width;// (int)(Mathf.Max(albedoTextureSize.Width, lightmapSize.Width) * textureScalar);
-						combinedSize.Height = lightmapTexture.height;// (int)(Mathf.Max(albedoTextureSize.Height, lightmapSize.Height) * textureScalar);
+
+						if (normalizedUVs)
+						{
+							combinedSize.Width = (int)(Mathf.Max(albedoTextureSize.Width, lightmapSize.Width) * textureScalar);
+							combinedSize.Height = (int)(Mathf.Max(albedoTextureSize.Height, lightmapSize.Height) * textureScalar);
+						}
+						else
+						{
+							combinedSize.Width = (int)(lightmapTexture.width * textureScalar);
+							combinedSize.Height = (int)(lightmapTexture.height * textureScalar);
+						}
 
 						// Use the GPU to perform the texture combination.
 						var format = RenderTextureFormat.DefaultHDR;
@@ -217,6 +239,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
 						lightCombiner.SetColor("_AlbedoColor", materials[i].color);
+
+						if (!normalizedUVs)
+						{
+							lightCombiner.EnableKeyword("USE_LIGHTMAP_SCALE_OFFSET");
+						}
 
 						if (albedoTexture != null)
 						{
@@ -266,12 +293,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						Graphics.ExecuteCommandBuffer(cb);
 
 						// Save the active render texture to disk.
-						var combinedTextureAsset = SaveRenderTexture(outputRT, combinedSize, workingDirectory, renderer.gameObject.name, exportHDR, textureCompression);
+						var name = renderer.gameObject.name + (normalizedUVs ? string.Empty : "_Lightmap");
+						var combinedTextureAsset = SaveRenderTexture(outputRT, combinedSize, workingDirectory, name, exportHDR, textureCompression);
 
 						if (saveIntermediateTextures)
 						{
-							SaveRenderTexture(remappedAlbedoRT, combinedSize, workingDirectory, renderer.gameObject.name + "AlbedoRemap", exportHDR, textureCompression); // DEBUG
-							SaveRenderTexture(remappedAlbedoMaskRT, combinedSize, workingDirectory, renderer.gameObject.name + "AlbedoMask", exportHDR, textureCompression); // DEBUG
+							SaveRenderTexture(remappedAlbedoRT, combinedSize, workingDirectory, name + "AlbedoRemap", exportHDR, textureCompression); // DEBUG
+							SaveRenderTexture(remappedAlbedoMaskRT, combinedSize, workingDirectory, name + "AlbedoMask", exportHDR, textureCompression); // DEBUG
 						}
 
 						// Cleanup resources.
@@ -280,11 +308,21 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						RenderTexture.ReleaseTemporary(outputRT);
 
 						// Apply to a duplicated material.
-						var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, renderer.gameObject.name);
+						var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, name);
 						duplicateMaterial.color = Color.white;
 						duplicateMaterial.mainTexture = combinedTextureAsset;
-						duplicateMaterial.mainTextureScale = lightmapScale;
-						duplicateMaterial.mainTextureOffset = lightmapOffset;
+
+						if (normalizedUVs)
+						{
+							duplicateMaterial.mainTextureScale = Vector2.one;
+							duplicateMaterial.mainTextureOffset = Vector2.zero;
+						}
+						else
+						{
+							duplicateMaterial.mainTextureScale = lightmapScale;
+							duplicateMaterial.mainTextureOffset = lightmapOffset;
+						}
+
 						materials[i] = duplicateMaterial;
 					}
 
