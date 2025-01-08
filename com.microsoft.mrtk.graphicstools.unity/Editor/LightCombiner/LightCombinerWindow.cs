@@ -105,7 +105,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			}
 
 			// Generate a new path for the duplicated scene.
-			var newScenePath = Path.Combine(Path.GetDirectoryName(currentScenePath), 
+			var newScenePath = Path.Combine(Path.GetDirectoryName(currentScenePath),
 											Path.GetFileNameWithoutExtension(currentScenePath) + $"_{kWorkingDirectoryPostfix}.unity");
 
 			if (AssetDatabase.CopyAsset(currentScenePath, newScenePath))
@@ -327,6 +327,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					}
 
 					renderer.sharedMaterials = materials;
+
+					// glTF has no concept of static, so remove it.
+					renderer.gameObject.isStatic = false;
+
+					// Now that lightmaps have been removed and baked into the albedo Unity will try to use light probes for the ambient
+					// light info. The ambient probe is too dark because it does not consider the baked lights. So tell the renderer to
+					// use a solid white probe.
+					renderer.EnsureComponent<CustomProbe>();
 				}
 			}
 
@@ -344,13 +352,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		private static Material DuplicateAndSaveMaterial(Material originalMaterial, string workingDirectory, string fileName)
 		{
 			var material = new Material(originalMaterial);
-
-			// Baked lit shaders appear darker after conversion. TODO, figure out why?
-			if (material.shader == Shader.Find("Universal Render Pipeline/Baked Lit"))
-			{
-				material.shader = Shader.Find("Universal Render Pipeline/Unlit");
-			}
-
 			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.mat"));
 			AssetDatabase.CreateAsset(material, path);
 
