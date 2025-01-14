@@ -204,7 +204,7 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 						++i;
 						int j = 0;
 						
-						[loop]
+						[unroll]
 						while (j < 8)
 						{
 							float2 currentUV = uv + offsets[j] * texelsize * i;
