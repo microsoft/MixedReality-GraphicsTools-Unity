@@ -9,6 +9,10 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
+#if GT_USE_GLTFAST
+using MaterialProperty = GLTFast.Materials.MaterialProperty;
+#endif
+
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
 	public class LightCombinerWindow : EditorWindow
@@ -145,6 +149,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						errorText = "Invalid technique specified.";
 						break;
 				}
+
+				AssetDatabase.SaveAssets();
 
 				Lightmapping.ClearLightingDataAsset();
 				Lightmapping.Clear();
@@ -351,15 +357,53 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				// use a solid white probe.
 				renderer.EnsureComponent<CustomProbe>();
 			}
-
-			AssetDatabase.SaveAssets();
 		}
 
 		private void HijackAnotherTexture(Scene scene, string workingDirectory)
 		{
 			foreach (var renderer in GetAllLightmappedRenderers(scene))
 			{
-				// TODO
+				// For now duplicate all materials (later only do this if required).
+				var materials = renderer.sharedMaterials;
+
+				for (int i = 0; i < materials.Length; ++i)
+				{
+					if (materials[i] == null)
+					{
+						continue;
+					}
+
+					var lightmapTexture = LightmapSettings.lightmaps[renderer.lightmapIndex].lightmapColor;
+					int lightmapUVIndex = 1;
+
+					var meshFilter = renderer.GetComponent<MeshFilter>();
+
+					if (meshFilter != null &&
+						meshFilter.sharedMesh != null &&
+						meshFilter.sharedMesh.uv2 != null)
+					{
+
+						lightmapUVIndex = 0;
+					}
+
+					var name = renderer.gameObject.name;
+					var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, name);
+
+#if GT_USE_GLTFAST
+					duplicateMaterial.SetTexture(MaterialProperty.EmissiveTexture, lightmapTexture);
+					duplicateMaterial.SetVector(MaterialProperty.EmissiveTextureScaleTransform, renderer.lightmapScaleOffset);
+					duplicateMaterial.SetFloat(MaterialProperty.EmissiveTextureTexCoord, lightmapUVIndex);
+#else
+					errorText = "Please install the com.unity.cloud.gltfast package."
+#endif
+
+					materials[i] = duplicateMaterial;
+				}
+
+				renderer.sharedMaterials = materials;
+
+				// glTF has no concept of static, so remove it.
+				renderer.gameObject.isStatic = false;
 			}
 		}
 
