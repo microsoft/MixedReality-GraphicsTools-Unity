@@ -380,6 +380,14 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					var name = renderer.gameObject.name;
 					var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, name);
 
+					// If using bake lit, convert to a "fully rough" Lit material so we have emission properties to set.
+					if (duplicateMaterial.shader == Shader.Find("Universal Render Pipeline/Baked Lit"))
+					{
+						duplicateMaterial.shader = Shader.Find("Universal Render Pipeline/Lit");
+						duplicateMaterial.SetFloat("_Smoothness", 0.0f);
+						duplicateMaterial.SetFloat("_Metallic", 0.0f);
+					}
+
 					// Required for glTFast to export emission.
 					duplicateMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
 					duplicateMaterial.EnableKeyword("_EMISSION");
