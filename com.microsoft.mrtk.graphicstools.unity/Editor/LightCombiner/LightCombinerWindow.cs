@@ -180,7 +180,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 			foreach (var renderer in GetAllLightmappedRenderers(scene))
 			{
-				// If the mesh has a second UV set, then duplicate the mesh and swap uv0 with uv1.
 				var meshFilter = renderer.GetComponent<MeshFilter>();
 
 				if (meshFilter == null || meshFilter.sharedMesh == null)
@@ -189,14 +188,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				}
 
 				var originalMesh = meshFilter.sharedMesh;
-				bool normalizedUVs = true;
 
-				if (savedMeshes.ContainsKey(originalMesh))
-				{
-					meshFilter.sharedMesh = savedMeshes[originalMesh];
-					normalizedUVs = savedMeshesNormalization[originalMesh];
-				}
-				else
+				// If the mesh has a second UV set, then duplicate the mesh and swap uv0 with uv1.
+				if (!savedMeshes.ContainsKey(originalMesh))
 				{
 					var uv1 = originalMesh.uv2;
 
@@ -213,7 +207,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					savedMeshes[originalMesh] = meshFilter.sharedMesh;
 
 					// Check if the lightmap UVs are outside the normal 0-1 space. If so, we need to combine textures in lightmap space.
-					normalizedUVs = true;
+					bool normalization = true;
 					var lightmapUVs = meshFilter.sharedMesh.uv;
 
 					foreach (var uv in lightmapUVs)
@@ -222,13 +216,16 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 						if (uv.x < (0.0f - epsilon) || uv.x > (1.0f + epsilon) ||
 							uv.y < (0.0f - epsilon) || uv.y > (1.0f + epsilon))
 						{
-							normalizedUVs = false;
+							normalization = false;
 							break;
 						}
 					}
 
-					savedMeshesNormalization[originalMesh] = normalizedUVs;
+					savedMeshesNormalization[originalMesh] = normalization;
 				}
+
+				meshFilter.sharedMesh = savedMeshes[originalMesh];
+				bool normalizedUVs = savedMeshesNormalization[originalMesh];
 
 				// For now duplicate all materials (later only do this if required).
 				var materials = renderer.sharedMaterials;
@@ -333,12 +330,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 					// Save the active render texture to disk.
 					var name = renderer.gameObject.name + (normalizedUVs ? string.Empty : "_Lightmap");
-					var combinedTextureAsset = SaveRenderTexture(outputRT, combinedSize, workingDirectory, name, exportHDR, textureCompression);
+					var combinedTextureAsset = SaveRenderTexture(outputRT, workingDirectory, name, exportHDR, textureCompression);
 
 					if (saveIntermediateTextures)
 					{
-						SaveRenderTexture(remappedAlbedoRT, combinedSize, workingDirectory, name + "AlbedoRemap", exportHDR, textureCompression); // DEBUG
-						SaveRenderTexture(remappedAlbedoMaskRT, combinedSize, workingDirectory, name + "AlbedoMask", exportHDR, textureCompression); // DEBUG
+						SaveRenderTexture(remappedAlbedoRT, workingDirectory, name + "AlbedoRemap", exportHDR, textureCompression); // DEBUG
+						SaveRenderTexture(remappedAlbedoMaskRT, workingDirectory, name + "AlbedoMask", exportHDR, textureCompression); // DEBUG
 					}
 
 					// Cleanup resources.
@@ -379,6 +376,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 		private void HijackAnotherTexture(Scene scene, string workingDirectory)
 		{
+			var savedLightmaps = new Dictionary<Texture2D, Texture2D>();
+
 			foreach (var renderer in GetAllLightmappedRenderers(scene))
 			{
 				// For now duplicate all materials (later only do this if required).
@@ -395,6 +394,37 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					var lightmapScale = new Vector2(renderer.lightmapScaleOffset.x, renderer.lightmapScaleOffset.y);
 					var lightmapOffset = new Vector2(renderer.lightmapScaleOffset.z, renderer.lightmapScaleOffset.w);
 
+					// Use the GPU to format and export the lightmap to avoid conversion artifacts if glTF exports it raw.
+					if (!savedLightmaps.ContainsKey(lightmapTexture))
+					{
+						var format = RenderTextureFormat.DefaultHDR;
+						var colorSpace = RenderTextureReadWrite.Linear;
+						var outputRT = RenderTexture.GetTemporary(lightmapTexture.width, lightmapTexture.height, 0, format, colorSpace);
+
+						CommandBuffer cb = new CommandBuffer();
+						cb.SetProjectionMatrix(Matrix4x4.Ortho(0, 1, 0, 1, -100, 100));
+
+						var lightCombiner = new Material(Shader.Find("Hidden/Graphics Tools/Light Combiner"));
+						lightCombiner.SetTexture("_LightMap", lightmapTexture);
+						lightCombiner.SetVector("_LightMapScaleOffset", new Vector4(lightmapScale.x, lightmapScale.y,
+																					lightmapOffset.x, lightmapOffset.y));
+
+						if (!exportHDR)
+						{
+							lightCombiner.EnableKeyword("CONVERT_TO_SRGB");
+						}
+
+						cb.Blit(null, outputRT, lightCombiner, lightCombiner.FindPass("LightmapCopy"));
+						cb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+
+						Graphics.ExecuteCommandBuffer(cb);
+
+						savedLightmaps[lightmapTexture] = SaveRenderTexture(outputRT, workingDirectory, lightmapTexture.name, exportHDR, textureCompression);
+					}
+
+					lightmapTexture = savedLightmaps[lightmapTexture];
+
+					// Place the lightmap texture in the renderer's material's emissive property.
 					var name = renderer.gameObject.name;
 					var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, name);
 
@@ -468,12 +498,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			return material;
 		}
 
-		private static Texture2D SaveRenderTexture(RenderTexture renderTexture, TextureSize size, string workingDirectory, string fileName, bool exportHDR, TextureImporterCompression textureCompression)
+		private static Texture2D SaveRenderTexture(RenderTexture renderTexture, string workingDirectory, string fileName, bool exportHDR, TextureImporterCompression textureCompression)
 		{
 			RenderTexture previous = RenderTexture.active;
 			RenderTexture.active = renderTexture;
-			var texture = new Texture2D(size.Width, size.Height, TextureFormat.RGBAFloat, false, true);
-			texture.ReadPixels(new Rect(0.0f, 0.0f, size.Width, size.Height), 0, 0);
+			var texture = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBAFloat, false, true);
+			texture.ReadPixels(new Rect(0.0f, 0.0f, renderTexture.width, renderTexture.height), 0, 0);
 			texture.Apply();
 			RenderTexture.active = previous;
 

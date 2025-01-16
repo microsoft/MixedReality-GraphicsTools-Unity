@@ -275,5 +275,67 @@ Shader "Hidden/Graphics Tools/Light Combiner"
 
 			ENDHLSL
 		}
+
+		Pass
+		{
+			Name "LightmapCopy"
+
+			Cull Off
+
+			HLSLPROGRAM
+
+			#pragma multi_compile_local _ CONVERT_TO_SRGB
+
+			#pragma vertex VertexStage
+			#pragma fragment PixelStage
+
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+			};
+
+			struct v2f
+			{
+				float4 vertex : SV_POSITION;
+				float2 uv : TEXCOORD0;
+			};
+
+			TEXTURE2D(_LightMap);
+			SAMPLER(sampler_LightMap);
+
+			v2f VertexStage(appdata v)
+			{
+				v2f o;
+				o.vertex = TransformObjectToHClip(v.vertex.xyz);
+				o.uv = v.uv;
+
+				return o;
+			}
+
+			half4 PixelStage(v2f i) : SV_Target
+			{
+				float2 lightmapUV = i.uv;
+
+#if defined(UNITY_LIGHTMAP_FULL_HDR)
+				half3 lightmap = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgb;
+#else
+				half4 decodeInstructions = half4(LIGHTMAP_HDR_MULTIPLIER, LIGHTMAP_HDR_EXPONENT, 0.0h, 0.0h);
+				float4 encodedIlluminance = SAMPLE_TEXTURE2D(_LightMap, sampler_LightMap, lightmapUV).rgba;
+				half3 lightmap = DecodeLightmap(encodedIlluminance, decodeInstructions);
+#endif
+
+				half4 output = half4(lightmap.rgb, 1.0h);
+#if defined(CONVERT_TO_SRGB)
+				output.rgb = LinearToSRGB(output.rgb);
+#endif
+				return output;
+			}
+
+			ENDHLSL
+		}
 	}
 }
