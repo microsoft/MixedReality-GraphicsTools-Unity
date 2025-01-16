@@ -175,6 +175,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 		private void MergeWithAlbedo(Scene scene, string workingDirectory)
 		{
+			var savedMeshes = new Dictionary<Mesh, Mesh>();
+			var savedMeshesNormalization = new Dictionary<Mesh, bool>();
+
 			foreach (var renderer in GetAllLightmappedRenderers(scene))
 			{
 				// If the mesh has a second UV set, then duplicate the mesh and swap uv0 with uv1.
@@ -186,30 +189,45 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				}
 
 				var originalMesh = meshFilter.sharedMesh;
-				var uv1 = originalMesh.uv2;
-
-				if (uv1 != null && uv1.Length != 0)
-				{
-					var uv0 = originalMesh.uv;
-
-					var newMesh = Instantiate(originalMesh);
-					newMesh.uv = uv1;
-					newMesh.uv2 = uv0;
-					meshFilter.sharedMesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
-				}
-
-				// Check if the lightmap UVs are outside the normal 0-1 space. If so, we need to combine textures in lightmap space.
 				bool normalizedUVs = true;
-				var lightmapUVs = meshFilter.sharedMesh.uv;
 
-				foreach (var uv in lightmapUVs)
+				if (savedMeshes.ContainsKey(originalMesh))
 				{
-					var epsilon = 0.001f;
-					if (uv.x < (0.0f - epsilon) || uv.x > (1.0f + epsilon) ||
-						uv.y < (0.0f - epsilon) || uv.y > (1.0f + epsilon))
+					meshFilter.sharedMesh = savedMeshes[originalMesh];
+					normalizedUVs = savedMeshesNormalization[originalMesh];
+				}
+				else
+				{
+					var uv1 = originalMesh.uv2;
+
+					if (uv1 != null && uv1.Length != 0)
 					{
-						normalizedUVs = false;
+						var uv0 = originalMesh.uv;
+
+						var newMesh = Instantiate(originalMesh);
+						newMesh.uv = uv1;
+						newMesh.uv2 = uv0;
+						meshFilter.sharedMesh = SaveMesh(newMesh, workingDirectory, renderer.gameObject.name);
 					}
+
+					savedMeshes[originalMesh] = meshFilter.sharedMesh;
+
+					// Check if the lightmap UVs are outside the normal 0-1 space. If so, we need to combine textures in lightmap space.
+					normalizedUVs = true;
+					var lightmapUVs = meshFilter.sharedMesh.uv;
+
+					foreach (var uv in lightmapUVs)
+					{
+						var epsilon = 0.001f;
+						if (uv.x < (0.0f - epsilon) || uv.x > (1.0f + epsilon) ||
+							uv.y < (0.0f - epsilon) || uv.y > (1.0f + epsilon))
+						{
+							normalizedUVs = false;
+							break;
+						}
+					}
+
+					savedMeshesNormalization[originalMesh] = normalizedUVs;
 				}
 
 				// For now duplicate all materials (later only do this if required).
