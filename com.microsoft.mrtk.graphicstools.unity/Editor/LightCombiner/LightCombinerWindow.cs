@@ -374,28 +374,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					}
 
 					var lightmapTexture = LightmapSettings.lightmaps[renderer.lightmapIndex].lightmapColor;
-					int lightmapUVIndex = 1;
-
-					var meshFilter = renderer.GetComponent<MeshFilter>();
-
-					if (meshFilter != null &&
-						meshFilter.sharedMesh != null &&
-						meshFilter.sharedMesh.uv2 != null)
-					{
-
-						lightmapUVIndex = 0;
-					}
+					var lightmapScale = new Vector2(renderer.lightmapScaleOffset.x, renderer.lightmapScaleOffset.y);
+					var lightmapOffset = new Vector2(renderer.lightmapScaleOffset.z, renderer.lightmapScaleOffset.w);
 
 					var name = renderer.gameObject.name;
 					var duplicateMaterial = DuplicateAndSaveMaterial(materials[i], workingDirectory, name);
 
-#if GT_USE_GLTFAST
-					duplicateMaterial.SetTexture(MaterialProperty.EmissiveTexture, lightmapTexture);
-					duplicateMaterial.SetVector(MaterialProperty.EmissiveTextureScaleTransform, renderer.lightmapScaleOffset);
-					duplicateMaterial.SetFloat(MaterialProperty.EmissiveTextureTexCoord, lightmapUVIndex);
-#else
-					errorText = "Please install the com.unity.cloud.gltfast package."
-#endif
+					// Required for glTFast to export emission.
+					duplicateMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+					duplicateMaterial.EnableKeyword("_EMISSION");
+
+					duplicateMaterial.SetTexture("_EmissionMap", lightmapTexture);
+					duplicateMaterial.SetTextureScale("_EmissionMap", lightmapScale);
+					duplicateMaterial.SetTextureOffset("_EmissionMap", lightmapOffset);
 
 					materials[i] = duplicateMaterial;
 				}
