@@ -9,10 +9,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
-#if GT_USE_GLTFAST
-using MaterialProperty = GLTFast.Materials.MaterialProperty;
-#endif
-
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
 	public class LightCombinerWindow : EditorWindow
@@ -469,7 +465,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					}
 
 					// Does the renderer use a lightmap?
-					if (renderer.lightmapIndex < 0 || renderer.sharedMaterials.Length == 0)
+					if (renderer.lightmapIndex < 0 ||
+						renderer.lightmapIndex >= LightmapSettings.lightmaps.Length ||
+						renderer.sharedMaterials.Length == 0)
 					{
 						continue;
 					}

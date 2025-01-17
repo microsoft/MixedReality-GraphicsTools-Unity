@@ -3,8 +3,7 @@
     "rootNamespace": "Microsoft.MixedReality.GraphicsTools.Editor",
     "references": [
         "GUID:22213891bfe50254781c448a2277a9a5",
-        "GUID:6546d7765b4165b40850b3667f981c26",
-        "GUID:a42927d1d4a3b4cda9b076a7adecb9cc"
+        "GUID:6546d7765b4165b40850b3667f981c26"
     ],
     "includePlatforms": [
         "Editor"
@@ -40,11 +39,6 @@
             "name": "com.unity.inputsystem",
             "expression": "1.4.0",
             "define": "GT_USE_INPUT_SYSTEM"
-        },
-        {
-            "name": "com.unity.cloud.gltfast",
-            "expression": "6.9.0",
-            "define": "GT_USE_GLTFAST"
         }
     ],
     "noEngineReferences": false
