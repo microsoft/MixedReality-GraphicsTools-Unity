@@ -436,6 +436,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 					duplicateMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
 					duplicateMaterial.EnableKeyword("_EMISSION");
 
+					duplicateMaterial.SetColor("_EmissionColor", Color.black);
 					duplicateMaterial.SetTexture("_EmissionMap", lightmapTexture);
 					duplicateMaterial.SetTextureScale("_EmissionMap", lightmapScale);
 					duplicateMaterial.SetTextureOffset("_EmissionMap", lightmapOffset);
