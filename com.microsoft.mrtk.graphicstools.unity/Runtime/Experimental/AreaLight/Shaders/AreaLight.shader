@@ -284,7 +284,7 @@ Shader "Graphics Tools/Experimental/Area Light"
 				half oneMinusRoughness = _Smoothness;
 				half3 normalWorld = normalize(i.worldNormal);
 
-				fixed3 output = 0;
+				fixed3 output = _Color;
 				for (int i = 0; i < AREA_LIGHT_COUNT; ++i)
 				{
 					output += CalculateLight(worldPos, 
