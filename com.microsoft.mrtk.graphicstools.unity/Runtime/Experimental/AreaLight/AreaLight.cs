@@ -31,6 +31,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static int _AreaLightVertsID;
 		private static int lastAreaLightUpdate = -1;
 
+		[Experimental]
 		[Tooltip("Specifies the light color.")]
 		[SerializeField]
 		private Color color = new Color(150.0f / 255.0f, 180.0f / 255.0f, 255.0f / 255.0f, 1.0f);

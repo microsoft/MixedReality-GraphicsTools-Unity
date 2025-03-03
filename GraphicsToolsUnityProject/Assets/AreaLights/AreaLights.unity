@@ -532,7 +532,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   color: {r: 1, g: 0, b: 0.6039216, a: 1}
   intensity: 1
-  size: {x: 2, y: 1}
+  size: {x: 2, y: 2}
 --- !u!4 &1400403116
 Transform:
   m_ObjectHideFlags: 0
@@ -541,7 +541,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1400403114}
   m_LocalRotation: {x: 0, y: 0.69277275, z: 0, w: 0.72115594}
-  m_LocalPosition: {x: 1.19, y: 0.419, z: -1.59}
+  m_LocalPosition: {x: 1.19, y: 0.98, z: -1.59}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

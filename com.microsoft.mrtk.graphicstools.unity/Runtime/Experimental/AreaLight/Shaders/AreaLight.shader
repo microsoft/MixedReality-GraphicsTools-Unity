@@ -1,9 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-Shader "Graphics Tools/Area Light Test"
+Shader "Graphics Tools/Experimental/Area Light"
 {
-	Properties {}
+	Properties 
+	{
+		_Color("Color", Color) = (1,1,1,1)
+		_SpecColor("Specular", Color) = (0.5, 0.5, 0.5)
+		_Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
+	}
 	SubShader
 	{
 		Tags { "RenderType"="Opaque" }
@@ -41,6 +46,12 @@ Shader "Graphics Tools/Area Light Test"
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
 				return o;
 			}
+
+			CBUFFER_START(UnityPerMaterial)
+			fixed4 _Color;
+			fixed4 _SpecColor;
+			fixed _Smoothness;
+			CBUFFER_END
 
 			#define AREA_LIGHT_ENABLE_DIFFUSE 1
 
@@ -268,9 +279,9 @@ Shader "Graphics Tools/Area Light Test"
 			fixed4 frag (v2f i) : SV_Target
 			{
 				half3 worldPos = i.worldPosition;
-				half3 baseColor = half3(0.2, 0.2, 0.2);
-				half3 specColor = half3(0.5, 0.5, 0.5);
-				half oneMinusRoughness = 0.5;
+				half3 baseColor = _Color;
+				half3 specColor = _SpecColor;
+				half oneMinusRoughness = _Smoothness;
 				half3 normalWorld = normalize(i.worldNormal);
 
 				fixed3 output = 0;
