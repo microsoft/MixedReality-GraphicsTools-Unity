@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.﻿
 
-using Microsoft.MixedReality.GraphicsTools.Microsoft.MixedReality.GraphicsTools;
 using UnityEditor;
 using UnityEngine;
 
