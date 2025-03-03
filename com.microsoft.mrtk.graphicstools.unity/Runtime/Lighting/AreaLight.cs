@@ -15,8 +15,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 	public partial class AreaLight : BaseLight
 	{
 		private const int areaLightCount = 1;
-		private const int areaLightDataSize = 2;
-		private static readonly Vector4 invalidLightDirection = new Vector4(0.0f, 0.0f, 1.0f, 0.0f);
+		private const int areaLightDataSize = 1;
 		private static readonly float[,] offsets = new float[4, 2] { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
 
 		private static Texture2D transformInvTexture_Specular;
@@ -190,13 +189,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 				if (light)
 				{
-					Vector4 position = light.transform.position;
-					areaLightData[dataIndex] = new Vector4(position.x,
-														   position.y,
-														   position.z,
-														   1.0f);
-
-					areaLightData[dataIndex + 1] = light.Color;
+					areaLightData[dataIndex] = light.Color;
 
 					// A little bit of bias to prevent the light from lighting itself.
 					const float z = 0.01f;
@@ -204,7 +197,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 					Matrix4x4 lightVerts = new Matrix4x4();
 					for (int v = 0; v < 4; ++v)
 					{
-						Vector3 vertex = new Vector3(size.x * offsets[i, 0], size.y * offsets[i, 1], z) * 0.5f;
+						Vector3 vertex = new Vector3(size.x * offsets[v, 0], size.y * offsets[v, 1], z) * 0.5f;
 						lightVerts.SetRow(v, transform.TransformPoint(vertex));
 					}
 
@@ -213,8 +206,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 				}
 				else
 				{
-					areaLightData[dataIndex] = invalidLightDirection;
-					areaLightData[dataIndex + 1] = Vector4.zero;
+					areaLightData[dataIndex] = Vector4.zero;
 				}
 			}
 
