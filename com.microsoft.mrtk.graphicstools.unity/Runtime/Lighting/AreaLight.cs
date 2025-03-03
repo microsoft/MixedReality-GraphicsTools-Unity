@@ -69,19 +69,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 		}
 
 		[Tooltip("TODO")]
-		[SerializeField, Range(0.0f, 179.0f)]
-		private float angle = 100.0f;
-
-		/// <summary>
-		/// TODO
-		/// </summary>
-		public float Angle
-		{
-			get => angle;
-			set => angle = Mathf.Clamp(value, 0.0f, 179.0f);
-		}
-
-		[Tooltip("TODO")]
 		[SerializeField]
 		private Vector3 size = new Vector3(1.5f, 1.0f, 2.0f);
 
