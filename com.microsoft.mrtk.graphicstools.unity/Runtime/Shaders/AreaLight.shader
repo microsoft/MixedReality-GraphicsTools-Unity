@@ -16,7 +16,7 @@ Shader "Graphics Tools/Area Light Test"
 			#pragma fragment frag
 
 			// Comment in to help with RenderDoc debugging.
-			#pragma enable_d3d11_debug_symbols
+			//#pragma enable_d3d11_debug_symbols
 
 			#include "UnityCG.cginc"
 
@@ -63,7 +63,6 @@ Shader "Graphics Tools/Area Light Test"
 			/// </summary>
 			half IntegrateEdge(half3 v1, half3 v2)
 			{
-				half d = dot(v1,v2);
 				half theta = acos(max(-0.9999, dot(v1,v2)));
 				half theta_sintheta = theta / sin(theta);
 				return theta_sintheta * (v1.x*v2.y - v1.y*v2.x);

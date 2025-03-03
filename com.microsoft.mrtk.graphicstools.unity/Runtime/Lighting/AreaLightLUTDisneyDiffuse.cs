@@ -8,7 +8,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 	/// </summary>
 	public partial class AreaLight
 	{
-		static double[,] s_LUTTransformInv_DisneyDiffuse = new double[kLUTResolution * kLUTResolution, kLUTMatrixDim * kLUTMatrixDim]
+		static double[,] s_LUTTransformInv_DisneyDiffuse = new double[LUTResolution * LUTResolution, LUTMatrixDim * LUTMatrixDim]
 		{
 {1.019209, -0.000000, 0.000000, -0.000000, 1.019209, -0.000000, 0.000000, -0.000000, 1.000000},
 {1.018918, -0.000000, 0.000000, -0.000000, 1.018918, -0.000000, 0.000000, -0.000000, 1.000000},
@@ -4108,7 +4108,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 {0.979505, -0.000000, 0.109077, -0.000000, 0.969405, -0.000000, -0.285353, -0.000000, 0.968223}
 		};
 
-		static float[] s_LUTAmplitude_DisneyDiffuse = new float[kLUTResolution * kLUTResolution]
+		static float[] s_LUTAmplitude_DisneyDiffuse = new float[LUTResolution * LUTResolution]
 		{
 3.068455f,
 3.069548f,

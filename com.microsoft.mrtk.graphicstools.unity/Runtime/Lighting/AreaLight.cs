@@ -17,6 +17,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private const int areaLightCount = 1;
 		private const int areaLightDataSize = 1;
 		private static readonly float[,] offsets = new float[4, 2] { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
+		private const int LUTResolution = 64;
+		private const int LUTMatrixDim = 3;
 
 		private static Texture2D transformInvTexture_Specular;
 		private static Texture2D transformInvTexture_Diffuse;
@@ -90,47 +92,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			get => size;
 			set => size = value;
-		}
-
-		/// <summary>
-		/// TODO
-		/// </summary>
-		public float GetNearToCenter()
-		{
-			if (angle == 0.0f)
-			{
-				return 0.0f;
-			}
-
-			return size.y * 0.5f / Mathf.Tan(angle * 0.5f * Mathf.Deg2Rad);
-		}
-
-		/// <summary>
-		/// TODO
-		/// </summary>
-		public Bounds GetFrustumBounds()
-		{
-			if (angle == 0.0f)
-			{
-				return new Bounds(Vector3.zero, size);
-			}
-
-			float tanHalfFOV = Mathf.Tan(angle * 0.5f * Mathf.Deg2Rad);
-			float near = size.y * 0.5f / tanHalfFOV;
-			float z = size.z;
-			float y = (near + size.z) * tanHalfFOV * 2.0f;
-			float x = size.x * y / size.y;
-			return new Bounds(Vector3.forward * size.z * 0.5f, new Vector3(x, y, z));
-		}
-
-		/// <summary>
-		/// TODO
-		/// </summary>
-		public Matrix4x4 GetOffsetMatrix(float zOffset)
-		{
-			Matrix4x4 m = Matrix4x4.identity;
-			m.SetColumn(3, new Vector4(0, 0, zOffset, 1));
-			return m;
 		}
 
 		#region BaseLight Implementation
@@ -221,11 +182,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private void CreateLUTs()
 		{
 			if (transformInvTexture_Diffuse == null)
+			{
 				transformInvTexture_Diffuse = LoadLUT(LUTType.TransformInv_DisneyDiffuse);
+			}
+
 			if (transformInvTexture_Specular == null)
+			{
 				transformInvTexture_Specular = LoadLUT(LUTType.TransformInv_GGX);
+			}
+
 			if (ampDiffAmpSpecFresnel == null)
+			{
 				ampDiffAmpSpecFresnel = LoadLUT(LUTType.AmpDiffAmpSpecFresnel);
+			}
 
 			Shader.SetGlobalTexture("_TransformInv_Diffuse", transformInvTexture_Diffuse);
 			Shader.SetGlobalTexture("_TransformInv_Specular", transformInvTexture_Specular);
@@ -238,9 +207,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 			TransformInv_GGX,
 			AmpDiffAmpSpecFresnel
 		}
-
-		private const int kLUTResolution = 64;
-		private const int kLUTMatrixDim = 3;
 
 		private static Texture2D LoadLUT(LUTType type)
 		{
@@ -256,7 +222,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		static Texture2D CreateLUT(TextureFormat format, Color[] pixels)
 		{
-			Texture2D tex = new Texture2D(kLUTResolution, kLUTResolution, format, false /*mipmap*/, true /*linear*/);
+			Texture2D tex = new Texture2D(LUTResolution, LUTResolution, format, false /*mipmap*/, true /*linear*/);
 			tex.hideFlags = HideFlags.HideAndDontSave;
 			tex.wrapMode = TextureWrapMode.Clamp;
 			tex.SetPixels(pixels);
@@ -267,7 +233,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		static Texture2D LoadLUT(double[,] LUTTransformInv)
 		{
-			const int count = kLUTResolution * kLUTResolution;
+			const int count = LUTResolution * LUTResolution;
 			Color[] pixels = new Color[count];
 
 			for (int i = 0; i < count; i++)
@@ -284,7 +250,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		static Texture2D LoadLUT(float[] LUTScalar0, float[] LUTScalar1, float[] LUTScalar2)
 		{
-			const int count = kLUTResolution * kLUTResolution;
+			const int count = LUTResolution * LUTResolution;
 			Color[] pixels = new Color[count];
 
 			// Amplitude.

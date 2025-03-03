@@ -8,7 +8,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 	/// </summary>
 	public partial class AreaLight
 	{
-		static double[,] s_LUTTransformInv_GGX = new double[kLUTResolution * kLUTResolution, kLUTMatrixDim * kLUTMatrixDim]
+		static double[,] s_LUTTransformInv_GGX = new double[LUTResolution * LUTResolution, LUTMatrixDim * LUTMatrixDim]
 	{
 {5000, 0, 0, 0, 5000, 0, 0, 0, 1},
 {1984.13, 0, 0, 0, 1984.13, 0, 0, 0, 1},
@@ -4108,7 +4108,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 {0.588192, 0, 0.000581722, 0, 0.586453, 0, 1.64694e-005, 0, 1}
 	};
 
-		static float[] s_LUTAmplitude_GGX = new float[kLUTResolution * kLUTResolution]
+		static float[] s_LUTAmplitude_GGX = new float[LUTResolution * LUTResolution]
 		{
 1.000000f,
 1.000000f,
@@ -8208,7 +8208,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 0.996335f
 		};
 
-		static float[] s_LUTFresnel_GGX = new float[kLUTResolution * kLUTResolution]
+		static float[] s_LUTFresnel_GGX = new float[LUTResolution * LUTResolution]
 			{
 0.000000f,
 0.000000f,

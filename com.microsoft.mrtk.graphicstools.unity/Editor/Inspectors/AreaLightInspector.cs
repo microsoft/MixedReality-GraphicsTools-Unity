@@ -39,9 +39,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			}
 			else
 			{
-				float near = light.GetNearToCenter();
+				float near = GetNearToCenter(light);
 
-				using (new Handles.DrawingScope(light.transform.localToWorldMatrix * light.GetOffsetMatrix(-near)))
+				using (new Handles.DrawingScope(light.transform.localToWorldMatrix * GetOffsetMatrix(-near)))
 				{
 					float far = near + light.Size.z;
 					float halfFOV = light.Angle * 0.5f;
@@ -77,10 +77,41 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 				using (new Handles.DrawingScope(light.transform.localToWorldMatrix))
 				{
-					Bounds bounds = light.GetFrustumBounds();
+					Bounds bounds = GetFrustumBounds(light);
 					Handles.DrawWireCube(bounds.center, bounds.size);
 				}
 			}
+		}
+
+		private static float GetNearToCenter(AreaLight light)
+		{
+			if (light.Angle == 0.0f)
+			{
+				return 0.0f;
+			}
+			return light.Size.y * 0.5f / Mathf.Tan(light.Angle * 0.5f * Mathf.Deg2Rad);
+		}
+
+		private static Bounds GetFrustumBounds(AreaLight light)
+		{
+			if (light.Angle == 0.0f)
+			{
+				return new Bounds(Vector3.zero, light.Size);
+			}
+
+			float tanHalfFOV = Mathf.Tan(light.Angle * 0.5f * Mathf.Deg2Rad);
+			float near = light.Size.y * 0.5f / tanHalfFOV;
+			float z = light.Size.z;
+			float y = (near + light.Size.z) * tanHalfFOV * 2.0f;
+			float x = light.Size.x * y / light.Size.y;
+			return new Bounds(Vector3.forward * light.Size.z * 0.5f, new Vector3(x, y, z));
+		}
+
+		private static Matrix4x4 GetOffsetMatrix(float zOffset)
+		{
+			Matrix4x4 m = Matrix4x4.identity;
+			m.SetColumn(3, new Vector4(0, 0, zOffset, 1));
+			return m;
 		}
 
 		private bool HasFrameBounds() { return true; }
@@ -89,7 +120,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		{
 			var light = target as AreaLight;
 			Debug.Assert(light != null);
-			return light.GetFrustumBounds();
+			return GetFrustumBounds(light);
 		}
 
 		[MenuItem("GameObject/Light/Graphics Tools/Area Light")]
