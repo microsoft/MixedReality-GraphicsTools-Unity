@@ -8,6 +8,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 {
 	/// <summary>
 	/// TODO
+	/// Based off: https://github.com/Unity-Technologies/VolumetricLighting
 	/// </summary>
 	[ExecuteInEditMode]
 	[AddComponentMenu("Scripts/GraphicsTools/AreaLight")]
@@ -16,6 +17,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private const int areaLightCount = 1;
 		private const int areaLightDataSize = 2;
 		private static readonly Vector4 invalidLightDirection = new Vector4(0.0f, 0.0f, 1.0f, 0.0f);
+		private static readonly float[,] offsets = new float[4, 2] { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
 
 		private static Texture2D transformInvTexture_Specular;
 		private static Texture2D transformInvTexture_Diffuse;
@@ -23,7 +25,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		private static List<AreaLight> activeAreaLights = new(areaLightCount);
 		private static Vector4[] areaLightData = new Vector4[areaLightDataSize * areaLightCount];
+		private static Matrix4x4[] areaLightVerts = new Matrix4x4[areaLightCount];
 		private static int _AreaLightDataID;
+		private static int _AreaLightVertsID;
 		private static int lastAreaLightUpdate = -1;
 
 		[Tooltip("Specifies the light color.")]
@@ -35,7 +39,18 @@ namespace Microsoft.MixedReality.GraphicsTools
 		/// </summary>
 		public Color Color
 		{
-			get => color;
+			get
+			{
+				if (QualitySettings.activeColorSpace == ColorSpace.Gamma)
+				{
+					return color * intensity;
+				}
+
+				return new Color(Mathf.GammaToLinearSpace(color.r * intensity),
+								 Mathf.GammaToLinearSpace(color.g * intensity),
+								 Mathf.GammaToLinearSpace(color.b * intensity),
+								 1.0f);
+			}
 			set => color = value;
 		}
 
@@ -125,6 +140,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		protected override void Initialize()
 		{
 			_AreaLightDataID = Shader.PropertyToID("_AreaLightData");
+			_AreaLightVertsID = Shader.PropertyToID("_AreaLightVerts");
 
 			if (transform.localScale != Vector3.one)
 			{
@@ -174,15 +190,26 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 				if (light)
 				{
-					Vector4 direction = -light.transform.forward;
-					areaLightData[dataIndex] = new Vector4(direction.x,
-														   direction.y,
-														   direction.z,
-															  1.0f);
-					areaLightData[dataIndex + 1] = new Vector4(light.Color.r * intensity,
-															   light.Color.g * intensity,
-															   light.Color.b * intensity,
-															   1.0f);
+					Vector4 position = light.transform.position;
+					areaLightData[dataIndex] = new Vector4(position.x,
+														   position.y,
+														   position.z,
+														   1.0f);
+
+					areaLightData[dataIndex + 1] = light.Color;
+
+					// A little bit of bias to prevent the light from lighting itself.
+					const float z = 0.01f;
+
+					Matrix4x4 lightVerts = new Matrix4x4();
+					for (int v = 0; v < 4; ++v)
+					{
+						Vector3 vertex = new Vector3(size.x * offsets[i, 0], size.y * offsets[i, 1], z) * 0.5f;
+						lightVerts.SetRow(v, transform.TransformPoint(vertex));
+					}
+
+					areaLightVerts[i] = lightVerts;
+
 				}
 				else
 				{
@@ -192,6 +219,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 
 			Shader.SetGlobalVectorArray(_AreaLightDataID, areaLightData);
+			Shader.SetGlobalMatrixArray(_AreaLightVertsID, areaLightVerts);
 
 			lastAreaLightUpdate = Time.frameCount;
 		}
