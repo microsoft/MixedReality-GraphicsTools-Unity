@@ -53,7 +53,7 @@ Shader "Graphics Tools/Area Light Test"
 			sampler2D _TransformInv_Specular;
 			sampler2D _AmpDiffAmpSpecFresnel;
 
-			#define AREA_LIGHT_COUNT 1
+			#define AREA_LIGHT_COUNT 2
 			#define AREA_LIGHT_DATA_SIZE 1
 			float4 _AreaLightData[AREA_LIGHT_COUNT * AREA_LIGHT_DATA_SIZE];
 			float4x4 _AreaLightVerts[AREA_LIGHT_COUNT];
@@ -228,7 +228,7 @@ Shader "Graphics Tools/Area Light Test"
 				return PolygonRadiance(LTransformed) * amplitude;
 			}
 			
-			half3 CalculateLight (half3 position, half3 diffColor, half3 specColor, half oneMinusRoughness, half3 N, half3 lightColor)
+			half3 CalculateLight (half3 position, half3 diffColor, half3 specColor, half oneMinusRoughness, half3 N, int lightIndex)
 			{
 				// TODO: larger and smaller values cause artifacts - why?
 				oneMinusRoughness = clamp(oneMinusRoughness, 0.01, 0.93);
@@ -243,7 +243,7 @@ Shader "Graphics Tools/Area Light Test"
 					
 				// Transform light vertices into that space
 				half4x3 L;
-				L = _AreaLightVerts[0] - half4x3(position, position, position, position);
+				L = _AreaLightVerts[lightIndex] - half4x3(position, position, position, position);
 				L = mul(L, transpose(basis));
 			
 				// UVs for sampling the LUTs
@@ -262,7 +262,7 @@ Shader "Graphics Tools/Area Light Test"
 				half fresnelTerm = specColor + (1.0 - specColor) * AmpDiffAmpSpecFresnel.z;
 				result += specularTerm * fresnelTerm * UNITY_PI;
 
-				return result * lightColor;
+				return result * _AreaLightData[lightIndex];
 			}
 
 			fixed4 frag (v2f i) : SV_Target
@@ -272,14 +272,17 @@ Shader "Graphics Tools/Area Light Test"
 				half3 specColor = half3(0.5, 0.5, 0.5);
 				half oneMinusRoughness = 0.5;
 				half3 normalWorld = normalize(i.worldNormal);
-				half3 lightColor = _AreaLightData[0];
 
-				half3 output = CalculateLight(worldPos, 
-											  baseColor, 
-											  specColor, 
-											  oneMinusRoughness, 
-											  normalWorld,
-											  lightColor);
+				fixed3 output = 0;
+				for (int i = 0; i < AREA_LIGHT_COUNT; ++i)
+				{
+					output += CalculateLight(worldPos, 
+											 baseColor, 
+											 specColor, 
+											 oneMinusRoughness, 
+											 normalWorld,
+											 i);
+				}
 
 				return fixed4(output, 1);
 			}

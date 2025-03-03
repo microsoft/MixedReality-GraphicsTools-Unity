@@ -7,14 +7,14 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
 	/// <summary>
-	/// TODO
+	/// An area light is a light source with a defined rectangular shape that produces soft, diffused lighting.
 	/// Based off: https://github.com/Unity-Technologies/VolumetricLighting
 	/// </summary>
 	[ExecuteInEditMode]
 	[AddComponentMenu("Scripts/GraphicsTools/AreaLight")]
 	public partial class AreaLight : BaseLight
 	{
-		private const int areaLightCount = 1;
+		private const int areaLightCount = 2;
 		private const int areaLightDataSize = 1;
 		private static readonly float[,] offsets = new float[4, 2] { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
 		private const int LUTResolution = 64;
@@ -33,7 +33,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		[Tooltip("Specifies the light color.")]
 		[SerializeField]
-		private Color color = new Color(255.0f / 255.0f, 244.0f / 255.0f, 214.0f / 255.0f, 1.0f);
+		private Color color = new Color(150.0f / 255.0f, 180.0f / 255.0f, 255.0f / 255.0f, 1.0f);
 
 		/// <summary>
 		/// Specifies the light color.
@@ -68,14 +68,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => intensity = Mathf.Max(0.0f, value);
 		}
 
-		[Tooltip("TODO")]
+		[Tooltip("Width and height of the light.")]
 		[SerializeField]
-		private Vector3 size = new Vector3(1.5f, 1.0f, 2.0f);
+		private Vector2 size = new Vector2(2.0f, 1.0f);
 
 		/// <summary>
-		/// TODO
+		/// Width and height of the light.
 		/// </summary>
-		public Vector3 Size
+		public Vector2 Size
 		{
 			get => size;
 			set => size = value;
@@ -145,16 +145,18 @@ namespace Microsoft.MixedReality.GraphicsTools
 					Matrix4x4 lightVerts = new Matrix4x4();
 					for (int v = 0; v < 4; ++v)
 					{
-						Vector3 vertex = new Vector3(size.x * offsets[v, 0], size.y * offsets[v, 1], z) * 0.5f;
-						lightVerts.SetRow(v, transform.TransformPoint(vertex));
+						Vector3 vertex = new Vector3(light.size.x * offsets[v, 0], 
+													 light.size.y * offsets[v, 1], 
+													 z) * 0.5f;
+						lightVerts.SetRow(v, light.transform.TransformPoint(vertex));
 					}
 
 					areaLightVerts[i] = lightVerts;
-
 				}
 				else
 				{
 					areaLightData[dataIndex] = Vector4.zero;
+					areaLightVerts[i] = Matrix4x4.zero;
 				}
 			}
 

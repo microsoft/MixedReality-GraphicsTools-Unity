@@ -32,7 +32,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
 			using (new Handles.DrawingScope(light.transform.localToWorldMatrix))
 			{
-				Handles.DrawWireCube(new Vector3(0, 0, 0.5f * light.Size.z), light.Size);
+				Handles.DrawWireCube(Vector3.zero, light.Size);
 			}
 		}
 
