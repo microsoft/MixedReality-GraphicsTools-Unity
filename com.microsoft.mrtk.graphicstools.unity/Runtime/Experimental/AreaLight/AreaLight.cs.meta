@@ -4,8 +4,9 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
+  - cookie: {instanceID: 0}
+  - cookieBlurMaterial: {fileID: 2100000, guid: 50dc523b24a2cfc409af7babd1bddb04, type: 2}
   - lightSourceVisual: {instanceID: 0}
-  - lightSourceShader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

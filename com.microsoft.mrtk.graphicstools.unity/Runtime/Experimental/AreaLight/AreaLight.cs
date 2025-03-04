@@ -84,7 +84,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => size = value;
 		}
 
-
 		[Tooltip("Optional texture to use instead of a solid color.")]
 		[SerializeField]
 		private Texture cookie;
@@ -96,6 +95,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			get => cookie;
 			set => cookie = value;
+		}
+
+		[Tooltip("If a Cookie is specifed, the material to perform dual blurring.")]
+		[SerializeField]
+		private Material cookieBlurMaterial;
+
+		/// <summary>
+		/// If a Cookie is specifed, the material to perform dual blurring.
+		/// </summary>
+		public Material CookieBlurMaterial
+		{
+			get => cookieBlurMaterial;
+			set => cookieBlurMaterial = value;
 		}
 
 		[Tooltip("Should the area light have a visualization?")]
@@ -111,12 +123,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set
 			{
 				drawLightSource = value;
-				UpdateLightSourceVisual(this);
+				UpdateLightSourceVisual();
 			}
 		}
 
 		[SerializeField, HideInInspector]
 		private MeshRenderer lightSourceVisual;
+
+		private RenderTexture blurredCookieSource = null;
+		private RenderTexture blurredCookieDestination = null;
 
 		#region BaseLight Implementation
 
@@ -141,7 +156,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 
 			CreateLUTs();
-			UpdateLightSourceVisual(this);
+			UpdateLightSourceVisual();
 		}
 
 		/// <inheritdoc/>
@@ -196,9 +211,17 @@ namespace Microsoft.MixedReality.GraphicsTools
 					}
 
 					areaLightVerts[i] = lightVerts;
-					areaLightCookies[i] = light.Cookie ? light.cookie : Texture2D.whiteTexture;
 
-					UpdateLightSourceVisual(light);
+					if (light.cookie != null)
+					{
+						areaLightCookies[i] = light.BlurCookie();
+					}
+					else
+					{
+						areaLightCookies[i] = Texture2D.whiteTexture;
+					}
+
+					light.UpdateLightSourceVisual();
 				}
 				else
 				{
@@ -222,7 +245,27 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		#endregion BaseLight Implementation
 
-		private void CreateLUTs()
+		private void OnDestroy()
+		{
+			if (blurredCookieSource != null)
+			{
+				blurredCookieSource.Release();
+				blurredCookieSource = null;
+			}
+
+			if (blurredCookieDestination != null)
+			{
+				blurredCookieDestination.Release();
+				blurredCookieDestination = null;
+			}
+		}
+
+		private void Reset()
+		{
+			DestroyLightVisual();
+		}
+
+		private static void CreateLUTs()
 		{
 			if (transformInvTexture_Diffuse == null)
 			{
@@ -244,38 +287,79 @@ namespace Microsoft.MixedReality.GraphicsTools
 			Shader.SetGlobalTexture("_AmpDiffAmpSpecFresnel", ampDiffAmpSpecFresnel);
 		}
 
-		private static void UpdateLightSourceVisual(AreaLight light)
+		private Texture BlurCookie()
 		{
-			if (light.drawLightSource && light.enabled)
+			// Can't blur when not playing.
+			if (!Application.isPlaying || cookieBlurMaterial == null)
 			{
-				if (light.lightSourceVisual == null)
+				return cookie;
+			}
+
+			int width = cookie.width;
+			int height = cookie.height;
+
+			if (blurredCookieSource == null)
+			{
+				blurredCookieSource = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+				blurredCookieSource.name = gameObject.name;
+			}
+			else if (blurredCookieSource.width != width || blurredCookieSource.height != height)
+			{
+				blurredCookieSource.Release();
+				blurredCookieSource.width = width;
+				blurredCookieSource.height = height;
+				blurredCookieSource.Create();
+			}
+
+			// Note, using Blit rather than CopyTexture because the source texture is often compressed.
+			Graphics.Blit(cookie, blurredCookieSource);
+
+			AcrylicLayer.Settings settings = new();
+			AcrylicLayer layer = new(null, settings, 0, 0, true, null, cookieBlurMaterial);
+			layer.ApplyBlur(ref blurredCookieSource, ref blurredCookieDestination);
+			layer.Dispose();
+
+			return blurredCookieSource;
+		}
+
+		private void UpdateLightSourceVisual()
+		{
+			if (drawLightSource && enabled)
+			{
+				if (lightSourceVisual == null)
 				{
-					light.lightSourceVisual = GameObject.CreatePrimitive(PrimitiveType.Quad).GetComponent<MeshRenderer>();
-					light.lightSourceVisual.gameObject.hideFlags = HideFlags.HideInHierarchy;
-					light.lightSourceVisual.transform.parent = light.transform;
-					light.lightSourceVisual.transform.localPosition = Vector3.zero;
-					light.lightSourceVisual.transform.localRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
-					light.lightSourceVisual.sharedMaterial = new Material(Shader.Find("Hidden/Graphics Tools/Experimental/Area Light Visualize"));
+					lightSourceVisual = GameObject.CreatePrimitive(PrimitiveType.Quad).GetComponent<MeshRenderer>();
+					lightSourceVisual.gameObject.name = "AreaLightVisual";
+					lightSourceVisual.gameObject.hideFlags = HideFlags.NotEditable;
+					lightSourceVisual.transform.parent = transform;
+					lightSourceVisual.transform.localPosition = Vector3.zero;
+					lightSourceVisual.transform.localRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
+					lightSourceVisual.sharedMaterial = new Material(Shader.Find("Hidden/Graphics Tools/Experimental/Area Light Visualize"));
 				}
 
-				light.lightSourceVisual.sharedMaterial.color = light.Color;
-				light.lightSourceVisual.sharedMaterial.mainTexture = light.Cookie;
-				light.lightSourceVisual.transform.localScale = new Vector3(light.size.x, light.size.y, 1.0f);
+				lightSourceVisual.sharedMaterial.color = Color;
+				lightSourceVisual.sharedMaterial.mainTexture = cookie; // Use the unblurred version for visualization.
+				lightSourceVisual.transform.localScale = new Vector3(size.x, size.y, 1.0f);
 			}
 			else
 			{
-				if (light.lightSourceVisual)
+				DestroyLightVisual();
+			}
+		}
+
+		private void DestroyLightVisual()
+		{
+			if (lightSourceVisual)
+			{
+				if (Application.isPlaying)
 				{
-					if (Application.isPlaying)
-					{
-						Destroy(light.lightSourceVisual.sharedMaterial);
-						Destroy(light.lightSourceVisual.gameObject);
-					}
-					else
-					{
-						DestroyImmediate(light.lightSourceVisual.sharedMaterial);
-						DestroyImmediate(light.lightSourceVisual.gameObject);
-					}
+					Destroy(lightSourceVisual.sharedMaterial);
+					Destroy(lightSourceVisual.gameObject);
+				}
+				else
+				{
+					DestroyImmediate(lightSourceVisual.sharedMaterial);
+					DestroyImmediate(lightSourceVisual.gameObject);
 				}
 			}
 		}
@@ -299,7 +383,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			return null;
 		}
 
-		static Texture2D CreateLUT(TextureFormat format, Color[] pixels)
+		private static Texture2D CreateLUT(TextureFormat format, Color[] pixels)
 		{
 			Texture2D tex = new Texture2D(LUTResolution, LUTResolution, format, false /*mipmap*/, true /*linear*/);
 			tex.hideFlags = HideFlags.HideAndDontSave;
@@ -310,7 +394,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			return tex;
 		}
 
-		static Texture2D LoadLUT(double[,] LUTTransformInv)
+		private static Texture2D LoadLUT(double[,] LUTTransformInv)
 		{
 			const int count = LUTResolution * LUTResolution;
 			Color[] pixels = new Color[count];
@@ -327,7 +411,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			return CreateLUT(TextureFormat.RGBAHalf, pixels);
 		}
 
-		static Texture2D LoadLUT(float[] LUTScalar0, float[] LUTScalar1, float[] LUTScalar2)
+		private static Texture2D LoadLUT(float[] LUTScalar0, float[] LUTScalar1, float[] LUTScalar2)
 		{
 			const int count = LUTResolution * LUTResolution;
 			Color[] pixels = new Color[count];
