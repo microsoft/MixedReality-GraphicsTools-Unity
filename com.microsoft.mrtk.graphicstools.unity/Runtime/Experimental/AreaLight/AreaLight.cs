@@ -27,8 +27,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static List<AreaLight> activeAreaLights = new(areaLightCount);
 		private static Vector4[] areaLightData = new Vector4[areaLightDataSize * areaLightCount];
 		private static Matrix4x4[] areaLightVerts = new Matrix4x4[areaLightCount];
+		private static Texture2D[] areaLightCookies = new Texture2D[areaLightCount];
 		private static int _AreaLightDataID;
 		private static int _AreaLightVertsID;
+		private static int[] _AreaLightCookiesIDs;
 		private static int lastAreaLightUpdate = -1;
 
 		[Experimental]
@@ -82,12 +84,26 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => size = value;
 		}
 
-		[Tooltip("Shoud the area light have a visualization?")]
+
+		[Tooltip("Optional texture to use instead of a solid color.")]
+		[SerializeField]
+		private Texture2D cookie;
+
+		/// <summary>
+		/// Optional texture to use instead of a solid color.
+		/// </summary>
+		public Texture2D Cookie
+		{
+			get => cookie;
+			set => cookie = value;
+		}
+
+		[Tooltip("Should the area light have a visualization?")]
 		[SerializeField]
 		private bool drawLightSource = true;
 
 		/// <summary>
-		/// Width and height of the light.
+		/// Should the area light have a visualization?
 		/// </summary>
 		public bool DrawLightSource
 		{
@@ -109,6 +125,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			_AreaLightDataID = Shader.PropertyToID("_AreaLightData");
 			_AreaLightVertsID = Shader.PropertyToID("_AreaLightVerts");
+
+			_AreaLightCookiesIDs = new int[areaLightCount];
+			for (int i = 0; i < _AreaLightCookiesIDs.Length; ++i)
+			{
+				_AreaLightCookiesIDs[i] = Shader.PropertyToID($"_AreaLightCookie{i}");
+			}
 
 			if (transform.localScale != Vector3.one)
 			{
@@ -174,6 +196,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 					}
 
 					areaLightVerts[i] = lightVerts;
+					areaLightCookies[i] = light.Cookie ? light.cookie : Texture2D.whiteTexture;
 
 					UpdateLightSourceVisual(light);
 				}
@@ -181,11 +204,18 @@ namespace Microsoft.MixedReality.GraphicsTools
 				{
 					areaLightData[dataIndex] = Vector4.zero;
 					areaLightVerts[i] = Matrix4x4.zero;
+					areaLightCookies[i] = Texture2D.whiteTexture;
 				}
 			}
 
 			Shader.SetGlobalVectorArray(_AreaLightDataID, areaLightData);
 			Shader.SetGlobalMatrixArray(_AreaLightVertsID, areaLightVerts);
+
+			// There is no SetGlobalTextureArray so pass in 1 by 1.
+			for (int i = 0; i < areaLightCookies.Length; ++i)
+			{
+				Shader.SetGlobalTexture(_AreaLightCookiesIDs[i], areaLightCookies[i]);
+			}
 
 			lastAreaLightUpdate = Time.frameCount;
 		}
@@ -225,10 +255,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 					light.lightSourceVisual.transform.parent = light.transform;
 					light.lightSourceVisual.transform.localPosition = Vector3.zero;
 					light.lightSourceVisual.transform.localRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
-					light.lightSourceVisual.sharedMaterial = new Material(Shader.Find("Unlit/Color"));
+					light.lightSourceVisual.sharedMaterial = new Material(Shader.Find("Hidden/Graphics Tools/Experimental/Area Light Visualize"));
 				}
 
 				light.lightSourceVisual.sharedMaterial.color = light.Color;
+				light.lightSourceVisual.sharedMaterial.mainTexture = light.Cookie;
 				light.lightSourceVisual.transform.localScale = new Vector3(light.size.x, light.size.y, 1.0f);
 			}
 			else

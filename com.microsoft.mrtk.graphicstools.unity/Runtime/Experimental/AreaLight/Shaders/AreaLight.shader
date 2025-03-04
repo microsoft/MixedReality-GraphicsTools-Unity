@@ -29,18 +29,22 @@ Shader "Graphics Tools/Experimental/Area Light"
 			{
 				float4 vertex : POSITION;
 				half3 normal : NORMAL;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct v2f
 			{
 				float4 vertex : SV_POSITION;
-				float3 worldPosition : TEXCOORD0;
-				half3 worldNormal : TEXCOORD1;
+				float3 worldPosition : TEXCOORD1;
+				half3 worldNormal : TEXCOORD2;
+				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
 			v2f vert (appdata v)
 			{
 				v2f o;
+				UNITY_SETUP_INSTANCE_ID(v);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.worldPosition = mul(UNITY_MATRIX_M, v.vertex).xyz;
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
@@ -63,6 +67,9 @@ Shader "Graphics Tools/Experimental/Area Light"
 			#endif
 			sampler2D _TransformInv_Specular;
 			sampler2D _AmpDiffAmpSpecFresnel;
+
+			sampler2D _AreaLightCookie0;
+			sampler2D _AreaLightCookie1;
 
 			#define AREA_LIGHT_COUNT 2
 			#define AREA_LIGHT_DATA_SIZE 1
@@ -238,6 +245,40 @@ Shader "Graphics Tools/Experimental/Area Light"
 				// Polygon radiance in transformed configuration - specular
 				return PolygonRadiance(LTransformed) * amplitude;
 			}
+
+			half3 SampleDiffuseFilteredTexture(sampler2D texLightFiltered, half4x3 L)
+			{
+				float3 p1_ = L[0];
+				float3 p2_ = L[1];
+				float3 p3_ = L[2];
+				float3 p4_ = L[3];
+
+				// Area light plane basis.
+				float3 V1 = p2_ - p1_;
+				float3 V2 = p4_ - p1_;
+				float3 planeOrtho = (cross(V1, V2));
+				float planeAreaSquared = dot(planeOrtho, planeOrtho);
+				float planeDistxPlaneArea = dot(planeOrtho, p1_);
+
+				// Orthonormal projection of (0,0,0) in area light space.
+				float3 P = planeDistxPlaneArea * planeOrtho / planeAreaSquared - p1_;
+				
+				// Find tex coords of P.
+				float dot_V1_V2 = dot(V1,V2);
+				float inv_dot_V1_V1 = 1.0 / dot(V1, V1);
+				float3 V2_ = V2 - V1 * dot_V1_V2 * inv_dot_V1_V1;
+				float2 Puv;
+				Puv.x = dot(V2_, P) / dot(V2_, V2_);
+				Puv.y = 1 - (dot(V1, P) * inv_dot_V1_V1 - dot_V1_V2 * inv_dot_V1_V1 * Puv.x);
+				
+				// LOD.
+				float d = abs(planeDistxPlaneArea) / pow(planeAreaSquared, 0.75);
+				
+				float2 uv = float2(0.125, 0.125) + 0.75 * Puv;
+				float w = log(1024.0 * d) / log(6.0); // TODO get texture size.
+				//return tex2Dlod(texLightFiltered, float4(uv.x, uv.y, 0, w)).rgb;
+				return tex2D(texLightFiltered, uv).rgb;
+			}
 			
 			half3 CalculateLight (half3 position, half3 diffColor, half3 specColor, half oneMinusRoughness, half3 N, int lightIndex)
 			{
@@ -256,6 +297,10 @@ Shader "Graphics Tools/Experimental/Area Light"
 				half4x3 L;
 				L = _AreaLightVerts[lightIndex] - half4x3(position, position, position, position);
 				L = mul(L, transpose(basis));
+
+				// Texture
+				//sampler2D cookie = (lightIndex == 0) ? _AreaLightCookie0 : _AreaLightCookie1; // TODO
+				half3 textureColor = SampleDiffuseFilteredTexture(_AreaLightCookie0, L);
 			
 				// UVs for sampling the LUTs
 				half theta = acos(dot(V, N));
@@ -273,7 +318,7 @@ Shader "Graphics Tools/Experimental/Area Light"
 				half fresnelTerm = specColor + (1.0 - specColor) * AmpDiffAmpSpecFresnel.z;
 				result += specularTerm * fresnelTerm * UNITY_PI;
 
-				return result * _AreaLightData[lightIndex];
+				return result * _AreaLightData[lightIndex] * textureColor;
 			}
 
 			fixed4 frag (v2f i) : SV_Target
