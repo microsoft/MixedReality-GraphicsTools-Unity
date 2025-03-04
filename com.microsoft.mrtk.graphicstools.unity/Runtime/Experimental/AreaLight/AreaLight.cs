@@ -82,6 +82,26 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => size = value;
 		}
 
+		[Tooltip("Shoud the area light have a visualization?")]
+		[SerializeField]
+		private bool drawLightSource = true;
+
+		/// <summary>
+		/// Width and height of the light.
+		/// </summary>
+		public bool DrawLightSource
+		{
+			get => drawLightSource;
+			set
+			{
+				drawLightSource = value;
+				UpdateLightSourceVisual(this);
+			}
+		}
+
+		[SerializeField, HideInInspector]
+		private MeshRenderer lightSourceVisual;
+
 		#region BaseLight Implementation
 
 		/// <inheritdoc/>
@@ -99,6 +119,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 
 			CreateLUTs();
+			UpdateLightSourceVisual(this);
 		}
 
 		/// <inheritdoc/>
@@ -146,13 +167,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 					Matrix4x4 lightVerts = new Matrix4x4();
 					for (int v = 0; v < 4; ++v)
 					{
-						Vector3 vertex = new Vector3(light.size.x * offsets[v, 0], 
-													 light.size.y * offsets[v, 1], 
+						Vector3 vertex = new Vector3(light.size.x * offsets[v, 0],
+													 light.size.y * offsets[v, 1],
 													 z) * 0.5f;
 						lightVerts.SetRow(v, light.transform.TransformPoint(vertex));
 					}
 
 					areaLightVerts[i] = lightVerts;
+
+					UpdateLightSourceVisual(light);
 				}
 				else
 				{
@@ -189,6 +212,41 @@ namespace Microsoft.MixedReality.GraphicsTools
 			Shader.SetGlobalTexture("_TransformInv_Diffuse", transformInvTexture_Diffuse);
 			Shader.SetGlobalTexture("_TransformInv_Specular", transformInvTexture_Specular);
 			Shader.SetGlobalTexture("_AmpDiffAmpSpecFresnel", ampDiffAmpSpecFresnel);
+		}
+
+		private static void UpdateLightSourceVisual(AreaLight light)
+		{
+			if (light.drawLightSource && light.enabled)
+			{
+				if (light.lightSourceVisual == null)
+				{
+					light.lightSourceVisual = GameObject.CreatePrimitive(PrimitiveType.Quad).GetComponent<MeshRenderer>();
+					light.lightSourceVisual.gameObject.hideFlags = HideFlags.HideInHierarchy;
+					light.lightSourceVisual.transform.parent = light.transform;
+					light.lightSourceVisual.transform.localPosition = Vector3.zero;
+					light.lightSourceVisual.transform.localRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
+					light.lightSourceVisual.sharedMaterial = new Material(Shader.Find("Unlit/Color"));
+				}
+
+				light.lightSourceVisual.sharedMaterial.color = light.Color;
+				light.lightSourceVisual.transform.localScale = new Vector3(light.size.x, light.size.y, 1.0f);
+			}
+			else
+			{
+				if (light.lightSourceVisual)
+				{
+					if (Application.isPlaying)
+					{
+						Destroy(light.lightSourceVisual.sharedMaterial);
+						Destroy(light.lightSourceVisual.gameObject);
+					}
+					else
+					{
+						DestroyImmediate(light.lightSourceVisual.sharedMaterial);
+						DestroyImmediate(light.lightSourceVisual.gameObject);
+					}
+				}
+			}
 		}
 
 		private enum LUTType

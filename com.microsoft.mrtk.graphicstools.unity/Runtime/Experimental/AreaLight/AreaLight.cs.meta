@@ -3,7 +3,9 @@ guid: 2df041073bc7ed94ea9692d0dd13e2cc
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - lightSourceVisual: {instanceID: 0}
+  - lightSourceShader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
