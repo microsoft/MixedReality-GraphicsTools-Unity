@@ -27,7 +27,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static List<AreaLight> activeAreaLights = new(areaLightCount);
 		private static Vector4[] areaLightData = new Vector4[areaLightDataSize * areaLightCount];
 		private static Matrix4x4[] areaLightVerts = new Matrix4x4[areaLightCount];
-		private static Texture2D[] areaLightCookies = new Texture2D[areaLightCount];
+		private static Texture[] areaLightCookies = new Texture[areaLightCount];
 		private static int _AreaLightDataID;
 		private static int _AreaLightVertsID;
 		private static int[] _AreaLightCookiesIDs;
@@ -87,12 +87,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		[Tooltip("Optional texture to use instead of a solid color.")]
 		[SerializeField]
-		private Texture2D cookie;
+		private Texture cookie;
 
 		/// <summary>
 		/// Optional texture to use instead of a solid color.
 		/// </summary>
-		public Texture2D Cookie
+		public Texture Cookie
 		{
 			get => cookie;
 			set => cookie = value;

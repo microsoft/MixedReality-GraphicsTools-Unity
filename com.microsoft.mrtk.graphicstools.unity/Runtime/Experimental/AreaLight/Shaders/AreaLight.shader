@@ -276,7 +276,7 @@ Shader "Graphics Tools/Experimental/Area Light"
 				
 				float2 uv = float2(0.125, 0.125) + 0.75 * Puv;
 				float w = log(1024.0 * d) / log(6.0); // TODO get texture size.
-				//return tex2Dlod(texLightFiltered, float4(uv.x, uv.y, 0, w)).rgb;
+				//return tex2Dlod(texLightFiltered, float4(uv.x, uv.y, 0, w)).rgb; // TODO, doesn't work with textures without mips.
 				return tex2D(texLightFiltered, uv).rgb;
 			}
 			
@@ -299,7 +299,7 @@ Shader "Graphics Tools/Experimental/Area Light"
 				L = mul(L, transpose(basis));
 
 				// Texture
-				//sampler2D cookie = (lightIndex == 0) ? _AreaLightCookie0 : _AreaLightCookie1; // TODO
+				//sampler2D cookie = (lightIndex == 0) ? _AreaLightCookie0 : _AreaLightCookie1; // TODO, select correct texture.
 				half3 textureColor = SampleDiffuseFilteredTexture(_AreaLightCookie0, L);
 			
 				// UVs for sampling the LUTs
