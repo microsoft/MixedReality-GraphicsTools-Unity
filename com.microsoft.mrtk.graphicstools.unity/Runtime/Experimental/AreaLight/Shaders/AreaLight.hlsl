@@ -6,8 +6,6 @@
 
 // Based off : https://github.com/Unity-Technologies/VolumetricLighting
 
-#include "../../../Shaders/GraphicsToolsCommon.hlsl"
-
 /// <summary>
 /// Defines.
 /// </summary>
@@ -242,17 +240,18 @@ half3 SampleDiffuseFilteredTexture(sampler2D texLightFiltered, half4x3 L)
 }
 
 void CalculateAreaLight(in half3 worldPosition,
+						in half3 worldCameraPosition,
 						in half3 worldNormal,
 						in half3 diffuseColor,
 						in half3 specularColor, 
-						in half oneMinusRoughness, 
+						in half smoothness,
 						in int lightIndex,
 						out half3 output)
 {
 	// TODO: larger and smaller values cause artifacts - why?
-	oneMinusRoughness = clamp(oneMinusRoughness, 0.01, 0.93);
-	half roughness = 1 - oneMinusRoughness;
-	half3 V = normalize(_WorldSpaceCameraPos - worldPosition); // TODO, replace with unity_StereoWorldSpaceCameraPos[unity_StereoEyeIndex]?
+	smoothness = clamp(smoothness, 0.01, 0.93);
+	half roughness = 1 - smoothness;
+	half3 V = normalize(worldCameraPosition - worldPosition);
 			
 	// Construct orthonormal basis around worldNormal, aligned with V.
 	half3x3 basis;
@@ -283,16 +282,17 @@ void CalculateAreaLight(in half3 worldPosition,
 			
 	half specularTerm = TransformedPolygonRadiance(L, uv, _TransformInv_Specular, AmpDiffAmpSpecFresnel.y);
 	half fresnelTerm = specularColor + (1.0 - specularColor) * AmpDiffAmpSpecFresnel.z;
-	result += specularTerm * fresnelTerm * GT_PI;
+	result += specularTerm * fresnelTerm * 3.14159265359;
 
 	output = result * _AreaLightData[lightIndex].rgb * textureColor;
 }
 
 void CalculateAreaLights(in half3 worldPosition,
+						 in half3 worldCameraPosition,
 						 in half3 worldNormal,
 						 in half3 diffuseColor,
 						 in half3 specularColor,
-						 in half oneMinusRoughness,
+						 in half smoothness,
 						 out half3 output)
 {
 	output = 0;
@@ -300,9 +300,34 @@ void CalculateAreaLights(in half3 worldPosition,
 	for (int i = 0; i < AREA_LIGHT_COUNT; ++i)
 	{
 		half3 light;
-		CalculateAreaLight(worldPosition, worldNormal, diffuseColor, specularColor, oneMinusRoughness, i, light);
+		CalculateAreaLight(worldPosition, 
+						   worldCameraPosition, 
+						   worldNormal, 
+						   diffuseColor, 
+						   specularColor, 
+						   smoothness,
+						   i,
+						   light);
 		output += light;
 	}
+}
+
+// Shader Graph version.
+void CalculateAreaLights_float(in half3 worldPosition,
+						 in half3 worldCameraPosition,
+						 in half3 worldNormal,
+						 in half3 diffuseColor,
+						 in half3 specularColor,
+						 in half smoothness,
+						 out half3 output)
+{
+	CalculateAreaLights(worldPosition,
+						worldCameraPosition,
+						worldNormal,
+						diffuseColor,
+						specularColor,
+						smoothness,
+						output);
 }
 
 #endif // GT_AREA_LIGHT

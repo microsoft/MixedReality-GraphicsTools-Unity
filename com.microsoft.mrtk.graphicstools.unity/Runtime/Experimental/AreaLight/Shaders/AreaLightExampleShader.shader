@@ -61,10 +61,11 @@ Shader "Graphics Tools/Experimental/Area Light Example"
 			fixed4 frag (v2f i) : SV_Target
 			{
 				half3 worldPosition = i.worldPosition;
+				half3 worldCameraPosition = _WorldSpaceCameraPos; // TODO, replace with unity_StereoWorldSpaceCameraPos[unity_StereoEyeIndex]?
 				half3 worldNormal = normalize(i.worldNormal);
 
 				half3 lightOutput;
-				CalculateAreaLights(worldPosition, worldNormal, _Color, _SpecColor, _Smoothness, lightOutput);
+				CalculateAreaLights(worldPosition, worldCameraPosition, worldNormal, _Color, _SpecColor, _Smoothness, lightOutput);
 
 				return fixed4(lightOutput + _Color, 1);
 			}
