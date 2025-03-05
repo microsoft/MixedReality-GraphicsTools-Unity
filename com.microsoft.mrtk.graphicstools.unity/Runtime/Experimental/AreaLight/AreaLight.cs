@@ -214,6 +214,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 					if (light.cookie != null)
 					{
+						// TODO, don't need to do this every frame - ideally it should be done at no more than the frame rate of video (if the cookie is coming from a video).
 						areaLightCookies[i] = light.BlurCookie();
 					}
 					else
