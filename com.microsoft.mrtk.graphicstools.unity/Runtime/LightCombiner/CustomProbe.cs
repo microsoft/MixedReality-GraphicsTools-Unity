@@ -6,6 +6,12 @@ using UnityEngine.Rendering;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
+	/// <summary>
+	/// This component can be used to set the ambient probe to a custom value. 
+	/// Used in conjunction with the LightCombinerWindow. Once lightmaps have been removed from the scene
+	/// Unity will try to use light probes for the ambient light info. The ambient probe is too dark because it 
+	/// does not consider the baked lights. 
+	/// </summary>
 	[ExecuteInEditMode]
 	public class CustomProbe : MonoBehaviour
 	{
