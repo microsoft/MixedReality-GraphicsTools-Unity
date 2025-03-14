@@ -11,6 +11,10 @@ using UnityEngine.SceneManagement;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
+	/// <summary>
+	/// LightCombinerWindow is an EditorWindow class for Unity that provides a user interface to combine light maps with albedo textures
+	/// or hijack another texture for lightmaps. This is useful for exporting scenes to glTF (or other formats) where lightmaps are not supported.
+	/// </summary>
 	public class LightCombinerWindow : EditorWindow
 	{
 		private enum TechniqueMode
@@ -20,7 +24,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		}
 
 		// Export settings.
-		private TechniqueMode techniqueMode = TechniqueMode.MergeWithAlbedo;
+		private TechniqueMode techniqueMode = TechniqueMode.HijackAnotherTexture;
 		private float textureScalar = 1.0f;
 		private bool exportHDR = false;
 		private TextureImporterCompression textureCompression = TextureImporterCompression.CompressedHQ;
@@ -37,8 +41,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		private CombineMode combineMode = CombineMode.AlbedoAndLightmap;
 		private bool saveIntermediateTextures = false;
 
-		private string infoText = "I'm a friendly help message.";
-		private string errorText = null;
+		private string infoText;
+		private string errorText;
 
 		private const string kWorkingDirectoryPostfix = "LightCombined";
 
@@ -47,7 +51,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		{
 			var window = GetWindow<LightCombinerWindow>();
 			window.titleContent = new GUIContent("Light Combiner", EditorGUIUtility.IconContent("SceneviewLighting").image);
-			window.minSize = new Vector2(480.0f, 540.0f);
+			window.minSize = new Vector2(320.0f, 240.0f);
 			window.Show();
 		}
 
@@ -98,7 +102,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				{
 					EditorGUILayout.HelpBox(errorText, MessageType.Error);
 				}
-				else
+				else if (!string.IsNullOrEmpty(infoText))
 				{
 					EditorGUILayout.HelpBox(infoText, MessageType.Info);
 				}
