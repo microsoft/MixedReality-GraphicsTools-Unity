@@ -12,7 +12,7 @@
 
 #define AREA_LIGHT_COUNT 2
 #define AREA_LIGHT_DATA_SIZE 1
-#define AREA_LIGHT_ENABLE_DIFFUSE 1
+#define AREA_LIGHT_ENABLE_DIFFUSE 0
 
 /// <summary>
 /// Global properties.
@@ -24,6 +24,7 @@ sampler2D _TransformInv_Diffuse;
 sampler2D _TransformInv_Specular;
 sampler2D _AmpDiffAmpSpecFresnel;
 
+// Shader.SetGlobalTexture…Array(…) does not exist, so this is the best we can do.
 sampler2D _AreaLightCookie0;
 sampler2D _AreaLightCookie1;
 
@@ -34,28 +35,25 @@ float4x4 _AreaLightVerts[AREA_LIGHT_COUNT];
 /// Lighting methods.
 /// </summary>
 
-half IntegrateEdge(half3 v1, half3 v2)
+half IntegrateEdge(in half3 v1, in half3 v2)
 {
-	half theta = acos(max(-0.9999, dot(v1, v2)));
-	half theta_sintheta = theta / sin(theta);
-	return theta_sintheta * (v1.x * v2.y - v1.y * v2.x);
+	float cosTheta = dot(v1, v2);
+	float theta = acos(cosTheta);
+	float cross = (v1.x * v2.y - v1.y * v2.x);
+	return cross * ((theta > 0.001) ? theta / sin(theta) : 1.0);
 }
 			
-half PolygonRadiance(half4x3 L)
+half PolygonRadiance(in half4x3 L)
 {
 	// Baum's equation
 	// Expects non-normalized vertex positions
 
 	// Detect clipping config.
 	uint config = 0;
-	if (L[0].z > 0)
-		config += 1;
-	if (L[1].z > 0)
-		config += 2;
-	if (L[2].z > 0)
-		config += 4;
-	if (L[3].z > 0)
-		config += 8;
+	if (L[0].z > 0) { config += 1; }
+	if (L[1].z > 0) { config += 2; }
+	if (L[2].z > 0) { config += 4; }
+	if (L[3].z > 0) { config += 8; }
 			
 	// The fifth vertex for cases when clipping cuts off one corner.
 	// Due to a compiler bug, copying L into a vector array with 5 rows
@@ -159,21 +157,29 @@ half PolygonRadiance(half4x3 L)
 	}
 			
 	if (n == 0)
+	{
 		return 0;
+	}
 			
 	// Normalize.
 	L[0] = normalize(L[0]);
 	L[1] = normalize(L[1]);
 	L[2] = normalize(L[2]);
 	if (n == 3)
+	{
 		L[3] = L[0];
+	}
 	else
 	{
 		L[3] = normalize(L[3]);
 		if (n == 4)
+		{
 			L4 = L[0];
+		}
 		else
+		{
 			L4 = normalize(L4);
+		}
 	}
 				
 	// Integrate.
@@ -181,17 +187,23 @@ half PolygonRadiance(half4x3 L)
 	sum += IntegrateEdge(L[0], L[1]);
 	sum += IntegrateEdge(L[1], L[2]);
 	sum += IntegrateEdge(L[2], L[3]);
-	if (n >= 4)	
+
+	if (n >= 4)
+	{
 		sum += IntegrateEdge(L[3], L4);
+	}
+
 	if (n == 5)
+	{
 		sum += IntegrateEdge(L4, L[0]);
+	}
 				
 	sum *= 0.15915; // 1/2pi
 			
 	return max(0, sum);
 }
 			
-half TransformedPolygonRadiance(half4x3 L, half2 uv, sampler2D transformInv, half amplitude)
+half TransformedPolygonRadiance(in half4x3 L, in half2 uv, in sampler2D transformInv, in half amplitude)
 {
 	// Get the inverse LTC matrix M.
 	half3x3 Minv = 0;
@@ -205,7 +217,21 @@ half TransformedPolygonRadiance(half4x3 L, half2 uv, sampler2D transformInv, hal
 	return PolygonRadiance(LTransformed) * amplitude;
 }
 
-half3 SampleDiffuseFilteredTexture(sampler2D texLightFiltered, half4x3 L)
+half4 SampleAreaLightCookie(in int lightIndex, in float2 uv)
+{
+	[forcecase]
+	switch (lightIndex)
+	{
+		case 0:
+			return tex2D(_AreaLightCookie0, uv);
+		case 1:
+			return tex2D(_AreaLightCookie1, uv);
+		default:
+			return half4(1, 1, 1, 1);
+	}
+}
+
+half3 SampleDiffuseFilteredTexture(in int lightIndex, in half4x3 L)
 {
 	float3 p1_ = L[0];
 	float3 p2_ = L[1];
@@ -229,14 +255,14 @@ half3 SampleDiffuseFilteredTexture(sampler2D texLightFiltered, half4x3 L)
 	float2 Puv;
 	Puv.x = dot(V2_, P) / dot(V2_, V2_);
 	Puv.y = 1 - (dot(V1, P) * inv_dot_V1_V1 - dot_V1_V2 * inv_dot_V1_V1 * Puv.x);
-				
-	// LOD.
-	float d = abs(planeDistxPlaneArea) / pow(planeAreaSquared, 0.75);
-				
 	float2 uv = float2(0.125, 0.125) + 0.75 * Puv;
+
+	// TODO, calculate mip level based on distance to area light if the texture has pre-filtered mip levels.
+	//float d = abs(planeDistxPlaneArea) / pow(planeAreaSquared, 0.75);
 	//float w = log(1024.0 * d) / log(6.0); // TODO get texture size.
-	//return tex2Dlod(texLightFiltered, float4(uv.x, uv.y, 0, w)).rgb; // TODO, doesn't work with textures without mips.
-	return tex2D(texLightFiltered, uv).rgb;
+	//return tex2Dlod(texLightFiltered, float4(uv.x, uv.y, 0, w)).rgb;
+
+	return SampleAreaLightCookie(lightIndex, uv).rgb;
 }
 
 void CalculateAreaLight(in half3 worldPosition,
@@ -264,9 +290,8 @@ void CalculateAreaLight(in half3 worldPosition,
 	L = (half4x3)_AreaLightVerts[lightIndex] - half4x3(worldPosition, worldPosition, worldPosition, worldPosition);
 	L = mul(L, transpose(basis));
 
-	// Texture.
-	//sampler2D cookie = (lightIndex == 0) ? _AreaLightCookie0 : _AreaLightCookie1; // TODO, select correct texture.
-	half3 textureColor = SampleDiffuseFilteredTexture(_AreaLightCookie0, L);
+	// Texture. TODO, disable if no texture.
+	half3 textureColor = SampleDiffuseFilteredTexture(lightIndex, L);
 			
 	// UVs for sampling the LUTs.
 	half theta = acos(dot(V, worldNormal));
@@ -312,14 +337,14 @@ void CalculateAreaLights(in half3 worldPosition,
 	}
 }
 
-// Shader Graph version.
+// Shader Graph full precision version.
 void CalculateAreaLights_float(in half3 worldPosition,
-						 in half3 worldCameraPosition,
-						 in half3 worldNormal,
-						 in half3 diffuseColor,
-						 in half3 specularColor,
-						 in half smoothness,
-						 out half3 output)
+							   in half3 worldCameraPosition,
+							   in half3 worldNormal,
+							   in half3 diffuseColor,
+							   in half3 specularColor,
+							   in half smoothness,
+							   out half3 output)
 {
 	CalculateAreaLights(worldPosition,
 						worldCameraPosition,
