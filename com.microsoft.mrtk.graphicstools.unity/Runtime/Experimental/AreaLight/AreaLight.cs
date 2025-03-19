@@ -8,7 +8,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 {
 	/// <summary>
 	/// An area light is a light source with a defined rectangular shape that produces soft, diffused lighting.
-	/// Based off: https://github.com/Unity-Technologies/VolumetricLighting
+	/// Based off work from: https://github.com/Unity-Technologies/VolumetricLighting
 	/// </summary>
 	[ExecuteInEditMode]
 	[AddComponentMenu("Scripts/GraphicsTools/AreaLight")]
@@ -102,7 +102,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private Material cookieBlurMaterial;
 
 		/// <summary>
-		/// If a Cookie is specifed, the material to perform dual blurring.
+		/// If a Cookie is specified, the material to perform dual blurring.
 		/// </summary>
 		public Material CookieBlurMaterial
 		{
@@ -362,6 +362,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 					DestroyImmediate(lightSourceVisual.sharedMaterial);
 					DestroyImmediate(lightSourceVisual.gameObject);
 				}
+
+				lightSourceVisual = null;
 			}
 		}
 

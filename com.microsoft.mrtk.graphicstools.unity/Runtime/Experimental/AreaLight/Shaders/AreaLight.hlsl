@@ -4,7 +4,7 @@
 #ifndef GT_AREA_LIGHT
 #define GT_AREA_LIGHT
 
-// Based off : https://github.com/Unity-Technologies/VolumetricLighting
+// Based off work from: https://github.com/Unity-Technologies/VolumetricLighting
 
 /// <summary>
 /// Defines.
@@ -282,7 +282,7 @@ void CalculateAreaLight(in half3 worldPosition,
 			
 	half specularTerm = TransformedPolygonRadiance(L, uv, _TransformInv_Specular, AmpDiffAmpSpecFresnel.y);
 	half fresnelTerm = specularColor + (1.0 - specularColor) * AmpDiffAmpSpecFresnel.z;
-	result += specularTerm * fresnelTerm * 3.14159265359;
+	result += specularTerm * fresnelTerm * 3.14159265359; // Pi.
 
 	output = result * _AreaLightData[lightIndex].rgb * textureColor;
 }
