@@ -19,9 +19,9 @@
 /// </summary>
 
 #if AREA_LIGHT_ENABLE_DIFFUSE
-sampler2D _TransformInv_Diffuse;
+sampler2D _TransformInvDiffuse;
 #endif
-sampler2D _TransformInv_Specular;
+sampler2D _TransformInvSpecular;
 sampler2D _AmpDiffAmpSpecFresnel;
 
 // Shader.SetGlobalTexture…Array(…) does not exist, so this is the best we can do.
@@ -301,11 +301,11 @@ void CalculateAreaLight(in half3 worldPosition,
 			
 	half3 result = 0;
 #if AREA_LIGHT_ENABLE_DIFFUSE
-	half diffuseTerm = TransformedPolygonRadiance(L, uv, _TransformInv_Diffuse, AmpDiffAmpSpecFresnel.x);
+	half diffuseTerm = TransformedPolygonRadiance(L, uv, _TransformInvDiffuse, AmpDiffAmpSpecFresnel.x);
 	result = diffuseTerm * diffuseColor;
 #endif
 			
-	half specularTerm = TransformedPolygonRadiance(L, uv, _TransformInv_Specular, AmpDiffAmpSpecFresnel.y);
+	half specularTerm = TransformedPolygonRadiance(L, uv, _TransformInvSpecular, AmpDiffAmpSpecFresnel.y);
 	half fresnelTerm = specularColor + (1.0 - specularColor) * AmpDiffAmpSpecFresnel.z;
 	result += specularTerm * fresnelTerm * 3.14159265359; // Pi.
 

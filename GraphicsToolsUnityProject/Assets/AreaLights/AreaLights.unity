@@ -144,7 +144,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 8400000, guid: ad04372f89ca9dc4e9f9fce338dd2f80, type: 2}
+        m_Texture: {fileID: 8400000, guid: c46911d32ba02bb4181bac33b18b8403, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -276,6 +276,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 884818643}
+  - component: {fileID: 884818646}
   - component: {fileID: 884818645}
   - component: {fileID: 884818644}
   m_Layer: 0
@@ -431,6 +432,22 @@ VideoPlayer:
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []
+--- !u!114 &884818646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 884818642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63f1d90ed5c6ca54c87e89d6db811c47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cookie: {fileID: 8400000, guid: ad04372f89ca9dc4e9f9fce338dd2f80, type: 2}
+  cookieFiltered: {fileID: 8400000, guid: c46911d32ba02bb4181bac33b18b8403, type: 2}
+  cookieFilterMaterial: {fileID: 2100000, guid: 50dc523b24a2cfc409af7babd1bddb04, type: 2}
+  delayTemp: 1
 --- !u!1 &918710285
 GameObject:
   m_ObjectHideFlags: 8
@@ -1025,7 +1042,6 @@ MonoBehaviour:
   intensity: 1
   size: {x: 2, y: 2}
   cookie: {fileID: 0}
-  cookieBlurMaterial: {fileID: 2100000, guid: 50dc523b24a2cfc409af7babd1bddb04, type: 2}
   drawLightSource: 1
   lightSourceVisual: {fileID: 918710286}
 --- !u!4 &1322621358
@@ -1077,8 +1093,7 @@ MonoBehaviour:
   color: {r: 1, g: 1, b: 1, a: 1}
   intensity: 1
   size: {x: 3.54, y: 2}
-  cookie: {fileID: 8400000, guid: ad04372f89ca9dc4e9f9fce338dd2f80, type: 2}
-  cookieBlurMaterial: {fileID: 2100000, guid: 50dc523b24a2cfc409af7babd1bddb04, type: 2}
+  cookie: {fileID: 8400000, guid: c46911d32ba02bb4181bac33b18b8403, type: 2}
   drawLightSource: 1
   lightSourceVisual: {fileID: 1135074878}
 --- !u!4 &1400403116

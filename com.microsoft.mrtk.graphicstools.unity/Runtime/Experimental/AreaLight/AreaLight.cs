@@ -20,8 +20,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private const int LUTResolution = 64;
 		private const int LUTMatrixDim = 3;
 
-		private static Texture2D transformInvTexture_Specular;
-		private static Texture2D transformInvTexture_Diffuse;
+		private static Texture2D transformInvTextureSpecular;
+		private static Texture2D transformInvTextureDiffuse;
 		private static Texture2D ampDiffAmpSpecFresnel;
 
 		private static List<AreaLight> activeAreaLights = new(areaLightCount);
@@ -97,19 +97,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => cookie = value;
 		}
 
-		[Tooltip("If a Cookie is specifed, the material to perform dual blurring.")]
-		[SerializeField]
-		private Material cookieBlurMaterial;
-
-		/// <summary>
-		/// If a Cookie is specified, the material to perform dual blurring.
-		/// </summary>
-		public Material CookieBlurMaterial
-		{
-			get => cookieBlurMaterial;
-			set => cookieBlurMaterial = value;
-		}
-
 		[Tooltip("Should the area light have a visualization?")]
 		[SerializeField]
 		private bool drawLightSource = true;
@@ -129,9 +116,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		[SerializeField, HideInInspector]
 		private MeshRenderer lightSourceVisual;
-
-		private RenderTexture blurredCookieSource = null;
-		private RenderTexture blurredCookieDestination = null;
 
 		#region BaseLight Implementation
 
@@ -214,8 +198,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 					if (light.cookie != null)
 					{
-						// TODO, don't need to do this every frame - ideally it should be done at no more than the frame rate of video (if the cookie is coming from a video).
-						areaLightCookies[i] = light.BlurCookie();
+						areaLightCookies[i] = light.cookie;
 					}
 					else
 					{
@@ -246,21 +229,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		#endregion BaseLight Implementation
 
-		private void OnDestroy()
-		{
-			if (blurredCookieSource != null)
-			{
-				blurredCookieSource.Release();
-				blurredCookieSource = null;
-			}
-
-			if (blurredCookieDestination != null)
-			{
-				blurredCookieDestination.Release();
-				blurredCookieDestination = null;
-			}
-		}
-
 		private void Reset()
 		{
 			DestroyLightVisual();
@@ -268,14 +236,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		private static void CreateLUTs()
 		{
-			if (transformInvTexture_Diffuse == null)
+			if (transformInvTextureDiffuse == null)
 			{
-				transformInvTexture_Diffuse = LoadLUT(LUTType.TransformInv_DisneyDiffuse);
+				transformInvTextureDiffuse = LoadLUT(LUTType.TransformInv_DisneyDiffuse);
 			}
 
-			if (transformInvTexture_Specular == null)
+			if (transformInvTextureSpecular == null)
 			{
-				transformInvTexture_Specular = LoadLUT(LUTType.TransformInv_GGX);
+				transformInvTextureSpecular = LoadLUT(LUTType.TransformInv_GGX);
 			}
 
 			if (ampDiffAmpSpecFresnel == null)
@@ -283,44 +251,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 				ampDiffAmpSpecFresnel = LoadLUT(LUTType.AmpDiffAmpSpecFresnel);
 			}
 
-			Shader.SetGlobalTexture("_TransformInv_Diffuse", transformInvTexture_Diffuse);
-			Shader.SetGlobalTexture("_TransformInv_Specular", transformInvTexture_Specular);
+			Shader.SetGlobalTexture("_TransformInvDiffuse", transformInvTextureDiffuse);
+			Shader.SetGlobalTexture("_TransformInvSpecular", transformInvTextureSpecular);
 			Shader.SetGlobalTexture("_AmpDiffAmpSpecFresnel", ampDiffAmpSpecFresnel);
-		}
-
-		private Texture BlurCookie()
-		{
-			// Can't blur when not playing.
-			if (!Application.isPlaying || cookieBlurMaterial == null)
-			{
-				return cookie;
-			}
-
-			int width = cookie.width;
-			int height = cookie.height;
-
-			if (blurredCookieSource == null)
-			{
-				blurredCookieSource = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
-				blurredCookieSource.name = gameObject.name;
-			}
-			else if (blurredCookieSource.width != width || blurredCookieSource.height != height)
-			{
-				blurredCookieSource.Release();
-				blurredCookieSource.width = width;
-				blurredCookieSource.height = height;
-				blurredCookieSource.Create();
-			}
-
-			// Note, using Blit rather than CopyTexture because the source texture is often compressed.
-			Graphics.Blit(cookie, blurredCookieSource);
-
-			AcrylicLayer.Settings settings = new();
-			AcrylicLayer layer = new(null, settings, 0, 0, true, null, cookieBlurMaterial);
-			layer.ApplyBlur(ref blurredCookieSource, ref blurredCookieDestination);
-			layer.Dispose();
-
-			return blurredCookieSource;
 		}
 
 		private void UpdateLightSourceVisual()
@@ -388,7 +321,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		private static Texture2D CreateLUT(TextureFormat format, Color[] pixels)
 		{
-			Texture2D tex = new Texture2D(LUTResolution, LUTResolution, format, false /*mipmap*/, true /*linear*/);
+			var tex = new Texture2D(LUTResolution, LUTResolution, format, false /*mipmap*/, true /*linear*/);
 			tex.hideFlags = HideFlags.HideAndDontSave;
 			tex.wrapMode = TextureWrapMode.Clamp;
 			tex.SetPixels(pixels);
@@ -402,13 +335,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 			const int count = LUTResolution * LUTResolution;
 			Color[] pixels = new Color[count];
 
-			for (int i = 0; i < count; i++)
+			for (int i = 0; i < count; ++i)
 			{
 				// Only columns 0, 2, 4 and 6 contain interesting values (at least in the case of GGX).
 				pixels[i] = new Color((float)LUTTransformInv[i, 0],
-										(float)LUTTransformInv[i, 2],
-										(float)LUTTransformInv[i, 4],
-										(float)LUTTransformInv[i, 6]);
+									  (float)LUTTransformInv[i, 2],
+									  (float)LUTTransformInv[i, 4],
+									  (float)LUTTransformInv[i, 6]);
 			}
 
 			return CreateLUT(TextureFormat.RGBAHalf, pixels);
@@ -420,7 +353,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			Color[] pixels = new Color[count];
 
 			// Amplitude.
-			for (int i = 0; i < count; i++)
+			for (int i = 0; i < count; ++i)
 			{
 				pixels[i] = new Color(LUTScalar0[i], LUTScalar1[i], LUTScalar2[i], 0);
 			}
