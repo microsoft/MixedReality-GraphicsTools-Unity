@@ -49,7 +49,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 		public Material CookieFilterMaterial
 		{
 			get => cookieFilterMaterial;
-			set => cookieFilterMaterial = value;
+			set
+			{
+				cookieFilterMaterial = value;
+				CreateAcrylicLayer();
+			}
 		}
 
 		[Tooltip("How many blur passes to perform during Dual blurring.")]
@@ -102,12 +106,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => everyFramePeriod = value;
 		}
 
-		private bool cookieCreatedLocally = false;
+		private bool cookieCreatedLocally;
+		private AcrylicLayer layer;
 		private Coroutine filterCoroutine;
 
 		public void Filter()
 		{
-			if (cookieFilterMaterial == null)
+			if (layer == null)
 			{
 				return;
 			}
@@ -131,10 +136,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 			// Note, using blit rather than CopyTexture because the source texture is sometimes compressed.
 			Graphics.Blit(cookie, cookieFiltered);
-
-			AcrylicLayer layer = new(null, null, 0, 0, true, null, cookieFilterMaterial);
 			layer.ApplyDualBlur(ref cookieFiltered, blurPasses);
-			layer.Dispose();
+		}
+
+		private void Start()
+		{
+			CreateAcrylicLayer();
 		}
 
 		private void OnEnable()
@@ -163,6 +170,20 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 		}
 
+		private void OnDestroy()
+		{
+			if (cookieCreatedLocally && cookieFiltered != null)
+			{
+				cookieFiltered.Release();
+				cookieFiltered = null;
+			}
+
+			if (layer != null)
+			{
+				layer.Dispose();
+			}
+		}
+
 		private IEnumerator FilterCoroutine()
 		{
 			while (true)
@@ -180,12 +201,16 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 		}
 
-		private void OnDestroy()
+		private void CreateAcrylicLayer()
 		{
-			if (cookieCreatedLocally && cookieFiltered != null)
+			if (layer != null)
 			{
-				cookieFiltered.Release();
-				cookieFiltered = null;
+				layer.Dispose();
+			}
+
+			if (cookieFilterMaterial != null)
+			{
+				layer = new(null, null, 0, 0, true, null, cookieFilterMaterial);
 			}
 		}
 	}
