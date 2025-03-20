@@ -419,7 +419,7 @@ VideoPlayer:
   m_PlaybackSpeed: 1
   m_AudioOutputMode: 1
   m_TargetAudioSources:
-  - {fileID: 0}
+  - {fileID: 884818644}
   m_DirectAudioVolumes:
   - 1
   m_Url: https://www.sample-videos.com/video321/mp4/720/big_buck_bunny_720p_10mb.mp4
@@ -447,7 +447,9 @@ MonoBehaviour:
   cookie: {fileID: 8400000, guid: ad04372f89ca9dc4e9f9fce338dd2f80, type: 2}
   cookieFiltered: {fileID: 8400000, guid: c46911d32ba02bb4181bac33b18b8403, type: 2}
   cookieFilterMaterial: {fileID: 2100000, guid: 50dc523b24a2cfc409af7babd1bddb04, type: 2}
-  delayTemp: 1
+  blurPasses: 4
+  refreshMode: 1
+  everyFramePeriod: 0
 --- !u!1 &918710285
 GameObject:
   m_ObjectHideFlags: 8
@@ -789,7 +791,7 @@ Material:
     m_Ints: []
     m_Floats: []
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.0031624534, g: 0.08509548, b: 0.9162945, a: 1}
   m_BuildTextureStacks: []
 --- !u!1 &1135074877
 GameObject:
@@ -987,6 +989,71 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1 &1278026955
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1278026957}
+  - component: {fileID: 1278026956}
+  m_Layer: 0
+  m_Name: Reflection Probe
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!215 &1278026956
+ReflectionProbe:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1278026955}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Type: 0
+  m_Mode: 1
+  m_RefreshMode: 0
+  m_TimeSlicingMode: 0
+  m_Resolution: 128
+  m_UpdateFrequency: 0
+  m_BoxSize: {x: 10, y: 10, z: 10}
+  m_BoxOffset: {x: 0, y: 0, z: 0}
+  m_NearClip: 0.3
+  m_FarClip: 1000
+  m_ShadowDistance: 100
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IntensityMultiplier: 1
+  m_BlendDistance: 1
+  m_HDR: 1
+  m_BoxProjection: 0
+  m_RenderDynamicObjects: 0
+  m_UseOcclusionCulling: 1
+  m_Importance: 1
+  m_CustomBakedTexture: {fileID: 0}
+--- !u!4 &1278026957
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1278026955}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.702944, y: -3.3644137, z: -13.099824}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1322621355
 GameObject:
   m_ObjectHideFlags: 0
@@ -1038,7 +1105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2df041073bc7ed94ea9692d0dd13e2cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color: {r: 1, g: 1, b: 1, a: 1}
+  color: {r: 0.040850822, g: 0.32290283, b: 0.9622642, a: 1}
   intensity: 1
   size: {x: 2, y: 2}
   cookie: {fileID: 0}
@@ -1051,7 +1118,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1322621355}
-  m_LocalRotation: {x: 0.08284251, y: -0.11762734, z: 0.009847461, w: 0.9895474}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -2.93, y: 1.227, z: 1.96}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1059,7 +1126,7 @@ Transform:
   - {fileID: 918710289}
   m_Father: {fileID: 0}
   m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 9.571, y: -13.558, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &1400403114
 GameObject:
   m_ObjectHideFlags: 0

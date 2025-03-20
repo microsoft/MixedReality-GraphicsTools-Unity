@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections;
 using UnityEngine;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
 	/// <summary>
-	/// TODO
+	/// This component filters an area light cookie texture to make it more suitable for use with area lights.
+	/// A user can control how often the filter is applied, and the filter can be applied manually via script.
 	/// </summary>
 	[AddComponentMenu("Scripts/GraphicsTools/AreaLightCookieFilter")]
 	public class AreaLightCookieFilter : MonoBehaviour
@@ -37,12 +39,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 			private set => cookieFiltered = value;
 		}
 
-		[Tooltip("The material to perform the filtering.")]
+		[Tooltip("A material that uses Dual blurring to perform the filtering")]
 		[SerializeField]
 		private Material cookieFilterMaterial;
 
 		/// <summary>
-		/// The material to perform the filtering.
+		/// A material that uses Dual blurring to perform the filtering.
 		/// </summary>
 		public Material CookieFilterMaterial
 		{
@@ -50,7 +52,58 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => cookieFilterMaterial = value;
 		}
 
+		[Tooltip("How many blur passes to perform during Dual blurring.")]
+		[SerializeField]
+		[Range(2, 7)]
+		private int blurPasses = 4;
+
+		/// <summary>
+		/// How many blur passes to perform during Dual blurring.
+		/// </summary>
+		public int BlurPasses
+		{
+			get => blurPasses;
+			set => blurPasses = Mathf.Clamp(value, 2, 7);
+		}
+
+		/// <summary>
+		/// Various behaviors for refreshing the filter.
+		/// </summary>
+		public enum RefreshModeTechnique
+		{
+			OnEnable,
+			EveryFrame,
+			ViaScript
+		}
+
+		[Tooltip("The technique to use to refresh the filter.")]
+		[SerializeField]
+		private RefreshModeTechnique refreshMode;
+
+		/// <summary>
+		/// The technique to use to refresh the filter.
+		/// </summary>
+		public RefreshModeTechnique RefreshMode
+		{
+			get => refreshMode;
+			set => refreshMode = value;
+		}
+
+		[Tooltip("If the \"Every Frame\" refresh mode is selected, this period can be used to adjust the filter rate. Value in seconds. A value of zero means every frame.")]
+		[SerializeField]
+		private float everyFramePeriod = 0.0f;
+
+		/// <summary>
+		/// If the "Every Frame" refresh mode is selected, this period can be used to adjust the filter rate. Value in seconds. A value of zero means every frame.
+		/// </summary>
+		public float EveryFramePeriod
+		{
+			get => everyFramePeriod;
+			set => everyFramePeriod = value;
+		}
+
 		private bool cookieCreatedLocally = false;
+		private Coroutine filterCoroutine;
 
 		public void Filter()
 		{
@@ -76,26 +129,54 @@ namespace Microsoft.MixedReality.GraphicsTools
 				cookieFiltered.Create();
 			}
 
-			// Note, using Blit rather than CopyTexture because the source texture is often compressed.
+			// Note, using blit rather than CopyTexture because the source texture is sometimes compressed.
 			Graphics.Blit(cookie, cookieFiltered);
 
-			AcrylicLayer.Settings settings = new();
-			AcrylicLayer layer = new(null, settings, 0, 0, true, null, cookieFilterMaterial);
-			layer.ApplyDualBlur(ref cookieFiltered);
+			AcrylicLayer layer = new(null, null, 0, 0, true, null, cookieFilterMaterial);
+			layer.ApplyDualBlur(ref cookieFiltered, blurPasses);
 			layer.Dispose();
 		}
 
-		public float delayTemp = 1;
-		private float timer = 0;
-
-		private void Update()
+		private void OnEnable()
 		{
-			// TODO, do this smarter.
-			timer += Time.deltaTime;
-			if (timer >= delayTemp)
+			switch (refreshMode)
+			{
+				case RefreshModeTechnique.OnEnable:
+					Filter();
+					break;
+				case RefreshModeTechnique.EveryFrame:
+					filterCoroutine = StartCoroutine(FilterCoroutine());
+					break;
+
+				default:
+				case RefreshModeTechnique.ViaScript:
+					// Do nothing.
+					break;
+			}
+		}
+
+		private void OnDisable()
+		{
+			if (filterCoroutine != null)
+			{
+				StopCoroutine(filterCoroutine);
+			}
+		}
+
+		private IEnumerator FilterCoroutine()
+		{
+			while (true)
 			{
 				Filter();
-				timer = 0;
+
+				if (everyFramePeriod > 0.0f)
+				{
+					yield return new WaitForSeconds(everyFramePeriod);
+				}
+				else
+				{
+					yield return null;
+				}
 			}
 		}
 
