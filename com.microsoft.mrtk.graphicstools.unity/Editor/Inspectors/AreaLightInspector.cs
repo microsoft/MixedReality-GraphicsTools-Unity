@@ -35,9 +35,24 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 				Handles.DrawWireCube(Vector3.zero, light.Size);
 			}
 
-			Handles.color = Color.red;
-			var bounds = light.BoundsWorldSpace;
-			Handles.DrawWireCube(bounds.center, bounds.size);
+			Handles.color = new Color(255.0f / 255.0f, 165.0f / 255.0f, 0.0f / 255.0f); // Orange.
+
+			// Different visual representation for runtime and edit mode because runtime using CullingGroup to cull lights.
+			if (Application.isPlaying)
+			{
+				var bounds = light.SphereBoundsWorldSpace;
+				Handles.RadiusHandle(Quaternion.identity, bounds.position, bounds.radius);
+			}
+			else
+			{
+				var bounds = light.BoundsWorldSpace;
+				Handles.DrawWireCube(bounds.center, bounds.size);
+			}
+
+			if (light.CullingActive)
+			{
+				Handles.Label(light.transform.position, $"Visible: {light.IsVisible}\nDist: {light.Distance.ToString("n1")}");
+			}
 		}
 
 		private bool HasFrameBounds() { return true; }

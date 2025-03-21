@@ -26,7 +26,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static Texture2D transformInvTextureDiffuse;
 		private static Texture2D ampDiffAmpSpecFresnel;
 
-		private static List<AreaLight> activeAreaLights = new(areaLightCount);
+		private static List<AreaLight> activeAreaLights = new(maxAreaLights);
+		private static List<AreaLight> activeAreaLightsSorted = new(maxAreaLights);
 		private static Vector4[] areaLightData = new Vector4[areaLightDataSize * areaLightCount];
 		private static Matrix4x4[] areaLightVerts = new Matrix4x4[areaLightCount];
 		private static Texture[] areaLightCookies = new Texture[areaLightCount];
@@ -124,15 +125,46 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private bool isVisible;
 
 		/// <summary>
-		/// True of the AreaLight's BoundsWorldSpace is visible by the camera.
+		/// True of the AreaLight's BoundsWorldSpace is visible by the camera. Only valid when CullingActive is true.
 		/// </summary>
 		public bool IsVisible
 		{
 			get => isVisible;
 		}
 
+		private float distance;
+
 		/// <summary>
-		/// Calculates the AreaLight's bounds in worldspace.
+		/// Square distance from the camera. Only valid when CullingActive is true.
+		/// </summary>
+		public float Distance
+		{
+			get => distance;
+		}
+
+		/// <summary>
+		/// True when there are more lights than we can render.
+		/// </summary>
+		public bool CullingActive
+		{
+			get => (activeAreaLights.Count > areaLightCount);
+		}
+
+		/// <summary>
+		/// Calculates the AreaLight's Bounds in worldspace.
+		/// </summary>
+		public BoundingSphere SphereBoundsWorldSpace
+		{
+			get
+			{
+				var bounds = BoundsWorldSpace;
+				float radius = bounds.extents.magnitude;
+				return new BoundingSphere(bounds.center, radius);
+			}
+		}
+
+		/// <summary>
+		/// Calculates the AreaLight's Bounds in worldspace.
 		/// </summary>
 		public Bounds BoundsWorldSpace
 		{
@@ -141,9 +173,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 				var right = transform.right;
 				var up = transform.up;
 				var halfSize = size * 0.5f;
-				var bounds = new Bounds();
-				bounds.SetMinMax(transform.position - right * halfSize.x - up * halfSize.y, 
-								 transform.position + right * halfSize.x + up * halfSize.y);
+				var bounds = new Bounds(transform.position, Vector3.zero);
+				bounds.Encapsulate(transform.TransformPoint(new Vector3(-halfSize.x, -halfSize.y, 0.0f)));
+				bounds.Encapsulate(transform.TransformPoint(new Vector3(halfSize.x, -halfSize.y, 0.0f)));
+				bounds.Encapsulate(transform.TransformPoint(new Vector3(halfSize.x, halfSize.y, 0.0f)));
+				bounds.Encapsulate(transform.TransformPoint(new Vector3(-halfSize.x, halfSize.y, 0.0f)));
 				return bounds;
 			}
 		}
@@ -177,14 +211,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 				_AreaLightCookiesIDs[i] = Shader.PropertyToID($"_AreaLightCookie{i}");
 			}
 
-			if (transform.localScale != Vector3.one)
-			{
-#if UNITY_EDITOR
-				Debug.LogError("AreaLights don't like to be scaled. Setting local scale to 1.", this);
-#endif
-				transform.localScale = Vector3.one;
-			}
-
 			CreateLUTs();
 			UpdateLightSourceVisual();
 
@@ -194,6 +220,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 				cullingGroup = new CullingGroup();
 				cullingGroup.targetCamera = Camera.main;
 				cullingGroup.SetBoundingSpheres(boundingSpheres);
+				cullingGroup.SetBoundingDistances(new float[] { 1, 5, 10, 30, 50, Mathf.Infinity});
 				cullingGroup.SetBoundingSphereCount(activeAreaLights.Count);
 			}
 		}
@@ -214,10 +241,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 
 			activeAreaLights.Add(this);
+			activeAreaLightsSorted.Add(this);
 
 			if (cullingGroup != null)
 			{
-				cullingGroup.SetBoundingSphereCount(activeAreaLights.Count);
+				int count = activeAreaLights.Count;
+				cullingGroup.SetBoundingSphereCount(count);
+				boundingSpheres[count - 1] = SphereBoundsWorldSpace;
 			}
 		}
 
@@ -225,6 +255,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		protected override void RemoveLight()
 		{
 			activeAreaLights.Remove(this);
+			activeAreaLightsSorted.Remove(this);
 
 			if (cullingGroup != null)
 			{
@@ -251,37 +282,42 @@ namespace Microsoft.MixedReality.GraphicsTools
 				return;
 			}
 
-			// Update culling.
-			if (cullingGroup != null)
-			{
-				for (int i = 0; i < activeAreaLights.Count; ++i)
-				{
-					float radius = activeAreaLights[i].size.magnitude;
-					boundingSpheres[i] = new BoundingSphere(activeAreaLights[i].transform.position, radius);
-					activeAreaLights[i].isVisible = cullingGroup.IsVisible(i); // This is a frame behind, but that is okay.
-				}
-			}
-			else // Perform slow visibility checks in editor.
+			// Update culling if we have more lights than we can render.
+			if (CullingActive)
 			{
 				var camera = CullingGroupCamera;
 
 				if (camera != null)
 				{
-					var planes = GeometryUtility.CalculateFrustumPlanes(camera);
-
-					foreach (var light in activeAreaLights)
+					if (cullingGroup != null)
 					{
-						light.isVisible = GeometryUtility.TestPlanesAABB(planes, light.BoundsWorldSpace);
+						for (int i = 0; i < activeAreaLights.Count; ++i)
+						{
+							boundingSpheres[i] = activeAreaLights[i].SphereBoundsWorldSpace;
+
+							activeAreaLights[i].isVisible = cullingGroup.IsVisible(i); // This is a frame behind, but that is okay.
+							activeAreaLights[i].distance = Vector3.SqrMagnitude(camera.transform.position - activeAreaLights[i].transform.position);
+						}
 					}
+					else // Perform slow visibility checks in editor.
+					{
+						var planes = GeometryUtility.CalculateFrustumPlanes(camera);
+
+						foreach (var light in activeAreaLights)
+						{
+							light.isVisible = GeometryUtility.TestPlanesAABB(planes, light.BoundsWorldSpace);
+							light.distance = Vector3.SqrMagnitude(camera.transform.position- light.transform.position);
+						}
+					}
+
+					// Sort the lights by importance (visibility and distance).
+					activeAreaLightsSorted.Sort();
 				}
 			}
 
-			// Sort the lights by importance (visibility and size on screen).
-			activeAreaLights.Sort();
-
 			for (int i = 0; i < areaLightCount; ++i)
 			{
-				AreaLight light = (i >= activeAreaLights.Count) ? null : activeAreaLights[i];
+				AreaLight light = (i >= activeAreaLightsSorted.Count) ? null : activeAreaLightsSorted[i];
 				int dataIndex = i * areaLightDataSize;
 
 				if (light)
@@ -345,8 +381,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 			if (this.isVisible && !other.isVisible) return -1;
 			if (!this.isVisible && other.isVisible) return 1;
 
-			// If both are either visible or not, they are considered equal.
-			return 0;
+			// If both are either visible or not, sort by distance (prefer smaller distances).
+			return this.distance.CompareTo(other.distance);
 		}
 
 		#endregion IComparable Implementation
@@ -380,8 +416,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if UNITY_EDITOR
 		private void OnDrawGizmos()
 		{
-			var color = Color * (isVisible ? 1.0f : 0.5f);
-			Gizmos.DrawIcon(transform.position, "AreaLight Gizmo", true, color);
+			Gizmos.DrawIcon(transform.position, "AreaLight Gizmo", true, Color);
 		}
 #endif
 
