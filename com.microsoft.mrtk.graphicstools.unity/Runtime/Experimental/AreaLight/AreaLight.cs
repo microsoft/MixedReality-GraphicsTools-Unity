@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,13 +13,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 	/// </summary>
 	[ExecuteInEditMode]
 	[AddComponentMenu("Scripts/GraphicsTools/AreaLight")]
-	public partial class AreaLight : BaseLight
+	public partial class AreaLight : BaseLight, IComparable<AreaLight>
 	{
 		private const int areaLightCount = 2;
 		private const int areaLightDataSize = 1;
+		private const int maxAreaLights = 32;
 		private static readonly float[,] offsets = new float[4, 2] { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
-		private const int LUTResolution = 64;
-		private const int LUTMatrixDim = 3;
+		private const int lutResolution = 64;
+		private const int lutMatrixDim = 3;
 
 		private static Texture2D transformInvTextureSpecular;
 		private static Texture2D transformInvTextureDiffuse;
@@ -32,6 +34,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static int _AreaLightVertsID;
 		private static int[] _AreaLightCookiesIDs;
 		private static int lastAreaLightUpdate = -1;
+		private static CullingGroup cullingGroup;
+		private static BoundingSphere[] boundingSpheres = new BoundingSphere[maxAreaLights];
 
 		[Experimental]
 		[Tooltip("Specifies the light color.")]
@@ -117,6 +121,48 @@ namespace Microsoft.MixedReality.GraphicsTools
 		[SerializeField, HideInInspector]
 		private MeshRenderer lightSourceVisual;
 
+		private bool isVisible;
+
+		/// <summary>
+		/// True of the AreaLight's BoundsWorldSpace is visible by the camera.
+		/// </summary>
+		public bool IsVisible
+		{
+			get => isVisible;
+		}
+
+		/// <summary>
+		/// Calculates the AreaLight's bounds in worldspace.
+		/// </summary>
+		public Bounds BoundsWorldSpace
+		{
+			get
+			{
+				var right = transform.right;
+				var up = transform.up;
+				var halfSize = size * 0.5f;
+				var bounds = new Bounds();
+				bounds.SetMinMax(transform.position - right * halfSize.x - up * halfSize.y, 
+								 transform.position + right * halfSize.x + up * halfSize.y);
+				return bounds;
+			}
+		}
+
+		/// <summary>
+		/// Accessors for the culling group camera.
+		/// </summary>
+		public Camera CullingGroupCamera
+		{
+			get => cullingGroup != null ? cullingGroup.targetCamera : Camera.main;
+			set
+			{
+				if (cullingGroup != null)
+				{
+					cullingGroup.targetCamera = value;
+				}
+			}
+		}
+
 		#region BaseLight Implementation
 
 		/// <inheritdoc/>
@@ -141,6 +187,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 			CreateLUTs();
 			UpdateLightSourceVisual();
+
+			// Only create a culling group when playing since we can't consistently dispose of them in edit mode.
+			if (Application.isPlaying)
+			{
+				cullingGroup = new CullingGroup();
+				cullingGroup.targetCamera = Camera.main;
+				cullingGroup.SetBoundingSpheres(boundingSpheres);
+				cullingGroup.SetBoundingSphereCount(activeAreaLights.Count);
+			}
 		}
 
 		/// <inheritdoc/>
@@ -148,21 +203,44 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			if (activeAreaLights.Count == areaLightCount)
 			{
-				Debug.LogWarningFormat("Max area light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", areaLightCount, gameObject.name);
+				Debug.LogWarning($"Max active area light count {areaLightCount} exceeded. Some lights will be culled.");
+			}
+
+			if (activeAreaLights.Count == maxAreaLights)
+			{
+				Debug.LogWarning($"Max area light count {maxAreaLights} exceeded. AreaLight named \"{gameObject.name}\" will not be considered.");
+
+				return;
 			}
 
 			activeAreaLights.Add(this);
+
+			if (cullingGroup != null)
+			{
+				cullingGroup.SetBoundingSphereCount(activeAreaLights.Count);
+			}
 		}
 
 		/// <inheritdoc/>
 		protected override void RemoveLight()
 		{
 			activeAreaLights.Remove(this);
+
+			if (cullingGroup != null)
+			{
+				cullingGroup.SetBoundingSphereCount(activeAreaLights.Count);
+			}
 		}
 
 		/// <inheritdoc/>
 		protected override void UpdateLights(bool forceUpdate = false)
 		{
+			// Strange case where disable is called on load? 
+			if (forceUpdate && lastAreaLightUpdate == -1)
+			{
+				return;
+			}
+
 			if (lastAreaLightUpdate == -1)
 			{
 				Initialize();
@@ -172,6 +250,34 @@ namespace Microsoft.MixedReality.GraphicsTools
 			{
 				return;
 			}
+
+			// Update culling.
+			if (cullingGroup != null)
+			{
+				for (int i = 0; i < activeAreaLights.Count; ++i)
+				{
+					float radius = activeAreaLights[i].size.magnitude;
+					boundingSpheres[i] = new BoundingSphere(activeAreaLights[i].transform.position, radius);
+					activeAreaLights[i].isVisible = cullingGroup.IsVisible(i); // This is a frame behind, but that is okay.
+				}
+			}
+			else // Perform slow visibility checks in editor.
+			{
+				var camera = CullingGroupCamera;
+
+				if (camera != null)
+				{
+					var planes = GeometryUtility.CalculateFrustumPlanes(camera);
+
+					foreach (var light in activeAreaLights)
+					{
+						light.isVisible = GeometryUtility.TestPlanesAABB(planes, light.BoundsWorldSpace);
+					}
+				}
+			}
+
+			// Sort the lights by importance (visibility and size on screen).
+			activeAreaLights.Sort();
 
 			for (int i = 0; i < areaLightCount; ++i)
 			{
@@ -229,10 +335,55 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		#endregion BaseLight Implementation
 
+		#region IComparable Implementation
+
+		public int CompareTo(AreaLight other)
+		{
+			if (other == null) return 1;
+
+			// Sort by visibility first.
+			if (this.isVisible && !other.isVisible) return -1;
+			if (!this.isVisible && other.isVisible) return 1;
+
+			// If both are either visible or not, they are considered equal.
+			return 0;
+		}
+
+		#endregion IComparable Implementation
+
+#if UNITY_EDITOR
 		private void Reset()
 		{
 			DestroyLightVisual();
 		}
+
+
+		private void Awake()
+		{
+			// Destroy component which get copied by the editor.
+			if (!Application.isPlaying)
+			{
+				DestroyLightVisual(false);
+			}
+		}
+#endif
+
+		private void OnDestroy()
+		{
+			if (cullingGroup != null && activeAreaLights.Count == 0)
+			{
+				cullingGroup.Dispose();
+				cullingGroup = null;
+			}
+		}
+
+#if UNITY_EDITOR
+		private void OnDrawGizmos()
+		{
+			var color = Color * (isVisible ? 1.0f : 0.5f);
+			Gizmos.DrawIcon(transform.position, "AreaLight Gizmo", true, color);
+		}
+#endif
 
 		private static void CreateLUTs()
 		{
@@ -281,18 +432,26 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 		}
 
-		private void DestroyLightVisual()
+		private void DestroyLightVisual(bool destroyMaterial = true)
 		{
 			if (lightSourceVisual)
 			{
 				if (Application.isPlaying)
 				{
-					Destroy(lightSourceVisual.sharedMaterial);
+					if (destroyMaterial)
+					{
+						Destroy(lightSourceVisual.sharedMaterial);
+					}
+
 					Destroy(lightSourceVisual.gameObject);
 				}
 				else
 				{
-					DestroyImmediate(lightSourceVisual.sharedMaterial);
+					if (destroyMaterial)
+					{
+						DestroyImmediate(lightSourceVisual.sharedMaterial);
+					}
+
 					DestroyImmediate(lightSourceVisual.gameObject);
 				}
 
@@ -321,7 +480,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		private static Texture2D CreateLUT(TextureFormat format, Color[] pixels)
 		{
-			var tex = new Texture2D(LUTResolution, LUTResolution, format, false /*mipmap*/, true /*linear*/);
+			var tex = new Texture2D(lutResolution, lutResolution, format, false /*mipmap*/, true /*linear*/);
 			tex.hideFlags = HideFlags.HideAndDontSave;
 			tex.wrapMode = TextureWrapMode.Clamp;
 			tex.SetPixels(pixels);
@@ -332,7 +491,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		private static Texture2D LoadLUT(double[,] LUTTransformInv)
 		{
-			const int count = LUTResolution * LUTResolution;
+			const int count = lutResolution * lutResolution;
 			Color[] pixels = new Color[count];
 
 			for (int i = 0; i < count; ++i)
@@ -349,7 +508,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		private static Texture2D LoadLUT(float[] LUTScalar0, float[] LUTScalar1, float[] LUTScalar2)
 		{
-			const int count = LUTResolution * LUTResolution;
+			const int count = lutResolution * lutResolution;
 			Color[] pixels = new Color[count];
 
 			// Amplitude.

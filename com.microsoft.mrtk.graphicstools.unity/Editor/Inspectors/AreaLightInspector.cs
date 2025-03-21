@@ -34,6 +34,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			{
 				Handles.DrawWireCube(Vector3.zero, light.Size);
 			}
+
+			Handles.color = Color.red;
+			var bounds = light.BoundsWorldSpace;
+			Handles.DrawWireCube(bounds.center, bounds.size);
 		}
 
 		private bool HasFrameBounds() { return true; }
@@ -42,7 +46,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 		{
 			var light = target as AreaLight;
 			Debug.Assert(light != null);
-			return new Bounds(Vector3.zero, light.Size);
+			return light.BoundsWorldSpace;
 		}
 
 		[MenuItem("GameObject/Light/Graphics Tools/Area Light")]
