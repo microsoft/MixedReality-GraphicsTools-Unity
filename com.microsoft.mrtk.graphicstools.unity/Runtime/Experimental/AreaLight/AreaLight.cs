@@ -119,6 +119,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 		}
 
+		[Tooltip("Optional texture to use when DrawLightSource is true")]
+		[SerializeField]
+		private Texture drawLightSourceCookie;
+
+		/// <summary>
+		/// Optional texture to use instead of a solid color.
+		/// </summary>
+		public Texture DrawLightSourceCookie
+		{
+			get => drawLightSourceCookie;
+			set => drawLightSourceCookie = value;
+		}
+
 		[SerializeField, HideInInspector]
 		private MeshRenderer lightSourceVisual;
 
@@ -375,11 +388,21 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		public int CompareTo(AreaLight other)
 		{
-			if (other == null) return 1;
+			if (other == null)
+			{
+				return 1;
+			}
 
 			// Sort by visibility first.
-			if (this.isVisible && !other.isVisible) return -1;
-			if (!this.isVisible && other.isVisible) return 1;
+			if (this.isVisible && !other.isVisible)
+			{
+				return -1;
+			}
+
+			if (!this.isVisible && other.isVisible)
+			{
+				return 1;
+			}
 
 			// If both are either visible or not, sort by distance (prefer smaller distances).
 			return this.distance.CompareTo(other.distance);
@@ -393,14 +416,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 			DestroyLightVisual();
 		}
 
-
 		private void Awake()
 		{
-			// Destroy component which get copied by the editor.
-			if (!Application.isPlaying)
-			{
-				DestroyLightVisual(false);
-			}
+			// Editor only behavior, destroy components which get copied by the editor.
+			DestroyLightVisual(false);
+			UpdateLightSourceVisual();
 		}
 #endif
 
@@ -458,7 +478,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 				}
 
 				lightSourceVisual.sharedMaterial.color = Color;
-				lightSourceVisual.sharedMaterial.mainTexture = cookie; // Use the unblurred version for visualization.
+				lightSourceVisual.sharedMaterial.mainTexture = drawLightSourceCookie ? drawLightSourceCookie : cookie;
 				lightSourceVisual.transform.localScale = new Vector3(size.x, size.y, 1.0f);
 			}
 			else
