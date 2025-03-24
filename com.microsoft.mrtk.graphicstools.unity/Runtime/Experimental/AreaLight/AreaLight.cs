@@ -33,7 +33,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static Texture[] areaLightCookies = new Texture[areaLightCount];
 		private static int _AreaLightDataID;
 		private static int _AreaLightVertsID;
-		private static int[] _AreaLightCookiesIDs;
+		private static int[] _AreaLightCookiesIDs = new int[areaLightCount];
 		private static int lastAreaLightUpdate = -1;
 		private static CullingGroup cullingGroup;
 		private static BoundingSphere[] boundingSpheres = new BoundingSphere[maxAreaLights];
@@ -218,7 +218,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 			_AreaLightDataID = Shader.PropertyToID("_AreaLightData");
 			_AreaLightVertsID = Shader.PropertyToID("_AreaLightVerts");
 
-			_AreaLightCookiesIDs = new int[areaLightCount];
 			for (int i = 0; i < _AreaLightCookiesIDs.Length; ++i)
 			{
 				_AreaLightCookiesIDs[i] = Shader.PropertyToID($"_AreaLightCookie{i}");
@@ -262,6 +261,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 				cullingGroup.SetBoundingSphereCount(count);
 				boundingSpheres[count - 1] = SphereBoundsWorldSpace;
 			}
+
+			if (lightSourceVisual != null)
+			{
+				lightSourceVisual.enabled = true;
+			}
+
+			Shader.EnableKeyword("_AREA_LIGHT_ACTIVE");
 		}
 
 		/// <inheritdoc/>
@@ -273,6 +279,16 @@ namespace Microsoft.MixedReality.GraphicsTools
 			if (cullingGroup != null)
 			{
 				cullingGroup.SetBoundingSphereCount(activeAreaLights.Count);
+			}
+
+			if (lightSourceVisual != null)
+			{
+				lightSourceVisual.enabled = false;
+			}
+
+			if (activeAreaLights.Count == 0)
+			{
+				Shader.DisableKeyword("_AREA_LIGHT_ACTIVE");
 			}
 		}
 
@@ -525,9 +541,18 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			switch (type)
 			{
-				case LUTType.TransformInv_DisneyDiffuse: return LoadLUT(s_LUTTransformInv_DisneyDiffuse);
-				case LUTType.TransformInv_GGX: return LoadLUT(s_LUTTransformInv_GGX);
-				case LUTType.AmpDiffAmpSpecFresnel: return LoadLUT(s_LUTAmplitude_DisneyDiffuse, s_LUTAmplitude_GGX, s_LUTFresnel_GGX);
+				case LUTType.TransformInv_DisneyDiffuse:
+					{
+						return LoadLUT(s_LUTTransformInv_DisneyDiffuse);
+					}
+				case LUTType.TransformInv_GGX:
+					{
+						return LoadLUT(s_LUTTransformInv_GGX);
+					}
+				case LUTType.AmpDiffAmpSpecFresnel:
+					{
+						return LoadLUT(s_LUTAmplitude_DisneyDiffuse, s_LUTAmplitude_GGX, s_LUTFresnel_GGX);
+					}
 			}
 
 			return null;
@@ -535,13 +560,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		private static Texture2D CreateLUT(TextureFormat format, Color[] pixels)
 		{
-			var tex = new Texture2D(lutResolution, lutResolution, format, false /*mipmap*/, true /*linear*/);
-			tex.hideFlags = HideFlags.HideAndDontSave;
-			tex.wrapMode = TextureWrapMode.Clamp;
-			tex.SetPixels(pixels);
-			tex.Apply();
+			var texture = new Texture2D(lutResolution, lutResolution, format, false /*mipmap*/, true /*linear*/);
+			texture.hideFlags = HideFlags.HideAndDontSave;
+			texture.wrapMode = TextureWrapMode.Clamp;
+			texture.SetPixels(pixels);
+			texture.Apply();
 
-			return tex;
+			return texture;
 		}
 
 		private static Texture2D LoadLUT(double[,] LUTTransformInv)

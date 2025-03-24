@@ -6,9 +6,7 @@
 
 // Based off work from: https://github.com/Unity-Technologies/VolumetricLighting
 
-/// <summary>
-/// Defines.
-/// </summary>
+#pragma multi_compile _ _AREA_LIGHT_ACTIVE
 
 #define AREA_LIGHT_COUNT 2
 #define AREA_LIGHT_DATA_SIZE 1
@@ -322,6 +320,7 @@ void CalculateAreaLights(in half3 worldPosition,
 {
 	output = 0;
 
+#if defined(_AREA_LIGHT_ACTIVE)
 	for (int i = 0; i < AREA_LIGHT_COUNT; ++i)
 	{
 		half3 light;
@@ -335,6 +334,7 @@ void CalculateAreaLights(in half3 worldPosition,
 						   light);
 		output += light;
 	}
+#endif // _AREA_LIGHT_ACTIVE
 }
 
 // Shader Graph full precision version.
