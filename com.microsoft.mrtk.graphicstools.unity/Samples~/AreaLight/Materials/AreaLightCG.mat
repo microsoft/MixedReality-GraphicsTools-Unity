@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Ground
+  m_Name: AreaLightCG
   m_Shader: {fileID: 4800000, guid: a4b32b7a62b9c3d4499a206276b3934c, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []

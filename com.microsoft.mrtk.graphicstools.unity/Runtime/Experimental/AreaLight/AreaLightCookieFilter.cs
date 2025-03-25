@@ -13,6 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 	[AddComponentMenu("Scripts/GraphicsTools/AreaLightCookieFilter")]
 	public class AreaLightCookieFilter : MonoBehaviour
 	{
+		[Experimental]
 		[Tooltip("The texture to filter for the area light.")]
 		[SerializeField]
 		private Texture cookie;
@@ -59,7 +60,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		[Tooltip("How many blur passes to perform during Dual blurring.")]
 		[SerializeField]
 		[Range(2, 7)]
-		private int blurPasses = 4;
+		private int blurPasses = 3;
 
 		/// <summary>
 		/// How many blur passes to perform during Dual blurring.
@@ -114,7 +115,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			if (layer == null)
 			{
-				return;
+				CreateAcrylicLayer();
 			}
 
 			int width = cookie.width;
@@ -137,11 +138,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 			// Note, using blit rather than CopyTexture because the source texture is sometimes compressed.
 			Graphics.Blit(cookie, cookieFiltered);
 			layer.ApplyDualBlur(ref cookieFiltered, blurPasses);
-		}
-
-		private void Start()
-		{
-			CreateAcrylicLayer();
 		}
 
 		private void OnEnable()

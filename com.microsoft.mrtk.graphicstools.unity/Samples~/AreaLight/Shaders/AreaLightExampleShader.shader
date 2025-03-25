@@ -21,8 +21,7 @@ Shader "Graphics Tools/Experimental/Area Light Example"
 			//#pragma enable_d3d11_debug_symbols
 
 			#include "UnityCG.cginc"
-			//#include "UnityStereoInstancing.cginc"
-			#include "AreaLight.hlsl"
+			#include_with_pragmas "Packages/com.microsoft.mrtk.graphicstools.unity/Runtime/Experimental/AreaLight/Shaders/AreaLight.hlsl"
 
 			struct appdata
 			{

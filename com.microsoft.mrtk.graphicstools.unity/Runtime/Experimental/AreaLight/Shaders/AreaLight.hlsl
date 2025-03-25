@@ -308,7 +308,7 @@ void CalculateAreaLight(in half3 worldPosition,
 #endif
 			
 	half specularTerm = TransformedPolygonRadiance(L, uv, _TransformInvSpecular, AmpDiffAmpSpecFresnel.y);
-	half fresnelTerm = specularColor + (1.0 - specularColor) * AmpDiffAmpSpecFresnel.z;
+	half fresnelTerm = (half) (specularColor + (1.0 - specularColor) * AmpDiffAmpSpecFresnel.z);
 	result += specularTerm * fresnelTerm * 3.14159265359; // Pi.
 
 	output = result * _AreaLightData[lightIndex].rgb * textureColor;

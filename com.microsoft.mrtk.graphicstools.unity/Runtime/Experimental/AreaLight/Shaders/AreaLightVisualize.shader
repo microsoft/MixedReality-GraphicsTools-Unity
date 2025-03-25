@@ -11,6 +11,7 @@ Shader "Hidden/Graphics Tools/Experimental/Area Light Visualize"
 	SubShader 
 	{
 		Tags { "RenderType"="Opaque" }
+		Cull Off
 		LOD 100
 	
 		Pass 
@@ -42,19 +43,19 @@ Shader "Hidden/Graphics Tools/Experimental/Area Light Visualize"
 			float4 _MainTex_ST;
 			CBUFFER_END
 
-			v2f vert (appdata_t v)
+			v2f vert (appdata_t input)
 			{
-				v2f o;
-				UNITY_SETUP_INSTANCE_ID(v);
-				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-				return o;
+				v2f output;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+				output.vertex = UnityObjectToClipPos(input.vertex);
+				output.texcoord = TRANSFORM_TEX(input.texcoord, _MainTex);
+				return output;
 			}
 	
-			fixed4 frag (v2f i) : SV_Target
+			fixed4 frag (v2f input, bool facing : SV_IsFrontFace) : SV_Target
 			{
-				fixed4 output = tex2D(_MainTex, i.texcoord);
+				fixed4 output = facing ? tex2D(_MainTex, input.texcoord) : fixed4(0.05, 0.05, 0.05, 1.0);
 				UNITY_OPAQUE_ALPHA(output.a);
 				return output * _Color;
 			}
