@@ -33,7 +33,7 @@ float4x4 _AreaLightVerts[AREA_LIGHT_COUNT];
 /// Lighting methods.
 /// </summary>
 
-half IntegrateEdge(in half3 v1, in half3 v2)
+float IntegrateEdge(in float3 v1, in float3 v2)
 {
 	float cosTheta = dot(v1, v2);
 	float theta = acos(cosTheta);
@@ -41,7 +41,7 @@ half IntegrateEdge(in half3 v1, in half3 v2)
 	return cross * ((theta > 0.001) ? theta / sin(theta) : 1.0);
 }
 			
-half PolygonRadiance(in half4x3 L)
+float PolygonRadiance(in float4x3 L)
 {
 	// Baum's equation
 	// Expects non-normalized vertex positions
@@ -56,7 +56,7 @@ half PolygonRadiance(in half4x3 L)
 	// The fifth vertex for cases when clipping cuts off one corner.
 	// Due to a compiler bug, copying L into a vector array with 5 rows
 	// messes something up, so we need to stick with the matrix + the L4 vertex.
-	half3 L4 = L[3];
+	float3 L4 = L[3];
 			
 	// This switch is surprisingly fast. Tried replacing it with a lookup array of vertices.
 	// Even though that replaced the switch with just some indexing and no branches, it became
@@ -181,7 +181,7 @@ half PolygonRadiance(in half4x3 L)
 	}
 				
 	// Integrate.
-	half sum = 0;
+	float sum = 0;
 	sum += IntegrateEdge(L[0], L[1]);
 	sum += IntegrateEdge(L[1], L[2]);
 	sum += IntegrateEdge(L[2], L[3]);
@@ -201,15 +201,15 @@ half PolygonRadiance(in half4x3 L)
 	return max(0, sum);
 }
 			
-half TransformedPolygonRadiance(in half4x3 L, in half2 uv, in sampler2D transformInv, in half amplitude)
+float TransformedPolygonRadiance(in float4x3 L, in float2 uv, in sampler2D transformInv, in float amplitude)
 {
 	// Get the inverse LTC matrix M.
-	half3x3 Minv = 0;
+	float3x3 Minv = 0;
 	Minv._m22 = 1;
 	Minv._m00_m02_m11_m20 = tex2D(transformInv, uv);
 						
 	// Transform light vertices into diffuse configuration.
-	half4x3 LTransformed = mul(L, Minv);
+	float4x3 LTransformed = mul(L, Minv);
 			
 	// Polygon radiance in transformed configuration - specular.
 	return PolygonRadiance(LTransformed) * amplitude;
@@ -233,7 +233,7 @@ half4 SampleAreaLightCookie(in int lightIndex, in float2 uv)
 #endif // _AREA_LIGHTS_ACTIVE
 }
 
-half3 SampleDiffuseFilteredTexture(in int lightIndex, in half4x3 L)
+half3 SampleDiffuseFilteredTexture(in int lightIndex, in float4x3 L)
 {
 	float3 p1_ = L[0];
 	float3 p2_ = L[1];
@@ -267,9 +267,9 @@ half3 SampleDiffuseFilteredTexture(in int lightIndex, in half4x3 L)
 	return SampleAreaLightCookie(lightIndex, uv).rgb;
 }
 
-void CalculateAreaLight(in half3 worldPosition,
-						in half3 worldCameraPosition,
-						in half3 worldNormal,
+void CalculateAreaLight(in float3 worldPosition,
+						in float3 worldCameraPosition,
+						in float3 worldNormal,
 						in half3 diffuseColor,
 						in half3 specularColor, 
 						in half smoothness,
@@ -279,24 +279,24 @@ void CalculateAreaLight(in half3 worldPosition,
 	// TODO - [Cameron-Micka] larger and smaller values cause artifacts - why?
 	smoothness = clamp(smoothness, 0.01, 0.93);
 	half roughness = 1 - smoothness;
-	half3 V = normalize(worldCameraPosition - worldPosition);
+	float3 V = normalize(worldCameraPosition - worldPosition);
 			
 	// Construct orthonormal basis around worldNormal, aligned with V.
-	half3x3 basis;
+	float3x3 basis;
 	basis[0] = normalize(V - worldNormal * dot(V, worldNormal));
 	basis[1] = normalize(cross(worldNormal, basis[0]));
 	basis[2] = worldNormal;
 					
 	// Transform light vertices into that space.
-	half4x3 L;
-	L = (half4x3)_AreaLightVerts[lightIndex] - half4x3(worldPosition, worldPosition, worldPosition, worldPosition);
+	float4x3 L;
+	L = (float4x3)_AreaLightVerts[lightIndex] - float4x3(worldPosition, worldPosition, worldPosition, worldPosition);
 	L = mul(L, transpose(basis));
 
 	// TODO - [Cameron-Micka] disable if no texture?
 	half3 textureColor = SampleDiffuseFilteredTexture(lightIndex, L);
 			
 	// UVs for sampling the LUTs.
-	half theta = acos(dot(V, worldNormal));
+	float theta = acos(dot(V, worldNormal));
 	half2 uv = half2(roughness, theta / 1.57);
 			
 	half3 AmpDiffAmpSpecFresnel = tex2D(_AmpDiffAmpSpecFresnel, uv).rgb;
@@ -314,9 +314,9 @@ void CalculateAreaLight(in half3 worldPosition,
 	output = result * _AreaLightData[lightIndex].rgb * textureColor;
 }
 
-void CalculateAreaLights(in half3 worldPosition,
-						 in half3 worldCameraPosition,
-						 in half3 worldNormal,
+void CalculateAreaLights(in float3 worldPosition,
+						 in float3 worldCameraPosition,
+						 in float3 worldNormal,
 						 in half3 diffuseColor,
 						 in half3 specularColor,
 						 in half smoothness,
@@ -353,9 +353,9 @@ void CalculateAreaLights(in half3 worldPosition,
 }
 
 // Shader Graph full precision version.
-void CalculateAreaLights_float(in half3 worldPosition,
-							   in half3 worldCameraPosition,
-							   in half3 worldNormal,
+void CalculateAreaLights_float(in float3 worldPosition,
+							   in float3 worldCameraPosition,
+							   in float3 worldNormal,
 							   in half3 diffuseColor,
 							   in half3 specularColor,
 							   in half smoothness,
