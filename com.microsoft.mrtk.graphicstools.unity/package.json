@@ -65,8 +65,13 @@
     },
     {
       "displayName": "Clipping Primitives",
-      "description": "Demonstrates primitives clipping through objects",
+      "description": "Demonstrates primitives clipping through objects.",
       "path": "Samples~/ClippingPrimitives"
+    },
+    {
+      "displayName": "Area Light (Experimental)",
+      "description": "Demonstrates how to emit light from a surface.",
+      "path": "Samples~/AreaLight"
     }
   ]
 }

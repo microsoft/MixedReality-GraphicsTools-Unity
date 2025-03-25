@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 Shader "Graphics Tools/Experimental/Area Light Example"
 {
 	Properties 
@@ -24,6 +21,7 @@ Shader "Graphics Tools/Experimental/Area Light Example"
 			//#pragma enable_d3d11_debug_symbols
 
 			#include "UnityCG.cginc"
+			//#include "UnityStereoInstancing.cginc"
 			#include "AreaLight.hlsl"
 
 			struct appdata
@@ -61,7 +59,7 @@ Shader "Graphics Tools/Experimental/Area Light Example"
 			fixed4 frag (v2f i) : SV_Target
 			{
 				half3 worldPosition = i.worldPosition;
-				half3 worldCameraPosition = _WorldSpaceCameraPos; // TODO, replace with unity_StereoWorldSpaceCameraPos[unity_StereoEyeIndex]?
+				half3 worldCameraPosition = _WorldSpaceCameraPos;
 				half3 worldNormal = normalize(i.worldNormal);
 
 				half3 lightOutput;

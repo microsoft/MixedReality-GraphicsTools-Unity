@@ -267,7 +267,17 @@ namespace Microsoft.MixedReality.GraphicsTools
 				lightSourceVisual.enabled = true;
 			}
 
-			Shader.EnableKeyword("_AREA_LIGHT_ACTIVE");
+			// Small optimization where we avoid looping over all lights if we only have one.
+			if (activeAreaLights.Count > 1)
+			{
+				Shader.DisableKeyword("_AREA_LIGHT_ACTIVE");
+				Shader.EnableKeyword("_AREA_LIGHTS_ACTIVE");
+			}
+			else
+			{
+				Shader.DisableKeyword("_AREA_LIGHTS_ACTIVE");
+				Shader.EnableKeyword("_AREA_LIGHT_ACTIVE");
+			}
 		}
 
 		/// <inheritdoc/>
@@ -289,6 +299,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			if (activeAreaLights.Count == 0)
 			{
 				Shader.DisableKeyword("_AREA_LIGHT_ACTIVE");
+				Shader.DisableKeyword("_AREA_LIGHTS_ACTIVE");
 			}
 		}
 

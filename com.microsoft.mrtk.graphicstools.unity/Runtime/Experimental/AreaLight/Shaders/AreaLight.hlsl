@@ -6,7 +6,7 @@
 
 // Based off work from: https://github.com/Unity-Technologies/VolumetricLighting
 
-#pragma multi_compile _ _AREA_LIGHT_ACTIVE
+#pragma multi_compile _ _AREA_LIGHT_ACTIVE _AREA_LIGHTS_ACTIVE
 
 #define AREA_LIGHT_COUNT 2
 #define AREA_LIGHT_DATA_SIZE 1
@@ -217,6 +217,7 @@ half TransformedPolygonRadiance(in half4x3 L, in half2 uv, in sampler2D transfor
 
 half4 SampleAreaLightCookie(in int lightIndex, in float2 uv)
 {
+#if defined(_AREA_LIGHTS_ACTIVE)
 	[forcecase]
 	switch (lightIndex)
 	{
@@ -227,6 +228,9 @@ half4 SampleAreaLightCookie(in int lightIndex, in float2 uv)
 		default:
 			return half4(1, 1, 1, 1);
 	}
+#else
+	return tex2D(_AreaLightCookie0, uv);
+#endif // _AREA_LIGHTS_ACTIVE
 }
 
 half3 SampleDiffuseFilteredTexture(in int lightIndex, in half4x3 L)
@@ -255,7 +259,7 @@ half3 SampleDiffuseFilteredTexture(in int lightIndex, in half4x3 L)
 	Puv.y = 1 - (dot(V1, P) * inv_dot_V1_V1 - dot_V1_V2 * inv_dot_V1_V1 * Puv.x);
 	float2 uv = float2(0.125, 0.125) + 0.75 * Puv;
 
-	// TODO, calculate mip level based on distance to area light if the texture has pre-filtered mip levels.
+	// TODO - [Cameron-Micka] calculate mip level based on distance to area light if the texture has pre-filtered mip levels.
 	//float d = abs(planeDistxPlaneArea) / pow(planeAreaSquared, 0.75);
 	//float w = log(1024.0 * d) / log(6.0); // TODO get texture size.
 	//return tex2Dlod(texLightFiltered, float4(uv.x, uv.y, 0, w)).rgb;
@@ -272,7 +276,7 @@ void CalculateAreaLight(in half3 worldPosition,
 						in int lightIndex,
 						out half3 output)
 {
-	// TODO: larger and smaller values cause artifacts - why?
+	// TODO - [Cameron-Micka] larger and smaller values cause artifacts - why?
 	smoothness = clamp(smoothness, 0.01, 0.93);
 	half roughness = 1 - smoothness;
 	half3 V = normalize(worldCameraPosition - worldPosition);
@@ -288,7 +292,7 @@ void CalculateAreaLight(in half3 worldPosition,
 	L = (half4x3)_AreaLightVerts[lightIndex] - half4x3(worldPosition, worldPosition, worldPosition, worldPosition);
 	L = mul(L, transpose(basis));
 
-	// Texture. TODO, disable if no texture.
+	// TODO - [Cameron-Micka] disable if no texture?
 	half3 textureColor = SampleDiffuseFilteredTexture(lightIndex, L);
 			
 	// UVs for sampling the LUTs.
@@ -321,6 +325,17 @@ void CalculateAreaLights(in half3 worldPosition,
 	output = 0;
 
 #if defined(_AREA_LIGHT_ACTIVE)
+		half3 light;
+		CalculateAreaLight(worldPosition, 
+						   worldCameraPosition, 
+						   worldNormal, 
+						   diffuseColor, 
+						   specularColor, 
+						   smoothness,
+						   0,
+						   light);
+		output += light;
+#elif defined(_AREA_LIGHTS_ACTIVE)
 	for (int i = 0; i < AREA_LIGHT_COUNT; ++i)
 	{
 		half3 light;
@@ -334,7 +349,7 @@ void CalculateAreaLights(in half3 worldPosition,
 						   light);
 		output += light;
 	}
-#endif // _AREA_LIGHT_ACTIVE
+#endif // _AREA_LIGHTS_ACTIVE
 }
 
 // Shader Graph full precision version.
