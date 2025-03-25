@@ -410,18 +410,18 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-		public void ApplyDualBlur(ref RenderTexture source, int iterations)
-		{
-			if (source == null)
-			{
-				Debug.LogWarning("Null blur source texture.");
-				return;
-			}
+        public void ApplyDualBlur(ref RenderTexture source, int iterations)
+        {
+            if (source == null)
+            {
+                Debug.LogWarning("Null blur source texture.");
+                return;
+            }
 
-			dualBlur.ApplyBlur("AcrylicLayer" + index + "_Blur", source, iterations);
-		}
+            dualBlur.ApplyBlur("AcrylicLayer" + index + "_Blur", source, iterations);
+        }
 
-		public void SetBlendSource(RenderTexture input, bool both)
+        public void SetBlendSource(RenderTexture input, bool both)
         {
             InitRenderTexture(ref blendSource[blendSourceIndex], input.width, input.height, 0, "BlendSource");
             InitCommandBuffer();

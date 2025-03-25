@@ -329,16 +329,16 @@ void CalculateAreaLights(in float3 worldPosition,
 	output = baseColor;
 
 #if defined(_AREA_LIGHT_ACTIVE)
-		half3 light;
-		CalculateAreaLight(worldPosition, 
-						   worldCameraPosition, 
-						   worldNormal, 
-						   baseColor, 
-						   specularColor, 
-						   smoothness,
-						   0,
-						   light);
-		output += light;
+	half3 light;
+	CalculateAreaLight(worldPosition, 
+					   worldCameraPosition, 
+					   worldNormal, 
+					   baseColor, 
+					   specularColor, 
+					   smoothness,
+					   0,
+					   light);
+	output += light;
 #elif defined(_AREA_LIGHTS_ACTIVE)
 	for (int i = 0; i < AREA_LIGHT_COUNT; ++i)
 	{
