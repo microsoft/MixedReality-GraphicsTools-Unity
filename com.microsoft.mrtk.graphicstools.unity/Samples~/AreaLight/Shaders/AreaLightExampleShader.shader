@@ -38,15 +38,15 @@ Shader "Graphics Tools/Experimental/Area Light Example"
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
-			v2f vert (appdata v)
+			v2f vert (appdata input)
 			{
-				v2f o;
-				UNITY_SETUP_INSTANCE_ID(v);
-				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.worldPosition = mul(UNITY_MATRIX_M, v.vertex).xyz;
-				o.worldNormal = UnityObjectToWorldNormal(v.normal);
-				return o;
+				v2f output;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+				output.vertex = UnityObjectToClipPos(input.vertex);
+				output.worldPosition = mul(UNITY_MATRIX_M, input.vertex).xyz;
+				output.worldNormal = UnityObjectToWorldNormal(input.normal);
+				return output;
 			}
 
 			CBUFFER_START(UnityPerMaterial)
@@ -55,16 +55,16 @@ Shader "Graphics Tools/Experimental/Area Light Example"
 			fixed _Smoothness;
 			CBUFFER_END
 
-			fixed4 frag (v2f i) : SV_Target
+			fixed4 frag (v2f input) : SV_Target
 			{
-				half3 worldPosition = i.worldPosition;
+				half3 worldPosition = input.worldPosition;
 				half3 worldCameraPosition = _WorldSpaceCameraPos;
-				half3 worldNormal = normalize(i.worldNormal);
+				half3 worldNormal = normalize(input.worldNormal);
 
-				half3 lightOutput;
-				CalculateAreaLights(worldPosition, worldCameraPosition, worldNormal, _Color, _SpecColor, _Smoothness, lightOutput);
+				half3 output;
+				CalculateAreaLights(worldPosition, worldCameraPosition, worldNormal, _Color, _SpecColor, _Smoothness, output);
 
-				return fixed4(lightOutput + _Color, 1);
+				return fixed4(output, 1);
 			}
 			ENDCG
 		}

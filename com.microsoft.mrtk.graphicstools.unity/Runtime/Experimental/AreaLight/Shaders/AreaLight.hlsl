@@ -163,6 +163,7 @@ float PolygonRadiance(in float4x3 L)
 	L[0] = normalize(L[0]);
 	L[1] = normalize(L[1]);
 	L[2] = normalize(L[2]);
+
 	if (n == 3)
 	{
 		L[3] = L[0];
@@ -270,7 +271,7 @@ half3 SampleDiffuseFilteredTexture(in int lightIndex, in float4x3 L)
 void CalculateAreaLight(in float3 worldPosition,
 						in float3 worldCameraPosition,
 						in float3 worldNormal,
-						in half3 diffuseColor,
+						in half3 baseColor,
 						in half3 specularColor, 
 						in half smoothness,
 						in int lightIndex,
@@ -304,7 +305,7 @@ void CalculateAreaLight(in float3 worldPosition,
 	half3 result = 0;
 #if AREA_LIGHT_ENABLE_DIFFUSE
 	half diffuseTerm = TransformedPolygonRadiance(L, uv, _TransformInvDiffuse, AmpDiffAmpSpecFresnel.x);
-	result = diffuseTerm * diffuseColor;
+	result = diffuseTerm * baseColor;
 #endif
 			
 	half specularTerm = TransformedPolygonRadiance(L, uv, _TransformInvSpecular, AmpDiffAmpSpecFresnel.y);
@@ -314,22 +315,25 @@ void CalculateAreaLight(in float3 worldPosition,
 	output = result * _AreaLightData[lightIndex].rgb * textureColor;
 }
 
+/// <summary>
+/// Entry point, call this from your handwritten shader.
+/// </summary>
 void CalculateAreaLights(in float3 worldPosition,
 						 in float3 worldCameraPosition,
 						 in float3 worldNormal,
-						 in half3 diffuseColor,
+						 in half3 baseColor,
 						 in half3 specularColor,
 						 in half smoothness,
 						 out half3 output)
 {
-	output = 0;
+	output = baseColor;
 
 #if defined(_AREA_LIGHT_ACTIVE)
 		half3 light;
 		CalculateAreaLight(worldPosition, 
 						   worldCameraPosition, 
 						   worldNormal, 
-						   diffuseColor, 
+						   baseColor, 
 						   specularColor, 
 						   smoothness,
 						   0,
@@ -342,7 +346,7 @@ void CalculateAreaLights(in float3 worldPosition,
 		CalculateAreaLight(worldPosition, 
 						   worldCameraPosition, 
 						   worldNormal, 
-						   diffuseColor, 
+						   baseColor, 
 						   specularColor, 
 						   smoothness,
 						   i,
@@ -352,11 +356,13 @@ void CalculateAreaLights(in float3 worldPosition,
 #endif // _AREA_LIGHTS_ACTIVE
 }
 
-// Shader Graph full precision version.
-void CalculateAreaLights_float(in float3 worldPosition,
+/// <summary>
+/// Entry point, call this from Shader Graph (half precision).
+/// </summary>
+void CalculateAreaLights_half(in float3 worldPosition,
 							   in float3 worldCameraPosition,
 							   in float3 worldNormal,
-							   in half3 diffuseColor,
+							   in half3 baseColor,
 							   in half3 specularColor,
 							   in half smoothness,
 							   out half3 output)
@@ -364,7 +370,27 @@ void CalculateAreaLights_float(in float3 worldPosition,
 	CalculateAreaLights(worldPosition,
 						worldCameraPosition,
 						worldNormal,
-						diffuseColor,
+						baseColor,
+						specularColor,
+						smoothness,
+						output);
+}
+
+/// <summary>
+/// Entry point, call this from Shader Graph (full precision).
+/// </summary>
+void CalculateAreaLights_float(in float3 worldPosition,
+							   in float3 worldCameraPosition,
+							   in float3 worldNormal,
+							   in half3 baseColor,
+							   in half3 specularColor,
+							   in half smoothness,
+							   out half3 output)
+{
+	CalculateAreaLights(worldPosition,
+						worldCameraPosition,
+						worldNormal,
+						baseColor,
 						specularColor,
 						smoothness,
 						output);
