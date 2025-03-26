@@ -327,5 +327,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             pulseFade = 0.0f;
         }
-    }
+
+#if UNITY_EDITOR
+		private void OnDrawGizmos()
+		{
+			Gizmos.DrawIcon(transform.position, "PointLight Gizmo", true, settings.MiddleColor);
+		}
+#endif
+	}
 }

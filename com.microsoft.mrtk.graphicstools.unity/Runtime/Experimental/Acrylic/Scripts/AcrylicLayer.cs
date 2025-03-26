@@ -379,6 +379,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Debug.LogWarning("Null blur source texture.");
                 return;
             }
+
             if (useDualBlur)
             {
                 dualBlur.ApplyBlur("AcrylicLayer" + index + "_Blur", source, settings.blurPasses);
@@ -407,6 +408,17 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Graphics.ExecuteCommandBuffer(cmd);
                 Profiler.EndSample();
             }
+        }
+
+        public void ApplyDualBlur(ref RenderTexture source, int iterations)
+        {
+            if (source == null)
+            {
+                Debug.LogWarning("Null blur source texture.");
+                return;
+            }
+
+            dualBlur.ApplyBlur("AcrylicLayer" + index + "_Blur", source, iterations);
         }
 
         public void SetBlendSource(RenderTexture input, bool both)

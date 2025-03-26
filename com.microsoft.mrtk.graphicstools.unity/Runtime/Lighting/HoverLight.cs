@@ -114,6 +114,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             lastHoverLightUpdate = Time.frameCount;
         }
 
-        #endregion BaseLight Implementation
-    }
+		#endregion BaseLight Implementation
+
+#if UNITY_EDITOR
+		private void OnDrawGizmos()
+		{
+			Gizmos.DrawIcon(transform.position, "PointLight Gizmo", true, Color);
+		}
+#endif
+	}
 }
