@@ -81,9 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			if (gameObject != null)
 			{
 				gameObject.transform.position = new Vector3(0.0f, 1.0f, 0.0f);
-				Quaternion rotation = new Quaternion();
-				rotation.eulerAngles = new Vector3(0.0f, 180.0f, 0.0f);
-				gameObject.transform.rotation = rotation;
+				gameObject.transform.rotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
 			}
 		}
 
