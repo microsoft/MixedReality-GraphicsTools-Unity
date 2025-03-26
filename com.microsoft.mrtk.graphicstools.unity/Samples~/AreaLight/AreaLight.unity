@@ -353,7 +353,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6733848283173587094, guid: 87abc410488a90841ac5d45b7b13c29b, type: 3}
       propertyPath: m_text
-      value: "\u2022 Area light emit light from a rectangle.\n\u2022 Only two area
+      value: "\u2022 Area lights emit light from a rectangle.\n\u2022 Only two area
         lights can be rendered at a time.\n\u2022 Use the AreaLightCookieFilter to
         blur textures used with area lights."
       objectReference: {fileID: 0}
