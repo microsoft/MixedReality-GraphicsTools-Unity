@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 63f1d90ed5c6ca54c87e89d6db811c47
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - cookie: {instanceID: 0}
+  - filteredCookie: {instanceID: 0}
+  - cookieFilterMaterial: {fileID: 2100000, guid: 50dc523b24a2cfc409af7babd1bddb04, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

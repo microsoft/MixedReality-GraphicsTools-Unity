@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2df041073bc7ed94ea9692d0dd13e2cc
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - cookie: {instanceID: 0}
+  - cookieBlurMaterial: {fileID: 2100000, guid: 50dc523b24a2cfc409af7babd1bddb04, type: 2}
+  - lightSourceVisual: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

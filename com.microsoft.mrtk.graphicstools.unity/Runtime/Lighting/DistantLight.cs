@@ -124,7 +124,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             lastDistantLightUpdate = Time.frameCount;
         }
 
-        #endregion BaseLight Implementation
-    }
+		#endregion BaseLight Implementation
+
+#if UNITY_EDITOR
+		private void OnDrawGizmos()
+		{
+			Gizmos.DrawIcon(transform.position, "DirectionalLight Gizmo", true, Color);
+		}
+#endif
+	}
 }
 
