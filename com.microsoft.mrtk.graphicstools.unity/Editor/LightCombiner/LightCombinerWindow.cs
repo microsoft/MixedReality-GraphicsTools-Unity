@@ -484,7 +484,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			return output;
 		}
 
-		private static Mesh SaveMesh(Mesh mesh, string workingDirectory, string fileName)
+		private static UnityEngine.Mesh SaveMesh(UnityEngine.Mesh mesh, string workingDirectory, string fileName)
 		{
 			var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(workingDirectory, $"{fileName}.asset"));
 			AssetDatabase.CreateAsset(mesh, path);
