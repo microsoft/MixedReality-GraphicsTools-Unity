@@ -257,7 +257,7 @@ half3 SampleDiffuseFilteredTexture(in int lightIndex, in float4x3 L)
 	float3 V2_ = V2 - V1 * dot_V1_V2 * inv_dot_V1_V1;
 	float2 Puv;
 	Puv.x = dot(V2_, P) / dot(V2_, V2_);
-	Puv.y = 1 - (dot(V1, P) * inv_dot_V1_V1 - dot_V1_V2 * inv_dot_V1_V1 * Puv.x);
+	Puv.y = abs(_AreaLightData[lightIndex].a - (dot(V1, P) * inv_dot_V1_V1 - dot_V1_V2 * inv_dot_V1_V1 * Puv.x));
 	float2 uv = float2(0.125, 0.125) + 0.75 * Puv;
 
 	// TODO - [Cameron-Micka] calculate mip level based on distance to area light if the texture has pre-filtered mip levels.
