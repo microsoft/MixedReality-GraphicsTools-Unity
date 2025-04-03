@@ -37,6 +37,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static int areaLightVertsID;
 		private static int[] areaLightCookiesIDs = new int[areaLightCount];
 		private static int facingID;
+		private static int uvStartsAtTopID;
 		private static CullingGroup cullingGroup;
 		private static BoundingSphere[] boundingSpheres = new BoundingSphere[maxAreaLights];
 
@@ -108,6 +109,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			get => facing;
 			set => facing = value;
+		}
+
+		[Tooltip("Artificially rotates the top edge of the area light to reflect \"better\" on perpendicular surfaces.")]
+		[SerializeField, Range(0.0f, 180.0f)]
+		private float topEdgeRotationBias = 0.0f;
+
+		/// <summary>
+		/// Artificially rotates the top edge of the area light to reflect "better" on perpendicular surfaces.
+		/// </summary>
+		public float TopEdgeRotationBias
+		{
+			get => topEdgeRotationBias;
+			set => topEdgeRotationBias = Mathf.Clamp(value, 0.0f, 180.0f);
 		}
 
 		[Tooltip("Optional texture to use instead of a solid color.")]
@@ -258,6 +272,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 
 			facingID = Shader.PropertyToID("_facing");
+			uvStartsAtTopID = Shader.PropertyToID("_uvStartsAtTop");
 
 			CreateLUTs();
 			UpdateLightSourceVisual();
@@ -404,9 +419,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 														   color.b,
 														   light.cookieUVStartsAtTop ? 1.0f : 0.0f);
 
-					// A little bit of bias to prevent the light from lighting itself.
-					const float z = 0.01f;
-
+					var lightVerts = new Matrix4x4();
 					var localToWorld = light.transform.localToWorldMatrix;
 
 					if (light.facing == ForwardFacing.NegativeZ)
@@ -414,14 +427,21 @@ namespace Microsoft.MixedReality.GraphicsTools
 						localToWorld *= rotation180Up;
 					}
 
-					var lightVerts = new Matrix4x4();
-
-					for (int v = 0; v < 4; ++v)
+					// Small optimization to calculate the rotation bias if we don't need to.
+					if (topEdgeRotationBias != 0.0f)
 					{
-						Vector3 vertex = new Vector3(light.size.x * offsets[v, 0],
-													 light.size.y * offsets[v, 1],
-													 z) * 0.5f;
-						lightVerts.SetRow(v, localToWorld.MultiplyPoint(vertex));
+						lightVerts.SetRow(0, TransformVertex(0, light.size, localToWorld));
+						lightVerts.SetRow(1, TransformVertex(1, light.size, localToWorld));
+						lightVerts.SetRow(2, TransformVertex(2, light.size, localToWorld));
+						lightVerts.SetRow(3, TransformVertex(3, light.size, localToWorld));
+					}
+					else
+					{
+						var localToWorldBias = localToWorld * Matrix4x4.Rotate(Quaternion.AngleAxis(light.topEdgeRotationBias, Vector3.right));
+						lightVerts.SetRow(0, TransformVertex(0, light.size, localToWorldBias));
+						lightVerts.SetRow(1, TransformVertex(1, light.size, localToWorld));
+						lightVerts.SetRow(2, TransformVertex(2, light.size, localToWorld));
+						lightVerts.SetRow(3, TransformVertex(3, light.size, localToWorldBias));
 					}
 
 					areaLightVerts[i] = lightVerts;
@@ -515,6 +535,18 @@ namespace Microsoft.MixedReality.GraphicsTools
 		}
 #endif
 
+		private static Vector3 TransformVertex(int index, Vector2 size, Matrix4x4 localToWorld)
+		{
+			// A little bit of bias to prevent the light from lighting itself.
+			const float z = 0.01f;
+
+			var vertex = new Vector3(size.x * offsets[index, 0],
+									 size.y * offsets[index, 1],
+									 z) * 0.5f;
+
+			return localToWorld.MultiplyPoint(vertex);
+		}
+
 		private static void CreateLUTs()
 		{
 			if (transformInvTextureDiffuse == null)
@@ -555,6 +587,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 				lightSourceVisual.sharedMaterial.color = Color;
 				lightSourceVisual.sharedMaterial.mainTexture = drawLightSourceCookie ? drawLightSourceCookie : cookie;
 				lightSourceVisual.sharedMaterial.SetFloat(facingID, (float)facing);
+				lightSourceVisual.sharedMaterial.SetFloat(uvStartsAtTopID, cookieUVStartsAtTop ? 0.0f : 1.0f);
 				lightSourceVisual.transform.localScale = new Vector3(size.x, size.y, 1.0f);
 			}
 			else
