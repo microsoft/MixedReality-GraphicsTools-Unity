@@ -21,6 +21,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static readonly float[,] offsets = new float[4, 2] { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
 		private const int lutResolution = 64;
 		private const int lutMatrixDim = 3;
+		private static readonly Matrix4x4 rotation180Up = Matrix4x4.Rotate(Quaternion.AngleAxis(180.0f, Vector3.up));
 
 		private static Texture2D transformInvTextureSpecular;
 		private static Texture2D transformInvTextureDiffuse;
@@ -87,6 +88,25 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			get => size;
 			set => size = value;
+		}
+
+		public enum ForwardFacing
+		{
+			PositiveZ,
+			NegativeZ,
+		}
+
+		[Tooltip("The forward direction of the light.")]
+		[SerializeField]
+		private ForwardFacing facing = ForwardFacing.PositiveZ;
+
+		/// <summary>
+		/// The forward direction of the light.
+		/// </summary>
+		public ForwardFacing Facing
+		{
+			get => facing;
+			set => facing = value;
 		}
 
 		[Tooltip("Optional texture to use instead of a solid color.")]
@@ -367,13 +387,21 @@ namespace Microsoft.MixedReality.GraphicsTools
 					// A little bit of bias to prevent the light from lighting itself.
 					const float z = 0.01f;
 
-					Matrix4x4 lightVerts = new Matrix4x4();
+					var localToWorld = light.transform.localToWorldMatrix;
+
+					if (light.facing == ForwardFacing.NegativeZ)
+					{
+						localToWorld *= rotation180Up;
+					}
+
+					var lightVerts = new Matrix4x4();
+
 					for (int v = 0; v < 4; ++v)
 					{
 						Vector3 vertex = new Vector3(light.size.x * offsets[v, 0],
 													 light.size.y * offsets[v, 1],
 													 z) * 0.5f;
-						lightVerts.SetRow(v, light.transform.TransformPoint(vertex));
+						lightVerts.SetRow(v, localToWorld.MultiplyPoint(vertex));
 					}
 
 					areaLightVerts[i] = lightVerts;
@@ -506,6 +534,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 				lightSourceVisual.sharedMaterial.color = Color;
 				lightSourceVisual.sharedMaterial.mainTexture = drawLightSourceCookie ? drawLightSourceCookie : cookie;
+				lightSourceVisual.sharedMaterial.SetFloat("_facing", (float)facing);
 				lightSourceVisual.transform.localScale = new Vector3(size.x, size.y, 1.0f);
 			}
 			else
