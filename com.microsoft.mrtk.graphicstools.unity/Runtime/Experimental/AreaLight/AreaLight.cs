@@ -428,7 +428,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 					}
 
 					// Small optimization to calculate the rotation bias if we don't need to.
-					if (topEdgeRotationBias != 0.0f)
+					if (Mathf.Approximately(light.topEdgeRotationBias, 0.0f))
 					{
 						lightVerts.SetRow(0, TransformVertex(0, light.size, localToWorld));
 						lightVerts.SetRow(1, TransformVertex(1, light.size, localToWorld));
