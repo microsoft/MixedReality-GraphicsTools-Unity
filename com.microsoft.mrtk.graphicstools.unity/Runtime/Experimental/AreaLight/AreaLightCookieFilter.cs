@@ -59,7 +59,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 		[Tooltip("How many blur passes to perform during Dual blurring.")]
 		[SerializeField]
-		[Range(2, 7)]
+		[Range(0, 7)]
 		private int blurPasses = 3;
 
 		/// <summary>
@@ -68,7 +68,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 		public int BlurPasses
 		{
 			get => blurPasses;
-			set => blurPasses = Mathf.Clamp(value, 2, 7);
+			set => blurPasses = Mathf.Clamp(value, 0, 7);
 		}
 
 		/// <summary>

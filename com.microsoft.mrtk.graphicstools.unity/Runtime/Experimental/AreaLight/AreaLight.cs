@@ -111,19 +111,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => facing = value;
 		}
 
-		[Tooltip("Artificially rotates the top edge of the area light to reflect \"better\" on perpendicular surfaces.")]
-		[SerializeField, Range(0.0f, 180.0f)]
-		private float topEdgeRotationBias = 0.0f;
-
-		/// <summary>
-		/// Artificially rotates the top edge of the area light to reflect "better" on perpendicular surfaces.
-		/// </summary>
-		public float TopEdgeRotationBias
-		{
-			get => topEdgeRotationBias;
-			set => topEdgeRotationBias = Mathf.Clamp(value, 0.0f, 180.0f);
-		}
-
 		[Tooltip("Optional texture to use instead of a solid color.")]
 		[SerializeField]
 		private Texture cookie;
@@ -427,21 +414,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 						localToWorld *= rotation180Up;
 					}
 
-					// Small optimization to calculate the rotation bias if we don't need to.
-					if (Mathf.Approximately(light.topEdgeRotationBias, 0.0f))
+					for (int v = 0; v < 4; ++v)
 					{
-						lightVerts.SetRow(0, TransformVertex(0, light.size, localToWorld));
-						lightVerts.SetRow(1, TransformVertex(1, light.size, localToWorld));
-						lightVerts.SetRow(2, TransformVertex(2, light.size, localToWorld));
-						lightVerts.SetRow(3, TransformVertex(3, light.size, localToWorld));
-					}
-					else
-					{
-						var localToWorldBias = localToWorld * Matrix4x4.Rotate(Quaternion.AngleAxis(light.topEdgeRotationBias, Vector3.right));
-						lightVerts.SetRow(0, TransformVertex(0, light.size, localToWorldBias));
-						lightVerts.SetRow(1, TransformVertex(1, light.size, localToWorld));
-						lightVerts.SetRow(2, TransformVertex(2, light.size, localToWorld));
-						lightVerts.SetRow(3, TransformVertex(3, light.size, localToWorldBias));
+						lightVerts.SetRow(v, TransformVertex(v, light.size, localToWorld));
 					}
 
 					areaLightVerts[i] = lightVerts;
