@@ -41,7 +41,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			// Draw the area light's normal only if it will not overlap with the current tool.
 			if (!((Tools.current == Tool.Move || Tools.current == Tool.Scale) && Tools.pivotRotation == PivotRotation.Local))
 			{
-				Handles.DrawLine(light.transform.position, light.transform.position + light.transform.forward);
+				var normal = light.transform.forward * ((light.Facing == AreaLight.ForwardFacing.PositiveZ) ? 1.0f : -1.0f);
+				Handles.DrawLine(light.transform.position, light.transform.position + normal);
 			}
 
 			Handles.color = new Color(255.0f / 255.0f, 165.0f / 255.0f, 0.0f / 255.0f); // Orange.
