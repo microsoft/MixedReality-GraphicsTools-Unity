@@ -263,7 +263,7 @@ float4 PolygonRadiance(in int lightIndex, in float4x3 L)
 	return float4(max(0, sum.z * 0.15915) * SampleDiffuseFilteredTexture(lightIndex, unclippedL, direction), direction.z);
 }
 
-half4 TransformedPolygonRadiance(in int lightIndex, 
+half3 TransformedPolygonRadiance(in int lightIndex, 
 								 in float4x3 L, 
 								 in float2 uv, 
 								 in sampler2D transformInv, 
@@ -278,7 +278,7 @@ half4 TransformedPolygonRadiance(in int lightIndex,
 	float4x3 LTransformed = mul(L, Minv);
 			
 	// Polygon radiance in transformed configuration - specular.
-	return PolygonRadiance(lightIndex, LTransformed) * float4(amplitude.xxx, 1);
+	return PolygonRadiance(lightIndex, LTransformed).rbg * amplitude.xxx;
 }
 
 void CalculateAreaLight(in float3 worldPosition,
