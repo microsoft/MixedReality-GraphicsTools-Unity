@@ -6,6 +6,8 @@
 
 // Based off work from: https://github.com/Unity-Technologies/VolumetricLighting
 
+#include "HLSLSupport.cginc"
+
 #pragma multi_compile _ _AREA_LIGHT_ACTIVE _AREA_LIGHTS_ACTIVE
 
 #define AREA_LIGHT_COUNT 2
@@ -23,11 +25,11 @@
 // |    XX    |    XX    |    XX    |
 // |          |          |          |
 // +----------+----------+----------+
-sampler2D _AreaLightLUTAtlas;
+UNITY_DECLARE_TEX2D(_AreaLightLUTAtlas);
 
 // Shader.SetGlobalTexture…Array(…) does not exist, so this is the best we can do.
-sampler2D _AreaLightCookie0;
-sampler2D _AreaLightCookie1;
+UNITY_DECLARE_TEX2D(_AreaLightCookie0);
+UNITY_DECLARE_TEX2D_NOSAMPLER(_AreaLightCookie1); // Reuse _AreaLightCookie0's sampler.
 
 float4 _AreaLightData[AREA_LIGHT_COUNT * AREA_LIGHT_DATA_SIZE];
 float4x4 _AreaLightVerts[AREA_LIGHT_COUNT];
@@ -49,14 +51,14 @@ half4 SampleAreaLightCookie(in int lightIndex, in float2 uv)
 	switch (lightIndex)
 	{
 		case 0:
-			return tex2D(_AreaLightCookie0, uv);
+			return UNITY_SAMPLE_TEX2D(_AreaLightCookie0, uv);
 		case 1:
-			return tex2D(_AreaLightCookie1, uv);
+			return UNITY_SAMPLE_TEX2D_SAMPLER(_AreaLightCookie1, _AreaLightCookie0, uv);
 		default:
 			return half4(1, 1, 1, 1);
 	}
 #else
-	return tex2D(_AreaLightCookie0, uv);
+	return UNITY_SAMPLE_TEX2D(_AreaLightCookie0, uv);
 #endif // _AREA_LIGHTS_ACTIVE
 }
 
@@ -268,7 +270,7 @@ float4 PolygonRadiance(in int lightIndex, in float4x3 L)
 
 half4 SampleAtlas(in float2 uv, in half index)
 {
-	return tex2D(_AreaLightLUTAtlas, float2(uv.x / 3.0 + (index / 3.0), uv.y));
+	return UNITY_SAMPLE_TEX2D(_AreaLightLUTAtlas, float2(uv.x / 3.0 + (index / 3.0), uv.y));
 }
 
 half3 TransformedPolygonRadiance(in int lightIndex, 
