@@ -23,9 +23,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private const int lutMatrixDim = 3;
 		private static readonly Matrix4x4 rotation180Up = Matrix4x4.Rotate(Quaternion.AngleAxis(180.0f, Vector3.up));
 
-		private static Texture2D transformInvTextureSpecular;
-		private static Texture2D transformInvTextureDiffuse;
-		private static Texture2D ampDiffAmpSpecFresnel;
+		private static Texture2D areaLightLUTAtlas;
+		//private static Texture2D transformInvTextureSpecular;
+		//private static Texture2D transformInvTextureDiffuse;
+		//private static Texture2D ampDiffAmpSpecFresnel;
 
 		private static int lastAreaLightUpdate = -1;
 		private static List<AreaLight> activeAreaLights = new(maxAreaLights);
@@ -258,10 +259,16 @@ namespace Microsoft.MixedReality.GraphicsTools
 				areaLightCookiesIDs[i] = Shader.PropertyToID($"_AreaLightCookie{i}");
 			}
 
-			facingID = Shader.PropertyToID("_facing");
-			uvStartsAtTopID = Shader.PropertyToID("_uvStartsAtTop");
+			facingID = Shader.PropertyToID("_Facing");
+			uvStartsAtTopID = Shader.PropertyToID("_UVStartsAtTop");
 
-			CreateLUTs();
+			if (areaLightLUTAtlas == null)
+			{
+				areaLightLUTAtlas = CreateLUTAtlas();
+			}
+
+			Shader.SetGlobalTexture("_AreaLightLUTAtlas", areaLightLUTAtlas);
+
 			UpdateLightSourceVisual();
 
 			// Only create a culling group when playing since we can't consistently dispose of them in edit mode.
@@ -522,28 +529,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 			return localToWorld.MultiplyPoint(vertex);
 		}
 
-		private static void CreateLUTs()
-		{
-			if (transformInvTextureDiffuse == null)
-			{
-				transformInvTextureDiffuse = LoadLUT(LUTType.TransformInv_DisneyDiffuse);
-			}
-
-			if (transformInvTextureSpecular == null)
-			{
-				transformInvTextureSpecular = LoadLUT(LUTType.TransformInv_GGX);
-			}
-
-			if (ampDiffAmpSpecFresnel == null)
-			{
-				ampDiffAmpSpecFresnel = LoadLUT(LUTType.AmpDiffAmpSpecFresnel);
-			}
-
-			Shader.SetGlobalTexture("_TransformInvDiffuse", transformInvTextureDiffuse);
-			Shader.SetGlobalTexture("_TransformInvSpecular", transformInvTextureSpecular);
-			Shader.SetGlobalTexture("_AmpDiffAmpSpecFresnel", ampDiffAmpSpecFresnel);
-		}
-
 		private void UpdateLightSourceVisual()
 		{
 			if (drawLightSource && enabled)
@@ -598,46 +583,44 @@ namespace Microsoft.MixedReality.GraphicsTools
 			}
 		}
 
-		private enum LUTType
+		private static Texture2D CreateLUTAtlas()
 		{
-			TransformInv_DisneyDiffuse,
-			TransformInv_GGX,
-			AmpDiffAmpSpecFresnel
-		}
+			var diffusePixels = LoadLUT(s_LUTTransformInv_DisneyDiffuse);
+			var specularPixels = LoadLUT(s_LUTTransformInv_GGX);
+			var fresnelPixels = LoadLUT(s_LUTAmplitude_DisneyDiffuse, s_LUTAmplitude_GGX, s_LUTFresnel_GGX);
 
-		private static Texture2D LoadLUT(LUTType type)
-		{
-			switch (type)
+			// Combine all three LUTs into a single texture. Each LUT side by side.
+			//   Diffuse    Specular    Fresnel
+			// +----------+----------+----------+
+			// |          |          |          |
+			// |    XX    |    XX    |    XX    |
+			// |          |          |          |
+			// +----------+----------+----------+
+			int combinedWidth = lutResolution * 3;
+			int combinedHeight = lutResolution;
+			Texture2D combinedLUT = new Texture2D(combinedWidth, combinedHeight, TextureFormat.RGBAHalf, false, true);
+			combinedLUT.hideFlags = HideFlags.HideAndDontSave;
+			combinedLUT.wrapMode = TextureWrapMode.Clamp;
+
+			var combinedPixels = new Color[combinedWidth * combinedHeight];
+
+			for (int y = 0; y < lutResolution; y++)
 			{
-				case LUTType.TransformInv_DisneyDiffuse:
-					{
-						return LoadLUT(s_LUTTransformInv_DisneyDiffuse);
-					}
-				case LUTType.TransformInv_GGX:
-					{
-						return LoadLUT(s_LUTTransformInv_GGX);
-					}
-				case LUTType.AmpDiffAmpSpecFresnel:
-					{
-						return LoadLUT(s_LUTAmplitude_DisneyDiffuse, s_LUTAmplitude_GGX, s_LUTFresnel_GGX);
-					}
+				for (int x = 0; x < lutResolution; x++)
+				{
+					combinedPixels[y * combinedWidth + x] = diffusePixels[y * lutResolution + x];
+					combinedPixels[y * combinedWidth + x + lutResolution] = specularPixels[y * lutResolution + x];
+					combinedPixels[y * combinedWidth + x + 2 * lutResolution] = fresnelPixels[y * lutResolution + x];
+				}
 			}
 
-			return null;
+			combinedLUT.SetPixels(combinedPixels);
+			combinedLUT.Apply();
+
+			return combinedLUT;
 		}
 
-		private static Texture2D CreateLUT(TextureFormat format, Color[] pixels)
-		{
-			var texture = new Texture2D(lutResolution, lutResolution, format, false /*mipmap*/, true /*linear*/);
-			texture.hideFlags = HideFlags.HideAndDontSave;
-			texture.wrapMode = TextureWrapMode.Clamp;
-			texture.SetPixels(pixels);
-			texture.Apply();
-
-			return texture;
-		}
-
-		private static Texture2D LoadLUT(double[,] LUTTransformInv)
+		private static Color[] LoadLUT(double[,] LUTTransformInv)
 		{
 			const int count = lutResolution * lutResolution;
 			Color[] pixels = new Color[count];
@@ -651,10 +634,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 									  (float)LUTTransformInv[i, 6]);
 			}
 
-			return CreateLUT(TextureFormat.RGBAHalf, pixels);
+			return pixels;
 		}
 
-		private static Texture2D LoadLUT(float[] LUTScalar0, float[] LUTScalar1, float[] LUTScalar2)
+		private static Color[] LoadLUT(float[] LUTScalar0, float[] LUTScalar1, float[] LUTScalar2)
 		{
 			const int count = lutResolution * lutResolution;
 			Color[] pixels = new Color[count];
@@ -665,7 +648,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 				pixels[i] = new Color(LUTScalar0[i], LUTScalar1[i], LUTScalar2[i], 0);
 			}
 
-			return CreateLUT(TextureFormat.RGBAHalf, pixels);
+			return pixels;
 		}
 	}
 }

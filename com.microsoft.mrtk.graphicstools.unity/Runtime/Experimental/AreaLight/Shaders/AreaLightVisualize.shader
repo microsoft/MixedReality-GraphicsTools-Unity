@@ -41,8 +41,8 @@ Shader "Hidden/Graphics Tools/Experimental/Area Light Visualize"
 			CBUFFER_START(UnityPerMaterial)
 			fixed4 _Color;
 			float4 _MainTex_ST;
-			float _facing;
-			float _uvStartsAtTop;
+			float _Facing;
+			float _UVStartsAtTop;
 			CBUFFER_END
 
 			v2f vert (appdata_t input)
@@ -57,10 +57,10 @@ Shader "Hidden/Graphics Tools/Experimental/Area Light Visualize"
 	
 			fixed4 frag (v2f input, bool facing : SV_IsFrontFace) : SV_Target
 			{
-				facing = _facing ? !facing : facing;
+				facing = _Facing ? !facing : facing;
 				float2 texcoord = input.texcoord;
-				texcoord.x = abs(_facing - texcoord.x);
-				texcoord.y = abs(_uvStartsAtTop - texcoord.y);
+				texcoord.x = abs(_Facing - texcoord.x);
+				texcoord.y = abs(_UVStartsAtTop - texcoord.y);
 				fixed4 output = facing ? tex2D(_MainTex, texcoord) : fixed4(0.05, 0.05, 0.05, 1.0);
 				UNITY_OPAQUE_ALPHA(output.a);
 				return output * _Color;

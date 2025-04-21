@@ -16,11 +16,14 @@
 /// Global properties.
 /// </summary>
 
-#if defined(AREA_LIGHT_ENABLE_DIFFUSE)
-sampler2D _TransformInvDiffuse;
-#endif // AREA_LIGHT_ENABLE_DIFFUSE
-sampler2D _TransformInvSpecular;
-sampler2D _AmpDiffAmpSpecFresnel;
+// LUTs are atlased in the following order:
+//   Diffuse    Specular    Fresnel
+// +----------+----------+----------+
+// |          |          |          |
+// |    XX    |    XX    |    XX    |
+// |          |          |          |
+// +----------+----------+----------+
+sampler2D _AreaLightLUTAtlas;
 
 // Shader.SetGlobalTexture…Array(…) does not exist, so this is the best we can do.
 sampler2D _AreaLightCookie0;
@@ -263,22 +266,27 @@ float4 PolygonRadiance(in int lightIndex, in float4x3 L)
 	return float4(max(0, sum.z * 0.15915) * SampleDiffuseFilteredTexture(lightIndex, unclippedL, direction), direction.z);
 }
 
+half4 SampleAtlas(in float2 uv, in half index)
+{
+	return tex2D(_AreaLightLUTAtlas, float2(uv.x / 3.0 + (index / 3.0), uv.y));
+}
+
 half3 TransformedPolygonRadiance(in int lightIndex, 
 								 in float4x3 L, 
 								 in float2 uv, 
-								 in sampler2D transformInv, 
+								 in half transformIndex,
 								 in float amplitude)
 {
 	// Get the inverse LTC matrix M.
 	float3x3 Minv = 0;
 	Minv._m22 = 1;
-	Minv._m00_m02_m11_m20 = tex2D(transformInv, uv);
+	Minv._m00_m02_m11_m20 = SampleAtlas(uv, transformIndex);
 						
 	// Transform light vertices into diffuse configuration.
 	float4x3 LTransformed = mul(L, Minv);
 			
 	// Polygon radiance in transformed configuration - specular.
-	return PolygonRadiance(lightIndex, LTransformed).rbg * amplitude.xxx;
+	return PolygonRadiance(lightIndex, LTransformed).rgb * amplitude.xxx;
 }
 
 void CalculateAreaLight(in float3 worldPosition,
@@ -308,17 +316,17 @@ void CalculateAreaLight(in float3 worldPosition,
 			
 	// UVs for sampling the LUTs.
 	float theta = acos(dot(V, worldNormal));
-	half2 uv = half2(roughness, theta / 1.57);
+	half2 uv = half2(roughness, theta / 1.57); // Half Pi.
 			
-	half3 AmpDiffAmpSpecFresnel = tex2D(_AmpDiffAmpSpecFresnel, uv).rgb;
+	half3 AmpDiffAmpSpecFresnel = SampleAtlas(uv, 2).rgb;
 			
 	half3 result = 0;
 #if defined(AREA_LIGHT_ENABLE_DIFFUSE)
-	half3 diffuseTerm = TransformedPolygonRadiance(lightIndex, L, uv, _TransformInvDiffuse, AmpDiffAmpSpecFresnel.x);
+	half3 diffuseTerm = TransformedPolygonRadiance(lightIndex, L, uv, 0, AmpDiffAmpSpecFresnel.x);
 	result = diffuseTerm * baseColor;
 #endif // AREA_LIGHT_ENABLE_DIFFUSE
 			
-	half3 specularTerm = TransformedPolygonRadiance(lightIndex, L, uv, _TransformInvSpecular, AmpDiffAmpSpecFresnel.y);
+	half3 specularTerm = TransformedPolygonRadiance(lightIndex, L, uv, 1, AmpDiffAmpSpecFresnel.y);
 	half3 fresnelTerm = (half) (specularColor + (1.0 - specularColor) * AmpDiffAmpSpecFresnel.z);
 	result += specularTerm * fresnelTerm * 3.14159265359; // Pi.
 
