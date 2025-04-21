@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.4] - 2025-04-03
+
+### Changed
+
+- Added more properties to the experimental AreaLight component.
+
 ## [0.8.3] - 2025-03-26
 
 ### Changed

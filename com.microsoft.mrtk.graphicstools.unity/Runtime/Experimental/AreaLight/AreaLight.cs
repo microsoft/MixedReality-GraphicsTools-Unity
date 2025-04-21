@@ -21,20 +21,23 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static readonly float[,] offsets = new float[4, 2] { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
 		private const int lutResolution = 64;
 		private const int lutMatrixDim = 3;
+		private static readonly Matrix4x4 rotation180Up = Matrix4x4.Rotate(Quaternion.AngleAxis(180.0f, Vector3.up));
 
 		private static Texture2D transformInvTextureSpecular;
 		private static Texture2D transformInvTextureDiffuse;
 		private static Texture2D ampDiffAmpSpecFresnel;
 
+		private static int lastAreaLightUpdate = -1;
 		private static List<AreaLight> activeAreaLights = new(maxAreaLights);
 		private static List<AreaLight> activeAreaLightsSorted = new(maxAreaLights);
 		private static Vector4[] areaLightData = new Vector4[areaLightDataSize * areaLightCount];
 		private static Matrix4x4[] areaLightVerts = new Matrix4x4[areaLightCount];
 		private static Texture[] areaLightCookies = new Texture[areaLightCount];
-		private static int _AreaLightDataID;
-		private static int _AreaLightVertsID;
-		private static int[] _AreaLightCookiesIDs = new int[areaLightCount];
-		private static int lastAreaLightUpdate = -1;
+		private static int areaLightDataID;
+		private static int areaLightVertsID;
+		private static int[] areaLightCookiesIDs = new int[areaLightCount];
+		private static int facingID;
+		private static int uvStartsAtTopID;
 		private static CullingGroup cullingGroup;
 		private static BoundingSphere[] boundingSpheres = new BoundingSphere[maxAreaLights];
 
@@ -89,6 +92,25 @@ namespace Microsoft.MixedReality.GraphicsTools
 			set => size = value;
 		}
 
+		public enum ForwardFacing
+		{
+			PositiveZ,
+			NegativeZ,
+		}
+
+		[Tooltip("The forward direction of the light.")]
+		[SerializeField]
+		private ForwardFacing facing = ForwardFacing.PositiveZ;
+
+		/// <summary>
+		/// The forward direction of the light.
+		/// </summary>
+		public ForwardFacing Facing
+		{
+			get => facing;
+			set => facing = value;
+		}
+
 		[Tooltip("Optional texture to use instead of a solid color.")]
 		[SerializeField]
 		private Texture cookie;
@@ -100,6 +122,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 		{
 			get => cookie;
 			set => cookie = value;
+		}
+
+		[Tooltip("Should the texture UV coordinate convention for this cookie have Y starting at the top of the image.")]
+		[SerializeField]
+		private bool cookieUVStartsAtTop = true;
+
+		/// <summary>
+		/// Should the texture UV coordinate convention for this cookie have Y starting at the top of the image.
+		/// </summary>
+		public bool CookieUVStartsAtTop
+		{
+			get => cookieUVStartsAtTop;
+			set => cookieUVStartsAtTop = value;
 		}
 
 		[Tooltip("Should the area light have a visualization?")]
@@ -215,13 +250,16 @@ namespace Microsoft.MixedReality.GraphicsTools
 		/// <inheritdoc/>
 		protected override void Initialize()
 		{
-			_AreaLightDataID = Shader.PropertyToID("_AreaLightData");
-			_AreaLightVertsID = Shader.PropertyToID("_AreaLightVerts");
+			areaLightDataID = Shader.PropertyToID("_AreaLightData");
+			areaLightVertsID = Shader.PropertyToID("_AreaLightVerts");
 
-			for (int i = 0; i < _AreaLightCookiesIDs.Length; ++i)
+			for (int i = 0; i < areaLightCookiesIDs.Length; ++i)
 			{
-				_AreaLightCookiesIDs[i] = Shader.PropertyToID($"_AreaLightCookie{i}");
+				areaLightCookiesIDs[i] = Shader.PropertyToID($"_AreaLightCookie{i}");
 			}
+
+			facingID = Shader.PropertyToID("_facing");
+			uvStartsAtTopID = Shader.PropertyToID("_uvStartsAtTop");
 
 			CreateLUTs();
 			UpdateLightSourceVisual();
@@ -362,18 +400,23 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 				if (light)
 				{
-					areaLightData[dataIndex] = light.Color;
+					var color = light.Color;
+					areaLightData[dataIndex] = new Vector4(color.r,
+														   color.g,
+														   color.b,
+														   light.cookieUVStartsAtTop ? 1.0f : 0.0f);
 
-					// A little bit of bias to prevent the light from lighting itself.
-					const float z = 0.01f;
+					var lightVerts = new Matrix4x4();
+					var localToWorld = light.transform.localToWorldMatrix;
 
-					Matrix4x4 lightVerts = new Matrix4x4();
+					if (light.facing == ForwardFacing.NegativeZ)
+					{
+						localToWorld *= rotation180Up;
+					}
+
 					for (int v = 0; v < 4; ++v)
 					{
-						Vector3 vertex = new Vector3(light.size.x * offsets[v, 0],
-													 light.size.y * offsets[v, 1],
-													 z) * 0.5f;
-						lightVerts.SetRow(v, light.transform.TransformPoint(vertex));
+						lightVerts.SetRow(v, TransformVertex(v, light.size, localToWorld));
 					}
 
 					areaLightVerts[i] = lightVerts;
@@ -397,13 +440,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 				}
 			}
 
-			Shader.SetGlobalVectorArray(_AreaLightDataID, areaLightData);
-			Shader.SetGlobalMatrixArray(_AreaLightVertsID, areaLightVerts);
+			Shader.SetGlobalVectorArray(areaLightDataID, areaLightData);
+			Shader.SetGlobalMatrixArray(areaLightVertsID, areaLightVerts);
 
 			// There is no SetGlobalTextureArray so pass in 1 by 1.
 			for (int i = 0; i < areaLightCookies.Length; ++i)
 			{
-				Shader.SetGlobalTexture(_AreaLightCookiesIDs[i], areaLightCookies[i]);
+				Shader.SetGlobalTexture(areaLightCookiesIDs[i], areaLightCookies[i]);
 			}
 
 			lastAreaLightUpdate = Time.frameCount;
@@ -467,6 +510,18 @@ namespace Microsoft.MixedReality.GraphicsTools
 		}
 #endif
 
+		private static Vector3 TransformVertex(int index, Vector2 size, Matrix4x4 localToWorld)
+		{
+			// A little bit of bias to prevent the light from lighting itself.
+			const float z = 0.01f;
+
+			var vertex = new Vector3(size.x * offsets[index, 0],
+									 size.y * offsets[index, 1],
+									 z) * 0.5f;
+
+			return localToWorld.MultiplyPoint(vertex);
+		}
+
 		private static void CreateLUTs()
 		{
 			if (transformInvTextureDiffuse == null)
@@ -506,6 +561,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 				lightSourceVisual.sharedMaterial.color = Color;
 				lightSourceVisual.sharedMaterial.mainTexture = drawLightSourceCookie ? drawLightSourceCookie : cookie;
+				lightSourceVisual.sharedMaterial.SetFloat(facingID, (float)facing);
+				lightSourceVisual.sharedMaterial.SetFloat(uvStartsAtTopID, cookieUVStartsAtTop ? 0.0f : 1.0f);
 				lightSourceVisual.transform.localScale = new Vector3(size.x, size.y, 1.0f);
 			}
 			else

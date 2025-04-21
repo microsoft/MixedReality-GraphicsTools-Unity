@@ -10,15 +10,15 @@
 
 #define AREA_LIGHT_COUNT 2
 #define AREA_LIGHT_DATA_SIZE 1
-#define AREA_LIGHT_ENABLE_DIFFUSE 0
+//#define AREA_LIGHT_ENABLE_DIFFUSE
 
 /// <summary>
 /// Global properties.
 /// </summary>
 
-#if AREA_LIGHT_ENABLE_DIFFUSE
+#if defined(AREA_LIGHT_ENABLE_DIFFUSE)
 sampler2D _TransformInvDiffuse;
-#endif
+#endif // AREA_LIGHT_ENABLE_DIFFUSE
 sampler2D _TransformInvSpecular;
 sampler2D _AmpDiffAmpSpecFresnel;
 
@@ -33,18 +33,80 @@ float4x4 _AreaLightVerts[AREA_LIGHT_COUNT];
 /// Lighting methods.
 /// </summary>
 
-float IntegrateEdge(in float3 v1, in float3 v2)
+bool RayPlaneIntersect(float3 direction, float3 origin, float4 plane, out float t)
 {
-	float cosTheta = dot(v1, v2);
-	float theta = acos(cosTheta);
-	float cross = (v1.x * v2.y - v1.y * v2.x);
-	return cross * ((theta > 0.001) ? theta / sin(theta) : 1.0);
+	t = -dot(plane, float4(origin, 1.0)) / dot(plane.xyz, direction);
+	return t > 0.0;
 }
-			
-float PolygonRadiance(in float4x3 L)
+
+half4 SampleAreaLightCookie(in int lightIndex, in float2 uv)
+{
+#if defined(_AREA_LIGHTS_ACTIVE)
+	[forcecase]
+	switch (lightIndex)
+	{
+		case 0:
+			return tex2D(_AreaLightCookie0, uv);
+		case 1:
+			return tex2D(_AreaLightCookie1, uv);
+		default:
+			return half4(1, 1, 1, 1);
+	}
+#else
+	return tex2D(_AreaLightCookie0, uv);
+#endif // _AREA_LIGHTS_ACTIVE
+}
+
+half3 SampleDiffuseFilteredTexture(in int lightIndex, in float4x3 L, float3 direction)
+{
+	float3 p1 = L[0];
+	float3 p2 = L[1];
+	float3 p3 = L[2];
+	float3 p4 = L[3];
+
+	// Area light plane basis.
+	float3 V1 = p2 - p1;
+	float3 V2 = p4 - p1;
+	float3 planeOrtho = cross(V1, V2);
+	float planeAreaSquared = dot(planeOrtho, planeOrtho);
+
+	float4 plane = float4(planeOrtho, -dot(planeOrtho, p1));
+	float planeDist;
+	RayPlaneIntersect(direction, 0, plane, planeDist);
+
+	float3 P = planeDist * direction - p1;
+
+	// Find tex coords of P.
+	float dot_V1_V2 = dot(V1, V2);
+	float inv_dot_V1_V1 = 1.0 / dot(V1, V1);
+	float3 V2_ = V2 - V1 * dot_V1_V2 * inv_dot_V1_V1;
+	float2 uv;
+	uv.x = dot(V2_, P) / dot(V2_, V2_);
+	uv.y = abs(_AreaLightData[lightIndex].a - (dot(V1, P) * inv_dot_V1_V1 - dot_V1_V2 * inv_dot_V1_V1 * uv.x));
+
+	return SampleAreaLightCookie(lightIndex, uv).rgb;
+}
+
+float3 IntegrateEdge(in float3 v1, in float3 v2)
+{
+	float x = dot(v1, v2);
+	float y = abs(x);
+
+	float a = 0.8543985 + (0.4965155 + 0.0145206 * y) * y;
+	float b = 3.4175940 + (4.1616724 + y) * y;
+	float v = a / b;
+
+	float theta_sintheta = (x > 0.0) ? v : 0.5 * rsqrt(max(1.0 - x * x, 1e-7)) - v;
+
+	return cross(v1, v2) * theta_sintheta;
+}
+
+float4 PolygonRadiance(in int lightIndex, in float4x3 L)
 {
 	// Baum's equation
 	// Expects non-normalized vertex positions
+
+	float4x3 unclippedL = L;
 
 	// Detect clipping config.
 	uint config = 0;
@@ -180,9 +242,9 @@ float PolygonRadiance(in float4x3 L)
 			L4 = normalize(L4);
 		}
 	}
-				
+
 	// Integrate.
-	float sum = 0;
+	float3 sum = 0;
 	sum += IntegrateEdge(L[0], L[1]);
 	sum += IntegrateEdge(L[1], L[2]);
 	sum += IntegrateEdge(L[2], L[3]);
@@ -196,13 +258,16 @@ float PolygonRadiance(in float4x3 L)
 	{
 		sum += IntegrateEdge(L4, L[0]);
 	}
-				
-	sum *= 0.15915; // 1/2pi
-			
-	return max(0, sum);
+
+	float3 direction = normalize(sum);
+	return float4(max(0, sum.z * 0.15915) * SampleDiffuseFilteredTexture(lightIndex, unclippedL, direction), direction.z);
 }
-			
-float TransformedPolygonRadiance(in float4x3 L, in float2 uv, in sampler2D transformInv, in float amplitude)
+
+half4 TransformedPolygonRadiance(in int lightIndex, 
+								 in float4x3 L, 
+								 in float2 uv, 
+								 in sampler2D transformInv, 
+								 in float amplitude)
 {
 	// Get the inverse LTC matrix M.
 	float3x3 Minv = 0;
@@ -213,59 +278,7 @@ float TransformedPolygonRadiance(in float4x3 L, in float2 uv, in sampler2D trans
 	float4x3 LTransformed = mul(L, Minv);
 			
 	// Polygon radiance in transformed configuration - specular.
-	return PolygonRadiance(LTransformed) * amplitude;
-}
-
-half4 SampleAreaLightCookie(in int lightIndex, in float2 uv)
-{
-#if defined(_AREA_LIGHTS_ACTIVE)
-	[forcecase]
-	switch (lightIndex)
-	{
-		case 0:
-			return tex2D(_AreaLightCookie0, uv);
-		case 1:
-			return tex2D(_AreaLightCookie1, uv);
-		default:
-			return half4(1, 1, 1, 1);
-	}
-#else
-	return tex2D(_AreaLightCookie0, uv);
-#endif // _AREA_LIGHTS_ACTIVE
-}
-
-half3 SampleDiffuseFilteredTexture(in int lightIndex, in float4x3 L)
-{
-	float3 p1_ = L[0];
-	float3 p2_ = L[1];
-	float3 p3_ = L[2];
-	float3 p4_ = L[3];
-
-	// Area light plane basis.
-	float3 V1 = p2_ - p1_;
-	float3 V2 = p4_ - p1_;
-	float3 planeOrtho = (cross(V1, V2));
-	float planeAreaSquared = dot(planeOrtho, planeOrtho);
-	float planeDistxPlaneArea = dot(planeOrtho, p1_);
-
-	// Orthonormal projection of (0,0,0) in area light space.
-	float3 P = planeDistxPlaneArea * planeOrtho / planeAreaSquared - p1_;
-				
-	// Find tex coords of P.
-	float dot_V1_V2 = dot(V1, V2);
-	float inv_dot_V1_V1 = 1.0 / dot(V1, V1);
-	float3 V2_ = V2 - V1 * dot_V1_V2 * inv_dot_V1_V1;
-	float2 Puv;
-	Puv.x = dot(V2_, P) / dot(V2_, V2_);
-	Puv.y = 1 - (dot(V1, P) * inv_dot_V1_V1 - dot_V1_V2 * inv_dot_V1_V1 * Puv.x);
-	float2 uv = float2(0.125, 0.125) + 0.75 * Puv;
-
-	// TODO - [Cameron-Micka] calculate mip level based on distance to area light if the texture has pre-filtered mip levels.
-	//float d = abs(planeDistxPlaneArea) / pow(planeAreaSquared, 0.75);
-	//float w = log(1024.0 * d) / log(6.0); // TODO get texture size.
-	//return tex2Dlod(texLightFiltered, float4(uv.x, uv.y, 0, w)).rgb;
-
-	return SampleAreaLightCookie(lightIndex, uv).rgb;
+	return PolygonRadiance(lightIndex, LTransformed) * float4(amplitude.xxx, 1);
 }
 
 void CalculateAreaLight(in float3 worldPosition,
@@ -292,9 +305,6 @@ void CalculateAreaLight(in float3 worldPosition,
 	float4x3 L;
 	L = (float4x3)_AreaLightVerts[lightIndex] - float4x3(worldPosition, worldPosition, worldPosition, worldPosition);
 	L = mul(L, transpose(basis));
-
-	// TODO - [Cameron-Micka] disable if no texture?
-	half3 textureColor = SampleDiffuseFilteredTexture(lightIndex, L);
 			
 	// UVs for sampling the LUTs.
 	float theta = acos(dot(V, worldNormal));
@@ -303,16 +313,16 @@ void CalculateAreaLight(in float3 worldPosition,
 	half3 AmpDiffAmpSpecFresnel = tex2D(_AmpDiffAmpSpecFresnel, uv).rgb;
 			
 	half3 result = 0;
-#if AREA_LIGHT_ENABLE_DIFFUSE
-	half diffuseTerm = TransformedPolygonRadiance(L, uv, _TransformInvDiffuse, AmpDiffAmpSpecFresnel.x);
+#if defined(AREA_LIGHT_ENABLE_DIFFUSE)
+	half3 diffuseTerm = TransformedPolygonRadiance(lightIndex, L, uv, _TransformInvDiffuse, AmpDiffAmpSpecFresnel.x);
 	result = diffuseTerm * baseColor;
-#endif
+#endif // AREA_LIGHT_ENABLE_DIFFUSE
 			
-	half specularTerm = TransformedPolygonRadiance(L, uv, _TransformInvSpecular, AmpDiffAmpSpecFresnel.y);
-	half fresnelTerm = (half) (specularColor + (1.0 - specularColor) * AmpDiffAmpSpecFresnel.z);
+	half3 specularTerm = TransformedPolygonRadiance(lightIndex, L, uv, _TransformInvSpecular, AmpDiffAmpSpecFresnel.y);
+	half3 fresnelTerm = (half) (specularColor + (1.0 - specularColor) * AmpDiffAmpSpecFresnel.z);
 	result += specularTerm * fresnelTerm * 3.14159265359; // Pi.
 
-	output = result * _AreaLightData[lightIndex].rgb * textureColor;
+	output = result * _AreaLightData[lightIndex].rgb;
 }
 
 /// <summary>
@@ -360,12 +370,12 @@ void CalculateAreaLights(in float3 worldPosition,
 /// Entry point, call this from Shader Graph (half precision).
 /// </summary>
 void CalculateAreaLights_half(in float3 worldPosition,
-							   in float3 worldCameraPosition,
-							   in float3 worldNormal,
-							   in half3 baseColor,
-							   in half3 specularColor,
-							   in half smoothness,
-							   out half3 output)
+							  in float3 worldCameraPosition,
+							  in float3 worldNormal,
+							  in half3 baseColor,
+							  in half3 specularColor,
+							  in half smoothness,
+							  out half3 output)
 {
 	CalculateAreaLights(worldPosition,
 						worldCameraPosition,
