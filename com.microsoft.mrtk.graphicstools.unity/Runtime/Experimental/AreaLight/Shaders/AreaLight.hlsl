@@ -106,7 +106,7 @@ float3 IntegrateEdge(in float3 v1, in float3 v2)
 	return cross(v1, v2) * theta_sintheta;
 }
 
-float4 PolygonRadiance(in int lightIndex, in float4x3 L)
+float3 PolygonRadiance(in int lightIndex, in float4x3 L)
 {
 	// Baum's equation
 	// Expects non-normalized vertex positions
@@ -265,7 +265,8 @@ float4 PolygonRadiance(in int lightIndex, in float4x3 L)
 	}
 
 	float3 direction = normalize(sum);
-	return float4(max(0, sum.z * 0.15915) * SampleDiffuseFilteredTexture(lightIndex, unclippedL, direction), direction.z);
+	sum.z = max(0, sum.z * 0.15915); // 1 / (2 * Pi).
+	return SampleDiffuseFilteredTexture(lightIndex, unclippedL, direction) * sum.z;
 }
 
 half4 SampleAtlas(in float2 uv, in half index)
@@ -288,7 +289,7 @@ half3 TransformedPolygonRadiance(in int lightIndex,
 	float4x3 LTransformed = mul(L, Minv);
 			
 	// Polygon radiance in transformed configuration - specular.
-	return PolygonRadiance(lightIndex, LTransformed).rgb * amplitude.xxx;
+	return PolygonRadiance(lightIndex, LTransformed) * amplitude.xxx;
 }
 
 void CalculateAreaLight(in float3 worldPosition,
