@@ -24,9 +24,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 		private static readonly Matrix4x4 rotation180Up = Matrix4x4.Rotate(Quaternion.AngleAxis(180.0f, Vector3.up));
 
 		private static Texture2D areaLightLUTAtlas;
-		//private static Texture2D transformInvTextureSpecular;
-		//private static Texture2D transformInvTextureDiffuse;
-		//private static Texture2D ampDiffAmpSpecFresnel;
 
 		private static int lastAreaLightUpdate = -1;
 		private static List<AreaLight> activeAreaLights = new(maxAreaLights);
