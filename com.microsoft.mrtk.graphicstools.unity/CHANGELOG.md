@@ -4,6 +4,18 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.6] - 2025-04-21
+
+### Changed
+
+- Reduce the number of samplers AreaLights use.
+
+## [0.8.5] - 2025-04-18
+
+### Changed
+
+- Fix corrupt .meta file.
+
 ## [0.8.4] - 2025-04-03
 
 ### Changed
