@@ -17,6 +17,8 @@ PackedVaryings vert(Attributes input)
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
 #endif
 
+#include "ScalableCommon.hlsl"
+
 void InitializeInputData(Varyings input, SurfaceDescription surfaceDescription, out InputData inputData)  
 {  
     inputData = (InputData)0;  
@@ -76,7 +78,7 @@ void frag(
     #endif
 
     #if defined(_ALPHAMODULATE_ON)
-        surfaceDescription.BaseColor = AlphaModulate(surfaceDescription.BaseColor, alpha);
+        surfaceDescription.BaseColor = GTAlphaModulate(surfaceDescription.BaseColor, alpha);
     #endif
 
     #if defined(_DBUFFER)
@@ -100,7 +102,7 @@ void frag(
 
 #else
 
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
+#include "ScalableCommon.hlsl"
 
 void InitializeInputData(Varyings input, SurfaceDescription surfaceDescription, out InputData inputData)
 {
@@ -237,7 +239,7 @@ void frag(
         surface.clearCoatSmoothness = saturate(surfaceDescription.CoatSmoothness);
     #endif
 
-    surface.albedo = AlphaModulate(surface.albedo, surface.alpha);
+    surface.albedo = GTAlphaModulate(surface.albedo, surface.alpha);
 
 #ifdef _DBUFFER
     ApplyDecalToSurfaceData(unpacked.positionCS, surface, inputData);
