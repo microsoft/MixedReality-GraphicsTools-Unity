@@ -47,5 +47,47 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             DoPopup(SrcBlendAlphaLabel, SrcBlendAlpha, names);
             DoPopup(DstBlendAlphaLabel, DstBlendAlpha, names);
         }
+
+        /// <summary>
+        /// Ensure that the alpha blending properties are maintained.
+        /// </summary>
+        public override void ValidateMaterial(Material material)
+        {
+            // We must cache the values of SrcBlendAlpha and DstBlendAlpha because base.ValidateMaterial() will overwrite them with it's own default values.
+            float prevSrcBlendAlpha;
+
+            if (SrcBlendAlpha != null)
+            {
+                prevSrcBlendAlpha = SrcBlendAlpha.floatValue;
+            }
+            else if (material.HasProperty(GraphicsToolsCoreRenderStates.Property.SrcBlendAlpha))
+            {
+                prevSrcBlendAlpha = material.GetFloat(GraphicsToolsCoreRenderStates.Property.SrcBlendAlpha);
+            }
+            else
+            {
+                prevSrcBlendAlpha = 1.0f;
+            }
+
+            float prevDstBlendAlpha;
+
+            if (DstBlendAlpha != null)
+            {
+                prevDstBlendAlpha = DstBlendAlpha.floatValue;
+            }
+            else if (material.HasProperty(GraphicsToolsCoreRenderStates.Property.DstBlendAlpha))
+            {
+                prevDstBlendAlpha = material.GetFloat(GraphicsToolsCoreRenderStates.Property.DstBlendAlpha);
+            }
+            else
+            {
+                prevDstBlendAlpha = 1.0f;
+            }
+
+            base.ValidateMaterial(material);
+
+            material.SetFloat(GraphicsToolsCoreRenderStates.Property.SrcBlendAlpha, prevSrcBlendAlpha);
+            material.SetFloat(GraphicsToolsCoreRenderStates.Property.DstBlendAlpha, prevDstBlendAlpha);
+        }
     }
 }
