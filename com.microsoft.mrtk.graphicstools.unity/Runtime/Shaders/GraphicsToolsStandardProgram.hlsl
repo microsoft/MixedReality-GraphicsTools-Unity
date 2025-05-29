@@ -273,10 +273,8 @@ Varyings VertexStage(Attributes input)
 #if defined(_UV_SCREEN)
     output.uvScreen = ComputeScreenPos(output.position);
     // Flip vertical UV for orthographic projections (if not already flipped) to ensure the image is not upside down.
-#if defined(UNITY_UV_STARTS_AT_TOP)
-    output.uvScreen.y = unity_OrthoParams.w ? (1.0 - output.uvScreen.y) : output.uvScreen.y;
-#else
-    output.uvScreen.y = unity_OrthoParams.w ? output.uvScreen.y : (1.0 - output.uvScreen.y);
+#if !UNITY_UV_STARTS_AT_TOP
+    output.uvScreen.y = 1.0 - output.uvScreen.y;
 #endif
 #elif (_BLUR_TEXTURE_PREBAKED_BACKGROUND)
     output.uvBackgroundRect = float2((vertexPosition.x - _BlurBackgroundRect.x) / (_BlurBackgroundRect.z - _BlurBackgroundRect.x), 

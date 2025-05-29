@@ -4,6 +4,9 @@
 #if defined(MATERIAL_QUALITY_LOW)
 #include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/UnlitGBufferPass.hlsl"
 #else 
+
+#include "ScalableCommon.hlsl"
+
 void InitializeInputData(Varyings input, SurfaceDescription surfaceDescription, out InputData inputData)
 {
     inputData = (InputData)0;
@@ -150,7 +153,7 @@ FragmentOutput frag(PackedVaryings packedInput)
     surface.clearCoatMask       = 0;
     surface.clearCoatSmoothness = 1;
 
-    surface.albedo = AlphaModulate(surface.albedo, surface.alpha);
+    surface.albedo = GTAlphaModulate(surface.albedo, surface.alpha);
 
     Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, inputData.shadowMask);
     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, inputData.shadowMask);

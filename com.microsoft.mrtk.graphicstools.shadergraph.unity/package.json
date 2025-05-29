@@ -1,6 +1,6 @@
 {
   "name": "com.microsoft.mrtk.graphicstools.shadergraph.unity",
-  "version": "0.8.1",
+  "version": "0.8.7",
   "displayName": "MRTK Graphics Tools Shader Graph",
   "description": "Graphics tools and components for developing Mixed Reality applications in Unity Shader Graph.",
   "documentationUrl": "https://aka.ms/mrtk3graphics",

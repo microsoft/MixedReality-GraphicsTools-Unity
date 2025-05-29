@@ -1,11 +1,108 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+PackedVaryings vert(Attributes input)
+{
+    Varyings output = (Varyings)0;
+    output = BuildVaryings(input);
+    PackedVaryings packedOutput = (PackedVaryings)0;
+    packedOutput = PackVaryings(output);
+    return packedOutput;
+}
+  
 #if defined(MATERIAL_QUALITY_LOW)
-#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/UnlitPass.hlsl"
+
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+#if defined(LOD_FADE_CROSSFADE)
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
+#include "ScalableCommon.hlsl"
+
+void InitializeInputData(Varyings input, SurfaceDescription surfaceDescription, out InputData inputData)  
+{  
+    inputData = (InputData)0;  
+    
+    inputData.positionWS = input.positionWS;  
+    inputData.normalWS = input.normalWS; 
+    inputData.viewDirectionWS = half3(0, 0, 1);
+    inputData.shadowCoord = 0;
+    inputData.fogCoord = 0; 
+    inputData.vertexLighting = half3(0, 0, 0);
+    #if defined(LIGHTMAP_ON)
+        inputData.bakedGI = SampleLightmap(input.staticLightmapUV, input.positionWS, inputData.normalWS);
+    #else
+        inputData.bakedGI = half3(1, 1, 1);
+    #endif
+        inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);  
+        inputData.shadowMask = half4(1, 1, 1, 1);
+  
+    #if defined(DEBUG_DISPLAY) 
+        #if defined(LIGHTMAP_ON)  
+            inputData.staticLightmapUV = input.staticLightmapUV;  
+        #else  
+            inputData.vertexSH = input.sh;  
+        #endif  
+    #endif  
+}  
+
+void frag(  
+    PackedVaryings packedInput,  
+    out half4 outColor : SV_Target0  
+#ifdef _WRITE_RENDERING_LAYERS  
+    , out float4 outRenderingLayers : SV_Target1  
+#endif  
+)  
+{  
+    Varyings unpacked = UnpackVaryings(packedInput);  
+    UNITY_SETUP_INSTANCE_ID(unpacked);  
+    UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(unpacked);  
+    SurfaceDescription surfaceDescription = BuildSurfaceDescription(unpacked);  
+  
+    #if defined(_SURFACE_TYPE_TRANSPARENT)  
+        bool isTransparent = true;  
+    #else  
+        bool isTransparent = false;  
+    #endif  
+  
+    #if defined(_ALPHATEST_ON)  
+        half alpha = AlphaDiscard(surfaceDescription.Alpha, surfaceDescription.AlphaClipThreshold);  
+    #elif defined(_SURFACE_TYPE_TRANSPARENT)  
+        half alpha = surfaceDescription.Alpha;  
+    #else  
+        half alpha = half(1.0);  
+    #endif  
+
+    #if defined(LOD_FADE_CROSSFADE) && USE_UNITY_CROSSFADE
+        LODFadeCrossFade(unpacked.positionCS);
+    #endif
+
+    #if defined(_ALPHAMODULATE_ON)
+        surfaceDescription.BaseColor = GTAlphaModulate(surfaceDescription.BaseColor, alpha);
+    #endif
+
+    #if defined(_DBUFFER)
+        ApplyDecalToBaseColor(unpacked.positionCS, surfaceDescription.BaseColor);
+    #endif
+  
+    InputData inputData;  
+    InitializeInputData(unpacked, surfaceDescription, inputData);  
+  
+    half4 albedo = float4(surfaceDescription.BaseColor, saturate(alpha));  
+    half3 normalTS = half3(0, 0, 1);
+    half4 finalColor = UniversalFragmentBakedLit(inputData, albedo.rgb, alpha, normalTS);
+    finalColor.a = OutputAlpha(finalColor.a, isTransparent);
+    outColor = finalColor;  
+
+    #ifdef _WRITE_RENDERING_LAYERS  
+        uint renderingLayers = GetMeshRenderingLayer();  
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);  
+    #endif  
+} 
+
 #else
 
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
+#include "ScalableCommon.hlsl"
 
 void InitializeInputData(Varyings input, SurfaceDescription surfaceDescription, out InputData inputData)
 {
@@ -60,15 +157,6 @@ void InitializeInputData(Varyings input, SurfaceDescription surfaceDescription, 
     inputData.vertexSH = input.sh;
     #endif
     #endif
-}
-
-PackedVaryings vert(Attributes input)
-{
-    Varyings output = (Varyings)0;
-    output = BuildVaryings(input);
-    PackedVaryings packedOutput = (PackedVaryings)0;
-    packedOutput = PackVaryings(output);
-    return packedOutput;
 }
 
 void frag(
@@ -151,7 +239,7 @@ void frag(
         surface.clearCoatSmoothness = saturate(surfaceDescription.CoatSmoothness);
     #endif
 
-    surface.albedo = AlphaModulate(surface.albedo, surface.alpha);
+    surface.albedo = GTAlphaModulate(surface.albedo, surface.alpha);
 
 #ifdef _DBUFFER
     ApplyDecalToSurfaceData(unpacked.positionCS, surface, inputData);
