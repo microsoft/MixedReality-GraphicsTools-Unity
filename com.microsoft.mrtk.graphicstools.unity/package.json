@@ -1,6 +1,6 @@
 {
   "name": "com.microsoft.mrtk.graphicstools.unity",
-  "version": "0.8.1",
+  "version": "0.8.6",
   "displayName": "MRTK Graphics Tools",
   "description": "Graphics tools and components for developing Mixed Reality applications in Unity.",
   "documentationUrl": "https://aka.ms/mrtk3graphics",
@@ -65,8 +65,13 @@
     },
     {
       "displayName": "Clipping Primitives",
-      "description": "Demonstrates primitives clipping through objects",
+      "description": "Demonstrates primitives clipping through objects.",
       "path": "Samples~/ClippingPrimitives"
+    },
+    {
+      "displayName": "Area Light (Experimental)",
+      "description": "Demonstrates how to emit light from a surface.",
+      "path": "Samples~/AreaLight"
     }
   ]
 }

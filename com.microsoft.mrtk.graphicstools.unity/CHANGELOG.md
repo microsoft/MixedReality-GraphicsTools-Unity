@@ -4,6 +4,36 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.6] - 2025-04-21
+
+### Changed
+
+- Reduce the number of samplers AreaLights use.
+
+## [0.8.5] - 2025-04-18
+
+### Changed
+
+- Fix corrupt .meta file.
+
+## [0.8.4] - 2025-04-03
+
+### Changed
+
+- Added more properties to the experimental AreaLight component.
+
+## [0.8.3] - 2025-03-26
+
+### Changed
+
+- This change introduces a new experimental light type called an AreaLight - area lights allow light to emit from a polygonal surface (quad) rather than a single point.
+
+## [0.8.2] - 2025-03-13
+
+### Changed
+
+- Added the LightCombinerWindow which is an editor window that provides a user interface to combine light maps with albedo textures.
+
 ## [0.8.1] - 2024-12-02
 
 ### Changed
