@@ -4,6 +4,21 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.8] - 2025-05-29
+
+### Changed
+
+- Fixed a bug where scenes in packages could not be light combined.
+
+## [0.8.7] - 2025-04-23
+
+### Changed
+
+- Fixed a bug where source and destination blend alpha were not maintained when "Allow Material override" was checked.
+- Fixed a Unity 2021 shader compilation error.
+- Acrylic bug fix, UNITY_UV_STARTS_AT_TOP is always defined, so the previous check was incorrect.
+- @vmoras6699 changed the scalable shader graph target's unlit low shader path to use baked lit.
+
 ## [0.8.6] - 2025-04-21
 
 ### Changed
