@@ -125,8 +125,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 			}
 
 			// Generate a new path for the duplicated scene.
-			var newScenePath = Path.Combine(Path.GetDirectoryName(currentScenePath),
-											Path.GetFileNameWithoutExtension(currentScenePath) + $"_{kWorkingDirectoryPostfix}.unity");
+			string newScenePath;
+			if (currentScenePath.Replace('\\', '/').StartsWith("Packages/"))
+			{
+				// Place at the root of the Assets folder if the scene is from a package.
+				// For the case of immutable packages and EditorSceneManager.OpenScene has trouble opening scenes in packages.
+				newScenePath = Path.Combine("Assets",
+					Path.GetFileNameWithoutExtension(currentScenePath) + $"_{kWorkingDirectoryPostfix}.unity");
+			}
+			else
+			{
+				newScenePath = Path.Combine(Path.GetDirectoryName(currentScenePath),
+					Path.GetFileNameWithoutExtension(currentScenePath) + $"_{kWorkingDirectoryPostfix}.unity");
+			}
 
 			if (AssetDatabase.CopyAsset(currentScenePath, newScenePath))
 			{
