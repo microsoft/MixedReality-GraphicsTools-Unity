@@ -1,5 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #define PATCHING_ACTIVE
-using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -9,7 +10,6 @@ public class NonSrpShaderAssetGenerator : AssetPostprocessor
 
     static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
     {
-        Debug.Log("Processing assets");
 #if PATCHING_ACTIVE
         bool assetDBDirty = false;
         foreach (string str in importedAssets)
@@ -21,7 +21,6 @@ public class NonSrpShaderAssetGenerator : AssetPostprocessor
                 {
                     assetDBDirty = true;
                 }
-                
             }   
         }
         if (assetDBDirty) { AssetDatabase.Refresh(); }
@@ -38,12 +37,12 @@ public class NonSrpShaderAssetGenerator : AssetPostprocessor
         string sourceDirectory = Path.GetDirectoryName(path);
         string targetDirectory = sourceDirectory + "/NonSRP";
 
-        // Only work with shaders from GraficsTools
+        // Only work with shaders from Graphics Tools
         string nameDeclaration = Regex.Match(shaderText, " *Shader *\"Graphics Tools\\/.*\"").Value;
         if (nameDeclaration.Length <= 0 ) { return null; }
-
-        string outputPath = sourceDirectory + "/" + Path.GetFileNameWithoutExtension(path) +"NonSrp" +  Path.GetExtension(path);
-               
+        
+        string outputPath = Path.Combine( sourceDirectory, Path.GetFileNameWithoutExtension(path) +"NonSrp" +  Path.GetExtension(path));
+        
         // Put "_NON_SRP" befor StandardProgram include (in Standard and StandardCanvas)
         MatchCollection matchesStandardProgram = Regex.Matches(shaderText, "(?<tab> *)(#include_with_pragmas \"GraphicsToolsStandardProgram.hlsl\")");
         if (matchesStandardProgram.Count > 0)
