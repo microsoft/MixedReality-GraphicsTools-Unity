@@ -173,9 +173,9 @@ float4 _ProximityLightData[PROXIMITY_LIGHT_COUNT * PROXIMITY_LIGHT_DATA_SIZE];
 /// <summary>
 /// Per material properties.
 /// </summary>
-
+#ifndef _NON_SRP
 CBUFFER_START(UnityPerMaterial)
-
+#endif
 #if defined(UNITY_INSTANCING_ENABLED)
     half4 _ColorUnused; // Color is defined in the PerMaterialInstanced constant buffer.
 #else
@@ -286,9 +286,9 @@ CBUFFER_START(UnityPerMaterial)
     half _BlurTextureIntensity;
     half _BlurBorderIntensity;
     float4 _BlurBackgroundRect;
-
+#ifndef _NON_SRP
 CBUFFER_END
-
+#endif
 #if defined(UNITY_INSTANCING_ENABLED)
 UNITY_INSTANCING_BUFFER_START(PerMaterialInstanced)
 
