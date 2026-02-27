@@ -182,10 +182,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     materialInstance.ReleaseMaterial(this, autoDestroyMaterial);
                 }
-
-                // Reset the material property block.
-                materialPropertyBlock.Clear();
-                _renderer.SetPropertyBlock(materialPropertyBlock);
             }
         }
 
