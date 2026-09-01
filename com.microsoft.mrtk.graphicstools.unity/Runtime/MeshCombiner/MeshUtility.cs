@@ -225,8 +225,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Returns a session unique identifier for a Unity object. Unity 6000.5 and newer deprecated 
-        /// GetInstanceID in favor of GetEntityId, so the entity id is folded into an int for compatibility.
+        /// Returns a session identifier for a Unity object. Unity 6000.5 and newer made GetInstanceID
+        /// obsolete in favor of GetEntityId, so the 64 bit entity id is folded into an int to keep the
+        /// serialized MeshFilterID field (and older Unity versions) compatible.
         /// </summary>
         private static int GetObjectID(UnityEngine.Object unityObject)
         {
