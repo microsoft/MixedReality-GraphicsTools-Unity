@@ -224,6 +224,20 @@ namespace Microsoft.MixedReality.GraphicsTools
             return output;
         }
 
+        /// <summary>
+        /// Returns a session unique identifier for a Unity object. Unity 6000.5 and newer deprecated 
+        /// GetInstanceID in favor of GetEntityId, so the entity id is folded into an int for compatibility.
+        /// </summary>
+        private static int GetObjectID(UnityEngine.Object unityObject)
+        {
+#if UNITY_6000_5_OR_NEWER
+            ulong entityId = EntityId.ToULong(unityObject.GetEntityId());
+            return unchecked((int)(entityId ^ (entityId >> 32)));
+#else
+            return unityObject.GetInstanceID();
+#endif
+        }
+
         private static uint GatherCombineData(MeshCombineSettings settings,
                                              List<CombineInstance> combineInstances,
                                              List<MeshCombineResult.MeshID> meshIDTable,
@@ -305,7 +319,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     vertexCount += (uint)combineInstance.mesh.vertexCount;
 
                     combineInstances.Add(combineInstance);
-                    meshIDTable.Add(new MeshCombineResult.MeshID() { Mesh = meshFilter.sharedMesh, MeshFilterID = meshFilter.GetInstanceID(), VertexAttributeID = meshID });
+                    meshIDTable.Add(new MeshCombineResult.MeshID() { Mesh = meshFilter.sharedMesh, MeshFilterID = GetObjectID(meshFilter), VertexAttributeID = meshID });
                 }
             }
 

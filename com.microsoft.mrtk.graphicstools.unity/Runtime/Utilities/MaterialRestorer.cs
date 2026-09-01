@@ -72,7 +72,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (materialRef.RefCount == 0)
                     {
-                        if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(material.GetInstanceID(), out string guid, out long _) && !new GUID(guid).Empty())
+                        if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(material, out string guid, out long _) && !new GUID(guid).Empty())
                         {
  // Restore to the original material snapshot.
  material.CopyPropertiesFromMaterial(materialRef.Snapshot);
