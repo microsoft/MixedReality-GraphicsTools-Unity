@@ -32,7 +32,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             public struct MeshID
             {
                 public UnityEngine.Mesh Mesh;
+#if UNITY_6000_4_OR_NEWER
+                public EntityId MeshFilterID;
+#else
                 public int MeshFilterID;
+#endif
                 public int VertexAttributeID;
             }
 
@@ -305,7 +309,16 @@ namespace Microsoft.MixedReality.GraphicsTools
                     vertexCount += (uint)combineInstance.mesh.vertexCount;
 
                     combineInstances.Add(combineInstance);
-                    meshIDTable.Add(new MeshCombineResult.MeshID() { Mesh = meshFilter.sharedMesh, MeshFilterID = meshFilter.GetInstanceID(), VertexAttributeID = meshID });
+                    meshIDTable.Add(new MeshCombineResult.MeshID()
+                    {
+                        Mesh = meshFilter.sharedMesh,
+#if UNITY_6000_4_OR_NEWER
+                        MeshFilterID = meshFilter.GetEntityId(),
+#else
+                        MeshFilterID = meshFilter.GetInstanceID(),
+#endif
+                        VertexAttributeID = meshID
+                    });
                 }
             }
 
