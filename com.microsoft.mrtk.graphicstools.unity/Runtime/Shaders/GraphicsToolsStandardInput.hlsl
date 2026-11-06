@@ -181,7 +181,8 @@ CBUFFER_START(UnityPerMaterial)
 #else
     half4 _Color;
 #endif
-
+        
+    half4 _TextureSampleAdd;
     half4 _MainTex_ST;
     half _Metallic;
     half _Smoothness;

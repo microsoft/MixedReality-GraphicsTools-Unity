@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Changed
+
+- Fixed color of `Alpha8` texture format was always black.
+
 ## [0.8.8] - 2025-05-29
 
 ### Changed

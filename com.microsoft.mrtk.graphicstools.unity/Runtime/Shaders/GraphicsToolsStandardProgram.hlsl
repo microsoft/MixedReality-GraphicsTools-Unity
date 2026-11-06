@@ -410,13 +410,13 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #else
 #if defined(_TRIPLANAR_MAPPING)
 #if defined(_URP)
-    half4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvX) * triplanarBlend.x +
-                   SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvY) * triplanarBlend.y +
-                   SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZ) * triplanarBlend.z;
+    half4 albedo = (SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvX) + _TextureSampleAdd) * triplanarBlend.x +
+                   (SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvY) + _TextureSampleAdd) * triplanarBlend.y +
+                   (SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZ) + _TextureSampleAdd) * triplanarBlend.z;
 #else
-    half4 albedo = tex2D(_MainTex, uvX) * triplanarBlend.x +
-                   tex2D(_MainTex, uvY) * triplanarBlend.y +
-                   tex2D(_MainTex, uvZ) * triplanarBlend.z;
+    half4 albedo = (tex2D(_MainTex, uvX) + _TextureSampleAdd) * triplanarBlend.x +
+                   (tex2D(_MainTex, uvY) + _TextureSampleAdd) * triplanarBlend.y +
+                   (tex2D(_MainTex, uvZ) + _TextureSampleAdd) * triplanarBlend.z;
 #endif
 #else
 #if defined(_USE_SSAA)
@@ -427,22 +427,22 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
     // supersampled 2x2 ordered grid
     half4 albedo = half4(0.0h, 0.0h, 0.0h, 0.0h);
 #if defined(_URP)
-    albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv + dx + dy), _MipmapBias);
-    albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv - dx + dy), _MipmapBias);
-    albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv + dx - dy), _MipmapBias);
-    albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv - dx - dy), _MipmapBias);
+    albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv + dx + dy), _MipmapBias) + _TextureSampleAdd;
+    albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv - dx + dy), _MipmapBias) + _TextureSampleAdd;
+    albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv + dx - dy), _MipmapBias) + _TextureSampleAdd;
+    albedo += SAMPLE_TEXTURE2D_BIAS(_MainTex, sampler_MainTex, float2(input.uv - dx - dy), _MipmapBias) + _TextureSampleAdd;
 #else
-    albedo += tex2Dbias(_MainTex, float4(input.uv + dx + dy, 0.0, _MipmapBias));
-    albedo += tex2Dbias(_MainTex, float4(input.uv - dx + dy, 0.0, _MipmapBias));
-    albedo += tex2Dbias(_MainTex, float4(input.uv + dx - dy, 0.0, _MipmapBias));
-    albedo += tex2Dbias(_MainTex, float4(input.uv - dx - dy, 0.0, _MipmapBias));
+    albedo += tex2Dbias(_MainTex, float4(input.uv + dx + dy, 0.0, _MipmapBias)) + _TextureSampleAdd;
+    albedo += tex2Dbias(_MainTex, float4(input.uv - dx + dy, 0.0, _MipmapBias)) + _TextureSampleAdd;
+    albedo += tex2Dbias(_MainTex, float4(input.uv + dx - dy, 0.0, _MipmapBias)) + _TextureSampleAdd;
+    albedo += tex2Dbias(_MainTex, float4(input.uv - dx - dy, 0.0, _MipmapBias)) + _TextureSampleAdd;
 #endif
     albedo *= 0.25;
 #else
 #if defined(_URP)
-    half4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+    half4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv) + _TextureSampleAdd;
 #else
-    half4 albedo = tex2D(_MainTex, input.uv);
+    half4 albedo = tex2D(_MainTex, input.uv) + _TextureSampleAdd;
 #endif
 #endif
 #endif
